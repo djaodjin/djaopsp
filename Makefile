@@ -14,6 +14,7 @@ SYSCONFDIR    ?= $(installTop)/etc
 LOCALSTATEDIR ?= $(installTop)/var
 CONFIG_DIR    ?= $(SYSCONFDIR)/$(APP_NAME)
 ASSETS_DIR    ?= $(srcDir)/htdocs/static
+RUN_DIR       ?= $(abspath $(srcDir))
 
 installDirs   ?= /usr/bin/install -d
 installFiles  ?= /usr/bin/install -p -m 644
@@ -40,13 +41,11 @@ ifneq ($(wildcard $(CONFIG_DIR)/site.conf),)
 # `make initdb` will install site.conf but only after `grep` is run
 # and DB_FILENAME set to "". We use the default value in the template site.conf
 # here to prevent that issue.
-DB_FILENAME   := $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"')
+DB_FILENAME   ?= $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"')
+else
+DB_FILENAME   ?= $(RUN_DIR)/db.sqlite
 endif
-
 DOCKER_DB_FILENAME := $(abspath $(srcDir)/db.sqlite)
-ifeq ($(DB_FILENAME),)
-DB_FILENAME        := $(DOCKER_DB_FILENAME)
-endif
 
 MY_EMAIL          ?= $(shell cd $(srcDir) && git config user.email)
 EMAIL_FIXTURE_OPT := $(if $(MY_EMAIL),--email="$(MY_EMAIL)",)
@@ -245,7 +244,7 @@ install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
 				$(DESTDIR)$(SYSCONFDIR)/logrotate.d/$(APP_NAME) \
 				$(DESTDIR)$(SYSCONFDIR)/monit.d/$(APP_NAME) \
 				$(DESTDIR)$(SYSCONFDIR)/systemd/system/$(APP_NAME).service \
-				$(DESTDIR)$(SYSCONFDIR)/usr/lib/tmpfiles.d/$(APP_NAME).conf
+				$(DESTDIR)$(libDir)/tmpfiles.d/$(APP_NAME).conf
 	install -d $(DESTDIR)$(LOCALSTATEDIR)/db
 	install -d $(DESTDIR)$(LOCALSTATEDIR)/log/gunicorn
 	[ -d $(DESTDIR)$(LOCALSTATEDIR)/run ] || install -d $(DESTDIR)$(LOCALSTATEDIR)/run
@@ -262,6 +261,7 @@ $(DESTDIR)$(CONFIG_DIR)/site.conf: $(srcDir)/etc/site.conf
 			-e "s,%(ADMIN_EMAIL)s,$(MY_EMAIL)," \
 			-e 's,%(installTop)s,$(installTop),' \
 			-e "s,%(DB_NAME)s,$(APP_NAME)," \
+			-e "s,%(DB_FILENAME)s,$(DB_FILENAME)," \
 			-e "s,%(binDir)s,$(binDir)," $< > $@
 
 $(DESTDIR)$(CONFIG_DIR)/credentials: $(srcDir)/etc/credentials
@@ -305,7 +305,7 @@ $(DESTDIR)$(SYSCONFDIR)/sysconfig/%: $(srcDir)/etc/sysconfig.conf
 	install -d $(dir $@)
 	[ -e $@ ] || install -p -m 644 $< $@
 
-$(DESTDIR)$(SYSCONFDIR)/usr/lib/tmpfiles.d/$(APP_NAME).conf: $(srcDir)/etc/tmpfiles.conf
+$(DESTDIR)$(libDir)/tmpfiles.d/$(APP_NAME).conf: $(srcDir)/etc/tmpfiles.conf
 	install -d $(dir $@)
 	[ -e $@ ] || sed \
 		-e 's,%(APP_NAME)s,$(APP_NAME),g' $< > $@
