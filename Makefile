@@ -45,7 +45,6 @@ DB_FILENAME   ?= $(shell grep ^DB_NAME $(CONFIG_DIR)/site.conf | cut -f 2 -d '"'
 else
 DB_FILENAME   ?= $(RUN_DIR)/db.sqlite
 endif
-DOCKER_DB_FILENAME := $(abspath $(srcDir)/db.sqlite)
 
 MY_EMAIL          ?= $(shell cd $(srcDir) && git config user.email)
 EMAIL_FIXTURE_OPT := $(if $(MY_EMAIL),--email="$(MY_EMAIL)",)
@@ -57,7 +56,7 @@ SECRET_KEY ?= $(shell $(PYTHON) -c 'import sys ; from random import choice ; sys
 DJAODJIN_SECRET_KEY ?= $(shell $(PYTHON) -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@\#$%^*-_=+") for i in range(50)]))' )
 
 
-.PHONY: build-assets doc generateschema initdb makemessages package-docker setup-livedemo vendor-assets-prerequisites
+.PHONY: build-assets doc generateschema initdb makemessages setup-livedemo vendor-assets-prerequisites
 
 all:
 	@echo "Nothing to be done for 'make'."
@@ -112,25 +111,7 @@ initdb:
 		djaopsp/fixtures/100-completed-notshared.json \
 		djaopsp/fixtures/800-data-series.json
 
-setup-livedemo: package-docker-initdb
-
-# We build a local sqlite3 database to be packaged with the Docker image
-# such that the container can be started without prior configuration.
-package-docker-initdb:
-	-[ -f $(DOCKER_DB_FILENAME) ] && rm -f $(DOCKER_DB_FILENAME)
-	cd $(srcDir) && DB_SECRET_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) migrate $(RUNSYNCDB) --noinput
-	cd $(srcDir) && DB_SECRET_LOCATION=sqlite3://$(DOCKER_DB_FILENAME) $(MANAGE) loadfixtures \
-		djaopsp/fixtures/engineering-si-units.json \
-		djaopsp/fixtures/engineering-alt-units.json \
-		djaopsp/fixtures/accounts.json \
-		djaopsp/fixtures/content.json \
-		djaopsp/fixtures/practices.json \
-		djaopsp/fixtures/practices_custom_choices.json \
-		djaopsp/fixtures/matrices.json \
-		djaopsp/fixtures/samples.json \
-		djaopsp/fixtures/100-completed-notshared.json \
-		djaopsp/fixtures/800-data-series.json
-
+setup-livedemo: initdb
 
 install:: install-conf
 
@@ -140,8 +121,21 @@ makemessages:
 	cd $(srcDir) && $(MANAGE) makemessages -d djangojs -l fr -l es -l pt --symlinks --no-wrap
 
 
-package-docker: build-assets package-docker-initdb
+ifeq ($(MY_EMAIL),)
+
+.PHONY: package-docker
+
+# We build a local sqlite3 database to be packaged with the Docker image
+# such that the container can be started without prior configuration.
+package-docker: build-assets initdb
+	cp $(DB_FILENAME) $(srcDir)/db.sqlite
 	cd $(srcDir) && $(DOCKER) build $(DOCKER_OPTS) .
+
+else
+
+$(error "MY_EMAIL must be empty to create the database for `package-docker`")
+
+endif
 
 # we remove the build directory to make sure we don't have extra files remaining
 # when we excluded them in the package_theme command line. We also insures
@@ -209,7 +203,6 @@ schema.yml:
 
 $(ASSETS_DIR)/cache/assess.js: $(srcDir)/webpack.config.js \
                                webpack-conf-paths.json \
-                               $(libDir)/.npm/$(APP_NAME)-packages \
                                $(wildcard $(srcDir)/djaopsp/static/js/*.js)
 	cd $(srcDir) && $(WEBPACK) -c $<
 
