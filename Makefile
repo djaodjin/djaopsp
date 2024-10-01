@@ -128,7 +128,7 @@ ifeq ($(MY_EMAIL),)
 # We build a local sqlite3 database to be packaged with the Docker image
 # such that the container can be started without prior configuration.
 package-docker: build-assets initdb
-	cp $(DB_FILENAME) $(srcDir)/db.sqlite
+	[[ -f $(srcDir)/db.sqlite ]] || cp $(DB_FILENAME) $(srcDir)/db.sqlite
 	cd $(srcDir) && $(DOCKER) build $(DOCKER_OPTS) .
 
 else
