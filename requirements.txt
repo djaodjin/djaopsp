@@ -2,11 +2,10 @@
 #
 # `tiktoken` (AI audits) requires Python>=3.8
 
-Django==3.2.25
-#djangorestframework==3.14.0
-djangorestframework==3.12.4
+Django==4.2.16
+djangorestframework==3.14.0       # 3.12.4 not compatible with Django4.2
 djaodjin-deployutils==0.11.0
-djaodjin-extended-templates==0.4.5
+djaodjin-extended-templates==0.4.6
 djaodjin-pages==0.8.2
 djaodjin-survey==0.12.3
 docutils==0.20.1          # Technically only needed for schema generation but

@@ -8,10 +8,9 @@ from django import template
 from django.contrib.messages.api import get_messages
 from django.forms import widgets, BaseForm
 from django.template.defaultfilters import capfirst
-from django.utils.encoding import force_text
 from survey.helpers import datetime_or_now
 
-from ..compat import reverse, six, gettext_lazy as _
+from ..compat import force_str, reverse, six, gettext_lazy as _
 
 
 register = template.Library()
@@ -131,7 +130,7 @@ def value_attr(field):
         if value is None:
             value = ""
         if value != "":
-            return 'value=%s' % force_text(value)
+            return 'value=%s' % force_str(value)
     return ""
 
 
