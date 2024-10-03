@@ -504,12 +504,26 @@ Vue.component('campaign-questions-list', {
                 if( resp.length ) {
                     for( var idx = 0; idx < resp.length; ++resp ) {
                         var answer = vm.getAnswerByUnit(practice, resp[idx].unit);
-                        answer.collected_by = resp[idx].collected_by;
-                        // We force an update here, otherwise the picture
-                        // of the commentator is not displayed on 'Submit'
-                        // of a new comment.
-                        // XXX doesn't work on the first comment??
-                        vm.$forceUpdate();
+                        answer.created_at = resp[idx].created_at;
+                        const user = resp[idx].collected_by;
+                        answer.collected_by = user;
+                        if( !vm.profilesBySlug[user] ) {
+                            let queryParams = "?q_f==slug&q=" + user;
+                            vm.reqGet(vm.api_profiles_url + queryParams,
+                            function(resp) {
+                                for( let idx = 0; idx < resp.results.length; ++idx ) {
+                                    vm.profilesBySlug[resp.results[idx].slug] =
+                                        resp.results[idx];
+                                }
+                                // We force an update after the user info
+                                // is loaded, otherwise the picture of the
+                                // commentator is not displayed on 'Submit'
+                                // of a new comment.
+                                vm.$forceUpdate();
+                            }, function() {
+                                // discard errors (ex: "not found").
+                            });
+                        }
                     }
                 }
                 if( vm.openCommentsAutomatically(practice, newValue) ) {

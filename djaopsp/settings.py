@@ -643,7 +643,6 @@ SURVEY = {
     'ACCOUNT_URL_KWARG': 'profile',
     'BYPASS_SAMPLE_AVAILABLE': 'djaopsp.utils.is_portfolios_bypass',
     'CONTENT_MODEL': 'pages.PageElement',
-    'CONVERT_TO_QUESTION_SYSTEM': True,
-    'DENORMALIZE_FOR_PRECISION': True,
-    'FORCE_ONLY_QUESTION_UNIT': False,
+    # Use djaodjin-survey defaults
+    # for converting answers units to question units.
 }

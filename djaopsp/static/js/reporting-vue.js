@@ -74,8 +74,8 @@ var portfolioTagsMixin = {
                 item.extra = {}
             }
             //XXXitem.extra.tags = item.tagsAsText.split(',');
-            vm.reqPatch(vm._safeUrl(vm.api_portfolio_metadata, item.slug), {
-                extra: item.extra});
+            vm.reqPatch(vm._safeUrl(vm.api_portfolio_metadata, item.slug)
+                + vm.getQueryString(), {extra: item.extra});
             vm.showEditTags = -1;
             vm.showPreferences = -1;
         },

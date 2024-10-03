@@ -120,8 +120,7 @@
               </div>
             </div> {# /table header #}
 
-            <div :data-id="getPath(practice)"
-                 :class="'practice-row' + (isRequiredShown(practice) ? ' practice-required' : (isRequiredAnswered(practice) ? ' practice-required-answered' : ''))"
+            <div :class="'practice-row' + (isRequiredShown(practice) ? ' practice-required' : (isRequiredAnswered(practice) ? ' practice-required-answered' : ''))"
                  v-for="practice in getEntries(icon.slug)"
                  v-show="itemsLoaded && items.results.length">
               {% include "app/assess/_assess_row.html" %}
@@ -216,9 +215,7 @@
             </div>{# /table header #}
             {% endblock %}
 
-            <div data-prefix="{{abs_prefix}}"
-                 :data-id="getPath(practice)"
-                 class="practice-row"
+            <div class="practice-row"
                  v-for="practice in getEntries(icon.slug)"
                  v-show="itemsLoaded && items.results.length">
               {% block vs_row_block %}
@@ -260,20 +257,24 @@
         <form class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">{% trans %}Update all reporting start dates{% endtrans %} ...</h5>
-              <button type="button" class="close"
-                      data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title">{% trans %}Update all reporting start dates{% endtrans %} ...</h4>
+              <button type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close">
+              </button>
             </div>
             <div class="modal-body">
               <p>
                 {% trans %}Before going further, would you like to update all reporting start date to [[getAnswerStartsAt(activeElement).measured]]?{% endtrans %}
               </p>
               <div class="modal-footer">
-                <button class="btn btn-outline-primary"
-                        data-dismiss="modal">{% trans %}No{% endtrans %}</button>
+                <button type="button"
+                        class="btn btn-outline-primary"
+                        data-bs-dismiss="modal">{% trans %}No{% endtrans %}</button>
                 <button type="submit"
                         class="btn btn-primary"
-                        data-dismiss="modal"
+                        data-bs-dismiss="modal"
                         @click.prevent="updateAllStartsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
               </div>
             </div>
@@ -288,20 +289,24 @@
         <form class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">{% trans %}Update all reporting end dates{% endtrans %} ...</h5>
-              <button type="button" class="close"
-                      data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title">{% trans %}Update all reporting end dates{% endtrans %} ...</h4>
+              <button type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close">
+              </button>
             </div>
             <div class="modal-body">
               <p>
                 {% trans %}Before going further, would you like to update all reporting end date to [[getAnswerEndsAt(activeElement).measured]]?{% endtrans %}
               </p>
               <div class="modal-footer">
-                <button class="btn btn-outline-primary"
-                        data-dismiss="modal">{% trans %}No{% endtrans %}</button>
+                <button type="button"
+                        class="btn btn-outline-primary"
+                        data-bs-dismiss="modal">{% trans %}No{% endtrans %}</button>
                 <button type="submit"
                         class="btn btn-primary"
-                        data-dismiss="modal"
+                        data-bs-dismiss="modal"
                         @click.prevent="updateAllEndsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
               </div>
             </div>
