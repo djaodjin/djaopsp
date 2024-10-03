@@ -131,10 +131,6 @@ package-docker: build-assets initdb
 	[[ -f $(srcDir)/db.sqlite ]] || cp $(DB_FILENAME) $(srcDir)/db.sqlite
 	cd $(srcDir) && $(DOCKER) build $(DOCKER_OPTS) .
 
-else
-
-$(error "MY_EMAIL must be empty to create the database for `package-docker`")
-
 endif
 
 # we remove the build directory to make sure we don't have extra files remaining
