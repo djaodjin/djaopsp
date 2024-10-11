@@ -1595,13 +1595,14 @@ class CompletionRateMixin(DashboardAggregateMixin):
         nb_requested_accounts = len(requested_accounts)
         start_at = weekends_at[0]
         for ends_at in weekends_at[1:]:
-            nb_frozen_samples = account_model.objects.filter(
+            queryset = account_model.objects.filter(
                 samples__extra__isnull=True,
                 samples__is_frozen=True,
                 samples__created_at__gte=start_at,
                 samples__created_at__lt=ends_at,
                 samples__account_id__in=requested_accounts
-            ).distinct().count()
+            ).distinct()
+            nb_frozen_samples = queryset.count()
             if self.is_percentage:
                 rate = as_percentage(nb_frozen_samples, nb_requested_accounts)
             else:

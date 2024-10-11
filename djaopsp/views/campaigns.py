@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -10,7 +10,7 @@ from django.views.generic import TemplateView
 
 from .downloads import PracticesSpreadsheetView
 from ..api.campaigns import CampaignContentMixin
-from ..compat import reverse
+from ..compat import reverse, gettext_lazy as _, force_str
 from ..mixins import AccountMixin, CampaignMixin
 
 
@@ -56,15 +56,28 @@ class CampaignEditView(CampaignMixin, AccountMixin, TemplateView):
 
 class CampaignXLSXView(CampaignContentMixin, PracticesSpreadsheetView):
 
-    basename = 'practices'
     strip_segment_prefix = True
+
+    @property
+    def basename(self):
+        return str(self.campaign)
 
     def get_headings(self):
         segments = [seg for seg in self.segments_available if seg['path']]
-        return [''] + [seg['title'] for seg in segments]
+        return [
+            force_str(_('Practices')),
+            force_str(_('Level for heading, default unit for practices')),
+            force_str(_('Required'))
+        ] + [seg['title'] for seg in segments]
 
     def format_row(self, entry, key=None):
-        row = [entry['title']]
+        default_unit = entry.get('default_unit', {}).get('slug')
+        indent = entry.get('indent')
+        if not indent:
+            indent = 0
+        row = [entry['title'],
+               default_unit if default_unit else (indent + 1),
+               entry.get('required')]
         for seg in self.segments_available:
             segments = entry.get('extra', {}).get('segments', [])
             if seg['path'] in segments:

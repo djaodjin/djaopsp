@@ -30,7 +30,7 @@
                  data-complete-url="{{urls.api_upload}}"
                  djupload-success >
               <div class="previewsContainer">
-                <span class="dz-default dz-message"><i class="fa fa-cloud"></i> {% trans %}Upload (.xlsx){% endtrans %}</span>
+                <button class="btn btn-secondary dz-default dz-message"><i class="fa fa-cloud"></i> {% trans %}Upload (.xlsx){% endtrans %}</button>
               </div>
             </div>
           </li>
@@ -44,7 +44,7 @@
     <div class="col-12">
       <div class="bg-body text-body">
         <div class="mx-3">
-          <h1 class="d-inline my-0">{% block campaign_title %}{{campaign.title}}{% endblock %}</h1>
+          <h1 class="d-inline">{% block campaign_title %}{{campaign.title}}{% endblock %}</h1>
           <div class="d-inline">
             <sup class="d-none" role="button">
               <small>
@@ -66,15 +66,45 @@
                       <table class="table table-bordered table-striped">
                         <thead>
                           <tr>
-                            <th class="sticky-cell sticky-cell-top"></th>
-                            <th class="sticky-cell sticky-cell-top">Title</th>
-                            <th class="sticky-cell sticky-cell-top">Unit</th>
+                            <th class="sticky-cell sticky-cell-top">
+                              <div class="sticky-cell-content-container">
+                                <div class="sticky-cell-content">
+                                </div>
+                              </div>
+                            </th>
+                            <th class="sticky-cell sticky-cell-top">
+                              <div class="sticky-cell-content-container">
+                                <div class="sticky-cell-content">
+                                  {% trans %}Title{% endtrans %}
+                                </div>
+                              </div>
+                            </th>
+                            <th class="sticky-cell sticky-cell-top"
+                                style="width: 10rem;">
+                              <div class="sticky-cell-content-container">
+                                <div class="sticky-cell-content">
+                                  {% trans %}Unit{% endtrans %}
+                                </div>
+                              </div>
+                            </th>
+                            <th class="sticky-cell sticky-cell-top"
+                                style="width: 10rem;">
+                              <div class="sticky-cell-content-container">
+                                <div class="sticky-cell-content">
+                                  {% trans %}Required{% endtrans %}
+                                </div>
+                              </div>
+                            </th>
                             <th  class="sticky-cell sticky-cell-top text-center"
                                  style="vertical-align:middle;"
                                  v-for="segment in segments"
                                  v-if="segment.path"
                                  v-show="segments.length > 0" v-cloak>
-                              [[segment['title'] ]]
+                              <div class="sticky-cell-content-container">
+                                <div class="sticky-cell-content">
+                                  [[segment['title'] ]]
+                                </div>
+                              </div>
                             </th>
                           </tr>
                         </thead>
@@ -172,13 +202,12 @@
                                   [[entry.title]]
                                 </a>
                                 <div class="title"
-                                     @click.prevent="toggleShowHide(entry, index)"
-                                     v-if="index != activeIndex && !isPractice(entry)" >
-                                  <img style="width:90px;height:90px;"
-                                       :src="entry.picture" v-if="entry.indent == 0" />
-                                  <div class="mt-2">
-                                    [[entry.title]]
+                                  @click.prevent="toggleShowHide(entry, index)"
+                            v-if="index != activeIndex && !isPractice(entry)" >
+                                  <div class="d-inline-block">
+                                    <img class="icon-heading" :src="entry.picture" />
                                   </div>
+                                  <span class="title">[[entry.title]]</span>
                                 </div>
                                 <div role="toolbar">
                                   <button class="btn btn-link edit" href=""
@@ -200,7 +229,12 @@
                             </td>
                             <td>
                               <div v-if="isPractice(entry)">
-                              [[entry.default_unit]]
+                                [[entry.default_unit.title]]
+                              </div>
+                            </td>
+                            <td>
+                              <div v-if="isPractice(entry)">
+                                [[entry.required]]
                               </div>
                             </td>
                             {# segments #}
@@ -214,11 +248,10 @@
                                    target="_blank"
                                    v-if="isPractice(entry)">[[entry.title]]</a>
                                 <div class="title" v-if="!isPractice(entry)">
-                                  <img style="width:90px;height:90px;"
-                                       :src="entry.picture" v-if="entry.indent == 0" />
-                                  <div class="mt-2">
-                                    [[entry.title]]
+                                  <div class="d-inline-block">
+                                    <img class="icon-heading" :src="entry.picture" />
                                   </div>
+                                  <span class="title">[[entry.title]]</span>
                                   <button
                                     class="btn btn-link text-danger delete"
                                     href=""

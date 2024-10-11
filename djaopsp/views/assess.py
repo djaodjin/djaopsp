@@ -273,7 +273,19 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
                     get_user_model().objects.filter(
                         answer__sample=sample).distinct()
 
-        if not campaign_filtered:
+        if campaign_filtered:
+            if not campaign_filtered in by_campaigns:
+                by_campaigns[campaign_filtered] = {
+                    'slug': campaign_filtered.slug,
+                    'title': campaign_filtered.title,
+                    'descr': campaign_filtered.description,
+                    'ends_at': None,
+                    'last_completed_at': None,
+                    'share_url': None,
+                    'respondents': [],
+                    'update_url': None,
+                    'requests': []}
+        else:
             for campaign in self.campaign_candidates:
                 if not campaign in by_campaigns:
                     by_campaigns[campaign] = {

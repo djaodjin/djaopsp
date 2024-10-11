@@ -25,8 +25,8 @@ def import_campaign(campaign, file_d):
             'utf-8', 'ignore')) if file_d else StringIO())
     with transaction.atomic():
         cols = []
-        row = next(csv_file)
-        # first row is (heading/practice title), (default_unit), segments
+        row = next(csv_file) # first row is title
+        row = next(csv_file) # second row is practice/heading, unit, segments
         for seg in row[2:]:
             title = seg
             try:
@@ -62,6 +62,7 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
             # XXX follow on rows could be heading or practice
             title = row[0]
             level_unit = row[1]
+            required = row[2]
             LOGGER.info('adding "%s" (level_unit=%s) ...', title, level_unit)
             section_level = 0
             default_unit = None
@@ -84,7 +85,7 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
                     seg_prefixes.pop()
                     headings.pop()
                 if section_level == 1:
-                    for idx, col in enumerate(row[2:]):
+                    for idx, col in enumerate(row[3:]):
                         if col:
                             heading = content_model.objects.get(
                                 slug=seg_prefixes[0][idx][1:])
@@ -119,7 +120,7 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
                         'rank': section_rank
                     })
                 section_rank += 1
-                for idx, col in enumerate(row[2:]):
+                for idx, col in enumerate(row[3:]):
                     if col:
                         path = DB_PATH_SEP.join(
                             [seg_prefixes[-1][idx], content.slug])
@@ -135,7 +136,7 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
                             question=question,
                             defaults={
                                 'rank': rank,
-                                'required': True
+                                'required': required
                             })
                         rank = rank + 1
             row = next(csv_reader)

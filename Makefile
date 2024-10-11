@@ -7,23 +7,24 @@ APP_NAME      ?= $(notdir $(abspath $(srcDir)))
 APP_PORT      ?= 8000
 
 srcDir        ?= .
-installTop    ?= $(VIRTUAL_ENV)
+installTop    ?= $(if $(VIRTUAL_ENV),$(VIRTUAL_ENV),$(abspath $(srcDir))/.venv)
 binDir        ?= $(installTop)/bin
 libDir        ?= $(installTop)/lib
 SYSCONFDIR    ?= $(installTop)/etc
 LOCALSTATEDIR ?= $(installTop)/var
 CONFIG_DIR    ?= $(SYSCONFDIR)/$(APP_NAME)
 ASSETS_DIR    ?= $(srcDir)/htdocs/static
+# because we are not loading DB_NAME from site.conf
 RUN_DIR       ?= $(abspath $(srcDir))
 
 installDirs   ?= /usr/bin/install -d
 installFiles  ?= /usr/bin/install -p -m 644
 DOCKER        ?= docker
-ESCHECK       ?= eslint
+ESCHECK       ?= eslint es5
 NPM           ?= npm
 PIP           ?= pip
 PYTHON        ?= python
-SASSC         ?= sassc --source-map-urls absolute
+SASSC         ?= sassc --style=compressed --source-map-urls absolute
 SQLITE        ?= sqlite3
 WEBPACK       ?= NODE_PATH=$(libDir)/node_modules webpack --stats-error-details
 #WEBPACK       ?= webpack --stats verbose
@@ -76,7 +77,7 @@ build-assets: $(ASSETS_DIR)/cache/app.css \
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/jquery-ui.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-i18n.js $(ASSETS_DIR)/vendor
 	rm -rf $(srcDir)/htdocs/static/vendor/chart.js $(srcDir)/htdocs/static/vendor/chartjs-plugin-annotation.js
-	cd $(srcDir) && $(ESCHECK) es5 htdocs/static/cache/*.js htdocs/static/vendor/*.js -v
+	cd $(srcDir) && $(ESCHECK) htdocs/static/cache/*.js htdocs/static/vendor/*.js -v
 
 
 clean: clean-dbs
@@ -170,7 +171,7 @@ clean-dbs:
 $(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $^ $(libDir)
 	$(NPM) install --loglevel verbose --cache $(libDir)/.npm --tmp $(libDir)/tmp --prefix $(libDir)
-	install -d $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
+	$(installDirs) $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.min.js $(ASSETS_DIR)/vendor
 	cp -rf $(libDir)/node_modules/chart.js $(srcDir)/djaopsp/static/vendor
 	$(installFiles) $(libDir)/node_modules/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.js $(srcDir)/djaopsp/static/vendor
@@ -193,7 +194,7 @@ $(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 
 schema.yml:
 	cd $(srcDir) && DEBUG=0 API_DEBUG=1 OPENAPI_SPEC_COMPLIANT=1 \
-		$(MANAGE) spectacular --color --file schema.yml --validate
+		$(MANAGE) spectacular --color --file $@ --validate
 	cd $(srcDir) && swagger-cli validate $@
 
 
@@ -234,15 +235,15 @@ install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
 				$(DESTDIR)$(SYSCONFDIR)/monit.d/$(APP_NAME) \
 				$(DESTDIR)$(SYSCONFDIR)/systemd/system/$(APP_NAME).service \
 				$(DESTDIR)$(libDir)/tmpfiles.d/$(APP_NAME).conf
-	install -d $(DESTDIR)$(LOCALSTATEDIR)/db
-	install -d $(DESTDIR)$(LOCALSTATEDIR)/log/gunicorn
-	[ -d $(DESTDIR)$(LOCALSTATEDIR)/run ] || install -d $(DESTDIR)$(LOCALSTATEDIR)/run
+	$(installDirs) $(DESTDIR)$(LOCALSTATEDIR)/db
+	$(installDirs) $(DESTDIR)$(LOCALSTATEDIR)/log/gunicorn
+	[ -d $(DESTDIR)$(LOCALSTATEDIR)/run ] || $(installDirs) $(DESTDIR)$(LOCALSTATEDIR)/run
 
 # Implementation Note:
 # We use [ -f file ] before install here such that we do not blindly erase
 # already present configuration files with template ones.
 $(DESTDIR)$(CONFIG_DIR)/site.conf: $(srcDir)/etc/site.conf
-	install -d $(dir $@)
+	$(installDirs) $(dir $@)
 	[ -f $@ ] || \
 		sed -e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' \
 			-e 's,%(SYSCONFDIR)s,$(SYSCONFDIR),' \
@@ -254,21 +255,21 @@ $(DESTDIR)$(CONFIG_DIR)/site.conf: $(srcDir)/etc/site.conf
 			-e "s,%(binDir)s,$(binDir)," $< > $@
 
 $(DESTDIR)$(CONFIG_DIR)/credentials: $(srcDir)/etc/credentials
-	install -d $(dir $@)
+	$(installDirs) $(dir $@)
 	[ -e $@ ] || sed \
 		-e "s,\%(SECRET_KEY)s,`$(PYTHON) -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^*-_=+") for i in range(50)]))'`," \
 			$< > $@
 
 $(DESTDIR)$(CONFIG_DIR)/gunicorn.conf: $(srcDir)/etc/gunicorn.conf
-	install -d $(dir $@)
+	$(installDirs) $(dir $@)
 	[ -e $@ ] || sed \
 		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' \
-		-e 's,%(APP_NAME)s,$(APP_NAME),' \
-		-e 's,%(APP_PORT)s,$(APP_PORT),g' $< > $@
+		-e 's,%(APP_NAME)s,$(APP_NAME),g' \
+		-e 's,%(APP_PORT)s,$(APP_PORT),' $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/systemd/system/%.service: \
 			   $(srcDir)/etc/service.conf
-	install -d $(dir $@)
+	$(installDirs) $(dir $@)
 	[ -e $@ ] || sed \
 		-e 's,%(srcDir)s,$(srcDir),' \
 		-e 's,%(APP_NAME)s,$(APP_NAME),g' \
@@ -278,23 +279,23 @@ $(DESTDIR)$(SYSCONFDIR)/systemd/system/%.service: \
 		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/logrotate.d/%: $(srcDir)/etc/logrotate.conf
-	install -d $(dir $@)
+	$(installDirs) $(dir $@)
 	[ -e $@ ] || sed \
 		-e 's,%(APP_NAME)s,$(APP_NAME),g' \
 		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/monit.d/%: $(srcDir)/etc/monit.conf
-	install -d $(dir $@)
+	$(installDirs) $(dir $@)
 	[ -e $@ ] || sed \
 		-e 's,%(APP_NAME)s,$(APP_NAME),g' \
 		-e 's,%(APP_PORT)s,$(APP_NAME),g' \
 		-e 's,%(LOCALSTATEDIR)s,$(LOCALSTATEDIR),' $< > $@
 
 $(DESTDIR)$(SYSCONFDIR)/sysconfig/%: $(srcDir)/etc/sysconfig.conf
-	install -d $(dir $@)
+	$(installDirs) $(dir $@)
 	[ -e $@ ] || install -p -m 644 $< $@
 
 $(DESTDIR)$(libDir)/tmpfiles.d/$(APP_NAME).conf: $(srcDir)/etc/tmpfiles.conf
-	install -d $(dir $@)
+	$(installDirs) $(dir $@)
 	[ -e $@ ] || sed \
 		-e 's,%(APP_NAME)s,$(APP_NAME),g' $< > $@

@@ -47,11 +47,11 @@ class DashboardRedirectView(VisibilityMixin, AccountMixin,
         """
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_dashboards_available'):
-            filtered_in = Q(account__slug=self.account)
+            filtered_in = Q(extra__contains='searchable')
             for visible in set(['public']):
-                filtered_in |= Q(extra__contains=visible)
+                filtered_in &= Q(extra__contains=visible)
             self._dashboards_available = Campaign.objects.filter(
-                Q(extra__contains='searchable') & filtered_in)
+                Q(account__slug=self.account) | filtered_in)
         return self._dashboards_available
 
     def get_redirect_url(self, *args, **kwargs):

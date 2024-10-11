@@ -499,6 +499,11 @@ var practicesListMixin = {
             return vm.isPractice(row) &&
                 row.default_unit && row.default_unit.system === 'enum';
         },
+        isFreetextUnit: function(row) {
+            var vm = this;
+            return vm.isPractice(row) &&
+                row.default_unit && row.default_unit.system === 'freetext';
+        },
         isEnumRadioUIHint: function(row) {
             var vm = this;
             return vm.isEnumUnit(row) && (row.ui_hint === 'radio' ||

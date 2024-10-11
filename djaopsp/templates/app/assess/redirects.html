@@ -12,9 +12,11 @@
             <h5>{{assessment.title}}
           </div>
           <div class="card-body">
+            {% if assessment.descr %}
             <p>
 {{assessment.descr}}
             </p>
+            {% endif %}
             {% if assessment.last_completed_at %}
             <p>
 A response from <em>{{profile.printable_name}}</em> to this questionnaire was last completed on {{assessment.last_completed_at|humanizeDate}}.{% if assessment.respondents %} If you have questions, please reach out to the following co-worker(s): {% for user in assessment.respondents %} <span class="author"><a href="mailto:{{user.email}}">{{user.get_full_name()}}</a></span>{{ ", " if not loop.last else "" }}{% endfor %}.{% endif %}

@@ -11,7 +11,7 @@ from django.core.wsgi import get_wsgi_application
 
 #pylint: disable=invalid-name
 
-def save_coverage():
+def save_coverage(*args):
     sys.stderr.write("saving coverage\n")
     cov.stop()
     cov.save()
