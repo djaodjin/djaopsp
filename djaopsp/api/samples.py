@@ -25,10 +25,12 @@ from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
 
 from ..compat import gettext_lazy as _, reverse, six
-from ..mixins import SectionReportMixin
+from ..mixins import AccountMixin, SectionReportMixin
 from ..models import VerifiedSample
+from ..notifications.serializers import UserDetailSerializer
 from ..pagination import BenchmarksPagination
 from ..queries import get_scored_assessments
+from ..reminders import send_reminders
 from ..scores import (freeze_scores, get_score_calculator,
     get_top_normalized_score, populate_scorecard_cache)
 from ..signals import sample_frozen
@@ -322,16 +324,6 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
                     excludes=self.exclude_questions),
                 extra_fields=extra_fields,
                 key='candidates')
-            # Attach scores
-            calculator = get_score_calculator(prefix)
-            if False and calculator:
-                calculator_answers = calculator.get_scored_answers(
-                    self.sample.campaign, includes=[self.sample], prefix=prefix)
-                attach_answers(
-                    units,
-                    questions_by_key,
-                    calculator_answers,
-                    extra_fields=extra_fields)
 
         elif self.verification_available:
             # Verification notes are only available to verifiers
@@ -345,6 +337,17 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
                                # as 'answers' instead of 'notes' because
                                # so far they are distinct questions and
                                # it simplifies the Javascript client.
+
+        # Attach scores
+        calculator = get_score_calculator(prefix)
+        if False and calculator:
+            calculator_answers = calculator.get_scored_answers(
+                self.sample.campaign, includes=[self.sample], prefix=prefix)
+            attach_answers(
+                units,
+                questions_by_key,
+                calculator_answers,
+                extra_fields=extra_fields)
 
         self.attach_results(questions_by_key, prefix)
 
@@ -1091,3 +1094,42 @@ class SampleRecentCreateAPIView(SampleRecentCreateBaseAPIView):
                 if verified_sample else VerifiedSample.STATUS_NO_REVIEW)
         return super(SampleRecentCreateAPIView, self).decorate_queryset(
             queryset)
+
+
+class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
+
+    serializer_class = UserDetailSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Resends all requests directed to {profile}
+
+        **Tags**: portfolios
+
+        **Examples
+
+        .. code-block:: http
+
+            POST /api/supplier-1/portfolios/requests/send HTTP/1.1
+
+        .. code-block:: json
+
+            {
+              "email": "steve@example.com"
+            }
+
+        responds
+
+        .. code-block:: json
+
+            {}
+        """
+        return self.create(request, *args, **kwargs)
+
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        send_reminders(self.account,
+            email=serializer.validated_data.get('email'))
+        return http.Response({}, status=http_status.HTTP_201_CREATED)

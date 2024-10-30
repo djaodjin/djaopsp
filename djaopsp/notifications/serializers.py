@@ -10,16 +10,17 @@ from ..compat import gettext_lazy as _
 
 class UserDetailSerializer(NoModelSerializer):
 
-    username = serializers.CharField(
+    username = serializers.CharField(required=False,
         help_text=_("Unique identifier for the user, typically used in URLs"))
     printable_name = serializers.CharField(source='get_full_name',
+        required=False,
         help_text=_("Full name (effectively first name followed by last name)"))
     email = serializers.CharField(
         help_text=_("E-mail address for the originating user"))
 
     class Meta:
         fields = ('username', 'printable_name', 'email')
-        read_only_fields = ('username', 'printable_name', 'email')
+        read_only_fields = ('username', 'printable_name')
 
 
 class NotificationSerializer(NoModelSerializer):

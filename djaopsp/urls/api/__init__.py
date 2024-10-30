@@ -9,7 +9,7 @@ from django.urls import path, include, re_path
 from ...api.content import (PageElementAPIView, PageElementIndexAPIView,
     PageElementEditableListAPIView)
 from ...api.campaigns import CampaignContentAPIView
-from ...api.samples import RespondentsAPIView
+from ...api.samples import RespondentsAPIView, PortfolioRequestsSend
 
 urlpatterns = [
     path('respondents', RespondentsAPIView.as_view(),
@@ -39,6 +39,8 @@ urlpatterns = [
     path('<slug:profile>/', include('djaopsp.urls.api.assess')),
     path('<slug:profile>/', include('djaopsp.urls.api.audit')),
     path('<slug:profile>/', include('djaopsp.urls.api.portfolios')),
+    path('<slug:profile>/portfolios/requests/send',
+         PortfolioRequestsSend.as_view(), name='api_requests_resend'),
     path('<slug:profile>/', include('survey.urls.api.portfolios')),
     path('<slug:profile>/', include('survey.urls.api.benchmarks')),
 ]

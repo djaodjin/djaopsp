@@ -219,6 +219,8 @@ class ScorecardHistoryView(VisibilityMixin, AccountMixin, TemplateView):
                     args=(self.account,)),
             'api_requests': reverse('survey_api_portfolios_received',
                     args=(self.account,)),
+            'api_requests_resend': reverse('api_requests_resend',
+                    args=(self.account,)),
             'get_started': reverse('profile_getstarted',
                     args=(self.account,)),
             'scorecard_base': reverse('scorecard_redirect',

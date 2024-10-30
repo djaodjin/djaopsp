@@ -1114,8 +1114,10 @@ Vue.component('scorecard-requests', {
             api_accounts_url: this.$urls.api_organizations,
             api_sample_list_url: this.$urls.api_sample_list,
             api_portfolios_grants_url: this.$urls.survey_api_portfolios_grants,
+            api_requests_resend_url: this.$urls.api_requests_resend,
             getCompleteCb: 'getCompleted',
-            byCampaigns: {}
+            byCampaigns: {},
+            contact: {email: ""}
         }
     },
     methods: {
@@ -1218,6 +1220,15 @@ Vue.component('scorecard-requests', {
                 });
             }
             vm.populateAccounts(vm.items.results, 'grantee');
+        },
+        resendRequests: function($event) {
+            var vm = this;
+            var form = $($event.target);
+            var modalDialog = form.parents('.modal');
+            modalDialog.modal('hide');
+            vm.reqPost(vm.api_requests_resend_url, vm.contact,
+            function(resp) { // success
+            });
         },
         submitGrant: function(candidate, campaign) {
             var vm = this;
