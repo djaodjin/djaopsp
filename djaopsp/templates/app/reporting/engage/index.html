@@ -278,7 +278,10 @@
             :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
             v-for="(entry, index) in items.results">
           <td>
-            <span :class="entry.extra && entry.extra.supplier_key ? '' : 'default-supplier-id'">[[getProfileKey(entry, index)]]</span><br />
+            <span :class="entry.extra && entry.extra.supplier_key ? '' : 'default-supplier-id'"
+                @click.prevent="toggleEditProfileKey(index)"
+                v-show="showEditProfileKey !== index">[[getProfileKey(entry, index)]]</span>
+            <input type="text" v-model="entry.extra.supplier_key" @blur="saveProfileKey(entry, index)" v-if="showEditProfileKey === index"></input>
           </td>
           <td>
             {% include "app/reporting/_profile_card.html" %}

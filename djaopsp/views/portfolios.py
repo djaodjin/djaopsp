@@ -185,6 +185,8 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
             'api_organizations': site_url("/api/profile"),
             'api_organization_profile': site_url(
                 "/api/profile/%(account)s" % {'account': self.account}),
+            'api_metadata': reverse(
+                'survey_api_portfolio_metadata_index', args=(self.account,)),
             'api_portfolio_metadata': reverse(
                 'survey_api_portfolio_metadata_index', args=(self.account,)),
             'api_portfolios_received': reverse(
@@ -224,9 +226,11 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
             'api_profile': site_url("/api/profile/%s" % str(self.account)),
             'api_accounts': site_url("/api/profile"),
             'api_organizations': site_url("/api/profile"),
-            'api_portfolio_metadata': reverse(
+            'api_metadata': reverse(
                 'survey_api_portfoliodoubleoptin_metadata_index',
                 args=(self.account,)),
+            'api_portfolio_metadata': reverse(
+                'survey_api_portfolio_metadata_index', args=(self.account,)),
             'api_portfolios_requests': reverse(
                 'api_portfolio_engagement', args=(
                 self.account, self.campaign)),

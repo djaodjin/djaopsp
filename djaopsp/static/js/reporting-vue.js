@@ -27,6 +27,7 @@ var portfolioTagsMixin = {
         var initialData = {
             api_profile: this.$urls.api_profile,
             api_profiles_base_url: this.$urls.api_organizations,
+            api_metadata: this.$urls.api_metadata,
             api_portfolio_metadata: this.$urls.api_portfolio_metadata,
             typeaheadUrl: this.$urls.api_account_candidates,
             showEditProfileKey: -1,
@@ -73,8 +74,7 @@ var portfolioTagsMixin = {
             if( !item.extra ) {
                 item.extra = {}
             }
-            //XXXitem.extra.tags = item.tagsAsText.split(',');
-            vm.reqPatch(vm._safeUrl(vm.api_portfolio_metadata, item.slug)
+            vm.reqPatch(vm._safeUrl(vm.api_metadata, item.slug)
                 + vm.getQueryString(), {extra: item.extra});
             vm.showEditTags = -1;
             vm.showPreferences = -1;
@@ -530,6 +530,23 @@ Vue.component('djaopsp-compare-samples', {
             var vm = this;
             vm.$refs.accountsTab.click();
         },
+        exportData: function() {
+            var vm = this;
+            const entries = vm.getEntries(vm.displayMetric.path);
+            for( var entIdx = 0; entIdx < entries.length; ++entIdx ) {
+                const practice = entries[entIdx];
+                for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
+                    const dataset = vm.datasets[datIdx];
+                    const benchmarks = vm.getBenchmarks(dataset, practice);
+                    const data = {
+                        'benchmarks': benchmarks
+                    };
+                    vm.reqPost(vm.$urls.api_benchmarks_export, data,
+                    function(resp) {
+                    });
+                }
+            }
+        },
         humanizePeriods: function(labels) {
             var vm = this;
             var results = [];
@@ -687,8 +704,8 @@ Vue.component('djaopsp-compare-samples', {
                 if( vm.compareChart ) {
                     vm.compareChart.destroy();
                 }
-                labels = vm.humanizePeriods(labels);
                 if( choices.length ) {
+                    labels = vm.humanizePeriods(labels);
                     vm.compareChart = new Chart(
                         document.getElementById('summaryChart'), {
                             type: 'bar',
