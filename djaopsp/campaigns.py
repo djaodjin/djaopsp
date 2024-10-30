@@ -27,7 +27,7 @@ def import_campaign(campaign, file_d):
         cols = []
         row = next(csv_file) # first row is title
         row = next(csv_file) # second row is practice/heading, unit, segments
-        for seg in row[2:]:
+        for seg in row[3:]:
             title = seg
             try:
                 content, _ = content_model.objects.get_or_create(
@@ -52,6 +52,7 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
                              headings=None, rank=1):
     #pylint:disable=too-many-arguments,too-many-locals,too-many-nested-blocks
     LOGGER.debug("%d segment prefixes: %s", len(seg_prefixes), seg_prefixes)
+    freetext_unit = Unit.objects.get(slug='freetext')
     if headings is None:
         headings = [None]
     content_model = get_content_model()
@@ -62,7 +63,7 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
             # XXX follow on rows could be heading or practice
             title = row[0]
             level_unit = row[1]
-            required = row[2]
+            required = False if row[2].lower() == "false" else True
             LOGGER.info('adding "%s" (level_unit=%s) ...', title, level_unit)
             section_level = 0
             default_unit = None
@@ -124,13 +125,16 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
                     if col:
                         path = DB_PATH_SEP.join(
                             [seg_prefixes[-1][idx], content.slug])
+                        question_defaults = {
+                            'content': content,
+                            'default_unit': default_unit,
+                        }
+                        if default_unit == freetext_unit:
+                            question_defaults.update({'ui_hint': "textarea"})
                         LOGGER.debug("create question %s", path)
                         question, _ = \
                             get_question_model().objects.get_or_create(
-                                path=path, defaults={
-                                    'content': content,
-                                    'default_unit': default_unit
-                                })
+                                path=path, defaults=question_defaults)
                         EnumeratedQuestions.objects.get_or_create(
                             campaign=campaign,
                             question=question,
