@@ -6,6 +6,7 @@ import datetime, json, logging
 from collections import OrderedDict
 from io import BytesIO
 
+from dateutil.relativedelta import relativedelta
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
@@ -267,8 +268,10 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
             if latest_completed:
                 by_campaigns[sample.campaign]['last_completed_at'] = \
                     latest_completed.created_at
-                by_campaigns[sample.campaign]['share_url'] = reverse(
-                    'share', args=(self.account, latest_completed))
+                if relativedelta(
+                        at_time, latest_completed.created_at).months < 6:
+                    by_campaigns[sample.campaign]['share_url'] = reverse(
+                        'share', args=(self.account, latest_completed))
                 by_campaigns[sample.campaign]['respondents'] = \
                     get_user_model().objects.filter(
                         answer__sample=sample).distinct()
