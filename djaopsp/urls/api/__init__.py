@@ -28,6 +28,8 @@ urlpatterns = [
     path('content/', include('pages.urls.api.noauth')),
     path('content/campaigns/<slug:campaign>', CampaignContentAPIView.as_view(),
          name='api_campaign_questions'),
+    path('content/campaigns', CampaignContentAPIView.as_view(),
+         name='api_campaign_base'),
     path('content/<path:path>',
         PageElementAPIView.as_view(), name="api_content"),
     path('content',

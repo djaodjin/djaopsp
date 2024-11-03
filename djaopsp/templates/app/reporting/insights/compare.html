@@ -1,0 +1,123 @@
+{% extends "app/reporting/base.html" %}
+
+{% block localheadermeta %}
+<title>{% trans profile=profile.printable_name %}Compare - {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
+<meta property="og:title" content="Compare - {{profile.printable_name}} | Practice Sharing Platform" />
+<meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
+<meta name="description" property="og:description" content="Compare reporting profiles" />
+{% endblock %}
+
+{% block reporting_title %}{% trans %}Compare responses side-by-side{% endtrans %}{% endblock %}
+
+{% block reporting_content %}
+<djaopsp-compare-samples id="compare-dashboard" inline-template>
+  <div>
+    <div>
+      <!-- individual accounts -->
+      <query-individual-account inline-template
+        data-humanize-date="humanizeDate"
+        v-bind:disabled="datasetLoading"
+        v-on:updatedataset="addDataset">
+        <div>
+          <form id="individual-account-search" class="mt-4"
+                @submit.prevent="validate()">
+            <fieldset :disabled="disabled">
+              <account-typeahead inline-template ref="account"
+                                 v-on:selectitem="selectAccount">
+                <div class="input-group mb-3">
+                  <span class="input-group-text">
+                    <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                    <template v-else>
+                      <i class="fa fa-search" v-show="isEmpty"></i>
+                      <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                    </template>
+                  </span>
+                  <input class="form-control"
+                         type="text"
+                         placeholder="{% trans %}Enter profile name{% endtrans %}"
+                         autocomplete="off"
+                         v-model="query"
+                         @keydown.down="down"
+                         @keydown.up="up"
+                         @keydown.enter.prevent="hit"
+                         @blur="clear"
+                         @input="update"></input>
+                  {# Implementation note: If we use `d-block` instead of    #}
+                  {# `style="display: block;"` the dropdown shows even when #}
+                  {# `hasItems` is `False`.                                 #}
+                  <ul class="dropdown-menu nav-pills p-1 top-100"
+                      style="display: block;"
+                      v-show="hasItems">
+                      <li v-for="(item, $item) in items" class="nav-item"
+                          @mousedown="hit"
+                          @mousemove="setActive($item)">
+                          <a :class="'nav-link px-3 py-2' + activeClass($item)" v-text="item.printable_name"></a>
+                      </li>
+                  </ul>
+                </div>
+              </account-typeahead>
+              <div v-show="hasAccount && !hasSamples">
+{% trans %}There is no data available for this profile.{% endtrans %}
+              </div>
+              <div v-show="hasAccount && hasSamples">
+                  <label class="form-label">
+                      {% trans %}Pick a response{% endtrans %}
+                  </label>
+                  <select class="form-control form-select"
+                          v-model="selectedSample">
+                      <option :value="rank" v-for="(sample, rank) in samples">[[sample.title]]</option>
+                  </select>
+                  <div class="form-actions mt-2"
+                       v-show="selectedSample >= 0">
+                      <button class="btn btn-primary w-100"
+                              type="submit">
+                          <i class="fa fa-spinner fa-spin" v-show="disabled"></i>
+                          {% trans %}Add{% endtrans %}
+                      </button>
+                  </div>
+              </div>
+            </fieldset>
+          </form>{# /#individual-account-search #}
+        </div>
+      </query-individual-account>
+    </div>
+
+    <table class="table table-bordered mt-4">
+      <thead>
+        <tr>
+          <th class="sticky-cell sticky-cell-top">
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                {% trans %}Responses{% endtrans %}
+              </div>
+            </div>
+          </th>
+          <th class="sticky-cell sticky-cell-top"
+              v-for="dataset in datasets"
+              v-show="itemsLoaded && items.results.length > 0" v-cloak>
+            <div class="sticky-cell-content-container">
+              <div class="sticky-cell-content">
+                  <a :href="'{{urls.scorecard_base}}' + dataset.slug + '/'" target="_blank">[[dataset.title]]</a>
+              </div>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-show="!itemsLoaded">
+          <td colspan="7">
+            <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
+          </td>
+        </tr>
+        <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
+          <td colspan="7">{% trans %}No response to compare{% endtrans %}</td>
+        </tr>
+        <tr v-for="practice in getEntries(displayMetric.path)"
+            v-show="itemsLoaded && items.results.length > 0" v-cloak>
+            {% include "survey/matrix/_compare_row.html" %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</djaopsp-compare-samples>
+{% endblock %}

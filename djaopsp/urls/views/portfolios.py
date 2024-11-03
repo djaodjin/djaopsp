@@ -17,6 +17,8 @@ from ...downloads.reporting import (BenchmarkPPTXView, CompletionRatePPTXView,
     EngagementStatsPPTXView, FullReportPPTXView, LongFormatCSVView,
     PortfolioAccessiblesXLSXView, PortfolioAccessiblesLongCSVView,
     PortfolioEngagementXLSXView)
+from ...views.insights import (InsightsAnalyzeView, InsightsCompareView,
+    InsightsView)
 
 urlpatterns = [
     # Redirects
@@ -28,6 +30,17 @@ urlpatterns = [
         DashboardRedirectView.as_view(
             breadcrumb_url='reporting_organization_dashboard'),
         name='portfolio_insights'),
+
+    # side-by-side comparaison, and aggregates analytics
+    path('reporting/insights/compare/',
+        InsightsCompareView.as_view(),
+        name='reporting_insights_compare'),
+    path('reporting/insights/analyze/',
+        InsightsAnalyzeView.as_view(),
+        name='reporting_insights_analyze'),
+    path('reporting/insights/',
+        InsightsView.as_view(),
+        name='reporting_insights'),
 
     # PPTX charts downloads
     path('reporting/<slug:campaign>/download/completion-rate/',

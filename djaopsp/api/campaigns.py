@@ -142,12 +142,13 @@ class CampaignDecorateMixin(CampaignMixin):
                 if 'extra' in merged_fields:
                     merged_fields['extra'].update(element.get('extra', {}))
                 element.update(merged_fields)
-        campaign_slug = self.campaign.slug
-        campaign_path = "%s%s" % (DB_PATH_SEP, campaign_slug)
-        for seg_path, seg_val in six.iteritems(by_tiles):
-            if seg_path == campaign_path:
-                seg_val[0].update({'rank': -1})
-                break
+        if self.campaign:
+            campaign_slug = self.campaign.slug
+            campaign_path = "%s%s" % (DB_PATH_SEP, campaign_slug)
+            for seg_path, seg_val in six.iteritems(by_tiles):
+                if seg_path == campaign_path:
+                    seg_val[0].update({'rank': -1})
+                    break
         elements = flatten_content_tree(by_tiles)
         return elements
 

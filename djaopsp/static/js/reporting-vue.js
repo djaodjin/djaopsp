@@ -184,8 +184,15 @@ Vue.component('engage-profiles', {
             var vm = this;
             vm.lastGetParams = vm.getParams();
             var typeaheadQueryString =
-                '?o=full_name&q_f=full_name&q_f=email&q=' +
-                vm.lastGetParams['q'];
+                '?o=full_name&q_f=full_name';
+            if( vm.lastGetParams['q'] ) {
+                // The search fields should match ones specified
+                // in `get_engaged_accounts`.
+                if( vm.lastGetParams['q'].indexOf('@') !== -1 ) {
+                    typeaheadQueryString += '&q_f=email';
+                }
+                typeaheadQueryString += ('&q=' + vm.lastGetParams['q']);
+            }
             vm.reqMultiple([{
                 method: 'GET', url: vm.url + vm.getQueryString(),
             },{
@@ -505,7 +512,7 @@ Vue.component('djaopsp-compare-samples', {
             if( dataset.results && dataset.results.length > 0 ) {
                 for( let idx = 0; idx < dataset.results.length; ++idx ) {
                     if( dataset.results[idx].path === practice.path ) {
-                        return dataset.results[idx].benchmarks;
+                        return dataset.results[idx].benchmarks || [];
                     }
                 }
             }
@@ -704,10 +711,11 @@ Vue.component('djaopsp-compare-samples', {
                 if( vm.compareChart ) {
                     vm.compareChart.destroy();
                 }
-                if( choices.length ) {
+                const chartElem = document.getElementById('summaryChart');
+                if( chartElem ) {
+                  if( choices.length ) {
                     labels = vm.humanizePeriods(labels);
-                    vm.compareChart = new Chart(
-                        document.getElementById('summaryChart'), {
+                    vm.compareChart = new Chart(chartElem, {
                             type: 'bar',
                             borderWidth: 0,
                             data: {
@@ -740,9 +748,8 @@ Vue.component('djaopsp-compare-samples', {
                             }
                         }
                     );
-                } else {
-                    vm.compareChart = new Chart(
-                        document.getElementById('summaryChart'), {
+                  } else {
+                    vm.compareChart = new Chart(chartElem, {
                             type: 'doughnut',
                             borderWidth: 0,
                             data: {
@@ -767,7 +774,8 @@ Vue.component('djaopsp-compare-samples', {
                             }
                         }
                     );
-                } // /type of chart
+                  } // /type of chart
+                } // /chartElem
             } // /entries
         },
     },

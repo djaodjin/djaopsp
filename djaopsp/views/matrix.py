@@ -50,8 +50,9 @@ class CompareView(UpdatedMenubarMixin, CompareBaseView):
                 'api_campaign_questions', args=(self.campaign,)),
             'pages_index': reverse('pages_index'),
             'api_benchmarks_index': reverse(
-                'survey_api_benchmarks_index', args=(
-                self.account,)),
+                'survey_api_benchmarks_index', args=(self.account,)),
+            'api_benchmarks_export': reverse('api_benchmarks_export',
+                args=(self.account,)),
         })
         url_kwargs = self.get_url_kwargs()
         if 'path' in self.kwargs:

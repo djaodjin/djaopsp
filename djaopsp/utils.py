@@ -429,9 +429,12 @@ def get_segments_candidates(campaign, visibility=None, owners=None):
     All segments that are candidates based on a campaign.
     """
     candidates = set([])
-    for path in get_question_model().objects.filter(
-        enumeratedquestions__campaign=campaign).values_list(
-        'path', flat=True):
+    if campaign:
+        questions_queryset = get_question_model().objects.filter(
+            enumeratedquestions__campaign=campaign)
+    else:
+        questions_queryset = get_question_model().objects.all()
+    for path in questions_queryset.values_list('path', flat=True):
         candidates |= set([path.strip(DB_PATH_SEP).split(DB_PATH_SEP)[0]])
     if candidates:
         roots = PageElement.objects.get_roots(
@@ -440,13 +443,15 @@ def get_segments_candidates(campaign, visibility=None, owners=None):
         content_tree = build_content_tree(roots=roots, prefix=DB_PATH_SEP,
             cut=ContentCut(), visibility=visibility, accounts=owners)
         segments_candidates = flatten_content_tree(content_tree)
-        # decorate candidate with 'mandatory' status.
-        campaign_prefix = "%s%s" % (DB_PATH_SEP, campaign.slug)
-        campaign_mandatory_segments = [campaign_prefix]
-        for candidate in segments_candidates:
-            path = candidate.get('path')
-            if path in campaign_mandatory_segments:
-                candidate.update({'mandatory': True}) # 'required' key instead?
+        if campaign:
+            # decorate candidate with 'mandatory' status.
+            campaign_prefix = "%s%s" % (DB_PATH_SEP, campaign.slug)
+            campaign_mandatory_segments = [campaign_prefix]
+            for candidate in segments_candidates:
+                path = candidate.get('path')
+                if path in campaign_mandatory_segments:
+                    candidate.update({'mandatory': True})
+                    # use 'required' key instead of 'madatory'?
         return segments_candidates
     return []
 

@@ -6,14 +6,17 @@ API URLs for portfolios engagement & analytics dashboards
 """
 from django.urls import include, path
 
+from ...api.exports import BenchmarksExportAPIView
 from ...api.portfolios import (BenchmarkAPIView, BenchmarkIndexAPIView,
     CompareAPIView, CompareIndexAPIView,
     CompletedAssessmentsAPIView, CompletionRateAPIView, EngagementStatsAPIView,
     PortfolioAccessibleSamplesAPIView, PortfolioAccessiblesDeleteAPIView,
     PortfolioEngagementAPIView, TotalScoreBySubsectorAPIView)
 
-
 urlpatterns = [
+    path('exports',
+        BenchmarksExportAPIView.as_view(),
+         name='api_benchmarks_export'),
     path('completed',
         CompletedAssessmentsAPIView.as_view(),
          name="api_completed_assessments"),

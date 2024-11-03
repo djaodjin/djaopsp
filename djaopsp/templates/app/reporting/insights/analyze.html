@@ -1,14 +1,14 @@
 {% extends "app/reporting/base.html" %}
 
 {% block localheadermeta %}
-<title>{% trans campaign=campaign.title, profile=profile.printable_name %}{{campaign}} Compare - {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
-<meta property="og:title" content="{{campaign.title}} Compare - {{profile.printable_name}} | Practice Sharing Platform" />
+<title>{% trans profile=profile.printable_name %}Analyze - {{profile}}{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
+<meta property="og:title" content="Analyze - {{profile.printable_name}} | Practice Sharing Platform" />
 <meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
-<meta name="description" property="og:description" content="Compare reporting profiles with {{campaign.title}}" />
+<meta name="description" property="og:description" content="Analyze reporting profiles" />
 {% endblock %}
 
 
-{% block reporting_title %}{% trans %}Compare{% endtrans %}{% endblock %}
+{% block reporting_title %}{% trans %}Analyze{% endtrans %}{% endblock %}
 
 
 {% block reporting_content %}
@@ -34,48 +34,91 @@
 
             <form @submit.prevent="activateSelectAccounts">
               <fieldset :disabled="datasetLoading">
-                <label class="form-label mt-2">{% trans %}Which question are you interested in?{% endtrans %} ...</label>
                 <practice-typeahead inline-template ref="metric"
                                     v-on:selectitem="selectMetric">
-                  <div class="input-group mb-3">
-                    <span class="input-group-text">
-                      <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                      <template v-else>
-                        <i class="fa fa-search" v-show="isEmpty"></i>
-                        <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                      </template>
-                    </span>
-                    <input class="form-control"
-                       type="text"
-                       placeholder="{% trans %}Enter question{% endtrans %}"
-                       autocomplete="off"
-                       v-model="query"
-                       @keydown.down="down"
-                       @keydown.up="up"
-                       @keydown.enter.prevent="hit"
-                       @blur="clear"
-                       @input="update"></input>
-                    <button  class="input-group-text"
+                  <div>
+                    <label class="form-label mt-2">{% trans %}Questionnaire{% endtrans %} ...</label>
+                    <campaign-typeahead inline-template
+                                    v-on:selectitem="selectCampaign">
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">
+                        <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                        <template v-else>
+                          <i class="fa fa-search" v-show="isEmpty"></i>
+                          <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                        </template>
+                        </span>
+                        <input class="form-control"
+                          type="text"
+                          placeholder="{% trans %}Enter campaign{% endtrans %}"
+                          autocomplete="off"
+                          v-model="query"
+                          @keydown.down="down"
+                          @keydown.up="up"
+                          @keydown.enter.prevent="hit"
+                          @blur="clear"
+                          @input="update"></input>
+                        <button  class="input-group-text"
+                          role="button" href="#"
+                          aria-haspopup="true" aria-expanded="false"
+                          @click.prevent="reload">
+                          <i class="fa fa-caret-down"></i>
+                        </button>
+                    {# Implementation note: If we use `d-block` instead of    #}
+                    {# `style="display: block;"` the dropdown shows even when #}
+                    {# `hasItems` is `False`.                                 #}
+                        <ul class="dropdown-menu nav-pills p-1 top-100"
+                          style="display: block;" role="menu"
+                          v-show="hasItems">
+                          <li v-for="(item, idx) in items" class="nav-item"
+                              @mousedown="hit"
+                              @mousemove="setActive(idx)">
+                            <a :class="'nav-link px-3 py-2' + activeClass(item)">[[item.title]]</a>
+                          </li>
+                        </ul>
+                      </div>
+                    </campaign-typeahead>
+                    <label class="form-label mt-2">{% trans %}Which question are you interested in?{% endtrans %} ...</label>
+                    <div class="input-group mb-3">
+                      <span class="input-group-text">
+                        <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                        <template v-else>
+                          <i class="fa fa-search" v-show="isEmpty"></i>
+                          <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                        </template>
+                      </span>
+                      <input class="form-control"
+                        type="text"
+                        placeholder="{% trans %}Enter question{% endtrans %}"
+                        autocomplete="off"
+                        v-model="query"
+                        @keydown.down="down"
+                        @keydown.up="up"
+                        @keydown.enter.prevent="hit"
+                        @blur="clear"
+                        @input="update"></input>
+                      <button  class="input-group-text"
                         role="button" href="#"
                         aria-haspopup="true" aria-expanded="false"
                         @click.prevent="reload">
                         <i class="fa fa-caret-down"></i>
-                    </button>
+                      </button>
                     {# Implementation note: If we use `d-block` instead of    #}
                     {# `style="display: block;"` the dropdown shows even when #}
                     {# `hasItems` is `False`.                                 #}
-                    <ul class="dropdown-menu nav-pills p-1 top-100"
+                      <ul class="dropdown-menu nav-pills p-1 top-100"
                         style="display: block;" role="menu"
                         v-show="hasItems">
-                      <li v-for="(item, idx) in items" class="nav-item"
-                        @mousedown="hit"
-                        @mousemove="setActive(idx)">
-                        <div :class="indentHeader(item)"
-                             v-if="!isPractice(item)">[[item.title]]</div>
-                        <a :class="'nav-link px-3 py-2' + activeClass(item)"
-                           v-if="isPractice(item)">[[item.title]]</a>
-                      </li>
-                    </ul>
+                        <li v-for="(item, idx) in items" class="nav-item"
+                          @mousedown="hit"
+                          @mousemove="setActive(idx)">
+                          <div :class="indentHeader(item)"
+                               v-if="!isPractice(item)">[[item.title]]</div>
+                          <a :class="'nav-link px-3 py-2' + activeClass(item)"
+                             v-if="isPractice(item)">[[item.title]]</a>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </practice-typeahead>
                 <div v-show="displayMetric.path">
