@@ -125,7 +125,7 @@ def _notified_recipients(notification_slug, context):
     return recipients, bcc, reply_to
 
 
-def send_notification(event_name, context=None):
+def send_notification(event_name, context=None, **kwargs):
     """
     Sends a notification e-mail using the current site connection,
     defaulting to sending an e-mail to broker profile managers
@@ -136,7 +136,7 @@ def send_notification(event_name, context=None):
     if settings.SEND_NOTIFICATION_CALLABLE:
         try:
             import_string(settings.SEND_NOTIFICATION_CALLABLE)(
-                event_name, context=context)
+                event_name, context=context, **kwargs)
             return
         except ImportError:
             pass
@@ -161,7 +161,8 @@ def send_notification(event_name, context=None):
                     reply_to=reply_to,
                     bcc=bcc,
                     template=template,
-                    context=context)
+                    context=context,
+                    **kwargs)
         except smtplib.SMTPException as err:
             LOGGER.warning("[signal] problem sending email: %s", err)
             context.update({'errors': [_("There was an error sending"\
