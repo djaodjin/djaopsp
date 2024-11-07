@@ -6,15 +6,7 @@
         :disabled="!itemsLoaded">
     <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
 </button>
-{% if sample.is_frozen %}
-{# actions only available when a scorecard is frozen #}
-{% if urls.share %}
-<a id="share-btn" class="btn btn-primary w-100 mt-2"
-   href="{{urls.share}}">
-    {% trans %}Share assessment{% endtrans %}
-</a>
-{% endif %}
-{% else %}
+{% if urls.api_assessment_freeze %}
 <form method="post" action="." @submit.prevent="freezeAssessment"
       v-show="itemsLoaded && items.results.length > 0">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
@@ -27,5 +19,13 @@
         {% trans %}Complete{% endtrans %}
     </button>
 </form>
+{% else %}
+{# actions only available when a scorecard is frozen #}
+{% if urls.share %}
+<a id="share-btn" class="btn btn-primary w-100 mt-2"
+   href="{{urls.share}}">
+    {% trans %}Share assessment{% endtrans %}
+</a>
+{% endif %}
 {% endif %}
 {% endblock %}

@@ -1,6 +1,7 @@
 # Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
@@ -316,6 +317,8 @@ class ReportingSerializer(NoModelSerializer):
         help_text=_("segment that was answered"))
     score_url = serializers.CharField(required=False, allow_blank=True,
         help_text=_("link to the scorecard"))
+    notes_url = serializers.URLField(required=False, allow_blank=True,
+        help_text=_("API to assign verifier"))
     normalized_score = serializers.IntegerField(required=False, allow_null=True,
         help_text=_("score"))
     nb_na_answers = serializers.IntegerField(allow_null=True,
@@ -351,7 +354,7 @@ class ReportingSerializer(NoModelSerializer):
     verified_status = EnumField(choices=VerifiedSample.STATUSES,
         help_text=_("verification status"))
     verified_by = serializers.SlugRelatedField(read_only=True,
-        required=False, slug_field='username',
+        required=False, allow_null=True, slug_field='username',
         help_text=_("User that collected the answer"))
 
     def get_reporting_status(self, obj):
@@ -479,10 +482,13 @@ class VerifiedSampleSerializer(serializers.ModelSerializer):
 
     verified_status = EnumField(choices=VerifiedSample.STATUSES,
         help_text=_("verification status"))
+    verified_by = serializers.SlugRelatedField(slug_field='username',
+        queryset=get_user_model().objects.all(), required=False,
+        help_text=_("User that collected the answer"))
 
     class Meta:
         model = VerifiedSample
-        fields = ('verified_status',)
+        fields = ('verified_status', 'verified_by')
 
 
 class RespondentAccountSerializer(serializers.ModelSerializer):

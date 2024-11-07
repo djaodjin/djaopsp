@@ -148,6 +148,22 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                     raise ValidationError({'detail': _("This sample contains"\
                     " the same answers has the previously frozen sample.")})
 
+        # freeze a verifier notes
+        verified_sample = self.verification
+        if verified_sample and self.sample == verified_sample.verifier_notes:
+            # verification notes are just frozen. We don't create a copy.
+            verified_sample.verified_by = self.request.user
+            verified_sample.verified_status = \
+                VerifiedSample.STATUS_REVIEW_COMPLETED
+            verified_sample.verifier_notes.is_frozen = True
+            with transaction.atomic():
+                verification.verifier_notes.save()
+                verification.save()
+            serializer = self.get_serializer(
+                instance=verification.verifier_notes)
+            return http.Response(
+                serializer.data, status=http_status.HTTP_201_CREATED)
+
         # freeze sample
         frozen_assessment_sample = None
         frozen_improvement_sample = None

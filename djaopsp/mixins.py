@@ -386,6 +386,8 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         update_context_urls(context, {
             'complete': reverse('scorecard',
                 args=(account, self.sample,)),
+            'api_assessment_sample': reverse('survey_api_sample',
+                args=(self.account, self.sample)),
         })
         if self.account == self.sample.account:
             update_context_urls(context, {'share': reverse('share',

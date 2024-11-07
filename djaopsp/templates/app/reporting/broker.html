@@ -64,7 +64,7 @@
                   <i :class="sortIcon('status')"></i>
               </button>
           </th>
-          <th>{% trans %}Assigned verifier{% endtrans %}<button class="btn btn-link btn-sort"
+          <th>{% trans %}Verifier{% endtrans %}<button class="btn btn-link btn-sort"
                   @click.prevent="sortBy('verifier')">
                   <i :class="sortIcon('verifier')"></i>
               </button>
@@ -78,7 +78,7 @@
           </td>
         </tr>
         <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
-            <td colspan="7">No organization accessible for {{profile}}</td>
+            <td colspan="7">{% trans profile=profile %}No profile accessible for {{profile}}{% endtrans %}</td>
         </tr>
         <tr :id="entry.slug" :class="entry.supplier_initiated ? 'supplier-initiated' : ''"
             v-for="(entry, index) in items.results"
@@ -97,10 +97,26 @@
             <span v-if="entry.extra">[[ entry.extra.priority ]]</span>
           </td>
           <td style="vertical-align:middle;">
-              [[ entry.verified_status ]]
+              <select class="form-control form-select"
+                      v-model="entry.verified_status"
+                      @change="updateVerifedBy(entry)">
+                <option value="no-review">No review</option>
+                <option value="under-review">Under review</option>
+                <option value="review-completed">Review completed</option>
+              </select>
           </td>
           <td style="vertical-align:middle;">
-            [[ entry.verified_by ]]
+            <div v-if="entry.verified_by">
+              <img class="rounded-circle d-inline-block" :src="getUserPicture(entry.verified_by) ? getUserPicture(entry.verified_by) : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+              <a :href="'{{'/users/'|site_url}}' + entry.verified_by">[[getUserPrintableName(entry.verified_by)]]</a>
+            </div>
+            <div v-if="!entry.verified_by">
+              <select class="form-control form-select"
+                      v-model="entry.verified_by"
+                      @change="updateVerifedBy(entry, 'under-review')">
+                <option :value="candidate.user.username" v-for="candidate in verifiers">[[candidate.user.printable_name]]</option>
+              </select>
+            </div>
           </td>
         </tr>
       </tbody>

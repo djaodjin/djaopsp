@@ -69,6 +69,9 @@ class DashboardRedirectView(VisibilityMixin, AccountMixin,
             # and verification partners.
             context = self.get_context_data(**kwargs)
             update_context_urls(context, {
+                'api_accounts': site_url("/api/profile"),
+                'api_users': site_url("/api/accounts/users"),
+                'api_roles': site_url("/api/profile/%s/roles" % self.account),
                 'api_reporting_completion_rate': reverse(
                     'api_verified_aggregate', args=(self.account,)),
                 'api_portfolio_responses': reverse(

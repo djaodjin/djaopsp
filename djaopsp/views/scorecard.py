@@ -188,17 +188,32 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             'assess_base': reverse('assess_practices',
                 args=(self.sample.account, self.sample, '-'))[:-2],
             'api_profiles': site_url("/api/accounts/users"),
-            'api_assessment_freeze': reverse('survey_api_sample_freeze_index',
-                args=(self.sample.account, self.sample)),
             'api_assessment_reset': reverse('survey_api_sample_reset_index',
-                args=(self.sample.account, self.sample)),
-            'api_assessment_notes': reverse('api_verifier_notes_index',
                 args=(self.sample.account, self.sample)),
             # The Vue component will use the fully resolved URL to show
             # if it is an external link or an uploaded document.
             'api_asset_upload_complete': self.request.build_absolute_uri(
                 reverse('pages_api_upload_asset', args=(self.sample.account,))),
         })
+        if self.account == self.sample.account:
+            if not self.sample.is_frozen:
+                update_context_urls(context, {
+                    'api_assessment_freeze': reverse(
+                        'survey_api_sample_freeze_index', args=(
+                        self.sample.account, self.sample)),
+                })
+
+        if self.is_auditor and self.verification:
+            verified_sample = self.verification
+            if (verified_sample.verifier_notes and
+                not verified_sample.verifier_notes.is_frozen):
+                update_context_urls(context, {
+                    'api_assessment_freeze': reverse(
+                        'survey_api_sample_freeze_index', args=(
+                            verified_sample.verifier_notes.account,
+                            verified_sample.verifier_notes)),
+                })
+
         return context
 
 

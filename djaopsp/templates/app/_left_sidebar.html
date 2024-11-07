@@ -49,10 +49,12 @@
   <footer class="text-center toolbar-footer">
     <hr />
     <section>
+      {% if urls.invite_contributor %}
       <a id="invite-contributor-btn" class="btn btn-outline-primary w-100 mt-2"
-         href="{{'/profile/'|site_url}}{{sample.account.slug}}/roles/manager/">
+         href="{{urls.invite_contributor}}">
           {% trans %}Invite a contributor{% endtrans %}
       </a>
+      {% endif %}
       <a id="download" class="btn btn-outline-primary w-100 mt-2"
          href="{{urls.download}}"
          target="_blank">

@@ -703,6 +703,8 @@ class CompletedAssessmentsMixin(AccountMixin):
                 args=(self.account, sample.slug)) # The broker should be able
             # to access all scorecards without requiring a `Portfolio` record
             # to exist.
+            sample.notes_url = reverse('api_verifier_notes_index',
+                args=(self.account, sample.slug))
             try:
                 sample.verified_status = sample.verified.verified_status
                 sample.verified_by = sample.verified.verified_by

@@ -846,13 +846,16 @@ Vue.component('reporting-organizations', {
     mixins: [
         itemListMixin,
         portfolioTagsMixin,
-        accountDetailMixin
+        accountDetailMixin,
+        userDetailMixin
     ],
     data: function() {
         var data = {
             url: this.$urls.api_portfolio_responses,
             portfolios_received_url: this.$urls.api_portfolios_received,
+            api_sample_verification_url: this.$urls.api_sample_verification,
             api_profiles_base_url: this.$urls.api_organizations,
+            verifiers: [],
             params: {
                 period: 'yearly'
             },
@@ -922,10 +925,12 @@ Vue.component('reporting-organizations', {
             var vm = this;
             if( vm.mergeResults ) {
                 vm.populateAccounts(resp.results);
+                vm.populateUsers(resp.results, 'verified_by');
                 vm.items.results = vm.items.results.concat(resp.results);
             } else {
                 vm.items = resp;
                 vm.populateAccounts(vm.items.results);
+                vm.populateUsers(resp.results, 'verified_by');
             }
             if( grantsResp ) {
                 vm.grants = grantsResp;
@@ -1101,9 +1106,34 @@ Vue.component('reporting-organizations', {
                 });
             }
         },
+        updateVerifedBy: function(entry, verified_status) {
+            var vm = this;
+            if( verified_status ) {
+                entry.verified_status = verified_status;
+            }
+            if( entry.verified_status === 'no-review' ) {
+                entry.verified_by = null;
+            }
+            vm.populateUsers([entry], 'verified_by');
+            if( entry.notes_url ) {
+                vm.reqPut(entry.notes_url, {
+                    verified_status: entry.verified_status,
+                    verified_by: entry.verified_by
+                }, function success(resp) {
+                    entry.verified_by = resp.verified_by;
+                })
+            }
+        },
     },
     mounted: function(){
-        this.get();
+        var vm = this;
+        vm.get();
+        if( vm.$urls.api_roles ) {
+            vm.reqGet(vm.$urls.api_roles,
+            function success(resp) {
+                vm.verifiers = resp.results;
+            });
+        }
     }
 });
 

@@ -24,212 +24,7 @@ from .serializers import AssessmentNodeSerializer, VerifiedSampleSerializer
 LOGGER = logging.getLogger(__name__)
 
 
-class VerifierNotesAPIView(ReportMixin, SampleAnswersAPIView):
-    """
-    Lists verifier notes
-
-    The list returned contains at least one measurement for each question
-    in the campaign. If there are no measurement yet on a question, ``measured``
-    will be null.
-
-    There might be more than one measurement per question as long as there are
-    no duplicated ``unit`` per question. For example, to the question
-    ``adjust-air-fuel-ratio``, there could be a measurement with unit
-    ``assessment`` (Mostly Yes/ Yes / No / Mostly No) and a measurement with
-    unit ``freetext`` (i.e. a comment).
-
-    The {sample} must belong to {organization}.
-
-    {path} can be used to filter the tree of questions by a prefix.
-
-    **Tags**: assessments
-
-    **Examples**
-
-    .. code-block:: http
-
-         GET /api/supplier-1/sample/46f66f70f5ad41b29c4df08f683a9a7a/notes\
-/construction HTTP/1.1
-
-    responds
-
-    .. code-block:: json
-
-    {
-        "count": 3,
-        "previous": null,
-        "next": null,
-        "results": [
-            {
-                "question": {
-                    "path": "/construction/governance/the-assessment\
--process-is-rigorous",
-                    "title": "The assessment process is rigorous",
-                    "default_unit": {
-                        "slug": "assessment",
-                        "title": "assessments",
-                        "system": "enum",
-                        "choices": [
-                        {
-                            "rank": 1,
-                            "text": "mostly-yes",
-                            "descr": "Mostly yes"
-                        },
-                        {
-                            "rank": 2,
-                            "text": "yes",
-                            "descr": "Yes"
-                        },
-                        {
-                            "rank": 3,
-                            "text": "no",
-                            "descr": "No"
-                        },
-                        {
-                            "rank": 4,
-                            "text": "mostly-no",
-                            "descr": "Mostly no"
-                        }
-                        ]
-                    },
-                    "ui_hint": "radio"
-                },
-                "required": true,
-                "measured": "yes",
-                "unit": "assessment",
-                "created_at": "2020-09-28T00:00:00.000000Z",
-                "collected_by": "steve"
-            },
-            {
-                "question": {
-                    "path": "/construction/governance/the-assessment\
--process-is-rigorous",
-                    "title": "The assessment process is rigorous",
-                    "default_unit": {
-                        "slug": "assessment",
-                        "title": "assessments",
-                        "system": "enum",
-                        "choices": [
-                        {
-                            "rank": 1,
-                            "text": "mostly-yes",
-                            "descr": "Mostly yes"
-                        },
-                        {
-                            "rank": 2,
-                            "text": "yes",
-                            "descr": "Yes"
-                        },
-                        {
-                            "rank": 3,
-                            "text": "no",
-                            "descr": "No"
-                        },
-                        {
-                            "rank": 4,
-                            "text": "mostly-no",
-                            "descr": "Mostly no"
-                        }
-                        ]
-                    },
-                    "ui_hint": "radio"
-                },
-                "measured": "Policy document on the public website",
-                "unit": "freetext",
-                "created_at": "2020-09-28T00:00:00.000000Z",
-                "collected_by": "steve"
-            },
-            {
-                "question": {
-                    "path": "/construction/production/adjust-air-fuel\
--ratio",
-                    "title": "Adjust Air fuel ratio",
-                    "default_unit": {
-                        "slug": "assessment",
-                        "title": "assessments",
-                        "system": "enum",
-                        "choices": [
-                        {
-                            "rank": 1,
-                            "text": "mostly-yes",
-                            "descr": "Mostly yes"
-                        },
-                        {
-                            "rank": 2,
-                            "text": "yes",
-                            "descr": "Yes"
-                        },
-                        {
-                            "rank": 3,
-                            "text": "no",
-                            "descr": "No"
-                        },
-                        {
-                            "rank": 4,
-                            "text": "mostly-no",
-                            "descr": "Mostly no"
-                        }
-                        ]
-                    },
-                    "ui_hint": "radio"
-                },
-                "required": true,
-                "measured": null,
-                "unit": null
-            }
-         ]
-    }
-    """
-    schema = None # XXX temporarily disable API doc
-    serializer_class = AssessmentNodeSerializer
-
-    def post(self, request, *args, **kwargs):
-        """
-        Adds verifier notes to an answer
-
-        A frozen sample cannot be edited to add and/or update answers.
-
-        **Tags**: assessments
-
-        **Examples
-
-        .. code-block:: http
-
-            POST /api/supplier-1/sample/0123456789abcdef/notes/construction \
- HTTP/1.1
-
-        .. code-block:: json
-
-            {}
-
-        responds
-
-        .. code-block:: json
-
-            {
-              "slug": "0123456789abcdef",
-              "account": "supplier-1",
-              "created_at": "2020-01-01T00:00:00Z",
-              "is_frozen": true,
-              "campaign": null,
-              "updated_at": "2020-01-01T00:00:00Z"
-            }
-        """
-        #pylint:disable=useless-super-delegation
-        return super(VerifierNotesAPIView, self).post(
-            request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        verification = self.get_or_create_verification()
-        if verification.verifier_notes == self.sample:
-            verification.verified_by = self.request.user
-            verification.verified_status = VerifiedSample.STATUS_UNDER_REVIEW
-            verification.save()
-        return super(VerifierNotesAPIView, self).create(
-            request, *args, **kwargs)
-
-
-class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
+class VerifierNotesIndexAPIView(ReportMixin, generics.UpdateAPIView):
 
     schema = None # XXX temporarily disable API doc
 
@@ -240,41 +35,6 @@ class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        """
-        Adds verifier notes to a sample
-
-        A frozen sample cannot be edited to add and/or update answers.
-
-        **Tags**: assessments
-
-        **Examples
-
-        .. code-block:: http
-
-            POST /api/supplier-1/sample/0123456789abcdef/notes HTTP/1.1
-
-        .. code-block:: json
-
-            {}
-
-        responds
-
-        .. code-block:: json
-
-            {
-              "slug": "0123456789abcdef",
-              "account": "supplier-1",
-              "created_at": "2020-01-01T00:00:00Z",
-              "is_frozen": true,
-              "campaign": null,
-              "updated_at": "2020-01-01T00:00:00Z"
-            }
-        """
-        #pylint:disable=useless-super-delegation
-        return super(VerifierNotesIndexAPIView, self).post(
-            request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """
@@ -314,7 +74,12 @@ class VerifierNotesIndexAPIView(UpdateModelMixin, VerifierNotesAPIView):
     def perform_update(self, serializer):
         verification = serializer.instance
         verified_status = serializer.validated_data.get('verified_status')
-        verification.verified_by = self.request.user
+        verified_by = None
+        if verified_status != VerifiedSample.STATUS_NO_REVIEW:
+            verified_by = serializer.validated_data.get('verified_by')
+            if not verified_by:
+                verified_by = self.request.user
+        verification.verified_by = verified_by
         verification.verified_status = verified_status
         verification.verifier_notes.is_frozen = bool(
             verified_status >= VerifiedSample.STATUS_REVIEW_COMPLETED)
