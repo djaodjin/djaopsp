@@ -1104,10 +1104,20 @@ class SampleRecentCreateAPIView(SampleRecentCreateBaseAPIView):
             for verified_sample in VerifiedSample.objects.filter(
                 sample__in=queryset,
                 verified_status=VerifiedSample.STATUS_REVIEW_COMPLETED)}
+        by_verifier_notes = {verified_sample.verifier_notes_id: verified_sample
+            for verified_sample in VerifiedSample.objects.filter(
+                verifier_notes__in=queryset)}
         for sample in queryset:
+            sample.location = reverse('scorecard', args=(self.account, sample))
             verified_sample = verified_samples.get(sample.pk)
             sample.verified_status = (verified_sample.verified_status
                 if verified_sample else VerifiedSample.STATUS_NO_REVIEW)
+            # When listing samples for a verifier, we want to show the scorecard
+            # of the verified sample alongside the verifier notes.
+            verified_sample = by_verifier_notes.get(sample.pk)
+            if verified_sample:
+                sample.location = reverse(
+                    'scorecard', args=(self.account, verified_sample.sample))
         return super(SampleRecentCreateAPIView, self).decorate_queryset(
             queryset)
 

@@ -283,6 +283,25 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         return self._verification_available
 
 
+    def get_sample(self, url_kwarg=None):
+        """
+        Returns the ``Sample`` object associated with this URL.
+        """
+        if not url_kwarg:
+            url_kwarg = self.sample_url_kwarg
+        sample = None
+        sample_slug = self.kwargs.get(url_kwarg)
+        if sample_slug:
+            # If the `account` verified the response, then it can always
+            # view that scorecard that was verified.
+            verification = VerifiedSample.objects.filter(
+                sample__slug=sample_slug,
+                verifier_notes__account=self.account).first()
+            if verification:
+                return verification.sample
+        return super(ReportMixin, self).get_sample(url_kwarg=url_kwarg)
+
+
     def get_or_create_verification(self):
         """
         Creates a `VerifiedSample` for a verifier to store verification notes
