@@ -104,7 +104,9 @@ INNER JOIN survey_question ON survey_answer.question_id = survey_question.id""")
         prefix_fields = ""
         prefix_join = ""
 
-    extra_clause = sep + ("survey_sample.extra IS NULL" if not extra
+    sample_campaign_clause = (
+        "AND survey_sample.campaign_id = %d" % campaign.pk)
+    sample_extra_clause = " AND " + ("survey_sample.extra IS NULL" if not extra
         else "survey_sample.extra like '%%%%%s%%%%'" % extra)
 
     sql_query = """
@@ -121,8 +123,8 @@ INNER JOIN accounts ON
   survey_sample.account_id = accounts.id
 %(prefix_join)s
 WHERE survey_sample.is_frozen
-  AND survey_sample.campaign_id = %(campaign_id)d
-  %(extra_clause)s
+  %(sample_campaign_clause)s
+  %(sample_extra_clause)s
   %(additional_filters)s
 GROUP BY account_id, period
 ),
@@ -148,7 +150,7 @@ WHERE survey_sample.is_frozen
    AND survey_portfolio.grantee_id IN (%(grantees)s)
    AND (survey_portfolio.campaign_id = %(campaign_id)s OR
         survey_portfolio.campaign_id IS NULL)
-   %(extra_clause)s
+   %(sample_extra_clause)s
 GROUP BY accounts.slug, survey_sample.account_id,
    survey_sample.id, survey_sample.created_at,
    survey_portfolio.extra
@@ -168,12 +170,13 @@ LEFT OUTER JOIN djaopsp_verifiedsample
 ON completed_by_date.id = djaopsp_verifiedsample.sample_id
 ORDER BY completed_by_date.account_id, completed_by_date.created_at
 """ % {'campaign_id': campaign.pk,
+       'sample_campaign_clause': sample_campaign_clause,
        'accounts_query': accounts_query,
        'grantees': ",".join([str(grantee.pk) for grantee in grantees]),
        'as_period': as_sql_date_trunc(
            'survey_sample.created_at', period_type=period),
        'additional_filters': additional_filters,
-       'extra_clause': extra_clause,
+       'sample_extra_clause': sample_extra_clause,
        'prefix_fields': prefix_fields,
        'prefix_join': prefix_join,
        'REPORTING_RESPONDED': humanize.REPORTING_RESPONDED,
@@ -227,10 +230,12 @@ def _get_engagement_sql(campaign, accounts,
         grantees_clause = "AND grantee_id IN (%s)" % ",".join([
             str(account.pk) for account in grantees])
 
-    campaign_clause = (
+    portfoliodoubleoptin_campaign_clause = (
         "AND survey_portfoliodoubleoptin.campaign_id = %d" % campaign.pk)
     portfolio_campaign_clause = (
         "survey_portfolio.campaign_id = %d" % campaign.pk)
+    sample_campaign_clause = (
+        "AND survey_sample.campaign_id = %d" % campaign.pk)
     after_clause = ""
     after_sample_created_clause = ""
     if start_at:
@@ -280,7 +285,7 @@ INNER JOIN (
         %(optin_request_accepted)d,
         %(optin_request_denied)d,
         %(optin_request_expired)d)
-      %(campaign_clause)s
+      %(portfoliodoubleoptin_campaign_clause)s
       %(after_clause)s
       %(before_clause)s
       %(grantees_clause)s
@@ -295,7 +300,7 @@ ON  survey_portfoliodoubleoptin.grantee_id = latest_requests.grantee_id AND
         %(optin_request_accepted)d,
         %(optin_request_denied)d,
         %(optin_request_expired)d)
-      %(campaign_clause)s
+      %(portfoliodoubleoptin_campaign_clause)s
 ),
 portfolios AS (
   SELECT * FROM survey_portfolio
@@ -311,8 +316,8 @@ last_valid_completed AS (
     MAX(survey_sample.created_at) AS last_updated_at
   FROM survey_sample
   WHERE
-    survey_sample.is_frozen AND
-    survey_sample.extra IS NULL
+    survey_sample.is_frozen AND survey_sample.extra IS NULL
+    %(sample_campaign_clause)s
     %(after_sample_created_clause)s
     %(before_sample_created_clause)s
   GROUP BY survey_sample.account_id, survey_sample.is_frozen
@@ -341,7 +346,8 @@ LEFT OUTER JOIN portfolios
 ON survey_sample.account_id = portfolios.account_id AND
    requests.grantee_id = portfolios.grantee_id        -- avoids 'completed' and
                                       -- 'completed-notshared' in same queryset
-WHERE survey_sample.extra IS NULL AND
+WHERE survey_sample.extra IS NULL
+    %(sample_campaign_clause)s AND
     (requests.ends_at IS NULL OR
        last_valid_completed.last_updated_at < requests.ends_at) AND
     (last_valid_completed.last_updated_at > requests.created_at OR
@@ -378,6 +384,7 @@ FROM survey_sample INNER JOIN (
   WHERE
     survey_sample.updated_at >= requests.created_at AND
     survey_sample.extra IS NULL
+    %(sample_campaign_clause)s
     %(before_sample_updated_clause)s
   GROUP BY survey_sample.account_id, survey_sample.extra
   ) AS latest_update
@@ -394,8 +401,8 @@ FROM requests
 INNER JOIN survey_sample ON
   requests.account_id = survey_sample.account_id
 WHERE
-  survey_sample.is_frozen AND
-  survey_sample.extra IS NULL
+  survey_sample.is_frozen AND survey_sample.extra IS NULL
+  %(sample_campaign_clause)s
   %(before_sample_created_clause)s
 GROUP BY survey_sample.account_id, survey_sample.is_frozen, requests.state
 ),
@@ -450,8 +457,10 @@ ON engaged.account_id = %(accounts_table)s.id
 %(order_by_clause)s
 """ % {
     'grantees_clause': grantees_clause,
-    'campaign_clause': campaign_clause,
+    'portfoliodoubleoptin_campaign_clause':
+        portfoliodoubleoptin_campaign_clause,
     'portfolio_campaign_clause': portfolio_campaign_clause,
+    'sample_campaign_clause': sample_campaign_clause,
     'accounts_clause': accounts_clause,
     'filter_by_clause': filter_by_clause,
     'order_by_clause': order_by_clause,
