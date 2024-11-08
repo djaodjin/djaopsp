@@ -1,8 +1,8 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, json, logging
+import csv, json, logging, openpyxl, zipfile
 
 from django.db import transaction
 from pages.models import RelationShip
@@ -21,50 +21,87 @@ def import_campaign(campaign, file_d):
     if not isinstance(campaign, Campaign):
         campaign = Campaign.objects.get(slug=campaign)
     content_model = get_content_model()
-    csv_file = csv.reader(StringIO(file_d.read().decode(
+
+    rows = []
+    try:
+        wbook = openpyxl.load_workbook(file_d)
+        for row in wbook.active.iter_rows():
+            rows += [[cell.value for cell in row]]
+        # First row is title of campaign.
+        # Second row is column headers (practice/heading, unit, required,
+        # segments).
+        col_headers = rows[1]
+        rows = iter(rows[2:])
+    except zipfile.BadZipFile:
+        # Apparently this is not an Excel spreadsheet.
+        pass
+
+    if not rows:
+        file_d.seek(0)
+        csv_file = csv.reader(StringIO(file_d.read().decode(
             'utf-8', 'ignore')) if file_d else StringIO())
+        # First row is title of campaign.
+        # Second row is column headers (practice/heading, unit, required,
+        # segments).
+        col_headers = next(csv_file)
+        col_headers = next(csv_file)
+        rows = csv_file
+
+    content_model = get_content_model()
     with transaction.atomic():
-        cols = []
-        row = next(csv_file) # first row is title
-        row = next(csv_file) # second row is practice/heading, unit, segments
-        for seg in row[3:]:
-            title = seg
-            try:
-                content, _ = content_model.objects.get_or_create(
-                    title=title, defaults={
-                        'account_id': campaign.account_id,
-                        'extra': json.dumps({
-                            "pagebreak": True,
-                            "searchable": True,
-                            "tags": [
-                                "industry", "pagebreak", "scorecard", "enabled"]
-                        })
-                    })
-                cols += [DB_PATH_SEP + content.slug]
-            except content_model.MultipleObjectsReturned as err:
-                LOGGER.error("%s: segment '%s' already exists", err, title)
-                raise
+        # First are title of segments
+        segments = _import_campaign_segments(campaign, col_headers[3:],
+            content_model=content_model)
         # follow on rows could be heading or practice
-        _import_campaign_section(campaign, csv_file, [cols])
+        _import_campaign_section(campaign, rows, [segments],
+            content_model=content_model)
 
 
-def _import_campaign_section(campaign, csv_reader, seg_prefixes,
-                             headings=None, rank=1):
+def _import_campaign_segments(campaign, cols, content_model=None):
+    if not content_model:
+        content_model = get_content_model()
+
+    segments = []
+    for title in cols:
+        try:
+            content, _ = content_model.objects.get_or_create(
+                title=title, defaults={
+                    'account_id': campaign.account_id,
+                    'extra': json.dumps({
+                        "pagebreak": True,
+                        "searchable": True,
+                        "tags": [
+                            "industry", "pagebreak", "scorecard", "enabled"]
+                    })
+                })
+            segments += [DB_PATH_SEP + content.slug]
+        except content_model.MultipleObjectsReturned as err:
+            LOGGER.error("%s: segment '%s' already exists", err, title)
+            raise
+
+    return segments
+
+
+def _import_campaign_section(campaign, rows, seg_prefixes,
+                             headings=None, rank=1, content_model=None):
     #pylint:disable=too-many-arguments,too-many-locals,too-many-nested-blocks
+    if not content_model:
+        content_model = get_content_model()
+
     LOGGER.debug("%d segment prefixes: %s", len(seg_prefixes), seg_prefixes)
     freetext_unit = Unit.objects.get(slug='freetext')
     if headings is None:
         headings = [None]
-    content_model = get_content_model()
     section_rank = 1
     try:
-        row = next(csv_reader)
+        row = next(rows)
         while row:
             # XXX follow on rows could be heading or practice
             title = row[0]
             level_unit = row[1]
-            required = False if row[2].lower() == "false" else True
-            LOGGER.info('adding "%s" (level_unit=%s) ...', title, level_unit)
+            required = not(row[2] and row[2].lower() == "false")
+            LOGGER.info('adding "%s" (level_unit=%s, required=%s) ...',
+                title, level_unit, required)
             section_level = 0
             default_unit = None
             try:
@@ -143,7 +180,7 @@ def _import_campaign_section(campaign, csv_reader, seg_prefixes,
                                 'required': required
                             })
                         rank = rank + 1
-            row = next(csv_reader)
+            row = next(rows)
     except StopIteration:
         pass
     return rank

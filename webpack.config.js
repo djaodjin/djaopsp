@@ -76,6 +76,8 @@ module.exports = {
           typeAheadMixin: ['js/djaodjin-resources-vue.js', 'typeAheadMixin'],
           accountDetailMixin: [
               'js/djaodjin-resources-vue.js', 'accountDetailMixin'],
+          userDetailMixin: [
+              'js/djaodjin-resources-vue.js', 'userDetailMixin'],
           QueryAccountsByAffinity: [
               'js/djaodjin-survey-vue.js', 'QueryAccountsByAffinity'],
           QueryAccountsByAnswers: [
