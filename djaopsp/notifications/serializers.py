@@ -37,17 +37,6 @@ class NotificationSerializer(NoModelSerializer):
         read_only_fields = ('broker', 'back_url', 'originated_by')
 
 
-class PortfolioGrantInitiatedSerializer(NotificationSerializer):
-
-    grantee = ProfileSerializer()
-    campaign = CampaignSerializer(required=False)
-    message = serializers.CharField(required=False, allow_null=True)
-
-    class Meta:
-        fields = ("invitee", "campaign", "message", "ends_at",)
-        read_only_fields = ("ends_at",)
-
-
 class PortfolioNotificationSerializer(NotificationSerializer):
 
     grantee = ProfileSerializer()
@@ -55,10 +44,12 @@ class PortfolioNotificationSerializer(NotificationSerializer):
     campaign = CampaignSerializer(required=False)
     last_completed_at = serializers.CharField(required=False)
     message = serializers.CharField(required=False, allow_null=True)
+    recipients = serializers.ListField(child=UserDetailSerializer(),
+        required=False, allow_null=True)
 
     class Meta:
         fields = ('grantee', 'account', 'campaign', 'last_completed_at',
-            'message',)
+            'message', 'recipients')
         read_only_fields = ('grantee', 'account', 'campaign',
             'last_completed_at',)
 

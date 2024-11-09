@@ -212,8 +212,9 @@ Vue.component('engage-profiles', {
             if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
                 vm.newItem.slug = newAccount.slug;
             }
-            if( newAccount.hasOwnProperty('email') && newAccount.email ) {
-                vm.newItem.email = newAccount.email;
+            const email = vm.getAccountField(newAccount, 'email');
+            if( email ) {
+                vm.newItem.email = email;
             }
             if( !vm.newItem.email ) {
                 if( newAccount.hasOwnProperty('contacts') ) {
@@ -282,6 +283,7 @@ Vue.component('engage-profiles', {
                         if( isNaN(endsAt) || endsAt < now ) {
                             vm.params.ends_at = now.toISOString();
                         }
+                        if( vm.params.page ) vm.params.page = 1;
                         vm.params.q = vm.newItem.full_name;
                         vm.get();
                         vm.hideModal($event);
@@ -295,6 +297,7 @@ Vue.component('engage-profiles', {
                     if( isNaN(endsAt) || endsAt < now ) {
                         vm.params.ends_at = now.toISOString();
                     }
+                    if( vm.params.page ) vm.params.page = 1;
                     vm.params.q = vm.newItem.full_name;
                     vm.get();
                     vm.hideModal($event);

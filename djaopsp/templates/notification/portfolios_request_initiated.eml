@@ -15,7 +15,11 @@
 </pre>
 {% else %}
 <p>
-{% trans nick_name=user.first_name %}Hello {{nick_name}}{% endtrans %},
+{% if user.nick_name %}
+{% trans nick_name=user.nick_name %}Hello {{nick_name}}{% endtrans %},
+{% else %}
+Hello,
+{% endif %}
 </p>
 <p>
 {% trans profile=account.printable_name %}I would like to invite you to complete and share an assessment for {{profile}}.{% endtrans %}

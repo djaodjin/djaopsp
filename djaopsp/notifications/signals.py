@@ -21,7 +21,7 @@ LOGGER = logging.getLogger(__name__)
 #   https://docs.djangoproject.com/en/dev/topics/signals/
 @receiver(portfolios_grant_initiated,
     dispatch_uid="portfolios_grant_initiated_notice")
-def portfolios_grant_initiated_notice(sender, portfolios, invitee, message,
+def portfolios_grant_initiated_notice(sender, portfolios, message, recipients,
                                       request, **kwargs):
     """
     Portfolio grant initiated
@@ -38,8 +38,11 @@ def portfolios_grant_initiated_notice(sender, portfolios, invitee, message,
         }
     """
     #pylint:disable=unused-argument
+    if not recipients:
+        recipients = []
+
     LOGGER.info("[signal] portfolios_grant_initiated_notice(portfolios=%s,"\
-        "invitee=%s)", portfolios, invitee)
+        "recipients=%s)", portfolios, recipients)
     broker = request.session.get('site', {})
     for portfolio in portfolios:
         back_url = request.build_absolute_uri(
@@ -57,12 +60,7 @@ def portfolios_grant_initiated_notice(sender, portfolios, invitee, message,
                 latest_completed_assessment)))
 
         context = {
-            'broker': {
-                'slug': settings.APP_NAME,
-                'full_name': broker.get('printable_name'),
-                'printable_name': broker.get('printable_name'),
-                'email': broker.get('email')
-            },
+            'broker': broker,
             'back_url': back_url,
             'grantee': portfolio.grantee,
             'created_at': portfolio.created_at,
@@ -71,6 +69,7 @@ def portfolios_grant_initiated_notice(sender, portfolios, invitee, message,
             'ends_at': portfolio.ends_at,
             'state': portfolio.state,
             'originated_by': portfolio.initiated_by,
+            'recipients': recipients,
         }
         send_notification('portfolios_grant_initiated',
             context=PortfolioNotificationSerializer().to_representation(
@@ -82,8 +81,8 @@ def portfolios_grant_initiated_notice(sender, portfolios, invitee, message,
 #   https://docs.djangoproject.com/en/dev/topics/signals/
 @receiver(portfolios_request_initiated,
     dispatch_uid="portfolios_request_initiated_notice")
-def portfolios_request_initiated_notice(sender, portfolios, invitee, message,
-                                        request, **kwargs):
+def portfolios_request_initiated_notice(sender, portfolios, message,
+                                        recipients, request, **kwargs):
     """
     Portfolio request initiated
 
@@ -99,28 +98,27 @@ def portfolios_request_initiated_notice(sender, portfolios, invitee, message,
         }
     """
     #pylint:disable=unused-argument
+    if not recipients:
+        recipients = []
+
     portfolio = portfolios[0] # XXX first one only
     LOGGER.debug("[signal] portfolios_request_initiated_notice("\
-        "portfolio=%s, invitee=%s)", portfolio, invitee)
+        "portfolio=%s, recipients=%s)", portfolio, recipients)
+
     back_url = request.build_absolute_uri(reverse('profile_getstarted', args=(
         portfolio.account,)))
 
-    # XXX `slug` is not passed by the proxy
     broker = request.session.get('site', {})
     context = {
         'back_url': back_url,
-        'broker': {
-            'slug': settings.APP_NAME,
-            'full_name': broker.get('printable_name'),
-            'printable_name': broker.get('printable_name'),
-            'email': broker.get('email')
-        },
+        'broker': broker,
         'account': portfolio.account,
         'campaign': portfolio.campaign,
         'deadline': portfolio.ends_at,
         'grantee': portfolio.grantee,
         'originated_by': request.user,
-        'message': message
+        'message': message,
+        'recipients': recipients
     }
     send_notification('portfolios_request_initiated',
       context=PortfolioNotificationSerializer().to_representation(context))
@@ -159,12 +157,7 @@ def portfolio_request_accepted_notice(sender, portfolio, request, **kwargs):
         args=(portfolio.grantee, latest_completed_assessment)))
     broker = request.session.get('site', {})
     context = {
-       'broker': {
-            'slug': settings.APP_NAME,
-            'full_name': broker.get('printable_name'),
-            'printable_name': broker.get('printable_name'),
-            'email': broker.get('email')
-        },
+       'broker': broker,
         'back_url': back_url,
         'account': portfolio.account,
         'campaign': portfolio.campaign,
@@ -186,12 +179,7 @@ def send_sample_frozen_notification(sender, sample, request, **kwargs):
 
     broker = request.session.get('site', {})
     context = {
-       'broker': {
-            'slug': settings.APP_NAME,
-            'full_name': broker.get('printable_name'),
-            'printable_name': broker.get('printable_name'),
-            'email': broker.get('email')
-        },
+       'broker': broker,
         'account': sample.account,
         'back_url': back_url,
         'campaign': sample.campaign,

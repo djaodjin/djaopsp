@@ -21,8 +21,7 @@ from survey.api.serializers import NoModelSerializer
 
 from ..compat import gettext_lazy as _, URLPattern, URLResolver, six
 from ..notifications import signals as notification_signals
-from ..notifications.serializers import (PortfolioGrantInitiatedSerializer,
-    PortfolioNotificationSerializer)
+from ..notifications.serializers import PortfolioNotificationSerializer
 from ..pagination import BenchmarksPagination
 
 LOGGER = logging.getLogger(__name__)
