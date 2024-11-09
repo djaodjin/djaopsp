@@ -1,6 +1,6 @@
 # Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
-import random
+import random, timezone
 
 from django.conf import settings as django_settings
 from django.db import models, transaction, IntegrityError
@@ -19,6 +19,8 @@ class Account(models.Model):
     slugify_field = 'full_name'
 
     slug = models.SlugField(unique=True, db_index=True)
+    created_at = models.DateTimeField(default=timezone.now,
+        help_text="Date/time of creation (in ISO format)")
     full_name = models.CharField(max_length=60, blank=True)
     email = models.EmailField()
     phone = models.CharField(max_length=11)

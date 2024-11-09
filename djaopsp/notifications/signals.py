@@ -21,7 +21,7 @@ LOGGER = logging.getLogger(__name__)
 #   https://docs.djangoproject.com/en/dev/topics/signals/
 @receiver(portfolios_grant_initiated,
     dispatch_uid="portfolios_grant_initiated_notice")
-def portfolios_grant_initiated_notice(sender, portfolios, message, recipients,
+def portfolios_grant_initiated_notice(sender, portfolios, recipients, message,
                                       request, **kwargs):
     """
     Portfolio grant initiated
@@ -81,8 +81,8 @@ def portfolios_grant_initiated_notice(sender, portfolios, message, recipients,
 #   https://docs.djangoproject.com/en/dev/topics/signals/
 @receiver(portfolios_request_initiated,
     dispatch_uid="portfolios_request_initiated_notice")
-def portfolios_request_initiated_notice(sender, portfolios, message,
-                                        recipients, request, **kwargs):
+def portfolios_request_initiated_notice(sender, portfolios, recipients,
+                                        message, request, **kwargs):
     """
     Portfolio request initiated
 

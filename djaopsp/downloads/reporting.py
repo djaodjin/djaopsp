@@ -437,7 +437,10 @@ class PortfolioAccessiblesXLSXView(PortfolioAccessibleSamplesMixin,
     title = "Accessibles responses"
 
     def get_headings(self):
-        labels = [str(_("Supplier No.")), str(_("Supplier name")), str(_("Tags"))]
+        # External PowerBI workflows depend on both, "Supplier No." and
+        # "Supplier Name" being capitalized as such.
+        labels = [str(_("Supplier No.")), str(_("Supplier Name")),
+            str(_("Tags"))]
         for label in list(reversed(self.labels)):
             labels += ["%s Score" % label]
         for label in list(reversed(self.labels)):
@@ -496,7 +499,7 @@ class PortfolioAccessiblesLongCSVView(PortfolioAccessibleSamplesMixin,
     """
     Downloads year-over-year scores in long format
     """
-    base_headings = ['Supplier no.', 'Supplier name',
+    base_headings = ['Supplier No.', 'Supplier Name',
         'TSP Score', 'Score Range', 'Score Stage']
     title = "Responses"
 
