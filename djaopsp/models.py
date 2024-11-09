@@ -1,10 +1,11 @@
 # Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
-import random, timezone
+import random
 
 from django.conf import settings as django_settings
 from django.db import models, transaction, IntegrityError
 from django.template.defaultfilters import slugify
+from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 from pages.models import PageElement
 from survey.models import Sample, get_extra_field_class, Campaign
