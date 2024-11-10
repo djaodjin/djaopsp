@@ -67,7 +67,7 @@ A response from <em>{{profile.printable_name}}</em> to this questionnaire was la
               </div>
               <div class="col-md-6 text-center">
                 {% if assessment.update_url %}
-                <a id="{{assessment.slug}}-share" class="btn btn-primary my-2"
+                <a id="{{assessment.slug}}" class="btn btn-primary my-2"
                    href="{{assessment.update_url}}">{% if assessment.share_url %}{% trans %}Update response{% endtrans %}{% else %}{% trans %}Continue{% endtrans %}{% endif %}</a>
                 {% else %}
                 <form action="." method="post">
