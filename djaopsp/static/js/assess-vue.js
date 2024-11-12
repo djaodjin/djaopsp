@@ -1112,7 +1112,10 @@ Vue.component('scorecard-requests', {
             var vm = this;
             vm.reqDelete(portfolio.api_accept,
             function(resp) { // success
-                vm.items.results.splice(idx, 1);
+            // We would like to do something like `vm.items.results.splice(idx,
+            // 1);`, but even with a `$forceUpdate`, there is no change on the
+            // page.
+                vm.reload();
             });
         },
         getCompleted: function(){
@@ -1183,6 +1186,7 @@ Vue.component('scorecard-requests', {
                                   vm.byCampaigns[campaign].last_completed_at ) {
                                  vm.byCampaigns[campaign].grantCandidates.push({
                                      grantee: item.grantees[gdx],
+                                     campaign: campaign,
                                      last_shared_at: item.created_at
                                  });
                                 }
@@ -1194,6 +1198,12 @@ Vue.component('scorecard-requests', {
                             const campaign = vm.byCampaigns[fieldName];
                             vm.populateAccounts(
                                 campaign.grantCandidates, 'grantee');
+                            if( vm.$refs.grants ) {
+                                // Each component has its own cache
+                                // of profile details.
+                                vm.$refs.grants.populateAccounts(
+                                    campaign.grantCandidates, 'grantee');
+                            }
                         }
                     }
                 });
@@ -1209,7 +1219,7 @@ Vue.component('scorecard-requests', {
             function(resp) { // success
             });
         },
-        submitGrant: function(candidate, campaign) {
+        submitGrant: function(candidate, campaign) { // XXX deprecated?
             var vm = this;
             vm.reqPost(vm.api_portfolios_grants_url, {
                 grantee: {slug: candidate.grantee}, campaign:campaign.slug},

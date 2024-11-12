@@ -39,7 +39,7 @@
 <strong>{% trans %}No data will be shared until you click the "Accept" button.{% endtrans %}</strong>
                   </p>
                   <div :id="'request-' + (received.grantee.slug ? received.grantee.slug : received.grantee)" class="card mt-1"
-                     v-for="(received, index) in byCampaign.requests">
+                       v-for="(received, index) in byCampaign.requests">
                     <div class="card-body">
                       <div class="row align-items-center">
                         <div class="col-2">
@@ -67,264 +67,273 @@
                       </div>
                     </div>
                   </div>{# /.card #}
-                  <hr />
-                  <p class="mt-2" v-show="byCampaign.grantCandidates.length > 0">
-{% trans %}You have shared a copy with the following organizations in the past. Pro-actively notify them of an updated response.{% endtrans %}
-<strong>{% trans %}No data will be shared until you click the "Send updates" button.{% endtrans %}</strong>
-                  </p>
-                  <div :id="'candidate-' + (candidate.grantee.slug ? candidate.grantee.slug : candidate.grantee)" class="card mt-1"
-                     v-for="(candidate, index) in byCampaign.grantCandidates">
-                    <div class="card-body">
-                      <div class="row align-items-center">
-                        <div class="col-2">
-<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(candidate.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
-                        </div>
-                        <div class="col-5">
-                          [[getAccountPrintableName(candidate.grantee)]]
-                        </div>
-                        <div class="col-5 text-end" v-show="!candidate.done">
-                          <button class="btn btn-primary"
-                                  {% if not sample.is_frozen %} disabled{% endif %}
-                                  @click.prevent="submitGrant(candidate, byCampaign.campaign)">{% trans %}Send updates{% endtrans %}</button>
-                        </div>
-                        <div class="col-5 text-end" v-show="candidate.done">
-                          <span>{% trans %}Sent{% endtrans %}</span>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="offset-2 col-10">
-                          <small><em>{% trans last_shared_at='[[$globals.humanizeDate(candidate.last_shared_at)]]' %}last shared on {{last_shared_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(candidate.last_shared_at)]])</em></small>
-                        </div>
-                      </div>
-                    </div>
-                  </div>{# /.card #}
                 </div>{# /byCampaigns #}
               </div>{# /#scorecard-requests #}
-            </div>
-          </scorecard-requests>
-        </div>
 
-        {% if sample.is_frozen %}
-        <div id="grants" class="text-start m-2">
-          <label>Send a copy pro-actively to ...</label>
-          <portfolios-grant-list inline-template
-              v-bind:default-selected-accounts='[{slug: "{{profile.slug}}" }]'
-              v-bind:default-selected-campaign='{slug: "{{campaign.slug}}", title: "{{campaign.title}}" }'>
-            <div>
-              <div class="mb-2">
-                <div class="text-center mt-4" v-show="!itemsLoaded">
-                  <i class="fa fa-refresh fa-spin fa-2x"></i>
-                </div>
-                <div v-if="itemsLoaded && items.results.length > 0" v-cloak>
-                  <div class="card mt-1"
-                       v-for="(grant, index) in items.results">
-                    <div class="card-body">
-                      <div class="row align-items-center">
-                        <div class="col-2">
+              {% if sample.is_frozen %}
+              <div id="grants" class="text-start m-2">
+                <hr />
+                <label>{% trans %}Send a copy pro-actively to ...{% endtrans %}</label>
+                <portfolios-grant-list inline-template
+                    ref="grants"
+                    v-bind:default-grant-candidates="byCampaigns['{{campaign.slug}}'] ? byCampaigns['{{campaign.slug}}'].grantCandidates : []"
+                    v-bind:default-selected-accounts='[{slug: "{{profile.slug}}" }]'
+                    v-bind:default-selected-campaign='{slug: "{{campaign.slug}}", title: "{{campaign.title}}" }'>
+                  <div>
+                    <div class="mb-2">
+                      <div class="text-center mt-4" v-show="!itemsLoaded">
+                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                      </div>
+                      <div v-if="itemsLoaded && items.results.length > 0" v-cloak>
+                        <div class="card mt-1"
+                             v-for="(grant, index) in items.results">
+                          <div class="card-body">
+                            <div class="row align-items-center">
+                              <div class="col-2">
 <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.account) || '{{'/static/img/default-organization.png'|asset}}'" >
-                        </div>
-                        <div class="col-5">
-                          <div>
-Sent copy of [[getAccountPrintableName(grant.account) || ('@' + grant.account)]] [[grant.campaign ? grant.campaign.title : ""]] to [[getAccountPrintableName(grant.grantee) || ('@' + grant.grantee)]]. They have yet to accept it.
+                              </div>
+                              <div class="col-5">
+                                <div>
+{% trans account='[[getAccountPrintableName(grant.account) || ("@" + grant.account)]]', campaign='[[grant.campaign ? grant.campaign.title : ""]]', grantee='[[getAccountPrintableName(grant.grantee) || ("@" + grant.grantee)]]' %}Sent copy of {{account}} {{campaign}} to {{grantee}}. They have yet to accept it.{% endtrans %}
+                                </div>
+                              </div>
+                              <div class="col-2">
+<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
+                              </div>
+                              <div class="col-3 text-end">
+                                <button class="btn btn-danger"
+                                        @click.prevent="ignore(grant, index)">
+                                  {% trans %}Retire{% endtrans %}
+                                </button>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="offset-2 col-5">
+                                <small><em>{% trans created_at='[[$globals.humanizeDate(grant.created_at)]]' %}sent on {{created_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(grant.created_at)]])</em></small>
+                              </div>
+                            </div>
+                          </div>
+                        </div>{# /.card #}
+                      </div>
+                    </div>{# /pending grants #}
+
+                    <p class="mt-2" v-show="grantCandidates.length > 0">
+{% trans %}You have shared a copy with the following organizations in the past. Pro-actively notify them of an updated response.{% endtrans %}
+<strong>{% trans %}No data will be shared until you click the "Send updates" button.{% endtrans %}</strong>
+                    </p>
+                    <div :id="'candidate-' + (candidate.grantee.slug ? candidate.grantee.slug : candidate.grantee)"
+                      class="card mt-1 mb-2"
+                      v-for="(candidate, index) in grantCandidates">
+                      <div class="card-body">
+                        <div class="row align-items-center">
+                          <div class="col-2">
+<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(candidate.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
+                          </div>
+                          <div class="col-5">
+                            [[getAccountPrintableName(candidate.grantee)]]
+                          </div>
+                          <div class="col-5 text-end" v-show="!candidate.done">
+                            <button class="btn btn-primary"
+                              @click.prevent="submitPortfolios({grantee: {slug: candidate.grantee}, campaign: candidate.campaign})">
+                              {% trans %}Send updates{% endtrans %}
+                            </button>
+                          </div>
+                          <div class="col-5 text-end" v-show="candidate.done">
+                            <span>{% trans %}Sent{% endtrans %}</span>
                           </div>
                         </div>
-                        <div class="col-2">
-<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
-                        </div>
-                        <div class="col-3 text-end">
-                          <button class="btn btn-danger"
-                            @click.prevent="ignore(grant, index)">
-                            {% trans %}Retire{% endtrans %}
-                          </button>
+                        <div class="row">
+                          <div class="offset-2 col-10">
+                            <small><em>{% trans last_shared_at='[[$globals.humanizeDate(candidate.last_shared_at)]]' %}last shared on {{last_shared_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(candidate.last_shared_at)]])</em></small>
+                          </div>
                         </div>
                       </div>
-                      <div class="row">
-                        <div class="offset-2 col-5">
-                          <small><em>{% trans created_at='[[$globals.humanizeDate(grant.created_at)]]' %}sent on {{created_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(grant.created_at)]])</em></small>
-                        </div>
-                      </div>
-                    </div>
-                  </div>{# /.card #}
-                </div>
-              </div>
+                    </div>{# /.card /in grantCandidates #}
 
-              <form class="form" @submit.prevent="submitGrants">
-                <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                <div class="card mt-1">
-                  <div class="card-body">
-                    <fieldset>
-                      <grantee-typeahead inline-template
-                          ref="typeahead"
-                          v-bind:dataset="grant.grantee"
-                          v-bind:show-accounts="showAccounts"
-                          v-on:selectitem="addGrantee">
-                        <div>
-                          <div id="grantee-search" class="input-group w-100">
-                            <!-- optional indicators -->
-                            <span class="input-group-text">
-                              <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                              <template v-else>
-                                <i class="fa fa-search" v-show="isEmpty"></i>
-                                <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                              </template>
-                            </span>
-                            <!-- the input field -->
-                            <input class="form-control"
-                                   type="text"
-                                   placeholder="{% trans %}Enter customer company name, or customer contact email address{% endtrans %}"
-                                   autocomplete="off"
-                                   v-model="query"
-                                   @keydown.down="down"
-                                   @keydown.up="up"
-                                   @keydown.enter.prevent="hit"
-                                   @blur="reset"
-                                   @input="update" />
-                            <!-- the list -->
+                    <label v-if="itemsLoaded && (items.results.length > 0 || grantCandidates.length > 0)">
+{% trans %}Send a copy to an organization not listed above:{% endtrans %}
+                    </label>
+                    <form class="form" @submit.prevent="submitGrants">
+                      <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                      <div class="card mt-1">
+                        <div class="card-body">
+                          <fieldset>
+                            <grantee-typeahead inline-template
+                              ref="typeahead"
+                              v-bind:dataset="grant.grantee"
+                              v-bind:show-accounts="showAccounts"
+                              v-on:selectitem="addGrantee">
+                              <div>
+                                <div id="grantee-search" class="input-group w-100">
+                                  <!-- optional indicators -->
+                                  <span class="input-group-text">
+                                    <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                                    <template v-else>
+                                      <i class="fa fa-search" v-show="isEmpty"></i>
+                                      <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                                    </template>
+                                  </span>
+                                  <!-- the input field -->
+                                  <input class="form-control"
+                                     type="text"
+                                     placeholder="{% trans %}Enter customer company name, or customer contact email address{% endtrans %}"
+                                     autocomplete="off"
+                                     v-model="query"
+                                     @keydown.down="down"
+                                     @keydown.up="up"
+                                     @keydown.enter.prevent="hit"
+                                     @blur="reset"
+                                     @input="update" />
+                              <!-- the list -->
                             {# Implementation note: If we use `d-block` instead of    #}
                             {# `style="display: block;"` the dropdown shows even when #}
                             {# `hasItems` is `False`.                                 #}
-                            <ul class="dropdown-menu nav-pills p-1 top-100"
-                                style="display: block;"
-                                v-show="hasItems">
-                              <li v-for="(item, $item) in items" class="nav-item"
-                                  @mousedown="hit"
-                                  @mousemove="setActive($item)">
-                                <a :class="'nav-link px-3 py-2' + activeClass($item)" v-text="item.printable_name"></a>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </grantee-typeahead>
+                                  <ul class="dropdown-menu nav-pills p-1 top-100"
+                                      style="display: block;"
+                                      v-show="hasItems">
+                                    <li v-for="(item, $item) in items" class="nav-item"
+                                        @mousedown="hit"
+                                        @mousemove="setActive($item)">
+                                      <a :class="'nav-link px-3 py-2' + activeClass($item)" v-text="item.printable_name"></a>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </div>
+                            </grantee-typeahead>
                       <!-- invite form:
                            grant portfolio to a user that is not yet registered.
                         -->
-                      <div id="portfolio-grant-invite" v-show="profileRequestDone">
-                        <div class="has-error">
-                          <div class="help-block invalid-feedback">
+                            <div id="portfolio-grant-invite" v-show="profileRequestDone">
+                              <div class="has-error">
+                                <div class="help-block invalid-feedback">
 [[grant.grantee.full_name || grant.grantee.email]] is not yet registered.
 This is an opportunity to invite her/him.
-                          </div>
-                        </div>
-                        <div class="mb-3">
-                          <label class="form-label" for="email">
-                            {% trans %}Send invite to{% endtrans %}
-                          </label>
-                          <input class="form-control"
-                                 name="email" max-length="150" type="text"
-                                 v-model="grant.grantee.email" />
-                        </div>
-                        <div class="mb-3">
-                          <label class="form-label" for="full_name">
-                            {% trans %}Profile name of the organization invited{% endtrans %}
-                          </label>
-                          <input class="form-control"
-                                 name="full_name" max-length="150"
-                                 ref="fullName" type="text"
-                                 v-model="grant.grantee.full_name"
-                                 autofocus />
-                        </div>
-                        <div class="mb-3">
-                          <label class="form-label" for="message">
-                            {% trans %}The following message will be sent alongside the invite{% endtrans %}
-                          </label>
-                          <textarea class="form-control"
-                                    name="message"
-                                    maxlength="4096" rows="10" type="text"
-                                    ref="message"
-                                    v-model="grant.message">Hello,
+                                </div>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="email">
+                                  {% trans %}Send invite to{% endtrans %}
+                                </label>
+                                <input class="form-control"
+                                       name="email" max-length="150" type="text"
+                                       v-model="grant.grantee.email" />
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="full_name">
+                                  {% trans %}Profile name of the organization invited{% endtrans %}
+                                </label>
+                                <input class="form-control"
+                                       name="full_name" max-length="150"
+                                       ref="fullName" type="text"
+                                       v-model="grant.grantee.full_name"
+                                       autofocus />
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="message">
+                                  {% trans %}The following message will be sent alongside the invite{% endtrans %}
+                                </label>
+                                <textarea class="form-control"
+                                          name="message"
+                                          maxlength="4096" rows="10" type="text"
+                                          ref="message"
+                                          v-model="grant.message">Hello,
 
 I would like to invite you to view {{profile.printable_name}}’s assessment on The Sustainability Project.
 
 Thank you.
 - {% if request.user.first_name %}{{request.user.first_name}}{% else %}{{request.user.username}}{% endif %}</textarea>
-                        </div>
-                      </div>{# /#portfolio-grant-invite #}
-                    </fieldset>
-                    <fieldset v-show="showAccounts">
-                      <p class="mt-2">
-<strong>You are about to share a copy</strong> of the following most current
-assessment(s) with <em>[[grant.grantee.email ? grant.grantee.email : getAccountPrintableName(grant.grantee)]]</em>.
-{% trans %}No data will be shared until you click the "Send" button.{% endtrans %}
-                      </p>
-                      <div class="card mt-1" v-for="(account, index) in grant.accounts">
-                        <div class="card-body">
-                          <div class="row align-items-center">
-                            <div class="col-2">
-                              <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(account) || '{{'/static/img/default-organization.png'|asset}}'" >
-                            </div>
-                            <div class="col-5">
-                              <div>
-[[getAccountPrintableName(account) || ('@' + account.slug)]]
                               </div>
-                              <div v-if="grant.campaign">
-[[grant.campaign.title ? grant.campaign.title : ('@' + grant.campaign.slug)]]
+                            </div>{# /#portfolio-grant-invite #}
+                          </fieldset>
+                          <fieldset v-show="showAccounts">
+                            <p class="mt-2">
+{% trans %}You are about to share a copy of the following most current assessment(s) with{% endtrans %} <em>[[grant.grantee.email ? grant.grantee.email : getAccountPrintableName(grant.grantee)]]</em>.
+<strong>{% trans %}No data will be shared until you click the "Send updates" button.{% endtrans %}</strong>
+                            </p>
+                            <div class="card mt-1" v-for="(account, index) in grant.accounts">
+                              <div class="card-body">
+                                <div class="row align-items-center">
+                                  <div class="col-2">
+                                    <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(account) || '{{'/static/img/default-organization.png'|asset}}'" >
+                                  </div>
+                                  <div class="col-5">
+                                    <div>
+{% trans account='[[getAccountPrintableName(account) || ("@" + account.slug)]]', campaign='[[grant.campaign ? grant.campaign.title : ""]]', grantee='[[getAccountPrintableName(grant.grantee) || ("@" + grant.grantee)]]' %}Send a copy of {{account}} {{campaign}} to {{grantee}}.{% endtrans %}
+                                    </div>
+                                  </div>
+                                  <div class="col-2">
+<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
+                                  </div>
+                                  {% if urls.api_grant_allowed_candidates %}
+                                  <div class="col-2 text-end">
+                                    <button class="btn btn-danger"
+                                            @click.prevent="removeAccount(grant.accounts, index)">Remove</button>
+                                  </div>
+                                  {% endif %}
+                                </div>
                               </div>
-                            </div>
-                            {% if urls.api_grant_allowed_candidates %}
-                            <div class="col-5 text-end">
-                              <button class="btn btn-danger"
-                                      @click.prevent="removeAccount(grant.accounts, index)">Remove</button>
-                            </div>
-                            {% endif %}
-                          </div>
-                        </div>
-                      </div>{# /.card #}
+                            </div>{# /.card #}
 
                       {# When it is allowed to share other assessments #}
                       {# than one's own.                               #}
                       {% if urls.api_grant_allowed_candidates %}
-                      <grant-allowed-typeahead inline-template ref="account" v-bind:dataset="grant.accounts" v-on:selectitem="addAccount">
-                        <div id="team-accounts-search" class="input-group w-100">
-                          <div class="input-group-text">
-                            <!-- optional indicators -->
-                            <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                            <template v-else>
-                              <i class="fa fa-search" v-show="isEmpty"></i>
-                              <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                            </template>
-                          </div>
-                          <!-- the input field -->
-                          <input class="form-control" type="text"
-                                 placeholder="Enter name of profile ..."
-                                 autocomplete="off"
-                                 v-model="query"
-                                 @keydown.down="down"
-                                 @keydown.up="up"
-                                 @keydown.enter="hit"
-                                 @keydown.esc="reset"
-                                 @blur="reset"
-                                 @input="update"/>
-                          <button class="btn btn-primary"
-                                  @click.prevent="search">{% trans %}Add{% endtrans %}</button>
-                          <!-- the list -->
-                          <ul class="dropdown-menu"
-                              v-show="hasItems">
-                            <li :class="activeClass($item)"
-                                v-for="(item, $item) in items"
-                                @mousedown="hit"
-                                @mousemove="setActive($item)"
-                                @click="setActiveAndHit($item)">
-                              <a v-text="item.email"></a>
-                            </li>
-                          </ul>
+                            <grant-allowed-typeahead inline-template ref="account" v-bind:dataset="grant.accounts" v-on:selectitem="addAccount">
+                              <div id="team-accounts-search" class="input-group w-100">
+                                <div class="input-group-text">
+                                  <!-- optional indicators -->
+                                  <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                                  <template v-else>
+                                    <i class="fa fa-search" v-show="isEmpty"></i>
+                                    <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                                  </template>
+                                </div>
+                                <!-- the input field -->
+                                <input class="form-control" type="text"
+                                       placeholder="Enter name of profile ..."
+                                       autocomplete="off"
+                                       v-model="query"
+                                       @keydown.down="down"
+                                       @keydown.up="up"
+                                       @keydown.enter="hit"
+                                       @keydown.esc="reset"
+                                       @blur="reset"
+                                       @input="update"/>
+                                <button class="btn btn-primary"
+                                        @click.prevent="search">{% trans %}Add{% endtrans %}</button>
+                                <!-- the list -->
+                                <ul class="dropdown-menu"
+                                    v-show="hasItems">
+                                  <li :class="activeClass($item)"
+                                      v-for="(item, $item) in items"
+                                      @mousedown="hit"
+                                      @mousemove="setActive($item)"
+                                      @click="setActiveAndHit($item)">
+                                    <a v-text="item.email"></a>
+                                  </li>
+                                </ul>
+                              </div>
+                            </grant-allowed-typeahead>
+                            {% endif %}
+                          </fieldset>
+                        </div>{# /.card-body #}
+                        <div class="card-footer">
+                          <button class="btn btn-primary w-100"
+                                  type="submit"
+                                  v-show="!showAccounts">{% trans %}Next{% endtrans %} &raquo;</button>
+                          <button class="btn btn-primary w-100"
+                                  type="submit"
+                                  v-show="showAccounts && grant.accounts.length > 0">{% trans %}Send updates{% endtrans %}</button>
                         </div>
-                      </grant-allowed-typeahead>
-                      {% endif %}
-                    </fieldset>
-                  </div>{# /.card-body #}
-                  <div class="card-footer">
-                    <button class="btn btn-primary w-100"
-                            type="submit"
-                            v-show="!showAccounts">{% trans %}Send{% endtrans %} &raquo;</button>
-                    <button class="btn btn-primary w-100"
-                            type="submit"
-                            v-show="showAccounts && grant.accounts.length > 0">{% trans %}Send{% endtrans %}</button>
+                      </div>
+                    </form>
                   </div>
-                </div>
-              </form>
+                </portfolios-grant-list>
+              </div>{# /.grants #}
+
             </div>
-          </portfolios-grant-list>
-        </div>{# /.grants #}
+          </scorecard-requests>
+        </div>
+
       </div>{# /.col-md-8 #}
       {% endif %}
     </div>
