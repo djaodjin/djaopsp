@@ -98,8 +98,16 @@ def _import_campaign_section(campaign, rows, seg_prefixes,
         while row:
             # XXX follow on rows could be heading or practice
             title = row[0]
+            if not title:
+                # Excel spreadsheets have a tendancy to have extraneous blank
+                # lines.
+                break
             level_unit = row[1]
-            required = not(row[2] and row[2].lower() == "false")
+            required = row[2]
+            if isinstance(required, str):
+                required = not(row[2] and row[2].lower() == "false")
+            if not required:
+                required = False
             LOGGER.info('adding "%s" (level_unit=%s, required=%s) ...',
                 title, level_unit, required)
             section_level = 0

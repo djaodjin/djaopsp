@@ -7,5 +7,9 @@
 {% endblock %}
 
 {% block left_sidebar_actions %}
+{% if urls.improve %}
 <a class="btn btn-primary w-100 mt-2" href="{{urls.improve}}">{% trans %}Next{% endtrans %} &raquo;</a>
+{% elif urls.complete %}
+<a class="btn btn-primary w-100 mt-2" href="{{urls.complete}}">{% trans %}Next{% endtrans %} &raquo;</a>
+{% endif %}
 {% endblock %}

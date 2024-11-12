@@ -760,14 +760,54 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
         serializer = self.get_serializer(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        update_kwargs = {}
-        for field_name, field_value in six.iteritems(serializer.validated_data):
-            if field_value:
-                update_kwargs.update({
-                    field_name: field_value
-                })
+        with transaction.atomic():
+            question_data = {}
+            question_data.update(serializer.validated_data)
+            question_model = get_question_model()
+            invalid_fields = []
+            model_fields = {
+                field.name for field in question_model._meta.get_fields()}
+            for field_name in six.iterkeys(question_data):
+                if field_name not in model_fields:
+                    invalid_fields += [field_name]
+            for field_name in invalid_fields:
+                question_data.pop(field_name)
+            question_model.objects.filter(
+                path__endswith=self.db_path).update(**question_data)
 
-        get_question_model().objects.filter(
-            path__endswith=self.db_path).update(**update_kwargs)
+            enum_question_data = {}
+            enum_question_data.update(serializer.validated_data)
+            enum_question_model = EnumeratedQuestions
+            invalid_fields = []
+            model_fields = {
+                field.name for field in enum_question_model._meta.get_fields()}
+            for field_name in six.iterkeys(enum_question_data):
+                if field_name not in model_fields:
+                    invalid_fields += [field_name]
+            for field_name in invalid_fields:
+                enum_question_data.pop(field_name)
+            enum_question_model.objects.filter(
+                campaign=self.campaign,
+                question__path__endswith=self.db_path).update(
+                **enum_question_data)
 
-        return Response(serializer.data)
+            content_data = {}
+            content_data.update(serializer.validated_data)
+            content_model = PageElement
+            invalid_fields = []
+            model_fields = {
+                field.name for field in content_model._meta.get_fields()}
+            for field_name in six.iterkeys(content_data):
+                if field_name not in model_fields:
+                    invalid_fields += [field_name]
+            for field_name in invalid_fields:
+                content_data.pop(field_name)
+            content_model.objects.filter(
+                question__path__endswith=self.db_path).update(**content_data)
+
+        question = question_model.objects.filter(
+            path__endswith=self.db_path).first()
+        resp = super(CampaignEditableQuestionAPIView,
+            self).get_serializer_class()().to_representation(question)
+
+        return Response(resp)

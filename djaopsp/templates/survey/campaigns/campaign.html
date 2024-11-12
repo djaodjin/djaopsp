@@ -177,6 +177,13 @@
                                            @keydown.enter.prevent="hit"
                                            @blur="clear"
                                            @input="update" />
+                                    <button  class="input-group-text"
+                                             role="button" href="#"
+                                             aria-haspopup="true"
+                                             aria-expanded="false"
+                                             @click.prevent="reload">
+                                      <i class="fa fa-caret-down"></i>
+                                    </button>
                                     <!-- the list -->
                                     {# Implementation note: If we use `d-block` instead of    #}
                                     {# `style="display: block;"` the dropdown shows even when #}
@@ -193,8 +200,13 @@
                                   </div>
                                 </div>
                               </default-unit-typeahead>
+                              <select class="form-control form-select"
+                                      v-model="entry.required"
+                                      @change="updateElement(entry, index)">
+                                <option value="true">{% trans %}Required{% endtrans %}</option>
+                                <option value="false">{% trans %}Optional{% endtrans %}</option>
+                              </select>
                               </div>
-
                                 <a class="title"
                                    :href="entry.url ? entry.url : '{{urls.pages_editables_index}}' + entry.slug + '/'"
                                    target="_blank"
@@ -234,7 +246,7 @@
                             </td>
                             <td>
                               <div v-if="isPractice(entry)">
-                                [[entry.required]]
+                                [[entry.required ? "" : "{% trans %}Optional{% endtrans %}"]]
                               </div>
                             </td>
                             {# segments #}
@@ -297,7 +309,7 @@
                                     <label>Practice</label>
                                   </div>
                                   <div class="col-md-9">
-                                    <practice-typeahead inline-template
+                                    <question-typeahead inline-template
                                         class="w-100"
                                         v-bind:dataset="activeEntry.title"
                                         v-on:selectitem="addPractice">
@@ -328,7 +340,7 @@
                                           </li>
                                         </ul>
                                       </div>
-                                    </practice-typeahead>
+                                    </question-typeahead>
                                   </div>
                                 </div>
                                 <div class="input-group mb-3">

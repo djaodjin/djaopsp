@@ -274,9 +274,14 @@ Vue.component('editable-practices-list', {
         },
         updateElement: function(entry, index) {
             var vm = this;
-            vm.reqPut(vm._safeUrl(vm.$urls.edit.api_content,
+            if( typeof entry.required === "string" ) {
+                entry.required = (entry.required.toLowerCase() !== "false");
+            }
+            vm.reqPut(vm._safeUrl(vm.$urls.api_content,
                     vm._getPath(entry, index)), {
-                title: entry.title
+                title: entry.title,
+                default_unit: entry.default_unit,
+                required: entry.required
             }, function(resp) {
                 vm._clearInput();
             });
@@ -284,7 +289,7 @@ Vue.component('editable-practices-list', {
         updateItemSelected: function(item, question) {
             var vm = this;
             vm.reqPatch(vm._safeUrl(vm.url, question.path), {
-                'default_unit': item.slug
+                default_unit: item.slug,
             }, function() {
                 question.default_unit = item.slug;
             });

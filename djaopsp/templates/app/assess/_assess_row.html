@@ -40,14 +40,22 @@
 
   {# Presents questions based on its ui_hint and default unit #}
   <div class="col-md-6 text-center"
-       v-if="isFreetextUIHint(practice)">
+       v-if="isFreetextUnit(practice)">
     <textarea
       class="form-control"
       type="text" rows="10"
       placeholder=""
       v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
       @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-      :disabled="practice.frozen"></textarea>
+      :disabled="practice.frozen"
+      v-if="isFreetextUIHint(practice)"></textarea>
+    <input class="form-control"
+      type="text"
+      placeholder=""
+      v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+      @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
+      :disabled="practice.frozen"
+      v-if="!isFreetextUIHint(practice)"></input>
   </div>
 
   {# The unit is fixed. question.ui_hint === 'revenue' #}

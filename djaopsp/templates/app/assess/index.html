@@ -19,16 +19,10 @@
       </div>
 
       <div class="container bg-body text-body"
-           v-show="itemsLoaded && items.results.length == 0" v-cloak>
-        {% block assess_no_questions %}
-        {% endblock %}
-      </div>
-
-      <div class="container bg-body text-body"
-           v-show="itemsLoaded && items.results.length > 0" v-cloak>
-<div class="row">
-        <div class="col-md-6 pt-4">
-<div class="row">
+           v-show="itemsLoaded" v-cloak>
+        <div class="row">
+          <div class="col-md-6 pt-4">
+            <div class="row">
               <div class="col-sm-4 text-center text-sm-end">
                 <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
               </div>
@@ -133,7 +127,7 @@
           {% if segments_candidates %}
           <div id="segment-selector" class="d-print-none"
                v-show="itemsLoaded" v-cloak>
-            <h2 class="mt-4">Industry-specific practices (optional)</h2>
+            <h2 class="mt-4">Industry-specific practices</h2>
             <p>
 {% trans %}To create or complete an improvement plan towards your stated targets, we have indentified practices relevent and specific to each of the following industry segments.{% endtrans %}
 (<a target="_blank" href="{{'/docs/faq/#best-practices-1'|site_url}}">How were practices for each industry segment identified or selected?</a>)
@@ -238,9 +232,11 @@
                   {% trans at_time=sample.created_at|date %}Completed on {{at_time}}{% endtrans %}
                 </p>
                 {% else %}
+                {% if urls.improve %}
                 <p>
 {% trans %}Once you have answered all questions with required answers (red vertical bar next to them), move to the <strong>Planning</strong> step to optionnally create an improvement plan.{% endtrans %}
                 </p>
+                {% endif %}
                 {% endif %}
               </div>
             </div>

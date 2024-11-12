@@ -367,8 +367,10 @@ class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
         account = self.account
         assess_url = reverse('assess_index',
             args=(account, self.sample,))
-        improve_url = reverse('improve_redirect',
-            args=(account, self.sample,))
+        is_planned = get_extra(self.sample.campaign, 'is_planned', False)
+        if is_planned:
+            improve_url = reverse('improve_redirect',
+                args=(account, self.sample,))
         if path:
             # A convoluted way to get back to the industry segment `path`
             # prefix...
