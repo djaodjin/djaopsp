@@ -14,7 +14,7 @@
           <div class="card-body">
             {% if assessment.descr %}
             <p>
-{{assessment.descr}}
+{{assessment.descr|md}}
             </p>
             {% endif %}
             {% if assessment.last_completed_at %}

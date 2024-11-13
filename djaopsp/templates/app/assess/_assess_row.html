@@ -582,7 +582,7 @@
             <textarea class="form-control"
                       name="other-measures"
                       type="text" rows="10"
-                      :placeholder="isTagged('verify') ? '{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}' : '{% trans %}Please comment about the current and planned implementation of the practice at your organization; when available, include supporting links to CSR/Sustainability report, Annual report, etc. (You can also upload these reports by drag/drop to this box if necessary). If you think the practice does not apply to your organization, please explain why. Thank you.{% endtrans %}'"
+                      :placeholder="isTagged('verify') ? '{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}' : '{% trans %}Please provide context and supporting evidence for your answer, including public URL links, or uploaded documents. Thank you.{% endtrans %}'"
                       v-model="text"
                       :disabled="disabled"
                       @keydown="fitToText"
