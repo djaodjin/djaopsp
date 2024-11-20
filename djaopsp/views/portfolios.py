@@ -51,7 +51,9 @@ class DashboardRedirectView(VisibilityMixin, AccountMixin,
             for visible in set(['public']):
                 filtered_in &= Q(extra__contains=visible)
             self._dashboards_available = Campaign.objects.filter(
-                Q(account__slug=self.account) | filtered_in)
+                Q(portfolios__grantee=self.account) |
+                Q(account__slug=self.account) |
+                filtered_in).distinct()
         return self._dashboards_available
 
     def get_redirect_url(self, *args, **kwargs):

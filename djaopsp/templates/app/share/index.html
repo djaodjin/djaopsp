@@ -16,7 +16,8 @@
         </div>
         {% endif %}
         <div class="text-start m-2">
-          <scorecard-requests inline-template class="pt-2">
+          <scorecard-requests inline-template class="pt-2"
+              data-campaign="{{campaign}}">
             <div>
               <!-- loading -->
               <div class="text-center mt-4" v-show="!itemsLoaded">
@@ -32,7 +33,7 @@
               <div id="scorecard-requests" v-show="itemsLoaded && hasPendingRequests" v-cloak>
                 <div v-for="byCampaign in byCampaigns">
                   <p>
-{% trans campaign='[[byCampaign.campaign.title]]', latest_at=latest_completed_assessment.created_at|humanizeDate, relative_ago=latest_completed_assessment.created_at|humanizeTimeDelta %}Thank you for completing the {{campaign}} assessment on {{latest_at}} ({{relative_ago}})!{% endtrans %}
+{% trans campaign='[[byCampaign.campaign.title]]', latest_at='[[$globals.humanizeDate(byCampaign.last_completed_at)]]', relative_ago='[[$globals.humanizeTimeDelta(byCampaign.last_completed_at)]]' %}Thank you for completing the {{campaign}} assessment on {{latest_at}} ({{relative_ago}})!{% endtrans %}
                   </p>
                   <p v-show="byCampaign.requests.length > 0">
 {% trans %}The following organizations would like to receive a copy.{% endtrans %}
@@ -144,7 +145,7 @@
                         </div>
                         <div class="row">
                           <div class="offset-2 col-10">
-                            <small><em>{% trans last_shared_at='[[$globals.humanizeDate(candidate.last_shared_at)]]' %}last shared on {{last_shared_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(candidate.last_shared_at)]])</em></small>
+                            <small v-if="candidate.last_shared_at"><em>{% trans last_shared_at='[[$globals.humanizeDate(candidate.last_shared_at)]]' %}last shared on {{last_shared_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(candidate.last_shared_at)]])</em></small>
                           </div>
                         </div>
                       </div>

@@ -1145,7 +1145,9 @@ Vue.component('scorecard-requests', {
                 vm.byCampaigns[campaign].requests.push(item);
             }
             if( vm.api_sample_list_url ) {
-                vm.reqGet(vm.api_sample_list_url,{state: 'completed'},
+                let params = Object.assign({}, vm.params);
+                params.state = 'completed';
+                vm.reqGet(vm.api_sample_list_url, params,
                 function(resp) {
                     for( let idx = 0; idx < resp.results.length; ++idx ) {
                         const item = resp.results[idx];
@@ -1168,13 +1170,14 @@ Vue.component('scorecard-requests', {
                         }
                         for( let gdx = 0; gdx < item.grantees.length;
                              ++gdx ) {
+                            const granteeCandidate = item.grantees[gdx];
                             let found = false;
                             for( let rdx = 0;
                                  rdx < vm.byCampaigns[campaign].requests.length;
                                  ++rdx ) {
                                 const request =
                                       vm.byCampaigns[campaign].requests[rdx];
-                                if( request.grantee ===  item.grantees[gdx] ) {
+                                if( request.grantee === granteeCandidate ) {
                                     found = true;
                                     break;
                                 }
@@ -1185,24 +1188,39 @@ Vue.component('scorecard-requests', {
                                 if( item.created_at <
                                   vm.byCampaigns[campaign].last_completed_at ) {
                                  vm.byCampaigns[campaign].grantCandidates.push({
-                                     grantee: item.grantees[gdx],
+                                     grantee: granteeCandidate,
                                      campaign: campaign,
                                      last_shared_at: item.created_at
                                  });
                                 }
                             }
+                            if( vm.byCampaigns[campaign].campaign.account === granteeCandidate ) {
+                                vm.byCampaigns[campaign].skipAccountGrantCandidate = true;
+                            }
                         }
-                    }
+                    } // /resp.results.length
                     for(fieldName in vm.byCampaigns) {
                         if( vm.byCampaigns.hasOwnProperty(fieldName) ) {
-                            const campaign = vm.byCampaigns[fieldName];
+                            const item = vm.byCampaigns[fieldName];
+                            // Let's see if we need to add `campaign.account`
+                            // to the list of grantCandidates.
+                            if( !(item.campaign.is_commons ||
+                                  item.skipAccountGrantCandidate) ) {
+                                const granteeCandidate =
+                                      item.campaign.account;
+                                item.grantCandidates.push({
+                                    grantee: granteeCandidate,
+                                    campaign: item.campaign.slug
+                                });
+                            }
+                            // Loads profile information (picture and full_name)
                             vm.populateAccounts(
-                                campaign.grantCandidates, 'grantee');
+                                item.grantCandidates, 'grantee');
                             if( vm.$refs.grants ) {
                                 // Each component has its own cache
                                 // of profile details.
                                 vm.$refs.grants.populateAccounts(
-                                    campaign.grantCandidates, 'grantee');
+                                    item.grantCandidates, 'grantee');
                             }
                         }
                     }
@@ -1235,7 +1253,13 @@ Vue.component('scorecard-requests', {
         }
     },
     mounted: function(){
-        this.get();
+        var vm = this;
+        const campaign = ( vm.$el.dataset && vm.$el.dataset.campaign ) ?
+              vm.$el.dataset.campaign : null;
+        if( campaign ) {
+            vm.params['campaign'] = campaign;
+        }
+        vm.get();
     }
 });
 

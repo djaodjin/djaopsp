@@ -284,6 +284,9 @@ def get_latest_completed_assessment(account, campaign=None):
 
 
 def get_score_weight(campaign, path, default_value=1.0):
+    points = get_extra(campaign, 'points')
+    if points:
+        return points.get(path, default_value)
     return get_extra(campaign, path, default_value)
 
 
