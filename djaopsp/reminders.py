@@ -20,25 +20,29 @@ def send_reminders(organization, email=None, dry_run=False):
     if not requesters:
         return
 
+    context = {
+        'account': {
+            'email': organization.email,
+            'printable_name': organization.printable_name,
+        },
+        'requesters': requesters,
+    }
+    if email:
+        context.update({'recipients': [email]})
+
     deadline = PortfolioDoubleOptIn.objects.pending_for(
         account=organization).filter(
         state=PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED).aggregate(
         Min('ends_at')).get('ends_at__min')
-    weeks_to_deadline = rrule.rrule(
-        rrule.WEEKLY, dtstart=datetime_or_now(),
-        until=datetime_or_now(deadline)).count()
-
-    if not dry_run:
-        context = {
-            'account': {
-                'email': organization.email,
-                'printable_name': organization.printable_name,
-            },
-            'requesters': requesters,
+    if deadline:
+        weeks_to_deadline = rrule.rrule(
+            rrule.WEEKLY, dtstart=datetime_or_now(),
+            until=datetime_or_now(deadline)).count()
+        context.update({
             'deadline': deadline.strftime("%b %d, %Y"),
             'deadline_year': deadline.year,
             'weeks_to_deadline': weeks_to_deadline
-        }
-        if email:
-            context.update({'recipients': [email]})
+        })
+
+    if not dry_run:
         send_notification('request_reminder', context=context)
