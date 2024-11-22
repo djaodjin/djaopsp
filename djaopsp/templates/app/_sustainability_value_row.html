@@ -1,4 +1,4 @@
-<td :id="practice.slug" :colspan="isPractice(practice) ? 7 : 12">
+<td :id="getPracticeId(practice, 'results-')" :colspan="isPractice(practice) ? 7 : 12">
   <div style="display:inline-block;">
     <div :class="'d-inline ' + indentHeader(practice)">
       <span class="title"

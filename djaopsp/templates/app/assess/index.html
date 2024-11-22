@@ -78,7 +78,7 @@
 
         <div v-show="!showVsPeers">
           <div class="tab-pane"
-               :id="icon.slug"
+               :id="getPracticeId(icon)"
                v-for="icon in getEntries('', 1)">
             <h2 class="mt-4">[[icon.title]]
               {% if not sample.is_frozen %}
@@ -182,7 +182,7 @@
         {# assess results #}
         <div v-show="showVsPeers">
           <div class="tab-pane"
-               :id="'results-' + icon.slug"
+               :id="getPracticeId(icon, 'results-')"
                v-for="icon in getEntries('', 1)">
             <h2 class="mt-4">[[icon.title]]</h2>
             {% block vs_header_block %}

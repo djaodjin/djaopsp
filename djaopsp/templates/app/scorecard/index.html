@@ -104,7 +104,7 @@
                   <div class="d-inline-block" v-if="practice.picture">
                     <img class="icon-heading" :src="practice.picture" />
                   </div>
-                  <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
                 </div>
 
                 {# scorecard for segment #}
@@ -181,7 +181,7 @@
           <i class="fa fa-refresh fa-spin fa-2x"></i>
         </div>
         <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
-          <div :id="practice.slug"
+          <div :id="getPracticeId(practice)"
                v-for="(practice, practiceIdx) in getEntries()">
             <div class="mt-4" v-if="isChartHeading(practice)">
               <hr v-if="practice.picture" />
@@ -193,7 +193,7 @@
                   <div class="d-inline-block" v-if="practice.picture">
                     <img class="icon-heading" :src="practice.picture" />
                   </div>
-                  <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
                 </div>
                 {% if not sample.is_frozen %}
                 <div class="row">
@@ -281,7 +281,7 @@
                   <div class="d-inline-block" v-if="practice.picture">
                     <img class="icon-heading" :src="practice.picture" />
                   </div>
-                  <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                  <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
                 </div>
 
                 {# summary when no tile sections #}
@@ -327,7 +327,7 @@
                       <img class="icon-heading"
                            :src="practice.picture" />
                     </div>
-                    <span class="title">[[practice.title]]</span><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                    <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
                 </div>
               </div>{# /.row #}
@@ -360,7 +360,7 @@
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
                     [[practice.title]]
-                    <a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
                   <div class="row" v-if="isAssessmentUnit(practice)">
                     <div class="col-6 col-sm-4"
@@ -456,7 +456,7 @@
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
                     [[practice.title]]
-                    <a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
                 </div>
                 <div class="col-sm-4">
@@ -483,7 +483,7 @@
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
                     [[practice.title]]
-                    <a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
                 </div>
                 <div class="col-sm-4">
@@ -514,7 +514,7 @@
                     <a class="title"
                        :href="'{{urls.pages_index}}' + practice.slug + '/'">
                       [[practice.title]]
-                    </a><a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                    </a><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
                 </div>
                 <div class="col-sm-4">
@@ -537,7 +537,7 @@
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
                     [[practice.title]]
-                    <a :href="'#' + practice.slug" class="header-anchor"><i class="fa fa-link"></i></a>
+                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
                   </div>
                 </div>
                 <div class="col-sm-4">

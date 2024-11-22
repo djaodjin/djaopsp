@@ -66,11 +66,16 @@ Vue.component('campaign-questions-list', {
                 });
             });
         },
-
-        getPracticeId: function(practice) {
-            return (this.showVsPeers ? 'results-' : '') + practice.slug;
+        getPracticeId: function(practice, prefix) {
+            // We define this method almost identically
+            // in `'campaign-questions-list'` and `'scorecard'`.
+            const vm = this;
+            const longId = practice.path.replaceAll('/', '-');
+            if( vm.showVsPeers && prefix ) {
+                return prefix + longId;
+            }
+            return longId;
         },
-
         humanizeScoreWeight: function (value, percentage) {
             if( !value || value === 0 ) {
                 return "0.00";
@@ -941,8 +946,11 @@ Vue.component('scorecard', {
             }
             return "?";
         },
-        getPracticeId: function(practice) {
-            return practice.slug;
+        getPracticeId: function(practice, prefix) {
+            // We define this method almost identically
+            // in `'campaign-questions-list'` and `'scorecard'`.
+            const longId = practice.path.replaceAll('/', '-');
+            return longId;
         },
         indentHeader: function(practice) {
             var vm = this;

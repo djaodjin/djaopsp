@@ -1,4 +1,4 @@
-<div :id="'results-' + practice.slug" class="row">
+<div :id="getPracticeId(practice, 'results-')" class="row">
   <div :class="isPractice(practice) ? 'col-md-6' : 'col-md-12'">
     <div class="d-inline-block">
       <div :class="indentHeader(practice)"

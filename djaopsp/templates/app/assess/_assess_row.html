@@ -1,4 +1,4 @@
-<div :id="practice.slug" :class="'row ' + practiceStyle(practice)">
+<div :id="getPracticeId(practice)" :class="'row ' + practiceStyle(practice)">
   <div :class="(isPractice(practice) || isEnumHeaderShown(icon)) ? 'col-md-6' : 'col-md-12'">
     <div :class="indentHeader(practice)">
       <span class="title"
