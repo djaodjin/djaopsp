@@ -1,27 +1,29 @@
 {% extends "notification/base.eml" %}
 
 {% block subject %}
-{{account.printable_name|safe}} shared their assessment with you
+{% trans account=account.printable_name %}{{account}} shared an assessment with you{% endtrans %}
 {% endblock %}
 
 {% block title %}
-{{account.printable_name|safe}} shared their assessment with you
+{% trans account=account.printable_name %}{{account}} shared an assessment{% endtrans %}
 {% endblock %}
 
 {% block html_content %}
-{% if reason %}
-<pre>
-{{reason}}
-</pre>
+{% if message %}
+<p>
+{{message}}
+</p>
 {% endif %}
 <p>
-You are receiving this email, because {{account.printable_name|safe}}
-shared their assessment on {{broker.printable_name}}
-with {{grantee.printable_name|safe}}.
+{% if campaign %}
+{% trans broker=broker.printable_name, account=account.printable_name, grantee=grantee.printable_name, campaign=campaign.title, last_completed_at=last_completed_at %} You are receiving this email, because {{account}} shared their assessments for {{campaign}} on {{broker}} with {{grantee}} up to {{last_completed_at}}.{% endtrans %}
+{% else %}
+{% trans broker=broker.printable_name, account=account.printable_name, grantee=grantee.printable_name, last_completed_at=last_completed_at %} You are receiving this email, because {{account}} shared assessments on {{broker}} with {{grantee}} up to {{last_completed_at}}.{% endtrans %}
+{% endif %}
 </p>
+
 <p>
-View the completed assessment for {{account.printable_name|safe}}
-by clicking on the link below:
+{% trans account=account.printable_name %}View the completed assessment for {{account}} by clicking on the link below:{% endtrans %}
 </p>
 <p>
 <a href="{{back_url}}">{{back_url}}</a>

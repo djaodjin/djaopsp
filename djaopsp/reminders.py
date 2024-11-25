@@ -28,7 +28,7 @@ def send_reminders(organization, email=None, dry_run=False):
         'requesters': requesters,
     }
     if email:
-        context.update({'recipients': [email]})
+        context.update({'recipients': [{'email': email}]})
 
     deadline = PortfolioDoubleOptIn.objects.pending_for(
         account=organization).filter(
