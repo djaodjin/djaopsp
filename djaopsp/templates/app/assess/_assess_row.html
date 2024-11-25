@@ -185,7 +185,7 @@
               :disabled="practice.frozen">
         <option value="btu-year">Btu</option>
         <option value="mmbtu-year">mmBtu</option>
-        <option value="kwh-year">Kilowatt-hour (kWh)</option>
+        <option value="kWh-year">Kilowatt-hour (kWh)</option>
         <option value="mwh-year">Megawatt-hour (MWh)</option>
         <option value="kj-year">Kilo Joules (KJ)</option>
         <option value="mj-year">Mega Joules (MJ)</option>
@@ -304,7 +304,7 @@
               v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
               @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
               :disabled="practice.frozen">
-        <option value="tons-year">Metric tons</option>
+        <option value="t-year">Metric tons</option>
         <option value="lbs-year">Pounds</option>
         <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
         <option value="kiloliters-year">Kilo liters</option>
@@ -363,7 +363,7 @@
               v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
               @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
               :disabled="practice.frozen">
-        <option value="tons-year">Metric Tons CO2e</option>
+        <option value="t-year">Metric Tons CO2e</option>
       </select>
     </div>
     <div class="row mt-1" v-if="!isGHGEmissionsScope3(practice)">

@@ -294,7 +294,7 @@ WHERE survey_question.path LIKE '%%%(path)s'
   AND survey_sample.account_id IN (%(account_ids)s)
   AND survey_sample.is_frozen
   AND survey_sample.extra IS NULL
-  AND survey_answer.unit_id = (SELECT id FROM survey_unit WHERE slug='tons-year')
+  AND survey_answer.unit_id = (SELECT id FROM survey_unit WHERE slug='t-year')
   AND survey_answer.created_at < '%(ends_at)s'
 GROUP BY survey_sample.account_id)
 SELECT survey_sample.account_id AS account_id,
@@ -311,7 +311,7 @@ WHERE survey_question.path LIKE '%%%(path)s'
   AND survey_sample.account_id IN (%(account_ids)s)
   AND survey_sample.is_frozen
   AND survey_sample.extra IS NULL
-  AND survey_answer.unit_id = (SELECT id FROM survey_unit WHERE slug='tons-year')
+  AND survey_answer.unit_id = (SELECT id FROM survey_unit WHERE slug='t-year')
 """ % {'path': path,
        'account_ids': ','.join([str(account.pk) for account in accounts]),
        'ends_at': ends_at}
@@ -357,9 +357,9 @@ WHERE survey_question.path LIKE '%%%(path)s'
 class GHGEmissionsAmountAPIView(GHGEmissionsAmountMixin,
                                 generics.RetrieveAPIView):
     """
-    Retrieves GHG emissions reported (in tons)
+    Retrieves GHG emissions reported (in metric tons)
 
-    Returns the total GHG emissions in tons of reporting accounts
+    Returns the total GHG emissions in metric tons of reporting accounts
     (for reporting accounts that actually report emissions).
 
     **Tags**: reporting

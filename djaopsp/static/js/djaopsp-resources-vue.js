@@ -578,25 +578,25 @@ var practicesListMixin = {
                     unit === 'million-eur';
             } else if( default_unit === 'btu-year' ||
                 default_unit === 'mmbtu-year' ||
-                default_unit === 'kwh-year' ||
+                default_unit === 'kWh-year' ||
                 default_unit === 'mwh-year' ||
                 default_unit === 'kj-year' ||
                 default_unit === 'mj-year' ||
                 default_unit === 'gj-year' ) {
                 return unit === 'btu-year' ||
                     unit === 'mmbtu-year' ||
-                    unit === 'kwh-year' ||
+                    unit === 'kWh-year' ||
                     unit === 'mwh-year' ||
                     unit === 'kj-year' ||
                     unit === 'mj-year' ||
                     unit === 'gj-year';
-            } else if( default_unit === 'tons-year' ||
+            } else if( default_unit === 't-year' ||
                 default_unit === 'lbs-year' ||
                 default_unit === 'm3-year' ||
                 default_unit === 'kiloliters-year' ||
                 default_unit === 'ft3-year' ||
                 default_unit === 'gallons-year' ) {
-                return unit === 'tons-year' ||
+                return unit === 't-year' ||
                 unit === 'lbs-year' ||
                 unit === 'm3-year' ||
                 unit === 'kiloliters-year' ||

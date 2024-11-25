@@ -483,7 +483,8 @@ class VerifiedSampleSerializer(serializers.ModelSerializer):
     verified_status = EnumField(choices=VerifiedSample.STATUSES,
         help_text=_("verification status"))
     verified_by = serializers.SlugRelatedField(slug_field='username',
-        queryset=get_user_model().objects.all(), required=False,
+        queryset=get_user_model().objects.all(),
+        required=False, allow_null=True,
         help_text=_("User that collected the answer"))
 
     class Meta:
