@@ -385,6 +385,29 @@ Vue.component('engage-profiles', {
                         }
                         return 0;
                     });
+                    // Marks the primary contact as such
+                    var found = false;
+                    const email = vm.getAccountField(entry, 'email');
+                    for( var idx = 0; idx < entry.contacts.length; ++idx ) {
+                        if( entry.contacts[idx].user.email === email ) {
+                            entry.contacts[idx].role_description = {
+                                slug: 'manager',
+                                title: "Primary contact"
+                            };
+                            found = true;
+                        }
+                    }
+                    if( !found ) {
+                        entry.contacts.push({
+                            role_description: {
+                                slug: 'manager',
+                                title: "Primary contact"
+                            },
+                            user: {
+                                email: email
+                            }
+                        });
+                    }
                     vm.$forceUpdate();
                 });
             }
