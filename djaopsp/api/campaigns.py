@@ -22,7 +22,8 @@ from survey.filters import SearchFilter
 from survey.helpers import extra_as_internal
 from survey.mixins import QuestionMixin
 from survey.models import EnumeratedQuestions, Unit
-from survey.utils import get_question_model, get_question_serializer
+from survey.utils import (get_content_model, get_question_model,
+    get_question_serializer)
 from survey.settings import DB_PATH_SEP
 
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
@@ -370,6 +371,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
 
     serializer_class = ContentNodeSerializer
     strip_segment_prefix = True
+    default_unit = Unit.objects.get(slug='freetext')
 
     def get_serializer_class(self):
         if self.request.method.lower() == 'post':
@@ -531,7 +533,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
                     part.slug for part in prefix_parts] + [element.slug])
                 question = get_question_model().objects.create(
                     path=path, content=element,
-                    default_unit=Unit.objects.get(slug='freetext'))
+                    default_unit=self.default_unit)
                 EnumeratedQuestions.objects.get_or_create(
                     campaign=campaign, question=question, rank=rank)
 
@@ -653,6 +655,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
         }
     """
     serializer_class = get_question_serializer()
+    default_unit = Unit.objects.get(slug='freetext')
 
     def get_serializer_class(self):
         if self.request.method.lower() in ('post',):
@@ -679,9 +682,8 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
             DELETE /api/editables/alliance/campaigns/sustainability/construction HTTP/1.1
         """
-        #pylint:disable=useless-super-delegation
-        return super(CampaignEditableQuestionAPIView, self).delete(
-            request, *args, **kwargs)
+        return self.destroy(request, *args, **kwargs)
+
 
     def post(self, request, *args, **kwargs):
         """
@@ -713,9 +715,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
                 "default_unit": "assessment"
             }
         """
-        #pylint:disable=useless-super-delegation
-        return super(CampaignEditableQuestionAPIView, self).post(
-            request, *args, **kwargs)
+        return self.create(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """
@@ -750,9 +750,79 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
                 "default_unit": "assessment"
             }
         """
-        #pylint:disable=useless-super-delegation
-        return super(CampaignEditableQuestionAPIView, self).put(
-            request, *args, **kwargs)
+        return self.update(request, *args, **kwargs)
+
+
+    def perform_create(self, serializer):
+        content_model = get_content_model()
+        enum_question_model = EnumeratedQuestions
+        question_model = get_question_model()
+
+        with transaction.atomic():
+            content_data = {}
+            content_data.update(serializer.validated_data)
+            invalid_fields = []
+            model_fields = {
+                field.name for field in content_model._meta.get_fields()}
+            for field_name in six.iterkeys(content_data):
+                if field_name not in model_fields:
+                    invalid_fields += [field_name]
+            for field_name in invalid_fields:
+                content_data.pop(field_name)
+            title = content_data.get('title')
+            element, _ = content_model.objects.get_or_create(
+                title=title, account=self.campaign.account,
+                defaults=content_data)
+            # Attach the element in the content DAG
+            parent = self.element
+            rank = RelationShip.objects.filter(
+                orig_element=parent).aggregate(Max('rank')).get(
+                'rank__max', None)
+            rank = 0 if rank is None else rank + 1
+            RelationShip.objects.get_or_create(
+                orig_element=parent, dest_element=element,
+                defaults={'rank': rank})
+
+            question_data = {}
+            question_data.update(serializer.validated_data)
+            invalid_fields = []
+            model_fields = {
+                field.name for field in question_model._meta.get_fields()}
+            for field_name in six.iterkeys(question_data):
+                if field_name not in model_fields:
+                    invalid_fields += [field_name]
+            for field_name in invalid_fields:
+                question_data.pop(field_name)
+
+            question_data.update({'content': element})
+            if 'default_unit' not in question_data:
+                question_data.update({'default_unit': self.default_unit})
+            path = DB_PATH_SEP.join([self.db_path, element.slug])
+            question, _ = question_model.objects.update_or_create(
+                    path=path, defaults=question_data)
+
+            enum_question_data = {}
+            enum_question_data.update(serializer.validated_data)
+            invalid_fields = []
+            model_fields = {
+                field.name for field in enum_question_model._meta.get_fields()}
+            for field_name in six.iterkeys(enum_question_data):
+                if field_name not in model_fields:
+                    invalid_fields += [field_name]
+            for field_name in invalid_fields:
+                enum_question_data.pop(field_name)
+
+            if 'rank' not in enum_question_data:
+                rank = enum_question_model.objects.filter(
+                    campaign=self.campaign).aggregate(
+                        Max('rank')).get('rank__max', None)
+                enum_question_data.update({
+                    'rank': 0 if rank is None else rank + 1})
+            enum_question_model.objects.update_or_create(
+                campaign=self.campaign,
+                question=question,
+                defaults=enum_question_data)
+
 
     def update(self, request, *args, **kwargs):
         # Implementation note: overrides overide in `PageElementEditableDetail`

@@ -80,8 +80,8 @@ class EditablesDetailView(VisibilityMixin, AccountMixin,
         # instead of relying on Vue to load the content. This is because
         # there seems to still be some issues with editors on
         # `.editable .edit-formatted`.
-        context.update({'element': self.element})
         context.update({
+            'element': self.element,
             'edit_perm': (self.manages(self.element.account) or
                 self.manages_broker)
         })

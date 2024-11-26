@@ -22,15 +22,15 @@ Vue.component('editable-practices-list', {
             var vm = this;
             var parent = '';
             if( typeof entry !== 'undefined' ) {
-                parent = entry.slug;
+                parent = entry.path;
                 // We differentiate practices from headings by the presence and
-                // abscence, respectively, of a `url` field.
+                // abscence, respectively, of a `default_unit` field.
                 // When adding an element below an existing practice, we attach
                 // it to the preceding heading.
-                if( entry.url ) {
+                if( entry.default_unit ) {
                     var parentIndex = vm._findParentHeadingIndex(entry, index);
                     if( parentIndex > 0 ) {
-                        parent = vm.items.results[parentIndex].slug;
+                        parent = vm.items.results[parentIndex].path;
                     }
                 }
             }

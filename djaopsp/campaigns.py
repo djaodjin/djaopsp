@@ -87,6 +87,7 @@ def _import_campaign_section(campaign, rows, seg_prefixes,
     #pylint:disable=too-many-arguments,too-many-locals,too-many-nested-blocks
     if not content_model:
         content_model = get_content_model()
+    question_model = get_question_model()
 
     LOGGER.debug("%d segment prefixes: %s", len(seg_prefixes), seg_prefixes)
     freetext_unit = Unit.objects.get(slug='freetext')
@@ -178,7 +179,7 @@ def _import_campaign_section(campaign, rows, seg_prefixes,
                             question_defaults.update({'ui_hint': "textarea"})
                         LOGGER.debug("create question %s", path)
                         question, _ = \
-                            get_question_model().objects.get_or_create(
+                            question_model.objects.get_or_create(
                                 path=path, defaults=question_defaults)
                         EnumeratedQuestions.objects.get_or_create(
                             campaign=campaign,

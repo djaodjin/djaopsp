@@ -142,71 +142,70 @@
                             <td>
                               <div :class="indentHeader(entry)">
                                 <div v-if="index == activeIndex">
-                                <div class="input-group">
-                                  <input class="form-control" type="text"
-                                         v-model="entry.title" />
-                                  <div class="input-group-btn">
-                                    <button class="btn btn-primary" type="submit" value="submit" @click="updateElement(entry, index)">Update</button>
+                                  <div class="input-group">
+                                    <input class="form-control" type="text"
+                                           v-model="entry.title" />
+                                    <div class="input-group-btn">
+                                      <button class="btn btn-primary" type="submit" value="submit" @click="updateElement(entry, index)">Update</button>
+                                    </div>
                                   </div>
-                                </div>
-
-                              <default-unit-typeahead inline-template
+                                  <default-unit-typeahead inline-template
                                           class="mt-2"
                                           :question="entry"
                                           ref="default_unit"
                                           v-on:selectitem="updateItemSelected"
                                           v-if="isPractice(entry)">
-                                <div>
-                                  <div class="input-group mb-3">
-                                    <!-- optional indicators -->
-                                    <span class="input-group-text">
-                                      <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                                      <template v-else>
-                                        <i class="fa fa-search" v-show="isEmpty"></i>
-                                        <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                                      </template>
-                                    </span>
-                                    <!-- the input field -->
-                                    <input class="form-control"
-                                           type="text"
-                                           name="default_unit"
-                                           autocomplete="off"
-                                           v-model="query"
-                                           @keydown.down="down"
-                                           @keydown.up="up"
-                                           @keydown.enter.prevent="hit"
-                                           @blur="clear"
-                                           @input="update" />
-                                    <button  class="input-group-text"
-                                             role="button" href="#"
-                                             aria-haspopup="true"
-                                             aria-expanded="false"
-                                             @click.prevent="reload">
-                                      <i class="fa fa-caret-down"></i>
-                                    </button>
-                                    <!-- the list -->
-                                    {# Implementation note: If we use `d-block` instead of    #}
-                                    {# `style="display: block;"` the dropdown shows even when #}
-                                    {# `hasItems` is `False`.                                 #}
-                                    <ul class="dropdown-menu nav-pills p-1"
-                                        style="display: block;"
-                                        v-show="hasItems">
-                                      <li v-for="(item, $item) in items" class="nav-item"
-                                          @mousedown="hit"
-                                          @mousemove="setActive($item)">
-                                        <a :class="'nav-link' + activeClass($item)" v-text="item.title"></a>
-                                      </li>
-                                    </ul>
-                                  </div>
+                                    <div>
+                                      <div class="input-group mb-3">
+                                        <!-- optional indicators -->
+                                        <span class="input-group-text">
+                                          <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                                          <template v-else>
+                                            <i class="fa fa-search" v-show="isEmpty"></i>
+                                            <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                                          </template>
+                                        </span>
+                                        <!-- the input field -->
+                                        <input class="form-control"
+                                               type="text"
+                                               name="default_unit"
+                                               autocomplete="off"
+                                               v-model="query"
+                                               @keydown.down="down"
+                                               @keydown.up="up"
+                                               @keydown.enter.prevent="hit"
+                                               @blur="clear"
+                                               @input="update" />
+                                        <button  class="input-group-text"
+                                                 role="button" href="#"
+                                                 aria-haspopup="true"
+                                                 aria-expanded="false"
+                                                 @click.prevent="reload">
+                                          <i class="fa fa-caret-down"></i>
+                                        </button>
+                                        <!-- the list -->
+                                        {# Implementation note: If we use `d-block` instead of    #}
+                                        {# `style="display: block;"` the dropdown shows even when #}
+                                        {# `hasItems` is `False`.                                 #}
+                                        <ul class="dropdown-menu nav-pills p-1"
+                                            style="display: block;"
+                                            v-show="hasItems">
+                                          <li v-for="(item, $item) in items" class="nav-item"
+                                              @mousedown="hit"
+                                              @mousemove="setActive($item)">
+                                            <a :class="'nav-link' + activeClass($item)" v-text="item.title"></a>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  </default-unit-typeahead>
+                                  <select class="form-control form-select"
+                                          v-model="entry.required"
+                                          @change="updateElement(entry, index)">
+                                    <option value="true">{% trans %}Required{% endtrans %}</option>
+                                    <option value="false">{% trans %}Optional{% endtrans %}</option>
+                                  </select>
                                 </div>
-                              </default-unit-typeahead>
-                              <select class="form-control form-select"
-                                      v-model="entry.required"
-                                      @change="updateElement(entry, index)">
-                                <option value="true">{% trans %}Required{% endtrans %}</option>
-                                <option value="false">{% trans %}Optional{% endtrans %}</option>
-                              </select>
-                              </div>
                                 <a class="title"
                                    :href="entry.url ? entry.url : '{{urls.pages_editables_index}}' + entry.slug + '/'"
                                    target="_blank"
@@ -214,8 +213,8 @@
                                   [[entry.title]]
                                 </a>
                                 <div class="title"
-                                  @click.prevent="toggleShowHide(entry, index)"
-                            v-if="index != activeIndex && !isPractice(entry)" >
+                                     @click.prevent="toggleShowHide(entry, index)"
+                                     v-if="index != activeIndex && !isPractice(entry)" >
                                   <div class="d-inline-block">
                                     <img class="icon-heading" :src="entry.picture" />
                                   </div>
@@ -230,13 +229,22 @@
                                     <i class="fa fa-plus"></i> Add
                                   </button>
                                   <button class="btn btn-link text-danger delete"
-                                      href=""
-                                      @click="setActive(entry, index)"
-                                      data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                      data-toggle="modal" data-target="#confirm-delete">
+                                          href=""
+                                          @click="setActive(entry, index)"
+                                          data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                          data-toggle="modal" data-target="#confirm-delete">
                                     <i class="fa fa-trash-o"></i>
                                   </button>
                                 </div>
+
+                                <div class="input-group"
+                                     v-if="addBelowIndex >= 0 && addBelowIndex == index">
+                                  <input class="form-control" type="text" v-model="activeEntry.title" />
+                                  <div class="input-group-btn">
+                                    <button class="btn btn-primary" type="submit" value="submit" @click="addElementBelow(entry, index)"><i class="fa fa-plus"></i> Add</button>
+                                  </div>
+                                </div>
+
                               </div>
                             </td>
                             <td>
@@ -281,19 +289,6 @@
                                   <i class="fa fa-plus"></i> Add [[entry.title]]
                                 </button>
                               </div>
-                            </td>
-                          </tr>
-                          <tr v-if="addBelowIndex >= 0 && addBelowIndex == index">
-                            <td></td>
-                            <td>
-                              <div class="input-group">
-                                <input class="form-control" type="text" v-model="activeEntry.title" />
-                                <div class="input-group-btn">
-                                  <button class="btn btn-primary" type="submit" value="submit" @click="addElementBelow(entry, index)"><i class="fa fa-plus"></i> Add</button>
-                                </div>
-                              </div>
-                            </td>
-                            <td :colspan="segments.length">
                             </td>
                           </tr>
                         </tbody>
@@ -454,6 +449,9 @@ jQuery(document).ready(function($) {
     $("#upload-btn").djupload({
         csrfToken: "{{csrf_token}}",
         uploadUrl: "{{urls.api_upload}}",
+        uploadSuccess: function() {
+            app.$forceUpdate();
+        },
         uploadSuccessMessage: function(filename, location) {
             return '{% trans %}"${filename}" uploaded sucessfully{% endtrans %}'.replace('${filename}', filename);
         }
