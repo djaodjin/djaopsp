@@ -70,7 +70,7 @@ Vue.component('campaign-questions-list', {
             // We define this method almost identically
             // in `'campaign-questions-list'` and `'scorecard'`.
             const vm = this;
-            const longId = practice.path.replaceAll('/', '-');
+            const longId = practice.path.substr(1).replaceAll('/', '-');
             if( vm.showVsPeers && prefix ) {
                 return prefix + longId;
             }
@@ -949,7 +949,7 @@ Vue.component('scorecard', {
         getPracticeId: function(practice, prefix) {
             // We define this method almost identically
             // in `'campaign-questions-list'` and `'scorecard'`.
-            const longId = practice.path.replaceAll('/', '-');
+            const longId = practice.path.substr(1).replaceAll('/', '-');
             return longId;
         },
         indentHeader: function(practice) {
