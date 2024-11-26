@@ -371,7 +371,6 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
 
     serializer_class = ContentNodeSerializer
     strip_segment_prefix = True
-    default_unit = Unit.objects.get(slug='freetext')
 
     def get_serializer_class(self):
         if self.request.method.lower() == 'post':
@@ -478,6 +477,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
         #pylint:disable=too-many-locals
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        self.default_unit = Unit.objects.get(slug='freetext')
 
         with transaction.atomic():
             parent = None
@@ -655,7 +655,6 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
         }
     """
     serializer_class = get_question_serializer()
-    default_unit = Unit.objects.get(slug='freetext')
 
     def get_serializer_class(self):
         if self.request.method.lower() in ('post',):
@@ -757,6 +756,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
         content_model = get_content_model()
         enum_question_model = EnumeratedQuestions
         question_model = get_question_model()
+        self.default_unit = Unit.objects.get(slug='freetext')
 
         with transaction.atomic():
             content_data = {}
