@@ -557,12 +557,14 @@
                     @click.prevent="toggleEditMode">update</button>
             <div class="row" v-if="textAsHtml">
               <div class="col-md-3">
-                <div class="mt-2">
-                  <img class="rounded-circle" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
-                  <span>[[collectedByPrintableName]]</span>
+                <div v-if="!(callbackArg.extra && callbackArg.extra.tags && callbackArg.extra.tags.includes('verify'))">
+                  <div class="mt-2">
+                    <img class="rounded-circle" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+                    <span>[[collectedByPrintableName]]</span>
+                  </div>
+                  <small>[[humanizeDate(collectedAtTime)]]</small><br />
+                  <small>([[humanizeTimeDelta(collectedAtTime)]])</small>
                 </div>
-                <small>[[humanizeDate(collectedAtTime)]]</small><br />
-                <small>([[humanizeTimeDelta(collectedAtTime)]])</small>
               </div>
               <div class="border-start col-md-9">
                 <p class="mt-2" style="word-wrap:break-word;"

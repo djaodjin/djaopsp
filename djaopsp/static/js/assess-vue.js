@@ -458,7 +458,7 @@ Vue.component('campaign-questions-list', {
             const apiUrl = ( practice.extra &&
                              practice.extra.tags &&
                              practice.extra.tags.includes('verify') ) ?
-                  vm._safeUrl(vm.api_verification_sample, '/notes') : (
+                  vm._safeUrl(vm.api_verification_sample, '/answers') : (
                              tag === 'planned' ) ?
                   vm._safeUrl(vm.api_improvement_sample, '/answers') :
                   vm._safeUrl(vm.api_assessment_sample, '/answers');
