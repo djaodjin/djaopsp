@@ -333,7 +333,8 @@
               </div>{# /.row #}
 
               {# different layout for differnt type of questions. #}
-              <div v-if="isDataMetricsHeader(practice)" :class="practiceStyle(practice)">
+              <div :class="practiceStyle(practice)"
+                   v-if="isDataMetricsHeader(practice)">
                 <table class="table table-bordered table-striped">
                   <tr class="text-end">
                     <th></th>
@@ -342,7 +343,7 @@
                     </th>
                   </tr>
                   <tr v-for="total in getEntries(practice.slug)">
-                    <th>[[total.title]]</th>
+                    <th>[[total.title]] <span v-if="!getCaptionTitle(practice)">([[getPrimaryUnit(total).title]])</span></th>
                     <td class="text-end"
                         v-for="year in getColHeaders(practice)">
                       [[getColValue(total, year)]]

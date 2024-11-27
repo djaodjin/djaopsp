@@ -925,11 +925,17 @@ Vue.component('scorecard', {
         },
         getCaptionTitle: function(row) {
             var vm = this;
+            var captionUnit = null;
             var practices = vm.getEntries(row.slug);
             for( var idx = 0; idx < practices.length; ++idx ) {
-                return vm.getPrimaryUnit(practices[idx]).title;
+                const unit = vm.getPrimaryUnit(practices[idx]);
+                if( captionUnit && captionUnit.slug != unit.slug ) {
+                    captionUnit = null;
+                    break;
+                }
+                captionUnit = unit;
             }
-            return "";
+            return captionUnit ? captionUnit.title : "";
         },
         getNbRespondents: function(practice) {
             var vm = this;
