@@ -94,7 +94,7 @@
               <a :href="entry.score_url">[[ entry.segment ]]</a>
           </td>
           <td style="vertical-align:middle;">
-            <span v-if="entry.extra">[[ entry.extra.priority ]]</span>
+            <span v-if="getAccountField(entry, 'extra')">[[ getAccountField(entry, 'extra').priority ]]</span>
           </td>
           <td style="vertical-align:middle;">
               <select class="form-control form-select"
