@@ -157,10 +157,10 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                 VerifiedSample.STATUS_REVIEW_COMPLETED
             verified_sample.verifier_notes.is_frozen = True
             with transaction.atomic():
-                verification.verifier_notes.save()
-                verification.save()
+                verified_sample.verifier_notes.save()
+                verified_sample.save()
             serializer = self.get_serializer(
-                instance=verification.verifier_notes)
+                instance=verified_sample.verifier_notes)
             return http.Response(
                 serializer.data, status=http_status.HTTP_201_CREATED)
 

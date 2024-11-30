@@ -2,7 +2,6 @@
 # see LICENSE
 import logging
 
-from django.conf import settings
 from django.dispatch import receiver
 from survey.signals import (portfolios_grant_initiated,
     portfolios_request_initiated, portfolio_request_accepted)

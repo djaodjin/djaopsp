@@ -2,8 +2,9 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, json, logging, openpyxl, zipfile
+import csv, json, logging, zipfile
 
+import openpyxl
 from django.db import transaction
 from pages.models import RelationShip
 from survey.models import Campaign, EnumeratedQuestions, Unit

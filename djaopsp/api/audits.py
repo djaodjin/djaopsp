@@ -8,8 +8,6 @@ from django.conf import settings
 from django.db import transaction
 from rest_framework import generics
 from rest_framework import response as http
-from rest_framework.mixins import UpdateModelMixin
-from survey.api.sample import SampleAnswersAPIView
 from survey.helpers import construct_weekly_periods, datetime_or_now
 from survey.models import Sample
 from survey.utils import get_engaged_accounts
@@ -19,7 +17,7 @@ from ..mixins import ReportMixin
 from ..models import VerifiedSample
 from ..helpers import as_percentage
 from .portfolios import CompletionRateMixin
-from .serializers import AssessmentNodeSerializer, VerifiedSampleSerializer
+from .serializers import VerifiedSampleSerializer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,7 +29,7 @@ class VerifierNotesIndexAPIView(ReportMixin, generics.UpdateAPIView):
     def get_serializer_class(self):
         if self.request.method.lower() in ['put', 'patch']:
             return VerifiedSampleSerializer
-        return super(VerifierNotesAPIView, self).get_serializer_class()
+        return super(VerifierNotesIndexAPIView, self).get_serializer_class()
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
@@ -79,13 +77,14 @@ class VerifierNotesIndexAPIView(ReportMixin, generics.UpdateAPIView):
             verified_by = serializer.validated_data.get('verified_by')
             if not verified_by:
                 verified_by = self.request.user
-        verification.verified_by = verified_by
-        verification.verified_status = verified_status
-        verification.verifier_notes.is_frozen = bool(
-            verified_status >= VerifiedSample.STATUS_REVIEW_COMPLETED)
-        with transaction.atomic():
-            verification.verifier_notes.save()
-            verification.save()
+        if verification:
+            verification.verified_by = verified_by
+            verification.verified_status = verified_status
+            verification.verifier_notes.is_frozen = bool(
+                verified_status >= VerifiedSample.STATUS_REVIEW_COMPLETED)
+            with transaction.atomic():
+                verification.verifier_notes.save()
+                verification.save()
 
     def get_object(self):
         return self.get_or_create_verification()
