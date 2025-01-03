@@ -7,8 +7,9 @@ Views URLs for campaign editors
 from django.urls import path
 from survey.views.campaigns import CampaignListView
 
+from ...downloads.campaigns import CampaignXLSXView
 from ...views.content import EditablesIndexView, EditablesDetailView
-from ...views.campaigns import CampaignEditView, CampaignXLSXView
+from ...views.campaigns import CampaignEditView
 
 
 urlpatterns = [

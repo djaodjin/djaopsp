@@ -6,7 +6,7 @@ from rest_framework import serializers
 from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementSerializer as BasePageElementSerializer)
-from survey.models import PortfolioDoubleOptIn, Sample
+from survey.models import PortfolioDoubleOptIn, Sample, Unit
 from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
     AnswerSerializer, SampleSerializer,
     TableSerializer, UnitSerializer)
@@ -527,3 +527,20 @@ class ExtendedSampleSerializer(SampleSerializer):
 
     class Meta(SampleSerializer.Meta):
         fields = SampleSerializer.Meta.fields + ('verified_status',)
+
+
+class LongFormatSerializer(NoModelSerializer):
+    """
+    Serializer for download of pivotable spreadsheets
+    """
+    created_at = serializers.DateTimeField(read_only=True,
+        help_text=_("Date/time of creation (in ISO format)"))
+    supplier_key = serializers.CharField()
+    printable_name = serializers.CharField()
+    measured = serializers.CharField(required=True, allow_null=True,
+        allow_blank=True, help_text=_("measurement in unit"))
+    unit = serializers.CharField(
+        help_text=_("Unit the measured field is in"))
+    title = serializers.CharField(
+        help_text=_("Title of the question as displayed in user interfaces"))
+

@@ -1518,8 +1518,10 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
     data: function(){
         return {
             datasets: [{
-                url: this.$urls.api_portfolio_engagement_stats
-            }]
+                url: this.$urls.api_portfolio_engagement_stats,
+            }],
+            nb_verified: 0,
+            nb_completed: 0,
         }
     },
     methods: {
@@ -1530,17 +1532,52 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
             var labels = [];
             var datasets = [];
             var colors = ['#ff5555', '#9CD76B', '#69B02B'];
+            var stats = [];
             for( var idx = 0; idx < resp.results.length; ++idx ) {
-                var data = [];
+                var serie = {
+                    slug: resp.results[idx].slug,
+                    title: resp.results[idx].title,
+                    nb_verified: 0,
+                    nb_completed: 0,
+                    values: []
+                };
                 for( var valIdx = 0; valIdx < resp.results[idx].values.length;
                      ++valIdx ) {
-                    if( idx == 0 ) {
-                        labels.push(resp.results[idx].values[valIdx][0]);
+                    const key = resp.results[idx].values[valIdx][0];
+                    const val = resp.results[idx].values[valIdx][1];
+                    if( key === 'Verified' ) {
+                        serie.nb_verified = val;
+                    } else {
+                        if ( key === 'Completed' ) {
+                            serie.nb_completed = val;
+                        }
+                        serie.values.push(resp.results[idx].values[valIdx]);
                     }
-                    data.push(resp.results[idx].values[valIdx][1]);
+                }
+                for( var valIdx = 0; valIdx < serie.values.length; ++valIdx ) {
+                    const key = serie.values[valIdx][0];
+                    if ( key === 'Completed' ) {
+                        serie.values[valIdx][1] += serie.nb_verified;
+                    }
+                }
+                // We rely on the first serie to be the one for the account.
+                if( idx === 0 ) {
+                    vm.nb_verified = serie.nb_verified;
+                    vm.nb_completed = serie.nb_completed;
+                }
+                stats.push(serie);
+            }
+            for( var idx = 0; idx < stats.length; ++idx ) {
+                var data = [];
+                for( var valIdx = 0; valIdx < stats[idx].values.length;
+                     ++valIdx ) {
+                    if( idx == 0 ) {
+                        labels.push(stats[idx].values[valIdx][0]);
+                    }
+                    data.push(stats[idx].values[valIdx][1]);
                 }
                 datasets.push({
-                    label: resp.results[idx].slug,
+                    label: stats[idx].slug,
                     backgroundColor: colors,
                     data: data
                 });
@@ -1584,6 +1621,11 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
                 text += ', ' + vm.item.results[idx].title
             }
             return text;
+        },
+        verifiedRate: function() {
+            const vm = this;
+            const total = vm.nb_verified + vm.nb_completed;
+            return total > 0 ? Math.round(vm.nb_verified * 100 / total) : 0;
         }
     }
 }));

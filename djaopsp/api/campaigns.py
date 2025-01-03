@@ -14,10 +14,11 @@ from pages.mixins import TrailMixin
 from pages.models import PageElement, RelationShip, flatten_content_tree
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import ListAPIView, get_object_or_404
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from survey.api.serializers import (QuestionCreateSerializer,
-    QuestionUpdateSerializer)
+from survey.api.campaigns import SmartCampaignListMixin
+from survey.api.serializers import (CampaignSerializer,
+    QuestionCreateSerializer, QuestionUpdateSerializer)
 from survey.filters import SearchFilter
 from survey.helpers import extra_as_internal
 from survey.mixins import QuestionMixin
@@ -29,7 +30,7 @@ from survey.settings import DB_PATH_SEP
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
 from ..campaigns import import_campaign
 from ..compat import six
-from ..mixins import CampaignMixin
+from ..mixins import CampaignMixin, DashboardsAvailableQuerysetMixin
 
 
 class CampaignDecorateMixin(CampaignMixin):
@@ -298,7 +299,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
             request, *args, **kwargs)
 
 
-class CampaignContentAPIView(CampaignContentMixin, ListAPIView):
+class CampaignContentAPIView(CampaignContentMixin, generics.ListAPIView):
     """
     List questions in a campaign
 
@@ -881,3 +882,38 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
             self).get_serializer_class()().to_representation(question)
 
         return Response(resp)
+
+
+class DashboardsAvailableAPIView(SmartCampaignListMixin,
+                                 DashboardsAvailableQuerysetMixin,
+                                 generics.ListAPIView):
+    """
+    Lists campaigns available for reporting
+
+    Lists campaigns that are public, belongs to a profile, or in general
+    are available to a profile for reporting purposes.
+
+    **Tags**: reporting
+
+    **Examples**
+
+    .. code-block:: http
+
+        GET /api/alliance/reporting/campaigns HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 1,
+          "results": [{
+            "slug": "construction",
+            "account": "alliance",
+            "title": "Assessment on sustainable construction practices",
+            "is_active": true,
+            "is_commons": true
+          }]
+        }
+    """
+    serializer_class = CampaignSerializer

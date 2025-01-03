@@ -235,7 +235,7 @@ def completed_verified_by_week(grantee, campaign=None,
         frozen_samples_kwargs.update({'campaign': campaign})
     if str(grantee) not in settings.UNLOCK_BROKERS:
         requested_accounts = get_engaged_accounts([grantee],
-            campaign=campaign, aggregate_set=False,
+            campaign=campaign, aggregate_set=False, # XXX use True for alliances
             start_at=start_at, ends_at=ends_at,
             search_terms=search_terms)
         frozen_samples_kwargs.update({'account_id__in': requested_accounts})

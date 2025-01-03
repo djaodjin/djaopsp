@@ -6,6 +6,7 @@ import io, json, logging, re
 from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
+from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -23,15 +24,15 @@ from ..api.portfolios import CompletedAssessmentsMixin
 from ..api.rollups import GraphMixin
 from ..compat import reverse
 from ..helpers import as_valid_sheet_title
-from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
-    VisibilityMixin)
+from ..mixins import (AccountsAggregatedQuerysetMixin,
+    DashboardsAvailableQuerysetMixin)
 from ..models import VerifiedSample
 from ..utils import get_scores_tree
 
 LOGGER = logging.getLogger(__name__)
 
 
-class DashboardRedirectView(VisibilityMixin, AccountMixin,
+class DashboardRedirectView(DashboardsAvailableQuerysetMixin,
                             TemplateResponseMixin, ContextMixin,
                             RedirectView):
     """
@@ -39,22 +40,6 @@ class DashboardRedirectView(VisibilityMixin, AccountMixin,
     """
     template_name = 'app/reporting/redirects.html'
     breadcrumb_url = 'portfolio_engage'
-
-    @property
-    def dashboards_available(self):
-        """
-        Returns a list of campaign dashboards available to the request user.
-        """
-        #pylint:disable=attribute-defined-outside-init
-        if not hasattr(self, '_dashboards_available'):
-            filtered_in = Q(extra__contains='searchable')
-            for visible in set(['public']):
-                filtered_in &= Q(extra__contains=visible)
-            self._dashboards_available = Campaign.objects.filter(
-                Q(portfolios__grantee=self.account) |
-                Q(account__slug=self.account) |
-                filtered_in).distinct()
-        return self._dashboards_available
 
     def get_redirect_url(self, *args, **kwargs):
         return reverse(self.breadcrumb_url, kwargs=kwargs)
@@ -153,10 +138,15 @@ class UpdatedMenubarMixin(object):
                 args=(self.account, self.campaign)),
             'accessibles': reverse('reporting_profile_accessibles',
                 args=(self.account, self.campaign)),
-            'highlights': reverse(
+            'insights': reverse(
                 'reporting_organization_dashboard', args=(
                 self.account, self.campaign)),
         })
+        if False and settings.FEATURES_DEBUG:
+            update_context_urls(context, {
+                'insights': reverse('reporting_insights_campaign', args=(
+                    self.account, self.campaign)),
+            })
         return context
 
 
@@ -199,15 +189,33 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
             'api_portfolio_responses': reverse(
                 'api_portfolio_accessible_samples',
                 args=(self.account, self.campaign)),
-            'download': reverse('reporting_profile_accessibles_download',
+            'download': reverse(
+                'reporting_profile_accessibles_download',
                 args=(self.account, self.campaign)),
             'download_long': reverse(
                 'reporting_profile_accessibles_download_long',
                 args=(self.account, self.campaign)),
-            'download_raw': reverse('download_matrix_compare',
+            'download_raw': reverse(
+                'download_accessibles_raw',
+                args=(self.account, self.campaign)),
+            'download_raw_long': reverse(
+                'download_accessibles_raw_long',
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/accessibles/")
         })
+        try:
+            verification_campaign = Campaign.objects.get(
+                slug="%s-verified" % self.campaign)
+            update_context_urls(context, {
+                'download_verification': reverse(
+                    'download_accessibles_raw', args=(
+                        self.account, verification_campaign)),
+                'download_verification_long': reverse(
+                    'download_accessibles_raw_long', args=(
+                        self.account, verification_campaign)),
+            })
+        except Campaign.DoesNotExist:
+            pass
         return context
 
 
@@ -255,10 +263,23 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
                 self.account, self.campaign)),
             'download_raw': reverse('download_matrix_compare',
                 args=(self.account, self.campaign)),
-            'download_raw_long': reverse('download_raw_long',
+            'download_raw_long': reverse('download_engage_raw_long',
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/engage/")
         })
+        try:
+            verification_campaign = Campaign.objects.get(
+                slug="%s-verified" % self.campaign)
+            update_context_urls(context, {
+                'download_verification': reverse(
+                    'download_matrix_compare', args=(
+                        self.account, verification_campaign)),
+                'download_verification_long': reverse(
+                    'download_engage_raw_long', args=(
+                        self.account, verification_campaign)),
+            })
+        except Campaign.DoesNotExist:
+            pass
         return context
 
 
@@ -395,24 +416,7 @@ class ReportingDashboardView(UpdatedMenubarMixin, DashboardMixin, TemplateView):
             'download_ghg_emissions_amount': reverse(
                 'reporting_download_ghg_emissions_amount', args=(
                 self.account, self.campaign)),
-            'download_raw': reverse('download_matrix_compare',
-                args=(self.account, self.campaign)),
-            'download_raw_long': reverse('download_raw_long',
-                args=(self.account, self.campaign)),
-            'download_scores': reverse('download_compare_scores',
-                args=(self.account, self.campaign)),
         })
-
-        try:
-            verification_campaign = Campaign.objects.get(
-                slug="%s-verified" % self.campaign)
-            update_context_urls(context, {
-                'download_verification': reverse(
-                    'download_matrix_compare', args=(
-                        self.account, verification_campaign)),
-            })
-        except Campaign.DoesNotExist:
-            pass
         return context
 
 

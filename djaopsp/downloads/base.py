@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 
 import csv, io, math
 
+# importing `survey.mixins.TimersMixin` results in an import loop:
+#   cannot import name 'get_object_or_404' from 'rest_framework.generics'??
 from deployutils.apps.django.mixins.timers import TimersMixin
 from rest_framework.renderers import BaseRenderer
 from openpyxl import Workbook
@@ -22,6 +24,7 @@ class CSVDownloadRenderer(BaseRenderer):
     As CVS file
     """
     media_type = 'text/csv'
+    format = 'csv'
 
     @staticmethod
     def encode(text):
@@ -37,6 +40,7 @@ class CSVDownloadRenderer(BaseRenderer):
 
     def format_row(self, entry):
         row = []
+        # XXX Surprisingly the values are iterated in the correct order.
         for field_value in six.itervalues(entry):
             row += [field_value]
         return row
@@ -49,7 +53,11 @@ class CSVDownloadRenderer(BaseRenderer):
         csv_writer = csv.writer(content)
         headings = self.get_headings(renderer_context=renderer_context)
         csv_writer.writerow([self.encode(head) for head in headings])
-        for entry in data.get('results', []):
+        if isinstance(data, dict):
+            results = data.get('results', [])
+        else:
+            results = data
+        for entry in results:
             csv_writer.writerow(self.format_row(entry))
         content.seek(0)
         return content
@@ -59,6 +67,7 @@ class XLSXRenderer(TimersMixin, BaseRenderer):
 
     media_type = \
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    format = 'xlsx'
 
     def flush_writer(self, wbook):
         """
@@ -108,7 +117,11 @@ class XLSXRenderer(TimersMixin, BaseRenderer):
             wsheet.append([descr])
         wsheet.append(self.get_headings(renderer_context=renderer_context))
 
-        for entry in data.get('results', []):
+        if isinstance(data, dict):
+            results = data.get('results', [])
+        else:
+            results = data
+        for entry in results:
             wsheet.append(self.format_row(entry))
 
         # Prepares the result file

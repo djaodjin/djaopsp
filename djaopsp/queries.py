@@ -29,7 +29,7 @@ def sql_latest_frozen_by_portfolio_by_period(campaign, grantees,
     `starts_at` and `ends_at` for each account in `accounts`.
 
     To get only the latest sample,
-    see `Sample.objects.get_completed_assessments_at_by`.
+    see `Sample.objects.get_latest_frozen_by_accounts`.
     """
     #pylint:disable=too-many-arguments,too-many-locals
     assert isinstance(campaign, Campaign)
@@ -497,6 +497,7 @@ def get_engagement(campaign, accounts,
             filter_by=filter_by, order_by=order_by))
 
 
+# XXX This function is currently not used anymore
 def get_coalesce_engagement(campaign, accounts,
                             grantees=None, start_at=None, ends_at=None,
                             filter_by=None, order_by=None):
@@ -629,9 +630,10 @@ def _get_frozen_query_sql(campaign, segments, ends_at, expired_at=None):
 
     for segment in segments:
         prefix = segment['path']
-        segment_query = Sample.objects.get_completed_assessments_at_by(
-            campaign, ends_at=ends_at,
-            prefix=prefix, title=segment['title']).query.sql
+        segment_query = Sample.objects.get_latest_frozen_by_accounts(
+            campaign=campaign, ends_at=ends_at,
+            segment_prefix=prefix, segment_title=segment['title'],
+            tags=[]).query.sql
         if not frozen_assessments_query:
             frozen_assessments_query = segment_query
         else:
@@ -642,10 +644,10 @@ def _get_frozen_query_sql(campaign, segments, ends_at, expired_at=None):
             else:
                 frozen_assessments_query = "(%s) UNION (%s)" % (
                     frozen_assessments_query, segment_query)
-        segment_query = Sample.objects.get_completed_assessments_at_by(
-            campaign, ends_at=ends_at,
-            prefix=prefix, title=segment['title'],
-            extra='is_planned').query.sql
+        segment_query = Sample.objects.get_latest_frozen_by_accounts(
+            campaign=campaign, ends_at=ends_at,
+            segment_prefix=prefix, segment_title=segment['title'],
+            tags=['is_planned']).query.sql
         if not frozen_improvements_query:
             frozen_improvements_query = segment_query
         else:

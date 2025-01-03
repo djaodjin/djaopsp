@@ -6,6 +6,7 @@ API URLs for portfolios engagement & analytics dashboards
 """
 from django.urls import include, path
 
+from ...api.campaigns import DashboardsAvailableAPIView
 from ...api.exports import BenchmarksExportAPIView
 from ...api.portfolios import (BenchmarkAPIView, BenchmarkIndexAPIView,
     CompareAPIView, CompareIndexAPIView,
@@ -20,6 +21,9 @@ urlpatterns = [
     path('completed',
         CompletedAssessmentsAPIView.as_view(),
          name="api_completed_assessments"),
+    path('reporting/campaigns',
+         DashboardsAvailableAPIView.as_view(),
+         name="api_reporting_campaigns"),
     path('reporting/<slug:campaign>/benchmarks/<path:path>',
         BenchmarkAPIView.as_view(), name='api_reporting_benchmarks'),
     path('reporting/<slug:campaign>/benchmarks',

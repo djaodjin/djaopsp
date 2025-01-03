@@ -6,11 +6,11 @@
     <div class="col-md-5">
     </div>
     <div class="col-md-7">
-      <nav>
+      <nav class="d-print-none">
         <ul class="nav nav-tabs justify-content-end">
           {% block help_menus %}
 
-          {# current menus #}
+          {# XXX current menus #}
 
           {% if urls.portfolio_responses %}
           <li class="divider-vertical"></li>
@@ -44,10 +44,10 @@
             <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">{% trans %}Track{% endtrans %}</a>
           </li>
           {% endif %}
-          {% if urls.highlights %}
+          {% if urls.insights %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.highlights or request.path == urls.compare %} active{% endif %}" href="{{urls.highlights}}">{% trans %}Insights{% endtrans %}</a>
+            <a class="nav-link{% if request.path == urls.insights or request.path == urls.compare or request.path == urls.analyze %} active{% endif %}" href="{{urls.insights}}">{% trans %}Insights{% endtrans %}</a>
           </li>
           {% endif %}
           {% endblock %}

@@ -6,19 +6,22 @@ Views URLs
 """
 from django.urls import include, path
 
-from ...views.matrix import CompareView, CompareXLSXView, CompareScoresXLSXView
 from ...views.portfolios import (
     CompletedAssessmentsRawXLSXView,
     DashboardRedirectView,
     PortfolioAccessiblesView, PortfolioEngagementView,
     PortfolioResponsesView,
     PortfoliosDetailView, ReportingDashboardView)
-from ...downloads.reporting import (BenchmarkPPTXView, CompletionRatePPTXView,
-    EngagementStatsPPTXView, FullReportPPTXView, LongFormatCSVView,
+from ...downloads.reporting import (
+    AccessiblesAnswersXLSXView, AccessiblesAnswersPivotableCSVView,
+    EngagedAnswersXLSXView, EngagedAnswersPivotableCSVView,
+    BenchmarkPPTXView, CompletionRatePPTXView,
+    EngagementStatsPPTXView, FullReportPPTXView,
     PortfolioAccessiblesXLSXView, PortfolioAccessiblesLongCSVView,
     PortfolioEngagementXLSXView)
-from ...views.insights import (InsightsAnalyzeView, InsightsCompareView,
-    InsightsView)
+from ...views.insights import (AnalyzeInsightsView, CompareInsightsView,
+    InsightsView, CampaignAnalyzeInsightsView, CampaignCompareInsightsView,
+    CampaignInsightsView)
 
 urlpatterns = [
     # Redirects
@@ -33,10 +36,10 @@ urlpatterns = [
 
     # side-by-side comparaison, and aggregates analytics
     path('reporting/insights/compare/',
-        InsightsCompareView.as_view(),
+        CompareInsightsView.as_view(),
         name='reporting_insights_compare'),
     path('reporting/insights/analyze/',
-        InsightsAnalyzeView.as_view(),
+        AnalyzeInsightsView.as_view(),
         name='reporting_insights_analyze'),
     path('reporting/insights/',
         InsightsView.as_view(),
@@ -63,42 +66,57 @@ urlpatterns = [
     path('completed/download/',
         CompletedAssessmentsRawXLSXView.as_view(),
          name="completed_assessments_download"),
-    path('reporting/<slug:campaign>/compare/<path:path>/download/long/',
-        LongFormatCSVView.as_view(),
-        name='download_raw_long_path'),
-    path('reporting/<slug:campaign>/compare/<path:path>/download/',
-        CompareXLSXView.as_view(),
-        name='download_matrix_compare_path'),
-    path('reporting/<slug:campaign>/compare/download/long/',
-        LongFormatCSVView.as_view(),
-        name='download_raw_long'),
-    path('reporting/<slug:campaign>/compare/download/scores/',
-        CompareScoresXLSXView.as_view(),
-        name='download_compare_scores'),
-    path('reporting/<slug:campaign>/compare/download/',
-        CompareXLSXView.as_view(),
-        name='download_matrix_compare'),
 
-    # Dashboards as HTML pages
+    path('reporting/<slug:campaign>/compare/<path:path>/download/',
+        EngagedAnswersXLSXView.as_view(),
+        name='download_matrix_compare_path'),
+
+    path('reporting/<slug:campaign>/engage/download/raw/long/',
+        EngagedAnswersPivotableCSVView.as_view(),
+        name='download_engage_raw_long'),
+    path('reporting/<slug:campaign>/engage/download/raw/',
+        EngagedAnswersXLSXView.as_view(),
+        name='download_matrix_compare'),
     path('reporting/<slug:campaign>/engage/download/',
         PortfolioEngagementXLSXView.as_view(),
         name='reporting_profile_engage_download'),
+
+    path('reporting/<slug:campaign>/accessibles/download/raw/long/',
+        AccessiblesAnswersPivotableCSVView.as_view(),
+        name='download_accessibles_raw_long'),
+    path('reporting/<slug:campaign>/accessibles/download/raw/',
+        AccessiblesAnswersXLSXView.as_view(),
+        name='download_accessibles_raw'),
     path('reporting/<slug:campaign>/accessibles/download/long/',
         PortfolioAccessiblesLongCSVView.as_view(),
         name='reporting_profile_accessibles_download_long'),
     path('reporting/<slug:campaign>/accessibles/download/',
         PortfolioAccessiblesXLSXView.as_view(),
         name='reporting_profile_accessibles_download'),
+
+    # Dashboards as HTML pages
     path('reporting/<slug:campaign>/accessibles/',
         PortfolioAccessiblesView.as_view(),
         name='reporting_profile_accessibles'),
     path('reporting/<slug:campaign>/dashboard/',
         ReportingDashboardView.as_view(),
         name='reporting_organization_dashboard'),
+
+    # side-by-side comparaison, and aggregates analytics
+    path('reporting/<slug:campaign>/insights/compare/',
+        CampaignCompareInsightsView.as_view(),
+        name='reporting_insights_compare_campaign'),
+    path('reporting/<slug:campaign>/insights/analyze/',
+        CampaignAnalyzeInsightsView.as_view(),
+        name='reporting_insights_analyze_campaign'),
+    path('reporting/<slug:campaign>/insights/',
+        CampaignInsightsView.as_view(),
+        name='reporting_insights_campaign'),
+
     path('reporting/<slug:campaign>/compare/<path:path>/',
-        CompareView.as_view(), name='matrix_compare_path'),
+        CampaignCompareInsightsView.as_view(), name='matrix_compare_path'),
     path('reporting/<slug:campaign>/compare/',
-        CompareView.as_view(), name='matrix_compare'),
+        CampaignCompareInsightsView.as_view(), name='matrix_compare'),
     path('reporting/<slug:campaign>/matrix/<path:path>/',
         PortfoliosDetailView.as_view(), name='matrix_chart'),
 

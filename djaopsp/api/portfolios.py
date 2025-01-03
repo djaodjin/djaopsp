@@ -158,12 +158,12 @@ class BenchmarkMixin(TimersMixin, AccountsDateRangeMixin,
                         title, slug):
         samples = []
         if accessible_accounts:
-            # Calling `get_completed_assessments_at_by` with an `accounts`
+            # Calling `get_latest_frozen_by_accounts` with an `accounts`
             # arguments evaluating to `False` will return all the latest
             # frozen samples.
-            samples = Sample.objects.get_completed_assessments_at_by(
-                self.campaign, accounts=accessible_accounts,
-                start_at=self.start_at, ends_at=self.ends_at)
+            samples = Sample.objects.get_latest_frozen_by_accounts(
+                campaign=self.campaign, accounts=accessible_accounts,
+                start_at=self.start_at, ends_at=self.ends_at, tags=[])
 
         # samples that will be counted in the benchmark
         if samples:
@@ -941,12 +941,12 @@ class CompareAPIView(CampaignDecorateMixin, AccountsNominativeQuerysetMixin,
             # XXX currently start_at and ends_at have shaky definition in
             #     this context.
             if reporting_accounts:
-                # Calling `get_completed_assessments_at_by` with an `accounts`
+                # Calling `get_latest_frozen_by_accounts` with an `accounts`
                 # arguments evaluating to `False` will return all the latest
                 # frozen samples.
-                self._samples = Sample.objects.get_completed_assessments_at_by(
-                    self.campaign, accounts=reporting_accounts,
-                    start_at=self.start_at, ends_at=self.ends_at)
+                self._samples = Sample.objects.get_latest_frozen_by_accounts(
+                    campaign=self.campaign, accounts=reporting_accounts,
+                    start_at=self.start_at, ends_at=self.ends_at, tags=[])
             else:
                 self._samples = Sample.objects.none()
         return self._samples
@@ -1763,7 +1763,7 @@ class EngagementStatsMixin(DashboardAggregateMixin):
             for key in humanize.COLLAPSED_REPORTING_ENGAGE_STATUSES.values()}
         for reporting_status, val in six.iteritems(engagement):
             humanized_status = \
-                humanize.COLLAPSED_REPORTING_STATUSES[reporting_status]
+                humanize.COLLAPSED_REPORTING_ENGAGE_STATUSES[reporting_status]
             stats[humanized_status] += val
 
         if self.unit == 'percentage':

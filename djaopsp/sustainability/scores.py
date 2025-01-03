@@ -68,8 +68,8 @@ class ScoreCalculator(ScoreCalculatorBase):
         # table in `get_expected_opportunities`.
         if not last_frozen_assessments:
             last_frozen_assessments = \
-                Sample.objects.get_completed_assessments_at_by(
-                    campaign, exclude_accounts=excludes)
+                Sample.objects.get_latest_frozen_by_accounts(
+                    campaign=campaign, tags=[])
         results = []
         scored_answers = _get_scored_answers(
             last_frozen_assessments, self.assessment_unit_id,
@@ -120,8 +120,8 @@ class ScoreCalculator(ScoreCalculatorBase):
         #pylint:disable=too-many-arguments
         with connection.cursor() as cursor:
             scored_answers = _get_scored_answers(
-                Sample.objects.get_completed_assessments_at_by(
-                    campaign, exclude_accounts=excludes),
+                Sample.objects.get_latest_frozen_by_accounts(
+                    campaign=campaign, tags=[]),
                 self.assessment_unit_id, includes=includes, prefix=prefix)
             cursor.execute(scored_answers, params=None)
             col_headers = cursor.description

@@ -106,10 +106,44 @@
           </button>
           <ul class="dropdown-menu">
             <a class="dropdown-item" :href="'{{urls.download}}' + getQueryString(['page'])">
-              <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
+              {% trans %}Download (.xlsx){% endtrans %}
             </a>
             <a class="dropdown-item" :href="'{{urls.download_long}}' + getQueryString(['page'])">
-              <i class="fa fa-file-text"></i> {% trans %}Long Format (xlsx){% endtrans %}
+              {% trans %}Download (pivotable .xlsx){% endtrans %}
+            </a>
+            <a id="download-detailed-answers" class="dropdown-item"
+               :href="'{{urls.download_raw}}' + getQueryString(['page'])"
+               target="_blank">
+                {% trans %}Answers &amp; scores (.xlsx){% endtrans %}
+            </a>
+            <a id="download-detailed-answers-pivotable" class="dropdown-item"
+               :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
+               target="_blank">
+                {% trans %}Answers &amp; scores (pivotable .csv){% endtrans %}
+            </a>
+            {% if urls.download_verification %}
+            <a id="download-verification" class="dropdown-item"
+               :href="'{{urls.download_verification}}' + getQueryString(['page'])"
+               target="_blank">
+                {% trans %}Verification (.xlsx){% endtrans %}
+            </a>
+            {% endif %}
+            {% if urls.download_verification_long %}
+            <a id="download-verification-pivotable" class="dropdown-item"
+               :href="'{{urls.download_verification_long}}' + getQueryString(['page'])"
+               target="_blank">
+                {% trans %}Verification (pivotable .csv){% endtrans %}
+            </a>
+            {% endif %}
+            <a id="download-planned" class="dropdown-item"
+               :href="'{{urls.download_raw}}' + getQueryString(['page']) + '&planned=1'"
+               target="_blank">
+                {% trans %}Planned improvements (.xlsx){% endtrans %}
+            </a>
+            <a id="download-planned-pivotable" class="dropdown-item"
+               :href="'{{urls.download_raw_long}}' + getQueryString(['page']) + '&planned=1'"
+               target="_blank">
+                {% trans %}Planned improvements (pivotable .csv){% endtrans %}
             </a>
           </ul>
         </div>{# /.btn-group #}

@@ -154,6 +154,28 @@ class CampaignMixin(CampaignMixinBase):
         return self._sections_available
 
 
+class DashboardsAvailableQuerysetMixin(VisibilityMixin, AccountMixin):
+
+    @property
+    def dashboards_available(self):
+        """
+        Returns a list of campaign dashboards available to the request user.
+        """
+        #pylint:disable=attribute-defined-outside-init
+        if not hasattr(self, '_dashboards_available'):
+            filtered_in = Q(extra__contains='searchable')
+            for visible in set(['public']):
+                filtered_in &= Q(extra__contains=visible)
+            self._dashboards_available = Campaign.objects.filter(
+                Q(portfolios__grantee=self.account) |
+                Q(account__slug=self.account) |
+                filtered_in).distinct()
+        return self._dashboards_available
+
+    def get_queryset(self):
+        return self.dashboards_available
+
+
 class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
     """
     Loads assessment and improvement for a profile

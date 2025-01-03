@@ -66,14 +66,8 @@
           </div>
           <div class="col-sm-6 text-end">
             {% if element and element.extra and element.extra.tags %}
-            {% if 'legend' in element.extra.tags %}
-            <a href="{{'/docs/legend/'|site_url}}">{% trans %}Legend{% endtrans %}</a>
-            {% elif 'legend-1' in element.extra.tags %}
-            <a href="{{'/docs/legend/'|site_url}}">{% trans %}Legend{% endtrans %}</a>
-            {% elif 'legend-2' in element.extra.tags %}
-            <a href="{{'/docs/legend/'|site_url}}">{% trans %}Legend{% endtrans %}</a>
-            {% elif 'legend-3' in element.extra.tags %}
-            <a href="{{'/docs/legend/'|site_url}}">{% trans %}Legend{% endtrans %}</a>
+            {% if 'legend' in element.extra.tags or 'legend-1' in element.extra.tags or 'legend-2' in element.extra.tags or 'legend-3' in element.extra.tags %}
+            <a href="{{'/docs/guides/legend/'|site_url}}">{% trans %}Legend{% endtrans %}</a>
             {% endif %}
             {% endif %}
             <span class="p-2 green-level-4 text-center">

@@ -12,73 +12,8 @@
 {% block reporting_content %}
 <engage-profiles inline-template>
   <div>
-    <div class="row">
-      <div class="col-md-6">
-        <form id="period-update" class="row mt-4"
-              @submit.prevent="reload()">
-          <div class="col-sm-4">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-              <input class="form-control" type="date" v-model="_start_at" v-cloak>
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-              <input class="form-control" type="date" v-model="_ends_at" v-cloak>
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <button class="btn btn-primary btn-sm"
-                :disabled="!outdated"
-                type="submit">{% trans %}Update{% endtrans %}</button>
-          </div>
-        </form>{# /#period-update #}
-      </div>
-      <div class="col-md-6">
-        <div class="mt-4 text-end">
-          {% include "app/reporting/_percentage_toggle.html" %}
-        </div>
-      </div>
-    </div>
 
-    <div class="row mt-4">
-      <div class="col-md-6">
-        <reporting-completion-rate ref="completionWeekly" :params="params" inline-template>
-          <div>
-            <h2 class="text-center">{% trans %}Completed week-by-week{% endtrans %}<span v-cloak>([[params.unit == 'percentage' ? '%' : 'Nb']])</span></h2>
-            <div>
-              <div class="card-body" v-if="!itemLoaded">
-                <p>
-                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
-                </p>
-              </div>
-              <div class="card-body" v-show="itemLoaded" v-cloak>
-                <canvas id="completionRate"></canvas>
-              </div>
-            </div>
-          </div>
-        </reporting-completion-rate>
-      </div>{# /.col-md-6 #}
-      <div class="col-md-6 text-center">
-        <reporting-completion-total ref="completionTotal" :params="params" inline-template>
-          <div>
-            <h2>{% trans %}Status{% endtrans %}<span v-cloak>([[params.unit == 'percentage' ? '%' : 'Nb']])</span></h2>
-            <h3 class="text-center" v-if="itemLoaded">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h3>
-            <div>
-              <div class="card-body" v-if="!itemLoaded">
-                <p>
-                  <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
-                </p>
-              </div>
-              <div class="card-body" v-show="itemLoaded" v-cloak>
-                <canvas id="summaryChart" style="max-height: 240px;"></canvas>
-              </div>
-            </div>
-          </div>
-        </reporting-completion-total>
-      </div>
-    </div>{# /.row #}
+    {% include "app/reporting/_completion_rate.html" %}
 
     <div class="row">
       <div class="col-sm-6" v-show="itemsLoaded" v-cloak>
@@ -108,15 +43,39 @@
                target="_blank">
               {% trans %}Contacts (.xlsx){% endtrans %}
             </a>
-            <a id="download-detailed-answers" class="dropdown-item"
+            <a id="download-answers" class="dropdown-item"
                :href="'{{urls.download_raw}}' + getQueryString(['page'])"
                target="_blank">
-                {% trans %}Detailed answers (.xlsx){% endtrans %}
+                {% trans %}Answers &amp; scores (.xlsx){% endtrans %}
             </a>
-            <a id="download-detailed-answers-long" class="dropdown-item"
+            <a id="download-answers-pivotable" class="dropdown-item"
                :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
                target="_blank">
-                {% trans %}Detailed answers (pivotable .csv){% endtrans %}
+                {% trans %}Answers &amp; scores (pivotable .csv){% endtrans %}
+            </a>
+            {% if urls.download_verification %}
+            <a id="download-verification" class="dropdown-item"
+               :href="'{{urls.download_verification}}' + getQueryString(['page'])"
+               target="_blank">
+                {% trans %}Verification (.xlsx){% endtrans %}
+            </a>
+            {% endif %}
+            {% if urls.download_verification_long %}
+            <a id="download-verification-pivotable" class="dropdown-item"
+               :href="'{{urls.download_verification_long}}' + getQueryString(['page'])"
+               target="_blank">
+                {% trans %}Verification (pivotable .csv){% endtrans %}
+            </a>
+            {% endif %}
+            <a id="download-planned" class="dropdown-item"
+               :href="'{{urls.download_raw}}' + getQueryString(['page']) + '&planned=1'"
+               target="_blank">
+                {% trans %}Planned improvements (.xlsx){% endtrans %}
+            </a>
+            <a id="download-planned-pivotable" class="dropdown-item"
+               :href="'{{urls.download_raw_long}}' + getQueryString(['page']) + '&planned=1'"
+               target="_blank">
+                {% trans %}Planned improvements (pivotable .csv){% endtrans %}
             </a>
           </ul>
         </div>{# /.btn-group #}

@@ -6,7 +6,8 @@ Views URLs
 """
 from django.urls import path
 
-from ...views.assess import (AssessPracticesXLSXView, AssessPracticesView,
+from ...downloads.assess import AssessPracticesXLSXView
+from ...views.assess import (AssessPracticesView,
     AssessRedirectView, ImprovePracticesView, ImproveRedirectView,
     TrackMetricsView, AssessPracticesPPTXView)
 from ...views.downloads import ImproveContentPDFView
@@ -25,10 +26,10 @@ urlpatterns = [
     # Assessment
     path('assess/<slug:sample>/download/<path:path>/',
          AssessPracticesXLSXView.as_view(), name='assess_download_segment'),
-    path('assess/<slug:sample>/download/',
-         AssessPracticesXLSXView.as_view(), name='assess_download_index'),
     path('assess/<slug:sample>/download/pptx/',
          AssessPracticesPPTXView.as_view(), name='assess_download_pptx'),
+    path('assess/<slug:sample>/download/',
+         AssessPracticesXLSXView.as_view(), name='assess_download_index'),
     path('assess/<slug:sample>/<path:path>/',
          AssessPracticesView.as_view(), name='assess_practices'),
     path('assess/<slug:sample>/',
