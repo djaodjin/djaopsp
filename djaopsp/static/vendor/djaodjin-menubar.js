@@ -1,86 +1,112 @@
-/* Copyright (c) 2018, Djaodjin Inc.
+/* Copyright (c) 2024, Djaodjin Inc.
    see LICENSE
 */
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['exports', 'jQuery'], factory);
+    } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
+        // CommonJS
+        factory(exports, require('jQuery'));
+    } else {
+        // Browser true globals added to `window`.
+        factory(root, root.jQuery);
+        // If we want to put the exports in a namespace, use the following line
+        // instead.
+        // factory((root.djResources = {}), root.jQuery);
+    }
+}(typeof self !== 'undefined' ? self : this, function (exports, jQuery) {
 
-/* global document jQuery */
 
-// XXX If we don't define this polyfill, bootstrap-vue does not load
-// correctly on phantomjs.
-// We put it here so it gets loaded before `vendor-vue.js`
-if (typeof Object.assign !== 'function') {
-  // Must be writable: true, enumerable: false, configurable: true
-  Object.defineProperty(Object, "assign", {
-    value: function assign(target, varArgs) { // .length of function is 2
-      'use strict';
-      if (target === null || target === undefined) {
-        throw new TypeError('Cannot convert undefined or null to object');
-      }
+const API_URL = typeof DJAOAPP_API_BASE_URL !== 'undefined' ?
+  DJAOAPP_API_BASE_URL : "/api";
 
-      var to = Object(target);
 
-      for (var index = 1; index < arguments.length; index++) {
-        var nextSource = arguments[index];
+async function injectUserMenubarItem() {
+  try {
+    const userMenubarItem = document.querySelector(
+        '[data-dj-menubar-user-item]')
+    if( !userMenubarItem ) return;
 
-        if (nextSource !== null && nextSource !== undefined) {
-          for (var nextKey in nextSource) {
-            // Avoid bugs when hasOwnProperty is shadowed
-            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-              to[nextKey] = nextSource[nextKey];
-            }
-          }
-        }
-      }
-      return to;
-    },
-    writable: true,
-    configurable: true
-  });
+    var params = {
+        redirect: 'manual',
+        headers: {Accept: 'text/html'}
+    };
+    const authToken = sessionStorage.getItem('authToken');
+    if( authToken ) {
+        params['headers']['Authorization'] = "Bearer " + authToken;
+    } else {
+        params['credentials'] = 'include';
+    }
+
+    const resp = await fetch(API_URL + '/auth/tokens', params)
+    if( !resp.ok ) return;
+
+    // The assignment will replace the inner content
+    // of 'userMenubarItem' by HTMLElement, despite the response
+    // received (`resp.text()`) looking like it is being decorated,
+    // i.e. "<html><head></head><body>{{HTMLElement}}</body></html>".
+    const data = await resp.text();
+    userMenubarItem.innerHTML = data;
+    userMenubarItem.removeAttribute('data-dj-menubar-user-item');
+    addMenubarDropdownToggle();
+
+  } catch(error) {
+    console.error(error.message);
+  }
 }
 
 
-(function ($) {
-    "use strict";
+function addMenubarDropdownToggle() {
 
-$(document).ready(function(){
-    (function(){
-        // menubar
-        var menubar = $('.menubar');
-        var overlay = menubar.find('.header-menubar-overlay');
-        var dpdwnMenu = menubar.find('.dropdown-menu');
-        var dpdwnToggle = menubar.find('.menubar-dropdown-toggle')
-        var open = false;
-        overlay.add(dpdwnToggle).click(function(e) {
-            if($(this).closest('.dropdown-menu').length === 0 ) {
-                if(open){
-                    open = false;
-                    dpdwnMenu.hide();
-                    overlay.hide();
+    var closeEvent = false;
+    for( elem of document.getElementsByClassName(
+        'menubar-label-dropdown-toggle') ) {
+        elem.addEventListener('click', function(evt) {
+            evt.preventDefault();
+            var self = this;
+            var dpdwnMenu = self.parentNode.querySelector(
+                '.menubar-dropdown-menu')
+            if( window.getComputedStyle(dpdwnMenu).display === 'none' ) {
+                dpdwnMenu.style.display = "block";
+                if( !closeEvent ) {
+                    window.addEventListener('mouseup', function(evt) {
+                        if( !self.contains(evt.target) ) {
+                            dpdwnMenu.style.display = "none";
+                        }
+                    });
+                    closeEvent = true;
                 }
+            } else {
+                dpdwnMenu.style.display = "none";
             }
         });
-        dpdwnToggle.click(function(e){
-            e.preventDefault();
-            var $t = $(this);
-            if(!open){
-                e.stopPropagation();
-                $t.siblings('.menubar-dropdown-container')
-                  .find('.dropdown-menu')
-                  .show();
-                overlay.show();
-                open = true;
-            }
-        });
-        $('[data-trnc]').each(function(){
-            var $el = $(this);
-            var len = parseInt($el.attr('data-trnc-len'));
-            var old = $el.text();
-            if(old.length > len){
-                var upd = old.substr(0, len) + '&hellip;';
-                $el.html(upd);
-            }
-            $el.removeAttr('data-trnc');
-        });
-    })();
-});
+    }
 
-})(jQuery);
+    for( elem of document.querySelectorAll('[data-trnc]') ) {
+        var len = parseInt(elem.getAttribute('data-trnc-len'));
+        var old = elem.innerHTML;
+        if( old.length > len ) {
+            var upd = old.substr(0, len) + '&hellip;';
+            elem.innerHTML = upd;
+        }
+        // removing the attribute will make the element visible.
+        elem.removeAttribute('data-trnc');
+    }
+}
+
+
+if( document.readyState === "interactive" ||
+    document.readyState === "complete" ) {
+    injectUserMenubarItem();
+    addMenubarDropdownToggle();
+} else {
+    document.addEventListener('DOMContentLoaded', injectUserMenubarItem);
+    document.addEventListener('DOMContentLoaded', addMenubarDropdownToggle);
+}
+
+    // attach properties to the exports object to define
+    // the exported module properties.
+    exports.injectUserMenubarItem = injectUserMenubarItem;
+    exports.addMenubarDropdownToggle = addMenubarDropdownToggle;
+}));
