@@ -392,7 +392,7 @@ ON questions_with_opportunity.id = samples.question_id
 
 def _get_opportunities_sql(population, unit_id, prefix=None):
     if isinstance(population, six.string_types):
-        # We assument `population` is a SQL query.
+        # We assume `population` is a SQL query.
         sample_population = ("SELECT id FROM (%s) AS sample_population" %
             population)
     else:

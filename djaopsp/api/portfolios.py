@@ -684,6 +684,7 @@ class TotalScoreBySubsectorAPIView(RollupMixin, GraphMixin, SupplierListMixin,
 class CompletedAssessmentsMixin(AccountMixin):
 
     def get_queryset(self):
+        # `get_latest_frozen_by_accounts` queryset is not sorted by default.
         queryset = Sample.objects.filter(
             pk__in=[sample.pk
                 for sample in Sample.objects.get_latest_frozen_by_accounts(
