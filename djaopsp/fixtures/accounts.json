@@ -49,7 +49,7 @@
 },
 {
   "fields": {
-    "date_joined": "2022-01-01T00:00:00+00:00",
+    "date_joined": "2023-01-01T00:00:00+00:00",
     "email": "tspproject@localhost.localdomain",
     "first_name": "Donny",
     "is_active": true,
@@ -62,7 +62,7 @@
 },
 {
   "fields": {
-    "date_joined": "2023-01-01T00:00:00+00:00",
+    "date_joined": "2024-01-01T00:00:00+00:00",
     "email": "chatgpt@localhost.localdomain",
     "first_name": "ChatGPT",
     "is_active": true,
@@ -74,7 +74,7 @@
   "model": "auth.User", "pk": 2
 },
 { "fields": {
-    "date_joined": "2023-01-01T00:00:00+00:00",
+    "date_joined": "2024-01-01T00:00:00+00:00",
     "email": "tspproject@localhost.localdomain",
     "first_name": "Steve",
     "is_active": true,
@@ -84,7 +84,7 @@
   "model": "auth.User", "pk": 7
 },
 { "fields": {
-    "date_joined": "2023-01-01T00:00:00+00:00",
+    "date_joined": "2024-01-01T00:00:00+00:00",
     "email": "tspproject@localhost.localdomain",
     "first_name": "Andy",
     "is_active": true,
@@ -94,7 +94,7 @@
   "model": "auth.User", "pk": 8
 },
 { "fields": {
-    "date_joined": "2023-01-01T00:00:00+00:00",
+    "date_joined": "2024-01-01T00:00:00+00:00",
     "email": "alice@localhost.localdomain",
     "first_name": "Alice",
     "is_active": true,
@@ -164,7 +164,7 @@
   "model" : "djaopsp.account", "pk" : 19
 },
 { "fields": {
-    "date_joined": "2023-01-01T00:00:00+00:00",
+    "date_joined": "2024-01-01T00:00:00+00:00",
     "email": "abby@localhost.localdomain",
     "first_name": "Abby",
     "last_name": "Verifier",

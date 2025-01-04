@@ -538,7 +538,7 @@
 { "fields" : {
     "slug" : "sustainability",
     "title" : "ESG/Environmental practices",
-    "created_at": "2024-01-01T00:00:00.000Z",
+    "created_at": "2025-01-01T00:00:00.000Z",
     "description" : "Assess your organization's environmental, social and governance policies against best practices.",
     "account": 2,
     "is_active": true,
@@ -550,7 +550,7 @@
 { "fields" : {
     "slug" : "framework",
     "title" : "Cybersecurity framework",
-    "created_at": "2024-01-01T00:00:00.000Z",
+    "created_at": "2025-01-01T00:00:00.000Z",
     "description" : "Assessment of practices around cybersecurity",
     "account" : 3,
     "is_active": true,
@@ -562,7 +562,7 @@
 { "fields" : {
     "slug" : "sustainability-verified",
     "title" : "Verification of ESG/Environmental practices",
-    "created_at": "2024-01-01T00:00:00.000Z",
+    "created_at": "2025-01-01T00:00:00.000Z",
     "account": 2,
     "extra": ""
   },
@@ -572,7 +572,7 @@
   "fields": {
     "title": "Core Environment, Social and Governance (ESG) Assessment",
     "slug": "sustainability",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"pagebreak\":true,\"tags\":[\"scorecard\",\"assess\"],\"visibility\":[\"public\"]}",
     "account": 2
   },
@@ -582,7 +582,7 @@
   "fields": {
     "title": "Environmental/Social Strategy & Governance",
     "slug": "esg-strategy-heading",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -598,7 +598,7 @@
   "fields": {
     "title": "1.1 Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
     "slug": "formalized-esg-strategy",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -614,7 +614,7 @@
   "fields": {
     "title": "1.2 If yes, Has your company assigned formal responsibility for directing and overseeing ESG performance to top/executive management?",
     "slug": "assign-formal-authority",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -630,7 +630,7 @@
   "fields": {
     "title": "1.3 If yes, Has your company designated a point person(s) responsible for implementing strategy and meeting targets?",
     "slug": "assign-point-person",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -647,7 +647,7 @@
   "fields": {
     "title": "1.4 If yes, Does your company report internally, including to top management, on strategy: key ESG issues (revealed by materiality analysis), resiliency, risk, business continuity, progress toward goals, and plans/needs to address gaps towards your targets?",
     "slug": "report-internally",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -663,7 +663,7 @@
   "fields": {
     "title": "1.5 If yes, Does your company report externally on strategy: program elements, key ESG issues and goals, challenges, resiliency, and continual improvement efforts in accordance with a reputable reporting standard (e.g. GRI, SASB, TCFD)?",
     "slug": "report-externally",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -679,7 +679,7 @@
   "fields": {
     "title": "1.6 If yes, Does your company have ESG strategy and reports, targets, and Key Performance Indicators (KPIs) periodically (every 5 years or sooner) validated by an independent third party?",
     "slug": "report-3rd-party-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -695,7 +695,7 @@
   "fields": {
     "title": "1.7 Has your company conducted a systematic, rigorous assessment to identify and prioritize material ESG impacts, issues and opportunities?",
     "slug": "systematic-rigorous-assessment",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -711,7 +711,7 @@
   "fields": {
     "title": "1.7a If your company conducted a systematic, rigorous assessment to identify and prioritize material ESG impacts, issues and opportunities, how was the ESG assessment done, and in what year?",
     "slug": "how-was-the-assessment-done",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -727,7 +727,7 @@
   "fields": {
     "title": "1.7b If your company conducted a systematic, rigorous assessment to identify and prioritize material ESG impacts, issues and opportunities, please describe the three most material ESG impacts, issues and opportunities identified for your company?",
     "slug": "describe-the-three-most-material-esg-impacts",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -743,7 +743,7 @@
   "fields": {
     "title": "1.7c Please describe your company's strategies, related goals and performance metrics related to each of these three material ESG issues.",
     "slug": "describe-your-company-strategies-related-goals",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -761,7 +761,7 @@
   "fields": {
     "title": "Environment, Social & Governance (ESG) Materiality Assessment",
     "slug": "esg-assessment",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 9
@@ -777,7 +777,7 @@
   "fields": {
     "title": "Code of conducts and policies",
     "slug": "governance-policies",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 16
@@ -794,7 +794,7 @@
   "fields": {
     "title": "2.1 Does your company have an Employee Code of Conduct in place?",
     "slug": "employee-code-of-conduct",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -811,7 +811,7 @@
   "fields": {
     "title": "Does your company’s Employee Code of Conduct contain sections pertinent to ...",
     "slug": "employee-code-of-conduct-follow",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 18
@@ -826,7 +826,7 @@
   "fields": {
     "title": "2.1a ... Child and Forced Labor?",
     "slug": "employee-code-of-conduct-child-and-forced-labor",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -842,7 +842,7 @@
   "fields": {
     "title": "2.1b ... Corruption and bribery?",
     "slug": "employee-code-of-conduct-corruption-and-bribery",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -858,7 +858,7 @@
   "fields": {
     "title": "2.1c ... Discrimination & harassment​?",
     "slug": "employee-code-of-conduct-discrimination",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -875,7 +875,7 @@
   "fields": {
     "title": "2.1d ... Diversity and inclusion?",
     "slug": "employee-code-of-conduct-diversity-inclusion",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -892,7 +892,7 @@
   "fields": {
     "title": "2.1e ... Working hours?",
     "slug": "employee-code-of-conduct-working-hours",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -910,7 +910,7 @@
   "fields": {
     "title": "2.1f ... Confidentiality of information?",
     "slug": "employee-code-of-conduct-confidentiality",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -926,7 +926,7 @@
   "fields": {
     "title": "2.1g ... Conflicts of interest?",
     "slug": "employee-code-of-conduct-conflicts-of-interest",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -942,7 +942,7 @@
   "fields": {
     "title": "2.1h ... Antitrust/anti-competitive practices?",
     "slug": "employee-code-of-conduct-antitrust",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -958,7 +958,7 @@
   "fields": {
     "title": "2.1i ... Money-laundering and/or insider trading/dealing?",
     "slug": "employee-code-of-conduct-money-laundering",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -974,7 +974,7 @@
   "fields": {
     "title": "2.1j ... Environment, health and safety?",
     "slug": "employee-code-of-conduct-safety",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -990,7 +990,7 @@
   "fields": {
     "title": "2.1k ... Whistleblowing?",
     "slug": "employee-code-of-conduct-whistleblowing",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1006,7 +1006,7 @@
   "fields": {
     "title": "2.1l ... Collective bargaining, labor unions?",
     "slug": "employee-code-of-conduct-labor-unions",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1022,7 +1022,7 @@
   "fields": {
     "title": "2.2 Does your company have a Supplier Code of Conduct and/or Human Rights Policy in place?",
     "slug": "supplier-code-of-conduct",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1038,7 +1038,7 @@
   "fields": {
     "title": "Does your company’s Supplier Code of Conduct and/or Human Rights Policy contain sections pertinent to ...",
     "slug": "supplier-code-of-conduct-follow",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 34
@@ -1053,7 +1053,7 @@
   "fields": {
     "title": "2.2a ... Child and Forced Labor?",
     "slug": "supplier-code-of-conduct-child-and-forced-labor",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1069,7 +1069,7 @@
   "fields": {
     "title": "2.2b ... Corruption and bribery?",
     "slug": "supplier-code-of-conduct-corruption-and-bribery",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1085,7 +1085,7 @@
   "fields": {
     "title": "2.2c ... Discrimination & harassment?",
     "slug": "supplier-code-of-conduct-discrimination",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1102,7 +1102,7 @@
   "fields": {
     "title": "2.2d ... Diversity and inclusion?",
     "slug": "supplier-code-of-conduct-diversity-inclusion",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1118,7 +1118,7 @@
   "fields": {
     "title": "2.2e ... working hours?",
     "slug": "supplier-code-of-conduct-working-hours",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1136,7 +1136,7 @@
   "fields": {
     "title": "2.2f ... Confidentiality of information?",
     "slug": "supplier-code-of-conduct-confidentiality",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1152,7 +1152,7 @@
   "fields": {
     "title": "2.2g ... Conflicts of interest?",
     "slug": "supplier-code-of-conduct-conflicts-of-interest",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1168,7 +1168,7 @@
   "fields": {
     "title": "2.2h ... Antitrust/anti-competitive practices?",
     "slug": "supplier-code-of-conduct-antitrust",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1184,7 +1184,7 @@
   "fields": {
     "title": "2.2i ... Money-laundering and/or insider trading/dealing?",
     "slug": "supplier-code-of-conduct-money-laundering",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1200,7 +1200,7 @@
   "fields": {
     "title": "2.2j ... Environment, health and safety?",
     "slug": "supplier-code-of-conduct-safety",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1216,7 +1216,7 @@
   "fields": {
     "title": "2.2k ... Whistleblowing?",
     "slug": "supplier-code-of-conduct-whistleblowing",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1232,7 +1232,7 @@
   "fields": {
     "title": "2.2l ... External stakeholder human rights?",
     "slug": "supplier-code-of-conduct-external-stakeholders",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1248,7 +1248,7 @@
   "fields": {
     "title": "4.7 Percentage of targeted suppliers that have signed the Supplier Code of Conduct?",
     "slug": "report-sustainable-procurement",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1264,7 +1264,7 @@
   "fields": {
     "title": "4.8 What is the percentage of targeted suppliers with contracts that include clauses on environmental, labor, and human rights requirements?",
     "slug": "report-sustainable-procurement-clauses",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1280,7 +1280,7 @@
   "fields": {
     "title": "4.9 If your organization has a Supplier Code of Conduct, what monitoring or audit systems are in place to ensure compliance with the Supplier Code of Conduct?",
     "slug": "supplier-code-of-conduct-monitoring-audit-systems",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1297,7 +1297,7 @@
   "fields": {
     "title": "Sourcing practices",
     "slug": "sourcing-practices",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 50
@@ -1312,7 +1312,7 @@
   "fields": {
     "title": "3.1 Are there any conflict minerals or additional minerals of concern (including: cobalt, tin, tantalum, tungsten, or gold) in the product(s) that your company manufactures, subcontracts, or sells?",
     "slug": "conflict-minerals-in-products",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1329,7 +1329,7 @@
   "fields": {
     "title": "3.2 If yes - Has your company published a due diligence report on conflict minerals (including or not including cobalt)?",
     "slug": "conflict-minerals-in-products-report",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1345,7 +1345,7 @@
   "fields": {
     "title": "3.3 Does your company have a policy related to sourcing minerals of concern?",
     "slug": "conflict-minerals-policy",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1361,7 +1361,7 @@
   "fields": {
     "title": "3.4 Does your company source any of the specific materials, minerals, or products from the related countries listed on the Department of Labor \"List of Goods Produced by Child Labor or Forced Labor\" (available here https://www.dol.gov/agencies/ilab/reports/child-labor/list-of-goods)?",
     "slug": "high-risk-regions-sourcing-products",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1377,7 +1377,7 @@
   "fields": {
     "title": "3.6 If your company source materials from regions of concern, how is your company ensuring that there is no Child Labor or Forced Labor in your supply chain?",
     "slug": "high-risk-regions-sourcing-products-report",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1394,7 +1394,7 @@
   "fields": {
     "title": "3.5 Does your company have a policy related to sourcing materials from regions of concern?",
     "slug": "high-risk-regions-sourcing-policy",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1412,7 +1412,7 @@
   "fields": {
     "title": "Environmental Management System Rigor",
     "slug": "environmental-management-rigor",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 60
@@ -1428,7 +1428,7 @@
   "fields": {
     "title": "4.1 Has your company implemented an environmental management system that conforms with a recognized international (e.g. ISO 14001) or local standard?",
     "slug": "env-system-in-place",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1445,7 +1445,7 @@
   "fields": {
     "title": "4.2 Is the system certified to a recognized local or international standard?",
     "slug": "env-system-certified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1461,7 +1461,7 @@
   "fields": {
     "title": "4.3 Is the system periodically (e.g. every 5 years) audited internally and by an independent third party?",
     "slug": "env-system-audited",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1477,7 +1477,7 @@
   "fields": {
     "title": "4.5 Please indicate the coverage of the environmental management system across your business and/or facilities (e.g. % of owned facilities with an ISO 14001 certificate)?",
     "slug": "env-system-coverage",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1493,7 +1493,7 @@
   "fields": {
     "title": "4.6 If your company has an Employee Code of Conduct, what monitoring or audit systems are in place to ensure compliance with the Employee Code of Conduct?",
     "slug": "employee-code-of-conduct-monitoring-audit-systems",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1511,7 +1511,7 @@
   "fields": {
     "title": "Environmental reporting",
     "slug": "environmental-reporting",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 65
@@ -1526,7 +1526,7 @@
   "fields": {
     "title": "5.1 Has your company received or been responsible for a Notice of Violation (NOV), Consent Order or fine over USD $10,000 from an environmental agency, or an environmental event that required reporting to an environmental agency in the past 36 months?",
     "slug": "environmental-fines",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -1542,7 +1542,7 @@
   "fields": {
     "title": "Energy & GHG Emissions reporting",
     "slug": "ghg-emissions-reporting",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 66
@@ -1557,7 +1557,7 @@
   "fields": {
     "title": "7.1 Does your company report total Scope 1 GHG emissions publicly?",
     "slug": "ghg-emissions-scope1-publicly-reported",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1573,7 +1573,7 @@
   "fields": {
     "title": "7.2 Have Scope 1 GHG Emissions data been third-party verified within last 2 years?",
     "slug": "ghg-emissions-scope1-3rd-party-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1589,7 +1589,7 @@
   "fields": {
     "title": "7.7 Does your company report total Scope 2 GHG emissions publicly?",
     "slug": "ghg-emissions-scope2-publicly-reported",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1605,7 +1605,7 @@
   "fields": {
     "title": "7.8 Have Scope 2 GHG emissions data been third-party verified within last 2 years?",
     "slug": "ghg-emissions-scope2-3rd-party-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1621,7 +1621,7 @@
   "fields": {
     "title": "(16a) Does your company report total Scope 3 GHG emissions publicly?",
     "slug": "ghg-emissions-scope3-publicly-reported",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1637,7 +1637,7 @@
   "fields": {
     "title": "(16b) Have Scope 3 GHG emissions data been third-party verified within last 2 years?",
     "slug": "ghg-emissions-scope3-3rd-party-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1653,7 +1653,7 @@
   "fields": {
     "title": "Waste reporting",
     "slug": "waste-reporting",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 73
@@ -1668,7 +1668,7 @@
   "fields": {
     "title": "9.1 Does your company report waste generated and recycled publicly?",
     "slug": "waste-publicly-reported",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1685,7 +1685,7 @@
   "fields": {
     "title": "9.2 Has the waste measurement methodology been third-party verified within the last 2 years?",
     "slug": "waste-3rd-party-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1701,7 +1701,7 @@
   "fields": {
     "title": "Water reporting",
     "slug": "water-reporting",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 76
@@ -1716,7 +1716,7 @@
   "fields": {
     "title": "8.1 Does your company report water withdrawn, discharged and re-used publicly?",
     "slug": "water-publicly-reported",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1732,7 +1732,7 @@
   "fields": {
     "title": "8.2 Have water data been third-party verified within the last 2 years?",
     "slug": "water-3rd-party-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1750,7 +1750,7 @@
   "fields": {
     "title": "Social reporting",
     "slug": "social-reporting",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 79
@@ -1765,7 +1765,7 @@
   "fields": {
     "title": "11.1 Has your company had any significant code of conduct breaches including but not limited to breaches resulting in fines, class action lawsuits, or repeated breaches of Codes of Conduct in the past 36 months?",
     "slug": "governance-fines",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1781,7 +1781,7 @@
   "fields": {
     "title": "11.2 Does your company report internally or externally Key Performance Indicators (KPIs) on ...",
     "slug": "social-kpis",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 80
@@ -1796,7 +1796,7 @@
   "fields": {
     "title": "11.2a ... Discrimination & Harassment?",
     "slug": "kpi-diversity-discrimination-harassment",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1812,7 +1812,7 @@
   "fields": {
     "title": "11.2b ... Diversity of Employees?",
     "slug": "kpi-diversity-of-employees",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1828,7 +1828,7 @@
   "fields": {
     "title": "11.2c ... Diversity of Executive Leadership and/or Board?",
     "slug": "kpi-diversity-of-board",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1844,7 +1844,7 @@
   "fields": {
     "title": "11.2d ... Recordable Incident Rate?",
     "slug": "kpi-recordable-incident-rate",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1860,7 +1860,7 @@
   "fields": {
     "title": "11.2e ... Lost-time Case Rate?",
     "slug": "kpi-lost-time-case-rate",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1876,7 +1876,7 @@
   "fields": {
     "title": "11.2f ... Days Away, Restricted, and Transfer (DART) Rate?",
     "slug": "kpi-dart-rate",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1892,7 +1892,7 @@
   "fields": {
     "title": "11.2g ... Work-related Fatalities?",
     "slug": "kpi-work-related-fatalities",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1909,7 +1909,7 @@
   "fields": {
     "title": "Energy & GHG Emissions measured and trended",
     "slug": "ghg-emissions-scope1-measured",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2,
     "extra": "{\"tags\":[\"data-metrics-header\"]}"
   },
@@ -1926,7 +1926,7 @@
   "fields": {
     "title": "7.6 Total Scope 1 GHG Emissions",
     "slug": "ghg-emissions-scope1",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1944,7 +1944,7 @@
   "fields": {
     "title": "7.12 Total Scope 2 GHG Emissions",
     "slug": "ghg-emissions-scope2",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -1963,7 +1963,7 @@
   "fields": {
     "title": "Scope 3 reporting",
     "slug": "ghg-emissions-scope3-details",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2,
     "extra": ""
   },
@@ -1980,7 +1980,7 @@
   "fields": {
     "title": "Scope 3 measured and trended",
     "slug": "ghg-emissions-scope3-measured",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2,
     "extra": "{\"tags\":[\"data-metrics-header\"]}"
   },
@@ -1998,7 +1998,7 @@
   "fields": {
     "title": "(16) Total Scope 3 GHG Emissions",
     "slug": "ghg-emissions-scope3",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2015,7 +2015,7 @@
   "fields": {
     "title": "7.18a Business travel",
     "slug": "business-travel",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2031,7 +2031,7 @@
   "fields": {
     "title": "7.18b Capital goods",
     "slug": "capital-goods",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2048,7 +2048,7 @@
   "fields": {
     "title": "7.18c Downstream leased assets",
     "slug": "downstream-leased-assets",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2065,7 +2065,7 @@
   "fields": {
     "title": "7.18d Downstream transportation and distribution",
     "slug": "downstream-transportation-and-distribution",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2082,7 +2082,7 @@
   "fields": {
     "title": "7.18e Employee commuting",
     "slug": "employee-commuting",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2099,7 +2099,7 @@
   "fields": {
     "title": "7.18f End of life treatment of sold products",
     "slug": "end-of-life-treatment-of-sold-products",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2116,7 +2116,7 @@
   "fields": {
     "title": "7.18g Franchise",
     "slug": "franchise",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2133,7 +2133,7 @@
   "fields": {
     "title": "7.18h Fuel-and-energy-related activities",
     "slug": "fuel-and-energy-related-activities",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2150,7 +2150,7 @@
   "fields": {
     "title": "7.18i Investments",
     "slug": "investments",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2167,7 +2167,7 @@
   "fields": {
     "title": "7.18j Processing of sold products",
     "slug": "processing-of-sold-products",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2185,7 +2185,7 @@
   "fields": {
     "title": "7.18k Purchased good and services",
     "slug": "purchased-good-and-services",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2202,7 +2202,7 @@
   "fields": {
     "title": "7.18l Upstream leased assets",
     "slug": "upstream-leased-assets",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2220,7 +2220,7 @@
   "fields": {
     "title": "7.18m Upstream transportation and distribution",
     "slug": "upstream-transportation-and-distribution",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2237,7 +2237,7 @@
   "fields": {
     "title": "7.18n Use of sold products",
     "slug": "use-of-sold-products",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2254,7 +2254,7 @@
   "fields": {
     "title": "7.18o Waste generated in operations",
     "slug": "waste-generated-in-operations",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2272,7 +2272,7 @@
   "fields": {
     "title": "Waste measured and trended",
     "slug": "waste-measured",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2,
     "extra": "{\"tags\":[\"data-metrics-header\"]}"
   },
@@ -2288,7 +2288,7 @@
   "fields": {
     "title": "9.5 Total Hazardous Waste",
     "slug": "hazardous-waste",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2305,7 +2305,7 @@
   "fields": {
     "title": "9.6 Total Non-Hazardous Waste",
     "slug": "non-hazardous-waste",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2322,7 +2322,7 @@
   "fields": {
     "title": "9.7 Total Waste Recycled",
     "slug": "waste-recycled",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2339,7 +2339,7 @@
   "fields": {
     "title": "Water measured and trended",
     "slug": "water-measured",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2,
     "extra": "{\"tags\":[\"data-metrics-header\"]}"
   },
@@ -2355,7 +2355,7 @@
   "fields": {
     "title": "8.5 Total Water withdrawn",
     "slug": "water-withdrawn",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2372,7 +2372,7 @@
   "fields": {
     "title": "8.6 Total Water discharged",
     "slug": "water-discharged",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2389,7 +2389,7 @@
   "fields": {
     "title": "8.7 Total Water recycled and reused",
     "slug": "water-recycled",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2405,7 +2405,7 @@
   "fields": {
     "title": "General information",
     "slug": "general-information",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 130
@@ -2420,7 +2420,7 @@
   "fields": {
     "title": "6.1 North American Industry Classification (NAICS)",
     "slug": "naics-code",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2437,7 +2437,7 @@
   "fields": {
     "title": "6.2 Reporting Organization's Annual Gross Revenue",
     "slug": "gross-revenue",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2453,7 +2453,7 @@
   "fields": {
     "title": "6.3 Reporting organization's Full-time Employee Count",
     "slug": "fte-count",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2471,7 +2471,7 @@
   "fields": {
     "title": "10.1 Does your company report total Energy consumed publicly?",
     "slug": "energy-publicly-reported",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2488,7 +2488,7 @@
   "fields": {
     "title": "10.2 Have Energy data been third-party verified within last 2 years?",
     "slug": "energy-3rd-party-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2505,7 +2505,7 @@
   "fields": {
     "title": "10.5 Energy consumed",
     "slug": "energy-consumed",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2522,7 +2522,7 @@
   "fields": {
     "title": "10.3 When do you expect to achieve your energy reduction target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "energy-target-by",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2539,7 +2539,7 @@
   "fields": {
     "title": "7.3 When do you expect to achieve your Scope 1 GHG Emissions target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "ghg-emissions-scope1-target-by",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2556,7 +2556,7 @@
   "fields": {
     "title": "7.4 Is your Scope 1 GHG Emissions target a science-based target, net-zero target, or other?",
     "slug": "ghg-emissions-scope1-science-based-target",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2574,7 +2574,7 @@
   "fields": {
     "title": "7.5 If you have a Scope 1 GHG Emissions target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "ghg-emissions-scope1-target-comments",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2592,7 +2592,7 @@
   "fields": {
     "title": "7.9 When do you expect to achieve your Scope 2 GHG Emissions target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "ghg-emissions-scope2-target-by",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2609,7 +2609,7 @@
   "fields": {
     "title": "7.10 Is your Scope 2 GHG Emissions target a science-based target, net-zero target, or other?",
     "slug": "ghg-emissions-scope2-science-based-target",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2627,7 +2627,7 @@
   "fields": {
     "title": "Energy & GHG Emissions improvement planning and execution",
     "slug": "ghg-emissions-scope1-target",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 155
@@ -2643,7 +2643,7 @@
   "fields": {
     "title": "7.11 If you have a Scope 2 GHG Emissions target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "ghg-emissions-scope2-target-comments",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2660,7 +2660,7 @@
   "fields": {
     "title": "10.4 If you have an energy reduction target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "energy-improvement-target-comments",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2678,7 +2678,7 @@
   "fields": {
     "title": "Scope 3 improvement planning and execution",
     "slug": "ghg-emissions-scope3-target",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 163
@@ -2693,7 +2693,7 @@
   "fields": {
     "title": "When do you expect to achieve your Scope 3 GHG Emissions target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "ghg-emissions-scope3-target-by",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2709,7 +2709,7 @@
   "fields": {
     "title": "Is this a science-based target, net-zero target, or other?",
     "slug": "ghg-emissions-scope3-science-based-target",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2725,7 +2725,7 @@
   "fields": {
     "title": "If yes, What progress has been made on your target (%)?",
     "slug": "ghg-emissions-scope3-target-comments",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2742,7 +2742,7 @@
   "fields": {
     "title": "Waste improvement planning and execution",
     "slug": "waste-target",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/waste.png",
     "account": 2
   },
@@ -2758,7 +2758,7 @@
   "fields": {
     "title": "9.3 When do you expect to achieve your waste reduction target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "waste-target-by",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2775,7 +2775,7 @@
   "fields": {
     "title": "9.4 If you have a waste reduction target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "waste-target-comments",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2792,7 +2792,7 @@
   "fields": {
     "title": "Water use improvement planning and execution",
     "slug": "water-target",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/water.png",
     "account": 2
   },
@@ -2808,7 +2808,7 @@
   "fields": {
     "title": "8.3 When do you expect to achieve your water use target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "water-target-by",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2824,7 +2824,7 @@
   "fields": {
     "title": "8.4 If you have a water use target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "water-target-comments",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2843,7 +2843,7 @@
   "fields": {
     "title": "11.3 Does your company have a target for diverse spend publicly communicated?",
     "slug": "diverse-spend",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/etc.png",
     "account": 2
   },
@@ -2861,7 +2861,7 @@
   "fields": {
     "title": "Diverse spend and/or representation improvement planning and execution",
     "slug": "diverse-target",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/etc.png",
     "account": 2
   },
@@ -2877,7 +2877,7 @@
   "fields": {
     "title": "11.6 When do you expect to achieve your diverse spend and/or representation target? (Please describe the target, or why you do not have a target, in comments)",
     "slug": "diverse-target-by",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2893,7 +2893,7 @@
   "fields": {
     "title": "11.7 If you have a diverse spend and/or representation target, please describe plans in place and progress made towards your target (ex: % completion)?",
     "slug": "diverse-target-comments",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2909,7 +2909,7 @@
   "fields": {
     "title": "11.4 If your company has a target for diverse spend, does your company define diverse suppliers as ...",
     "slug": "diverse-target-definition",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2925,7 +2925,7 @@
   "fields": {
     "title": "11.4a ... disability-owned bussinesses?",
     "slug": "diverse-target-definition-disability-owned",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2941,7 +2941,7 @@
   "fields": {
     "title": "11.4b ... HUBZone businesses",
     "slug": "diverse-target-definition-hubzone",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2957,7 +2957,7 @@
   "fields": {
     "title": "11.4c ... LGBT-owned businesses",
     "slug": "diverse-target-definition-lgbt-owned",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2973,7 +2973,7 @@
   "fields": {
     "title": "11.4d ... minority-owned businesses",
     "slug": "diverse-target-definition-minority-owned",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -2989,7 +2989,7 @@
   "fields": {
     "title": "11.4e ... service-disable veteran businesses",
     "slug": "diverse-target-definition-service-disable-veteran",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3005,7 +3005,7 @@
   "fields": {
     "title": "11.4f ... small businesses (by revenue)",
     "slug": "diverse-target-definition-small-business-revenue",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3021,7 +3021,7 @@
   "fields": {
     "title": "11.4g ... small businesses (by employees)",
     "slug": "diverse-target-definition-small-business-employee",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3037,7 +3037,7 @@
   "fields": {
     "title": "11.4h ... small disadvantaged businesses",
     "slug": "diverse-target-definition-small-disadvantaged",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3053,7 +3053,7 @@
   "fields": {
     "title": "11.4i ...  veteran-owned businesses",
     "slug": "diverse-target-definition-veteran-owned",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3069,7 +3069,7 @@
   "fields": {
     "title": "11.4j ... woman-owned businesses",
     "slug": "diverse-target-definition-woman-owned",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3086,7 +3086,7 @@
   "fields": {
     "title": "11.5 If your company has a target for diverse spend, does your company require third-party certification to verify a supplier diverse status?",
     "slug": "diverse-target-verification",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
@@ -3102,7 +3102,7 @@
   "fields": {
     "title": "Verification",
     "slug": "sustainability-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2,
     "extra": "{\"tags\":[\"verify\"]}"
@@ -3120,7 +3120,7 @@
   "fields": {
     "title": "(3) The company has a formalized ESG strategy",
     "slug": "formalized-esg-strategy-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2,
     "extra": "{\"tags\":[\"verify\"]}"
@@ -3137,7 +3137,7 @@
   "fields": {
     "title": "(3) The company reports environmental metrics",
     "slug": "report-environmental-metrics-verified",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2,
     "extra": "{\"tags\":[\"verify\"]}"
@@ -3155,7 +3155,7 @@
   "fields": {
     "title": "Metal structures & equipment",
     "slug": "metal",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"visibility\":[\"public\"]}",
     "account": 2
   },
@@ -3165,7 +3165,7 @@
   "fields": {
     "title": "Boxes & enclosures",
     "slug": "boxes-and-enclosures",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"layouts\":[\"sustainability\"],\"pagebreak\":true,\"searchable\":true,\"tags\":[\"scorecard\"],\"visibility\":[\"public\"]}",
     "account": 2
   },
@@ -3182,7 +3182,7 @@
   "fields": {
     "title": "Production",
     "slug": "production",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/production.png",
     "extra": "{\"searchable\":true,\"tags\":[\"scorecard\"],\"visibility\":[\"public\"]}",
     "account": 2
@@ -3200,7 +3200,7 @@
   "fields": {
     "title": "Energy Efficiency",
     "slug": "energy-efficiency",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"pagebreak\":true,\"layouts\":[\"sustainability\"]}",
     "account": 2
   },
@@ -3217,7 +3217,7 @@
   "fields": {
     "title": "Process heating",
     "slug": "process-heating",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/fuel-pump.png",
     "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
     "account": 2
@@ -3234,7 +3234,7 @@
   "fields": {
     "title": "Combustion",
     "slug": "combustion",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
     "account": 2
   },
@@ -3250,7 +3250,7 @@
   "fields": {
     "title": "Adjust air/fuel ratio",
     "slug": "adjust-air-fuel-ratio",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"searchable\":true,\"visibility\":[\"public\"],\"tags\":[\"Energy & Emissions\"]}",
     "account": 2,
     "text": "<h2>Background</h2><p>Some manufacturing processes may involve heating operations.</p>"
@@ -3268,7 +3268,7 @@
   "fields": {
     "title": "Construction",
     "slug": "construction",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"layouts\":[\"sustainability\"],\"pagebreak\":true,\"searchable\":true,\"tags\":[\"scorecard\"],\"visibility\":[\"public\"]}",
     "account": 2,
     "text": "Organizations categorized under NAICS code 237 (Heavy and Civil Engineering Construction), 238 (Specialty Trade Contractors), 23620 (Commercial and Institutional Building Construction). Examples:\n\n- Building/facilities construction\n- Hard surface installation/repair\n- Overhead construction\n- Underground construction\n"
@@ -3279,7 +3279,7 @@
   "fields": {
     "title": "Production",
     "slug": "consprod",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/production.png",
     "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
     "account": 2
@@ -3306,7 +3306,7 @@
   "fields": {
     "title": "Utility procurement",
     "slug": "procurement",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"searchable\":true,\"visibility\":[\"tier1-members\"],\"pagebreak\":true}",
     "account": 3
   },
@@ -3323,7 +3323,7 @@
   "fields": {
     "title": "Cybersecurity framework",
     "slug": "framework",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"visibility\":[\"tier1-members\"],\"pagebreak\":true}",
     "account": 3
   },
@@ -3333,7 +3333,7 @@
   "fields": {
     "title": "Governance & management",
     "slug": "framework-governance",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -3349,7 +3349,7 @@
   "fields": {
     "title": "Responsability and Authority",
     "slug": "framework-responsability-authority",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 402
@@ -3365,7 +3365,7 @@
   "fields": {
     "title": "Has your company assigned formal responsibility for directing and overseeing ESG performance to top/executive management, and designatied a point person(s) responsible for implementing requirements and commitments.",
     "slug": "framework-assign-formal-authority",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -3381,7 +3381,7 @@
   "fields": {
     "title": "Report internally, including to top management, on strategy: key ESG issues (revealed by materiality analysis), risk and crisis mitigation, progress toward goals, and plans/needs to address shortfalls.",
     "slug": "framework-report-internally",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
     "account": 2
   },
@@ -3397,7 +3397,7 @@
   "fields": {
     "title": "Additional information",
     "slug": "framework-additional",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 410
@@ -3413,7 +3413,7 @@
   "fields": {
     "title": "What are your primary concerns for the next year?",
     "slug": "framework-concerns",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "account": 2
   },
   "model": "pages.PageElement", "pk": 412
@@ -3430,7 +3430,7 @@
   "fields": {
     "title": "Alliance Tier1 Member Knowledge Base",
     "slug": "tier1-members",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"searchable\":true,\"visibility\":[\"tier1-members\"]}",
     "account": 3
   },
@@ -3440,7 +3440,7 @@
   "fields": {
     "title": "Alliance Tier2 Member Knowledge Base",
     "slug": "tier2-members",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"searchable\":true,\"visibility\":[\"tier2-members\"]}",
     "account": 3
   },
@@ -3452,7 +3452,7 @@
   "fields": {
     "title": "Webinar on Sustainability",
     "slug": "sustainability-webinar",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
     "account": 2,
     "text": "<h2>Join our Webinar!</h2><p>Learn about sustainability practices.</p>"
@@ -3463,7 +3463,7 @@
   "fields": {
     "title": "Certificate of Completion",
     "slug": "certificate-of-completion",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "extra": "{\"searchable\":true,\"visibility\":[\"public\"]}",
     "account": 2,
     "text": "<h2>Congratulations!</h2><p>You have completed the course.</p>"
@@ -3476,7 +3476,7 @@
     "slug": "seq",
     "account": 2,
     "has_certificate": false,
-    "created_at": "2023-01-01T00:00:00Z"
+    "created_at": "2025-01-01T00:00:00Z"
   },
   "model": "pages.Sequence", "pk": 101
 },
@@ -3513,7 +3513,7 @@
     "slug": "ghg-accounting-training",
     "account": 2,
     "has_certificate": true,
-    "created_at": "2023-01-02T00:00:00Z"
+    "created_at": "2025-01-02T00:00:00Z"
   },
     "model": "pages.Sequence", "pk": 102
 },
@@ -3550,7 +3550,7 @@
     "slug": "seq-cert-live-event",
     "account": 3,
     "has_certificate": true,
-    "created_at": "2023-01-03T00:00:00Z"
+    "created_at": "2025-01-03T00:00:00Z"
   },
     "model": "pages.Sequence", "pk": 103
 },
@@ -3566,8 +3566,8 @@
 {
     "fields": {
       "element": 90,
-      "created_at": "2023-03-15T10:00:00Z",
-      "scheduled_at": "2023-04-10T15:00:00Z",
+      "created_at": "2025-03-15T10:00:00Z",
+      "scheduled_at": "2025-04-10T15:00:00Z",
       "location": "http://127.0.0.1:8000/webinar/sustainability",
       "max_attendees": 100,
       "extra": "{}"
@@ -3607,7 +3607,7 @@
   "fields": {
     "title": "Text Content",
     "slug": "text-content",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "text": "<p>Some text content here.</p>",
     "account": 2
   },
@@ -3617,7 +3617,7 @@
   "fields": {
     "title": "Survey Event",
     "slug": "survey-event",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "text": "<p>Survey details here.</p>",
     "account": 2
   },
@@ -3627,7 +3627,7 @@
   "fields": {
     "title": "Live Webinar Event",
     "slug": "live-webinar-event",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "text": "<p>Details about the webinar.</p>",
     "account": 2
   },
@@ -3637,7 +3637,7 @@
   "fields": {
     "title": "Certificate of Completion",
     "slug": "certificate-completion",
-    "text_updated_at": "2024-01-01T00:00:00.000Z",
+    "text_updated_at": "2025-01-01T00:00:00.000Z",
     "text": "<p>Certificate details here.</p>",
     "account": 2
   },
@@ -3646,7 +3646,7 @@
 {
   "fields": {
     "element": 701,
-    "created_at": "2024-03-20T12:00:00Z",
+    "created_at": "2025-03-20T12:00:00Z",
     "campaign": 1,
     "extra": "{\"questionnaire_id\":123, \"additional_info\":\"Survey extra data\"}"
   },
@@ -3655,8 +3655,8 @@
 {
   "fields": {
     "element": 702,
-    "created_at": "2024-03-21T15:00:00Z",
-    "scheduled_at": "2024-04-15T15:00:00Z",
+    "created_at": "2025-03-21T15:00:00Z",
+    "scheduled_at": "2025-04-15T15:00:00Z",
     "location": "http://127.0.0.1:8000/webinar/live-event",
     "max_attendees": 100,
     "extra": "{}"
@@ -3669,7 +3669,7 @@
     "slug": "seq-various-elements",
     "account": 2,
     "has_certificate": true,
-    "created_at": "2024-01-04T00:00:00Z"
+    "created_at": "2025-01-04T00:00:00Z"
   },
   "model": "pages.Sequence", "pk": 104
 },
