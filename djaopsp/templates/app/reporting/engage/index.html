@@ -126,6 +126,8 @@
                       <option value="updated">{% trans %}Work in progress{% endtrans %}</option>
                       <option value="completed-notshared">{% trans %}Completed{% endtrans %} ({% trans %}not yet shared{% endtrans %})</option>
                       <option value="completed-denied">{% trans %}Completed{% endtrans %} ({% trans %}declined to share{% endtrans %})</option>
+                      <option value="verified-notshared">{% trans %}Verified{% endtrans %} ({% trans %}not yet shared{% endtrans %})</option>
+                      <option value="verified-denied">{% trans %}Verified{% endtrans %} ({% trans %}declined to share{% endtrans %})</option>
                       <option value="completed">{% trans %}Completed{% endtrans %}</option>
                       <option value="verified">{% trans %}Verified{% endtrans %}</option>
                   </select>
@@ -289,6 +291,14 @@
             </div>
             <div v-if="entry.reporting_status === 'completed-denied'">
                 {% trans %}Completed{% endtrans %}<br />
+                <small>({% trans %}declined to share{% endtrans %})</small>
+            </div>
+            <div v-if="entry.reporting_status === 'verified-notshared'">
+                {% trans %}Verified{% endtrans %}<br />
+                <small>({% trans %}not yet shared{% endtrans %})</small>
+            </div>
+            <div v-if="entry.reporting_status === 'verified-denied'">
+                {% trans %}Verified{% endtrans %}<br />
                 <small>({% trans %}declined to share{% endtrans %})</small>
             </div>
             <div v-if="entry.reporting_status === 'completed'">

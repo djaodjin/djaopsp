@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 """
 This file contains SQL statements as building blocks for benchmarking
@@ -360,9 +360,18 @@ SELECT
   completed_by_accounts.slug,
   completed_by_accounts.created_at,
   completed_by_accounts.grantee_id,
-  CASE WHEN COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1
-    THEN %(REPORTING_VERIFIED)s ELSE completed_by_accounts.reporting_status
-    END AS reporting_status
+  CASE
+    WHEN (COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1 AND
+     completed_by_accounts.reporting_status = %(REPORTING_COMPLETED_DENIED)s)
+    THEN %(REPORTING_VERIFIED_DENIED)s
+    WHEN (COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1 AND
+     completed_by_accounts.reporting_status = %(REPORTING_COMPLETED_NOTSHARED)s)
+    THEN %(REPORTING_VERIFIED_NOTSHARED)s
+    WHEN (COALESCE(djaopsp_verifiedsample.verified_status, 0) > 1 AND
+     completed_by_accounts.reporting_status = %(REPORTING_COMPLETED)s)
+    THEN %(REPORTING_VERIFIED)s
+    ELSE completed_by_accounts.reporting_status
+  END AS reporting_status
 FROM completed_by_accounts
 LEFT OUTER JOIN djaopsp_verifiedsample
 ON completed_by_accounts.id = djaopsp_verifiedsample.sample_id
@@ -481,6 +490,10 @@ ON engaged.account_id = %(accounts_table)s.id
         humanize.REPORTING_COMPLETED_DENIED,
     'REPORTING_COMPLETED_NOTSHARED': \
         humanize.REPORTING_COMPLETED_NOTSHARED,
+    'REPORTING_VERIFIED_DENIED': \
+        humanize.REPORTING_VERIFIED_DENIED,
+    'REPORTING_VERIFIED_NOTSHARED': \
+        humanize.REPORTING_VERIFIED_NOTSHARED,
     'REPORTING_COMPLETED': humanize.REPORTING_COMPLETED,
     'REPORTING_VERIFIED': humanize.REPORTING_VERIFIED,
     }
