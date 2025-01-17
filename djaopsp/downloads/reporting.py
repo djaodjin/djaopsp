@@ -713,6 +713,10 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
         return self.get_query_param('planned', False)
 
     @property
+    def show_scores(self):
+        return self.get_query_param('scores', True)
+
+    @property
     def verified_campaign(self):
         if not hasattr(self, '_verified_campaign'):
             #pylint:disable=attribute-defined-outside-init
@@ -987,8 +991,8 @@ ORDER BY answers.path, answers.account_id
                     else:
                         answers_by_paths.update({prev_slug: chunk})
                     chunk = []
-                    self._report_queries(
-                        "merged answers by slug %s" % prev_slug)
+                    #self._report_queries(
+                    #    "merged answers by slug %s" % prev_slug)
                 chunk += [row]
                 prev_path = path
             if chunk:
@@ -1045,6 +1049,8 @@ ORDER BY answers.path, answers.account_id
         # and don't pass a `prefix` to `get_answers_by_paths` such that
         # answers are colapsed by 'slug'.
         by_paths = self.get_answers_by_paths(self.latest_assessments)
+        self._report_queries(descr="collected questions answers")
+
         if self.show_planned:
             planned_by_paths = self.get_answers_by_paths(
                 self.latest_improvements)
@@ -1057,6 +1063,7 @@ ORDER BY answers.path, answers.account_id
                             cell.get('account_id')
                         by_paths_cell.update({
                             'planned': cell.get('measured', '')})
+        self._report_queries(descr="collected planned answers")
 
         for entry in questions:
             slug = entry.get('slug')
@@ -1067,20 +1074,32 @@ ORDER BY answers.path, answers.account_id
             by_accounts = by_paths.get(slug)
             if by_accounts:
                 entry.update({'accounts': by_accounts})
-            elif not entry.get('default_unit'):
+            elif self.show_scores:
                 # Headings are only added in `CampaignDecorateMixin` after
                 # `get_decorated_questions` is called.
-                scores = ScorecardCache.objects.filter(
-                    sample__in=self.latest_assessments,
-                    path=entry['path']).order_by(
-                    'sample__account_id').values_list(
-                    'pk', 'sample__account_id', 'normalized_score')
-                # by using `self.points_unit.pk` for both 'unit_id' and
-                # 'default_unit_id', `add_datapoint` will set the 'measured'
-                # field.
-                entry.update({'accounts': [(val[0], val[1], val[2],
-                    self.points_unit.pk, self.points_unit.pk, None, "")
-                    for val in scores]})
+                tags = []
+                extra = entry.get('extra')
+                if extra:
+                    tags = extra.get('tags')
+                if tags and 'scorecard' in tags:
+                    scores = ScorecardCache.objects.filter(
+                        sample__in=self.latest_assessments,
+                        path=entry['path']).order_by(
+                        'sample__account_id').values_list(
+                        'pk', 'sample__account_id', 'normalized_score')
+                    # by using `self.points_unit.pk` for both 'unit_id' and
+                    # 'default_unit_id', `add_datapoint` will set the 'measured'
+                    # field.
+                    entry.update({'accounts': [(
+                        val[0],                    # path_idx = 0
+                        val[1],                    # account_id_idx = 1
+                        val[2],                    # measured_idx = 2
+                        self.points_unit.pk,       # unit_idx = 3
+                        self.points_unit.pk,       # default_unit_idx = 4
+                        self.points_unit.title,    # unit_title_idx = 5
+                        "")                        # measured_text_idx = 6
+                        for val in scores]})
+        self._report_queries(descr="collected section scores")
 
         return questions
 
@@ -1127,6 +1146,11 @@ class AnswersPivotableView(AnswersDownloadMixin, ListAPIView):
                     }]
 
         return results
+
+
+    def get(self, request, *args, **kwargs):
+        self._start_time()
+        return super(AnswersPivotableView, self).get(request, *args, **kwargs)
 
 
 class AccessiblesAnswersPivotableCSVView(AccessiblesAccountsMixin,
@@ -1379,7 +1403,7 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
                     queryset=queryset)
 
         if self.errors:
-            LOGGER.error('\n'.join(self.errors))
+            LOGGER.info('\n'.join(self.errors))
 
         resp = HttpResponse(self.flush_writer(), content_type=self.content_type)
         resp['Content-Disposition'] = \
