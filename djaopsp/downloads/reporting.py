@@ -710,11 +710,27 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
 
     @property
     def show_planned(self):
-        return self.get_query_param('planned', False)
+        if not hasattr(self, '_show_planned'):
+            self._show_planned =self.get_query_param('planned', False)
+            if not isinstance(self._show_planned, bool):
+                try:
+                    self._show_planned = bool(int(self._show_planned))
+                except ValueError:
+                    self._show_planned = bool(
+                        self._show_planned.lower() in ['true'])
+        return self._show_planned
 
     @property
     def show_scores(self):
-        return self.get_query_param('scores', True)
+        if not hasattr(self, '_show_scores'):
+            self._show_scores =self.get_query_param('scores', True)
+            if not isinstance(self._show_scores, bool):
+                try:
+                    self._show_scores = bool(int(self._show_scores))
+                except ValueError:
+                    self._show_scores = bool(
+                        self._show_scores.lower() not in ['false'])
+        return self._show_scores
 
     @property
     def verified_campaign(self):
