@@ -98,10 +98,15 @@ class PracticesSpreadsheetView(TimersMixin, ListView):
                 as_valid_sheet_title(title))
 
     def flush_writer(self):
-        self.optimal_cell_sizes()
-        # Write out the Excel file.
+        # XXX Running `optimal_cell_sizes` takes about a minute
+        # on large datasets. disabled for now.
+        # self.optimal_cell_sizes()
+        self._report_queries("optimal cell sizes computed")
+        # Write out the Excel file. That still takes an inordinate
+        # amount of time for some reason, but we have no choice.
         content = io.BytesIO()
         self.wbook.save(content)
+        self._report_queries("workbook content saved")
         content.seek(0)
         return content
 

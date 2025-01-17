@@ -612,7 +612,7 @@ class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):
     Download raw data in format suitable for OLAP Software
     """
     headings = ['Created at', 'SupplierID', 'Profile name',
-        'Measured', 'Unit', 'Question title', 'Question path']
+        'Measured', 'Unit', 'Question title']
     filter_backends = [DateRangeFilter]
 
     def __init__(self, **kwargs):
@@ -1123,7 +1123,7 @@ ORDER BY answers.path, answers.account_id
 class AnswersPivotableView(AnswersDownloadMixin, ListAPIView):
 
     headings = ['Created at', 'SupplierID', 'Profile name',
-        'Measured', 'Unit', 'Question title', 'Question path']
+        'Measured', 'Unit', 'Question title']
 
     def get_queryset(self):
         #pylint:disable=too-many-locals
@@ -1185,9 +1185,11 @@ class AccessiblesAnswersPivotableCSVView(AccessiblesAccountsMixin,
         # Redefines `AccessiblesAccountsMixin.get_accounts` such that
         # we use `self.verified_campaign` instead of `self.campaign`
         # and set `aggregate_set` to `False` instead of `True`.
+        # Furthermore, we use the same [start_at, ends_at[ range
+        # to filter accounts and samples.
         results = get_accessible_accounts([self.account],
             campaign=self.verified_campaign,
-            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
+            start_at=self.start_at, ends_at=self.ends_at,
             aggregate_set=False).order_by('pk')
         return results
 
@@ -1208,9 +1210,11 @@ class EngagedAnswersPivotableCSVView(EngagedAccountsMixin,
         # Redefines `AccessiblesAccountsMixin.get_accounts` such that
         # we use `self.verified_campaign` instead of `self.campaign`
         # and set `aggregate_set` to `False` instead of `True`.
+        # Furthermore, we use the same [start_at, ends_at[ range
+        # to filter accounts and samples.
         return get_engaged_accounts([self.account],
             campaign=self.verified_campaign,
-            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
+            start_at=self.start_at, ends_at=self.ends_at,
             aggregate_set=False,
             search_terms=self.search_terms).order_by('pk')
 
@@ -1263,7 +1267,11 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
                     text = int(text)
                 except ValueError:
                     pass
-            account.update({'measured': text if text else measured})
+            if unit_id == self.comments_unit.pk:
+                account.update({'measured': 'answered' if text else ""})
+                account['comments'] += str(text) if text else ""
+            else:
+                account.update({'measured': text if text else measured})
         elif unit_id == self.points_unit.pk:
             account.update({'score': measured})
         elif unit_id == self.comments_unit.pk:
@@ -1492,9 +1500,11 @@ class AccessiblesAnswersXLSXView(AccessiblesAccountsMixin,
         # Redefines `AccessiblesAccountsMixin.get_accounts` such that
         # we use `self.verified_campaign` instead of `self.campaign`
         # and set `aggregate_set` to `False` instead of `True`.
+        # Furthermore, we use the same [start_at, ends_at[ range
+        # to filter accounts and samples.
         results = get_accessible_accounts([self.account],
             campaign=self.verified_campaign,
-            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
+            start_at=self.start_at, ends_at=self.ends_at,
             aggregate_set=False).order_by('pk')
         return results
 
@@ -1514,8 +1524,11 @@ class EngagedAnswersXLSXView(EngagedAccountsMixin,
         # Redefines `AccessiblesAccountsMixin.get_accounts` such that
         # we use `self.verified_campaign` instead of `self.campaign`
         # and set `aggregate_set` to `False` instead of `True`.
-        return get_engaged_accounts([self.account],
+        # Furthermore, we use the same [start_at, ends_at[ range
+        # to filter accounts and samples.
+        results = get_engaged_accounts([self.account],
             campaign=self.verified_campaign,
-            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
+            start_at=self.start_at, ends_at=self.ends_at,
             aggregate_set=False,
             search_terms=self.search_terms).order_by('pk')
+        return results
