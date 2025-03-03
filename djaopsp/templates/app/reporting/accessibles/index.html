@@ -285,7 +285,7 @@
           <i class="fa fa-circle" style="color: grey;"
              v-if="val.state === 'no-data'"></i>
           <br />
-          <a :href="val.url" v-if="val.state === 'verified' || val.state === 'completed'" class="btn-link">
+          <a :href="val.url" v-if="val.url" class="btn-link">
               <div v-if="val.normalized_score">
                 <small>[[val.normalized_score]]%</small>
               </div>

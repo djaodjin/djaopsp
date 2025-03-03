@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -6,7 +6,7 @@ Views URLs
 """
 from django.urls import include, path
 
-from ...views.portfolios import (
+from ...views.portfolios import (ByCampaignAccessiblesView,
     CompletedAssessmentsRawXLSXView,
     DashboardRedirectView,
     PortfolioAccessiblesView, PortfolioEngagementView,
@@ -128,8 +128,9 @@ urlpatterns = [
         name='reporting_profile_engage'),
 
     path('reporting/',
-        DashboardRedirectView.as_view(
+        ByCampaignAccessiblesView.as_view(
             breadcrumb_url='reporting_profile_engage'),
         name='portfolio_engage'),
+
     path('', include('survey.urls.views.portfolios')),
 ]

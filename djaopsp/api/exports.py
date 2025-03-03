@@ -76,7 +76,6 @@ class BenchmarksExportAPIView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         table = []
-        print("XXX request.data=%s" % str(request.data))
         for key_idx, val in request.data.items():
             key_idx_parts = key_idx.split('_')
             key = key_idx_parts[0]

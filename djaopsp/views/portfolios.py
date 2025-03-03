@@ -24,7 +24,7 @@ from ..api.portfolios import CompletedAssessmentsMixin
 from ..api.rollups import GraphMixin
 from ..compat import reverse
 from ..helpers import as_valid_sheet_title
-from ..mixins import (AccountsAggregatedQuerysetMixin,
+from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
     DashboardsAvailableQuerysetMixin)
 from ..models import VerifiedSample
 from ..utils import get_scores_tree
@@ -74,17 +74,16 @@ class DashboardRedirectView(DashboardsAvailableQuerysetMixin,
             raise Http404("No campaign available")
 
         if len(candidates) > 1:
+            context = self.get_context_data(**kwargs)
             redirects = []
+            redirect_kwargs = {}
+            redirect_kwargs.update(kwargs)
             for campaign in candidates:
-                kwargs.update({'campaign': campaign})
-                url = self.get_redirect_url(*args, **kwargs)
+                redirect_kwargs.update({'campaign': campaign})
+                url = self.get_redirect_url(*args, **redirect_kwargs)
                 print_name = campaign.title
                 redirects += [(url, print_name, campaign.slug)]
-
-            context = self.get_context_data(**kwargs)
-            context.update({
-                'redirects': redirects,
-            })
+            context.update({'redirects': redirects})
             return self.render_to_response(context)
 
         kwargs.update({'campaign': candidates[0]})
@@ -334,7 +333,7 @@ class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):
         self.wsheet = wbook.active
         self.wsheet.title = as_valid_sheet_title("Completed")
         headings = ['Completed at', 'Name', 'Domain', 'Campaign',
-            'Priority', 'Verified Status']
+            'Priority', 'Verified Status', 'Verifier']
         self.wsheet.append(headings)
 
         for rec in self.decorate_queryset(self.get_queryset()):
@@ -343,10 +342,12 @@ class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):
             verified_status = (VerifiedSample.STATUSES[rec.verified_status]
                 if rec.verified_status < len(VerifiedSample.STATUSES)
                 else VerifiedSample.STATUSES[0])
+            verified_by_full_name = (rec.verified_by.get_full_name()
+                if rec.verified_by else "")
             self.wsheet.append([
                 rec.last_completed_at.strftime('%Y/%m/%d'),
                 rec.printable_name, domain, rec.segment,
-                priority, verified_status[1]])
+                priority, verified_status[1], verified_by_full_name])
 
         # Prepares the result file
         content = io.BytesIO()
@@ -502,5 +503,21 @@ class PortfoliosDetailView(GraphMixin, MenubarMixin, DashboardMixin,
         context.update({
             'available_matrices': self.get_available_matrices(),
             'charts': charts
+        })
+        return context
+
+
+class ByCampaignAccessiblesView(DashboardRedirectView):
+    """
+    Lists latest campaign response by accessible profiles.
+    """
+    template_name = 'app/reporting/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ByCampaignAccessiblesView, self).get_context_data(
+            **kwargs)
+        update_context_urls(context, {
+            'api_portfolio_responses': reverse(
+                'api_last_by_campaign_accessibles', args=(self.account,)),
         })
         return context

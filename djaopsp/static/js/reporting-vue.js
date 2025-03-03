@@ -1956,3 +1956,15 @@ Vue.component('practice-typeahead', QuestionTypeahead.extend({
       },
   }
 }));
+
+
+Vue.component('accessible-by-profiles', {
+    mixins: [
+        itemListMixin,
+    ],
+    data: function() {
+        return {}
+    },
+    methods: {
+    }
+});

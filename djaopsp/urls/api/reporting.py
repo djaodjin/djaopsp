@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -11,6 +11,7 @@ from ...api.exports import BenchmarksExportAPIView
 from ...api.portfolios import (BenchmarkAPIView, BenchmarkIndexAPIView,
     CompareAPIView, CompareIndexAPIView,
     CompletedAssessmentsAPIView, CompletionRateAPIView, EngagementStatsAPIView,
+    LastByCampaignAccessiblesAPIView,
     PortfolioAccessibleSamplesAPIView, PortfolioAccessiblesDeleteAPIView,
     PortfolioEngagementAPIView, TotalScoreBySubsectorAPIView)
 
@@ -51,4 +52,7 @@ urlpatterns = [
     path('reporting/<slug:campaign>/matrix/<path:path>',
         TotalScoreBySubsectorAPIView.as_view()),
     path('reporting/<slug:campaign>/', include('survey.urls.api.matrix')),
+    path('reporting',
+        LastByCampaignAccessiblesAPIView.as_view(),
+        name='api_last_by_campaign_accessibles'),
 ]

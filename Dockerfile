@@ -11,7 +11,7 @@ RUN apt-get clean all
 #     Loads the list of native packages
 RUN apt-get update -y
 #     Installs required native packages
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libpangoft2-1.0-0
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libpangoft2-1.0-0 sqlite3
 
 RUN /usr/local/bin/python3 -m venv --upgrade-deps /app --system-site-packages
 #    If we attempt to upgrade from pip 21.2.3 to 22.0.4,
@@ -22,7 +22,7 @@ RUN /usr/local/bin/python3 -m venv --upgrade-deps /app --system-site-packages
 #    so we don't have to rebuild a container to investigate when something
 #    goes wrong.
 RUN /app/bin/pip install cairocffi==1.3.0 coverage==6.3.2 psycopg2-binary==2.9.3 setproctitle==1.2.3
-RUN /app/bin/pip install Django==4.2.16 djangorestframework==3.14.0 djaodjin-deployutils==0.11.0 djaodjin-extended-templates==0.4.6 djaodjin-pages==0.8.3 djaodjin-survey==0.14.1 docutils==0.20.1 drf-spectacular==0.27.2 gunicorn==20.1.0 jinja2==3.1.2 html5lib==1.1 monotonic==1.6 openpyxl==3.1.2 python-pptx==0.6.21 pytz==2023.3 django-debug-toolbar==3.5.0 django-extensions==3.2.0 Faker==2.0.0 sqlparse==0.4.4
+RUN /app/bin/pip install Django==4.2.16 djangorestframework==3.14.0 djaodjin-deployutils==0.11.0 djaodjin-extended-templates==0.4.6 djaodjin-pages==0.8.3 djaodjin-survey==0.15.0 docutils==0.20.1 drf-spectacular==0.27.2 gunicorn==20.1.0 jinja2==3.1.2 html5lib==1.1 monotonic==1.6 openpyxl==3.1.2 python-pptx==0.6.21 pytz==2023.3 django-debug-toolbar==3.5.0 django-extensions==3.2.0 Faker==2.0.0 sqlparse==0.4.4
 
 #    Bundle app source
 COPY . /app/reps/djaopsp

@@ -26,7 +26,7 @@ from survey.pagination import MetricsPagination
 from survey.api.matrix import (BenchmarkMixin as BenchmarkMixinBase,
     EngagedAccountsMixin, EngagedBenchmarkAPIView)
 from survey.mixins import TimersMixin
-from survey.models import (EditableFilter, Portfolio,
+from survey.models import (Campaign, EditableFilter, Portfolio,
     PortfolioDoubleOptIn, Sample)
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import (get_accessible_accounts, get_account_model,
@@ -40,7 +40,8 @@ from ..queries import (get_latest_frozen_by_portfolio_by_period, get_engagement,
     get_engagement_by_reporting_status, get_requested_by_accounts_by_period,
     segments_as_sql)
 from ..mixins import (AccountMixin, AccountsDateRangeMixin,
-    AccountsAggregatedQuerysetMixin, AccountsNominativeQuerysetMixin)
+    AccountsAggregatedQuerysetMixin, AccountsNominativeQuerysetMixin,
+    DateRangeContextMixin)
 from ..models import ScorecardCache, VerifiedSample
 from ..pagination import AccessiblesPagination
 from ..utils import (TransparentCut, get_alliances, get_latest_reminders,
@@ -1174,7 +1175,8 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         if page:
             samples = get_latest_frozen_by_portfolio_by_period(self.campaign,
                 [self.account], period=self.period, accounts=page,
-                start_at=self.start_at, ends_at=self.ends_at).prefetch_related(
+                start_at=self.start_at, ends_at=self.ends_at,
+                tags=[]).prefetch_related(
             'scorecard_cache')
 
         for sample in samples:
@@ -1873,3 +1875,203 @@ class EngagementStatsAPIView(EngagementStatsMixin, generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         resp = self.get_response_data(request, *args, **kwargs)
         return http.Response(resp)
+
+
+class LastByCampaignAccessiblesMixin(TimersMixin, DateRangeContextMixin,
+                                     AccountMixin):
+    search_fields = (
+        'slug',
+        'full_name',
+        'email',
+    )
+    ordering_fields = (
+        ('created_at', 'created_at'),
+        ('full_name', 'full_name'),
+    )
+
+    ordering = ('full_name',)
+
+    filter_backends = (SearchFilter, OrderingFilter)
+
+    def get_serializer_context(self):
+        context = super(
+            LastByCampaignAccessiblesMixin, self).get_serializer_context()
+        context.update({
+            'account': self.account,
+        })
+        return context
+
+    def get_queryset(self):
+        queryset = get_accessible_accounts([self.account])
+        # XXX Add missing suppliers that are invited but no response yet.
+        #     This could be done by creating "dummy" survey_portfolio
+        #     where survey_portfolio.ends_at = account.created_at
+        #     (query set is `django.db.models.query.QuerySet`)
+        return queryset
+
+    def as_sample(self, key, requested_by_keys, created_at=None):
+        """
+        Fills a cell for column `key` with generated content since we do not
+        have a completed sample. `state` could either be 'declined' when the
+        profile has been invited, or 'no-data' in all cases.
+        """
+        state = humanize.REPORTING_NO_DATA
+        if key in requested_by_keys:
+            state = humanize.REPORTING_NO_RESPONSE
+        elif created_at and created_at > key:
+            state = humanize.REPORTING_NO_PROFILE
+        sample = Sample(created_at=key)
+        sample.state = state
+        return sample
+
+    def decorate_queryset(self, page):
+        #pylint:disable=too-many-locals
+
+        # Builds the `labels` as campaigns for which a sample is accessible
+        # in any of the reporting profiles, and campaigns that belong
+        # to the `account`.
+        # XXX slightly different
+        #     from `DashboardsAvailableQuerysetMixin.dashboards_available`.
+        # 1. All public campaigns and campaigns that belong to the `account`.
+        filtered_in = Q(extra__contains='searchable')
+        for visible in set(['public']):
+            filtered_in &= Q(extra__contains=visible)
+        dashboards_available = Campaign.objects.filter(
+            Q(account__slug=self.account) | filtered_in)
+        # If at least one profiles granted access to all campaigns it responds
+        # against, then we don't need to filter further.
+        accessibles = Portfolio.objects.filter(
+            grantee=self.account, account__in=self.get_queryset())
+        if accessibles.exists() and not accessibles.filter(
+                campaign__isnull=True).exists():
+            # We want the labels consistent between different pages
+            # returned. As a result we use `self.get_queryset()` here
+            # to compute labels.
+            dashboards_available = dashboards_available.filter(
+                portfolios__grantee=self.account,
+                portfolios__account__in=self.get_queryset())
+        dashboards_available = dashboards_available.distinct()
+        self.labels = [{
+            'slug': campaign.slug,
+            'title': campaign.title,
+            'url': reverse('reporting_profile_accessibles', args=(
+                self.account, campaign))}
+            for campaign in dashboards_available]
+
+        for campaign in dashboards_available:
+            samples_by_account_ids = {}
+            samples = Sample.objects.get_latest_frozen_by_portfolios(
+                campaign=campaign, start_at=self.start_at, ends_at=self.ends_at,
+                accounts=page, grantees=[self.account],
+                tags=[]).prefetch_related('scorecard_cache')
+            verified = {val.sample_id: val for val in
+                VerifiedSample.objects.filter(sample__in=samples)}
+            for sample in samples:
+                if (sample.state == humanize.REPORTING_COMPLETED and
+                    sample.id in verified):
+                    sample.state = humanize.REPORTING_VERIFIED
+                if sample.account_id not in samples_by_account_ids:
+                    samples_by_account_ids[sample.account_id] = []
+                samples_by_account_ids[sample.account_id] += [sample]
+
+            requested_by_accounts = {}
+            for optin in get_requested_by_accounts_by_period(
+                    campaign, page, self.account,
+                    start_at=self.start_at, ends_at=self.ends_at):
+                if optin.account_id not in requested_by_accounts:
+                    requested_by_accounts[optin.account_id] = set([])
+                requested_by_accounts[optin.account_id] |= set([
+                    optin.created_at])
+
+            for account in page:
+                if not hasattr(account, 'values'):
+                    account.values = []
+                if account.pk in samples_by_account_ids:
+                    account.values += samples_by_account_ids[account.pk]
+                else:
+                    account.values += [self.as_sample(
+                        self.ends_at, requested_by_accounts.get(account.pk, []),
+                        account.created_at)]
+
+        # Merge portfolio extra field into account extra field.
+        for account in page:
+            if hasattr(account, '_extra'):
+                #pylint:disable=protected-access
+                account.extra = account._extra
+            extra = {}
+            for val in account.values:
+                extra.update(extra_as_internal(val))
+            account.extra = extra_as_internal(account)
+            try:
+                account.extra.update(extra)
+            except AttributeError:
+                pass
+
+        return page
+
+    def paginate_queryset(self, queryset):
+        page = super(
+            LastByCampaignAccessiblesMixin, self).paginate_queryset(queryset)
+        return self.decorate_queryset(page if page else queryset)
+
+
+class LastByCampaignAccessiblesAPIView(LastByCampaignAccessiblesMixin,
+                                       generics.ListAPIView):
+    """
+    Lists last sample by campaign for reporting profiles
+
+    Lists last accessible sample by campaign for reporting profiles.
+
+    **Tags**: sharing
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/energy-utility/reporting HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 1,
+          "next": null,
+          "previous": null,
+          "results": [
+                {
+                    "slug": "andy-shop",
+                    "printable_name": "Andy's Shop",
+                    "values": [
+                        ["2023-01-01T00:00:00Z", "complete", 95],
+                        ["2022-01-01T00:00:00Z", "complete", 95],
+                        ["2021-01-01T00:00:00Z", "declined", null],
+                        ["2020-01-01T00:00:00Z", "no-data", null],
+                        ["2019-01-01T00:00:00Z", "no-data", null],
+                        ["2018-01-01T00:00:00Z", "no-data", null]
+                    ]
+                },
+                {
+                    "slug": "supplier-1",
+                    "printable_name": "Supplier 1",
+                    "values": [
+                        ["2023-01-01T00:00:00Z", "complete", 82],
+                        ["2022-01-01T00:00:00Z", "complete", 82],
+                        ["2021-01-01T00:00:00Z", "declined", null],
+                        ["2020-01-01T00:00:00Z", "no-data", null],
+                        ["2019-01-01T00:00:00Z", "no-data", null],
+                        ["2018-01-01T00:00:00Z", "no-data", null]
+                    ]
+                }
+          ]
+        }
+    """
+    title = "Accessibles"
+    pagination_class = AccessiblesPagination
+    serializer_class = AccessiblesSerializer
+
+    def get(self, request, *args, **kwargs):
+        self._start_time()
+        resp = self.list(request, *args, **kwargs)
+        self._report_queries("http response created")
+        return resp

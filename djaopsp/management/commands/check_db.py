@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # All rights reserved.
 
 """
@@ -13,7 +13,7 @@ import datetime, logging
 from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 from django.db import connection
-from django.db.models import Count
+from django.db.models import Count, Max
 from pages.models import PageElement
 from survey.models import Answer, Campaign, PortfolioDoubleOptIn, Sample, Unit
 from survey.queries import sql_frozen_answers
@@ -48,6 +48,10 @@ class Command(BaseCommand):
         parser.add_argument('--show-completed-notshared', action='store_true',
             dest='show_completed_notshared', default=False,
             help='Show completed but not shared responses')
+        parser.add_argument('--show-updated-not-frozen', action='store_true',
+            dest='show_updated_not_frozen', default=False,
+            help='Show active samples that have been fully'\
+                ' updated but not frozen')
         parser.add_argument('--show-duplicate-samples', action='store_true',
             dest='show_duplicate_samples', default=False,
             help='Show duplicate samples for an account')
@@ -71,11 +75,13 @@ class Command(BaseCommand):
         #pylint:disable=too-many-locals,too-many-statements
         start_time = datetime.datetime.utcnow()
         self.check_active_samples(show=options['show_active'])
+        self.check_updated_not_frozen(
+            show=options['show_updated_not_frozen'])
+        self.check_completed_notshared(
+            show=options['show_completed_notshared'])
         self.check_portfolios(
             show=options['show_portfolios'],
             show_fix=options['show_portfolios_fix'])
-        self.check_completed_notshared(
-            show=options['show_completed_notshared'])
         if options['show_questions'] or options['show_answers']:
             self.check_questions(
                 show=options['show_questions'],
@@ -111,6 +117,21 @@ class Command(BaseCommand):
                             sample.pk, answer.created_at.date(),
                             answer.unit, answer.question.path))
         self.stderr.write("%d active samples with unexpected answers" % count)
+
+    def check_updated_not_frozen(self, show=False):
+        count = 0
+        for sample in Sample.objects.filter(is_frozen=False,
+                created_at__lt=Max('answers__created_at')).annotate(
+                answers_count=Count('answers')).order_by(
+                'created_at').select_related('campaign'):
+            if not sample.get_required_unanswered_questions().exists():
+                count += 1
+                if show:
+                    self.stdout.write('%s,%s,%s' % (
+                        sample.created_at, sample.account, sample))
+        self.stderr.write("%d active samples that have been updated,"\
+            " answer all required questions, but are not marked complete" %
+            count)
 
 
     def check_completed_notshared(self, show=False):
