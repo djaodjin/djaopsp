@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 from django.contrib.auth import get_user_model
@@ -8,7 +8,7 @@ from pages.serializers import (
     PageElementSerializer as BasePageElementSerializer)
 from survey.models import PortfolioDoubleOptIn, Sample, Unit
 from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
-    AnswerSerializer, SampleSerializer,
+    AnswerSerializer, CampaignSerializer, SampleSerializer,
     TableSerializer, UnitSerializer)
 from survey.utils import get_account_model
 
@@ -544,3 +544,33 @@ class LongFormatSerializer(NoModelSerializer):
     title = serializers.CharField(
         help_text=_("Title of the question as displayed in user interfaces"))
 
+
+class RequestSerializer(NoModelSerializer):
+
+    created_at = serializers.DateTimeField(required=False,
+        help_text=_("Date at which the request was created"))
+    grantee = serializers.CharField(
+        help_text=_("The profile that initiated the request"))
+
+
+class PendingRequestsFeedSerializer(NoModelSerializer):
+
+    account = serializers.CharField(
+        help_text=_("The profile being requested for a response"))
+    campaign = CampaignSerializer(allow_null=True,
+        help_text=_("The questionnaire a response is being requested on"))
+    grantees = serializers.ListSerializer(
+        child=RequestSerializer(), required=False,
+        help_text=_("Profiles that made the request for a response to"\
+            " the questionnaire"))
+    ends_at = serializers.DateTimeField(required=False,
+        help_text=_("Date before which the questionnaire should be answered"))
+    last_completed_at = serializers.DateTimeField(required=False,
+        help_text=_("Last time the questionnaire was completed"))
+    share_url = serializers.CharField(required=False, allow_blank=True,
+        help_text=_("URL to share the latest response"))
+    update_url = serializers.CharField(required=False, allow_blank=True,
+        help_text=_("URL to answer the questionnaire"))
+    respondents = serializers.ListSerializer(
+        child=serializers.CharField(), required=False,
+        help_text=_("Users that previously responded to the questionnaire"))

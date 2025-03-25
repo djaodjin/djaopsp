@@ -18,6 +18,7 @@ Contents:
    development
    questionnaires
    models
+   workflows
    share
 
 Indices and tables

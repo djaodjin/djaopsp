@@ -1,25 +1,25 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 """
 API URLs
 """
-from django.urls import path, include, re_path
+from django.urls import path, include
 
 from ...api.content import PageElementAPIView, PageElementIndexAPIView
 from ...api.campaigns import CampaignContentAPIView
+from ...api.newsfeed import NewsfeedAPIView
 from ...api.samples import RespondentsAPIView, PortfolioRequestsSend
 
 urlpatterns = [
     path('respondents', RespondentsAPIView.as_view(),
          name='api_respondents'),
-
     path('editables/<slug:profile>/', include('djaopsp.urls.api.editors')),
-
     path('attendance/<slug:profile>/', include('pages.urls.api.sequences')),
-
     path('progress/', include('pages.urls.api.progress')),
 
+    path('content/<slug:user>/newsfeed',
+         NewsfeedAPIView.as_view(), name='api_news_feed'),
     path('content/', include('pages.urls.api.readers')),
     path('content/', include('pages.urls.api.noauth')),
     path('content/campaigns/<slug:campaign>', CampaignContentAPIView.as_view(),

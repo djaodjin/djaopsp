@@ -400,6 +400,32 @@ def get_scores_tree(roots=None, prefix=""):
     return scores_tree
 
 
+def get_campaign_candidates(accounts=None, tags=None, campaign_slug=None):
+    filtered_in = None
+    if tags:
+        for visible in tags:
+            visibility_q = Q(extra__contains=visible)
+            if filtered_in:
+                filtered_in |= visibility_q
+            else:
+                filtered_in = visibility_q
+    if accounts:
+        accounts_q = Q(account__slug__in=accounts)
+        if filtered_in:
+            filtered_in |= accounts_q
+        else:
+            filtered_in = accounts_q
+    candidates = (Campaign.objects.filter(filtered_in)
+        if filtered_in else Campaign.objects.all())
+    if campaign_slug:
+        candidates = candidates.filter(slug=campaign_slug)
+    else:
+        # We don't have a campaign slug, so let's restrict further
+        # to campaigns that are searchable.
+        candidates = candidates.filter(extra__contains='searchable')
+    return candidates
+
+
 def get_segments_available(sample, visibility=None, owners=None,
                            segments_candidates=None):
     """

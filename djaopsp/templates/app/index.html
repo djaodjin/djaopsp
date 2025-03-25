@@ -2,141 +2,127 @@
 
 {% block app_content %}
 <div class="container">
-  <h1 class="text-center py-4">LEARN. ASSESS. IMPROVE.</h1>
-  <div class="row">
-    <div class="col-md-6 mt-4">
-      <div class="card bg-body text-body">
-        <div class="card-body">
-
-        <div class="d-flex" style="align-items:center;">
-          <img class="img-fluid" style="margin-right:5px;line-height:100px;max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
-          <h1 class="d-inline" style="overflow:hidden;">{{profile.printable_name}}</h1>
-        </div>
-
-        </div>
-        <div class="card-body">
-          <h2>{% trans %}Assess{% endtrans %}</h2>
-          <p>
-{% trans %}
-If you were prompted to take, or update, an assessment,
-start here.
-{% endtrans %}
-          </p>
-          <div>
+  <h1 class="text-center py-4">{% trans %}LEARN. ASSESS. IMPROVE.{% endtrans %}</h1>
+  <div class="offset-sm-1 offset-md-2 offset-lg-3 col-sm-10 col-md-8 col-lg-6">
+  <newsfeed inline-template>
+    <div>
+      <div v-show="!itemsLoaded">
+        <i class="fa fa-refresh fa-spin fa-2x"></i>
+      </div>
+      <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col-2">
+                <img class="img-fluid" style="max-height:64px;" src="{{'/static/img/default-organization.png'|asset}}">
+              </div>
+              <div class="col-5">
+                <h5>{% trans %}Assess{% endtrans %}</h5>
+                <h6>{% trans %}Pick a questionnaire{% endtrans %}</h6>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+{% trans %}If you were prompted to take, or update, an assessment, start here.{% endtrans %}
+          </div> {# /.card-body #}
+          <div class="card-footer">
             <div class="row">
-              <div class="col-sm-6 col-md-4 text-center">
-                <a style="display: inline-block;text-align: center;vertical-align: middle;padding: 0.375rem 0;font-size: 1rem;line-height: 1.5;" id="scorecard-history" href="{{urls.scorecard_history}}">{% trans %}Historical assessments{% endtrans %}</a>
-              </div>
-              <div class="col-sm-6 col-md-4 text-center">
-              {% if latest_completed_assessment %}
-              <a id="scorecard-update" class="btn btn-primary" href="{{urls.profile_getstarted}}">{% trans %}Update{% endtrans %}</a>
-              {% else %}
-              <a id="scorecard-create" class="btn btn-primary w-100" href="{{urls.profile_getstarted}}">{% if active_assessment_in_progress %}{% trans %}Continue{% endtrans %}{% else %}{% trans %}Get started{% endtrans %}{% endif %}</a>
-              {% endif %}
+              <div class="offset-md-6 col-md-6 text-end">
+                <a href="{{urls.getstarted}}" class="btn btn-primary">{% trans %}Get started{% endtrans %}</a>
               </div>
             </div>
-          </div>
-        </div>{# /assess #}
-        <div class="card-body">
-          <h2>{% trans %}Data Reporting{% endtrans %}</h2>
-          <p>
-{% trans %}
-Record data metrics all year long so you can report quantifiable improvements.
-{% endtrans %}
-          </p>
-          <div class="offset-4 col-4 text-center">
-            <a id="track" href="{{urls.track_metrics}}">Enter</a>
-          </div>
-        </div>{# /data-reporting #}
-        <div class="card-body">
-          <h2>{% trans %}Dashboards{% endtrans %}</h2>
-          <p>
-{% trans %}
-Manage invites sent to organizations, and their reporting status.
-{% endtrans %}
-          </p>
-          {% if urls.portfolio_engage %}
-          <div class="row">
-            <div class="col-4 text-center">
-              <a id="engage-portfolios" href="{{urls.portfolio_engage}}">{% trans %}Engage{% endtrans %}</a>
-            </div>
-            <div class="col-4 text-center">
-              <a id="track-portfolios" href="{{urls.portfolio_track}}">{% trans %}Track{% endtrans %}</a>
-            </div>
-            <div class="col-4 text-center">
-              <a id="insights-portfolios" href="{{urls.portfolio_insights}}">{% trans %}Insights{% endtrans %}</a>
-            </div>
-          </div>
-          {% else %}
-          <div class="col-12 text-center">
-            <strong><span class="fa fa-lock"></span> Premium content</strong>
-          </div>
-          <p class="mt-2">
-This website is supported by organizations actively promoting best practices
-through their supply chain.
-If you would like to invite, manage responses, and compare your own suppliers,
-please <a href="{{'/contact/'|site_url}}">contact us</a>.
-          </p>
-          {% endif %}
-        </div>
-      </div>{# /.dashboards #}
-    </div>
-    <div class="col-md-6 mt-4">
-      <div class="card bg-body text-body mb-2">
-        <div class="card-body">
-          <h2>{% trans %}Newsfeed{% endtrans %}</h2>
-          {% include "app/_newsfeed.html" %}
+          </div> {# /.card-footer #}
         </div>
       </div>
-      <div class="card bg-body text-body mb-2">
-        <div class="card-body">
-          <h2>{% trans %}Learn{% endtrans %}</h2>
-          <p>
-{% trans %}
-Under this section, you will find industry-specific practices,
-and member-only content.
-{% endtrans %}
-          </p>
-          <div class="text-center">
-            <a id="browse-practices" href="{{urls.pages_index}}">{% trans %}Browse{% endtrans %}</a>
-          </div>
-        </div>
-      </div>
-      <div class="card bg-body text-body mb-2">
-        <div class="card-body">
-          <h2>{% trans %}Questionnaires{% endtrans %}</h2>
-          <p>
-{% trans %}
-Create practices and organize them in assessment campaigns.
-{% endtrans %}
-          </p>
-          {% if urls.survey_campaign_list and urls.pages_editables_index %}
-          <div class="row">
-            <div class="col-6 text-center">
-              <a id="edit-campaigns"
-                 href="{{urls.survey_campaign_list}}">{% trans %}Edit assessments{% endtrans %}</a>
-            </div>
-            <div class="col-6 text-center">
-              <a id="edit-practices"
-                 href="{{urls.pages_editables_index}}">{% trans %}Edit practices{% endtrans %}</a>
+      <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+        <div class="card mb-4" v-for="assessment in items.results">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col-2">
+                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) ? getAccountPicture(assessment.account) : '{{'/static/img/default-organization.png'|asset}}'" >
+              </div>
+              <div class="col-5">
+                <h5>[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h5>
+                <h6>[[assessment.campaign.title]]</h6>
+              </div>
             </div>
           </div>
-          {% else %}
-          <div class="row">
-            <div class="col-12 text-center">
-              <strong><span class="fa fa-lock"></span> Premium content</strong>
-            </div>
-            <p class="mt-2">
-This website is supported by professional trade organizations actively
-promoting best practices in line with their charter.
-If you would like to create questionnaires for your own industry,
-please <a href="{{'/contact/'|site_url}}">contact us</a>.
+          <div class="card-body">
+            <p v-if="assessment.campaign.description">
+[[assessment.campaign.description]] (XXX no `|md` filter)
             </p>
-          </div>
-          {% endif %}
+
+            <div v-if="assessment.grantees && assessment.grantees.length > 0">
+              <p v-if="assessment.ends_at">
+{% trans ends_at='[[$globals.humanizeDate(assessment.ends_at)]]' %}The following organizations would like a copy of the up-to-date response before {{ends_at}}.{% endtrans %}
+              </p>
+              <p v-if="!assessment.ends_at">
+{% trans %}The following organizations would like a copy of the up-to-date response.{% endtrans %}
+              </p>
+              <decorate-profiles :elements="assessment.grantees" inline-template>
+                <div>
+                  <div v-for="request in elements">
+                    <div class="row align-items-center">
+                      <div class="col-2">
+                        <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(request.grantee) ? getAccountPicture(request.grantee) : '{{'/static/img/default-organization.png'|asset}}'" >
+                      </div>
+                      <div class="col-5">
+                        [[getAccountPrintableName(request.grantee) ? getAccountPrintableName(request.grantee) : request.grantee]]
+                        <div>
+                          <small>on [[$globals.humanizeDate(request.created_at)]]
+                            ([[$globals.humanizeTimeDelta(request.created_at)]])</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="mt-2">
+<em>{% trans %}If you have completed the questionnaire more than 6 months ago, please kindly update the response to reflect current information.{% endtrans %}</em>
+                  </p>
+                </div>
+              </decorate-profiles>
+            </div>{# /assessment.grantees #}
+
+            <p v-if="assessment.last_completed_at">
+This assessment was last completed on [[$globals.humanizeDate(assessment.last_completed_at)]]
+<span v-if="assessment.respondents && assessment.respondents.length > 0">
+by one of your following co-worker(s):
+  <span v-for="user in assessment.respondents">
+    <span class="author"><a :href="'mailto:' + getAccountField(user, 'email')">[[getAccountPrintableName(user) ? getAccountPrintableName(user) : user]]</a></span>
+  </span>
+</span>.
+            </p>
+          </div>{# /.card-body #}
+          <div class="card-footer">
+            <div class="row">
+              <div class="col-md-6 text-center">
+                <a class="btn btn-primary my-2"
+                   :href="assessment.share_url"
+                   v-if="assessment.share_url">{% trans created_at='[[$globals.humanizeDate(assessment.last_completed_at)]]' %}Share {{created_at}} response{% endtrans %}</a>
+              </div>
+              <div class="col-md-6 text-center">
+                <a :id="assessment.slug" class="btn btn-primary my-2"
+                   :href="assessment.update_url"
+                   v-if="assessment.update_url">
+                  <span v-if="assessment.share_url">{% trans %}Update response{% endtrans %}</span>
+                  <span v-if="!assessment.share_url">{% trans %}Continue{% endtrans %}</span>
+                </a>
+                <form action="." method="post" v-if="!assessment.update_url">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                  <button :id="assessment.slug"
+                          class="btn btn-primary"
+                          type="submit"
+                          name="campaign"
+                          :value="assessment.slug"
+                          role="menuitem"
+                          tabindex="-1">{% trans %}Get started{% endtrans %} &raquo;</button>
+                </form>
+              </div>
+            </div>
+          </div>{# /.card-footer #}
         </div>
       </div>
     </div>
-  </div>{# .row #}
+  </newsfeed>
+  </div>
 </div>{# .container #}
 {% endblock %}

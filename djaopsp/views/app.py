@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -24,9 +24,29 @@ from .assess import AssessRedirectView
 LOGGER = logging.getLogger(__name__)
 
 
-class AppView(AccountMixin, TemplateView):
+class AppView(TemplateView):
     """
-    Homepage for an organization.
+    Homepage for a user when no profile is specified in the URL path
+    """
+    template_name = 'app/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AppView, self).get_context_data(**kwargs)
+        update_context_urls(context, {
+            'api_accounts': site_url("/api/profile"),
+            'api_users': site_url("/api/users"),
+            'pages_index': reverse('pages_index'),
+            'api_newsfeed': reverse('api_news_feed', args=(
+                self.request.user.username,)),
+
+            'getstarted': reverse('getstarted'),
+        })
+        return context
+
+
+class ProfileAppView(AccountMixin, TemplateView):
+    """
+    Homepage for a profile.
     """
     template_name = 'app/index.html'
 
@@ -54,11 +74,11 @@ class AppView(AccountMixin, TemplateView):
 
     def get_template_names(self):
         candidates = ['app/%s.html' % self.account.slug]
-        candidates += super(AppView, self).get_template_names()
+        candidates += super(ProfileAppView, self).get_template_names()
         return candidates
 
     def get_context_data(self, **kwargs):
-        context = super(AppView, self).get_context_data(**kwargs)
+        context = super(ProfileAppView, self).get_context_data(**kwargs)
         context.update({
             'latest_completed_assessment': get_latest_completed_assessment(
                 self.account),

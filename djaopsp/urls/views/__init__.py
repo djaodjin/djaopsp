@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -27,5 +27,6 @@ urlpatterns = [
     path('app/<slug:profile>/', include('djaopsp.urls.views.portfolios')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.editors')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.app')),
-    path('', include('djaopsp.urls.views.redirects')),
+    path('app/', AppView.as_view(), name='product_default_start'),
+    path('', include('djaopsp.urls.views.redirects')), # getstarted/
 ]

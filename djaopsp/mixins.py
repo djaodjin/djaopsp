@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 import json
 
@@ -21,8 +21,8 @@ from survey.utils import get_question_model, get_engaged_accounts
 
 from .compat import gettext_lazy as _, reverse
 from .models import VerifiedSample, SurveyEvent
-from .utils import (get_account_model, get_segments_available,
-    get_segments_candidates)
+from .utils import (get_account_model, get_campaign_candidates,
+    get_segments_available, get_segments_candidates)
 
 
 class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
@@ -87,7 +87,7 @@ class AccountMixin(deployutils_mixins.AccountMixin):
         """
         Returns a list of campaigns that can an account can answer against.
 
-        Implementation note: The queiry filter is using the profiles/roles
+        Implementation note: The query filter is using the profiles/roles
         passed through the HTTP `request`. As a result, the candidates are
         consistant when there is a direct relationship between the {account}
         specified in the URL and the authenticated user.
@@ -95,35 +95,13 @@ class AccountMixin(deployutils_mixins.AccountMixin):
         accounts.
         """
         if not hasattr(self, '_campaign_candidates'):
-            filtered_in = None
-            #pylint:disable=superfluous-parens
-            for visible in (set(['public']) | {plan['slug']
+            self._campaign_candidates = get_campaign_candidates(
+                accounts=self.accessible_profiles,
+                tags=(set(['public']) | {plan['slug']
                     for plan in self.get_accessible_plans(
-                            self.request, profile=self.kwargs.get(
-                            self.account_url_kwarg))}):
-                visibility_q = Q(extra__contains=visible)
-                if filtered_in:
-                    filtered_in |= visibility_q
-                else:
-                    filtered_in = visibility_q
-            if self.accessible_profiles:
-                accounts_q = Q(account__slug__in=self.accessible_profiles)
-                if filtered_in:
-                    filtered_in |= accounts_q
-                else:
-                    filtered_in = accounts_q
-            self._campaign_candidates = (Campaign.objects.filter(filtered_in)
-                if filtered_in else Campaign.objects.all())
-            campaign = self.kwargs.get('campaign')
-            if campaign:
-                self._campaign_candidates = self._campaign_candidates.filter(
-                    slug=campaign)
-            else:
-                # We don't have a campaign slug, so let's restrict further
-                # to campaigns that are searchable.
-                self._campaign_candidates = self._campaign_candidates.filter(
-                    extra__contains='searchable')
-
+                        self.request, profile=self.kwargs.get(
+                        self.account_url_kwarg))}),
+            campaign_slug=self.kwargs.get('campaign'))
         return self._campaign_candidates
 
 

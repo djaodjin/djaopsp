@@ -269,8 +269,17 @@ pre.code{
     display: block;
 }
 
+.content-area-container {
+  color: white;
+  background: map-get($theme-colors, "primary");
+  background: -webkit-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  background:    -moz-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  background:      -o-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  background:         linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  min-height: 300px;
+}
+
 .dashboard-inner-container .content-area-container {
-    padding: 20px;
 }
 
 .no-results {

@@ -1,12 +1,12 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 """
 Views URLs
 """
-from django.urls import path, re_path
+from django.urls import path
 
-from ...views.app import AppView, GetStartedProfileView
+from ...views.app import ProfileAppView, GetStartedProfileView
 
 
 urlpatterns = [
@@ -19,5 +19,5 @@ urlpatterns = [
     path('getstarted/',
         GetStartedProfileView.as_view(),
         name='profile_getstarted'),
-    re_path(r'', AppView.as_view(), name='app'),
+    path('', ProfileAppView.as_view(), name='app'),
 ]

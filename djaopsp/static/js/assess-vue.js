@@ -1,7 +1,49 @@
-// Copyright (c) 2024, DjaoDjin inc.
+// Copyright (c) 2025, DjaoDjin inc.
 // see LICENSE.
 
 // This file contains UI elements used during survey/assessment (data input).
+
+Vue.component('newsfeed', {
+    mixins: [
+        itemListMixin,
+        accountDetailMixin
+    ],
+    data: function() {
+        return {
+            url: this.$urls.api_newsfeed,
+            getCompleteCb: 'getCompleted',
+        }
+    },
+    methods: {
+        getCompleted: function(){
+            var vm = this;
+            vm.populateAccounts(vm.items.results, 'account');
+            vm.populateUserProfiles();
+        },
+        populateUserProfiles: function() {
+            var vm = this;
+            var users = new Set();
+            for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                for(let item of vm.items.results[idx].respondents) {
+                    users.add(item);
+                }
+            }
+            for( const key of users ) {
+                vm.reqGet(vm._safeUrl(vm.$urls.api_users, key),
+                function(resp) {
+                    vm.accountsBySlug[resp.username] = resp;
+                    vm.$forceUpdate();
+                }, function() {
+                    // discard errors (ex: "not found").
+                });
+            }
+        },
+    },
+    mounted: function(){
+        this.get();
+    }
+});
+
 
 Vue.component('campaign-questions-list', {
     mixins: [
@@ -2223,6 +2265,9 @@ Vue.component('decorate-profiles', {
         httpRequestMixin,
         accountDetailMixin
     ],
+    props: [
+        'elements'
+    ],
     data: function() {
         return {
             api_accounts_url: this.$urls.api_accounts,
@@ -2230,7 +2275,9 @@ Vue.component('decorate-profiles', {
     },
     mounted: function(){
         var vm = this;
-        if( vm.$el.dataset && vm.$el.dataset.elements ) {
+        if( vm.elements ) {
+            vm.populateAccounts(vm.elements, 'grantee');
+        } else if( vm.$el.dataset && vm.$el.dataset.elements ) {
             vm.populateAccounts(JSON.parse(vm.$el.dataset.elements), 'grantee');
         }
     }

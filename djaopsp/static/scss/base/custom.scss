@@ -63,15 +63,6 @@ $green-level-4-color: #FFD700;
   display: none !important;
 }
 
-/* backdrop */
-.backdrop {
-  color: white;
-  background: map-get($theme-colors, "primary");
-  background: -webkit-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
-  background:    -moz-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
-  background:      -o-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
-  background:         linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
-}
 
 // customize top menubar
 .navbar.bg-primary {
@@ -84,14 +75,16 @@ $green-level-4-color: #FFD700;
   color: $white;
 }
 
-.navbar.bg-primary .navbar-brand:hover,
-.navbar.bg-primary .navbar-brand:focus,
 .navbar.bg-primary .nav-link:hover,
 .navbar.bg-primary .nav-link:focus {
   color: map-get($theme-colors, "primary");
   background-color: $white;
 }
 
+.navbar.bg-primary .navbar-brand:hover,
+.navbar.bg-primary .navbar-brand:focus {
+
+}
 
 .password-toggle {
   position: absolute;

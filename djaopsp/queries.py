@@ -611,14 +611,15 @@ ORDER BY account_id, created_at
     return PortfolioDoubleOptIn.objects.raw(sql_query)
 
 
-def _get_frozen_query_sql(campaign, segments, ends_at, expired_at=None):
+def _get_frozen_query_sql(campaign, segments, ends_at,
+                          start_at=None, expired_at=None):
     frozen_assessments_query = None
     frozen_improvements_query = None
 
     for segment in segments:
         segment_prefix = segment['path']
         segment_query = Sample.objects.get_latest_frozen_by_accounts(
-            campaign=campaign, ends_at=ends_at,
+            campaign=campaign, start_at=start_at, ends_at=ends_at,
             segment_prefix=segment_prefix, segment_title=segment['title'],
             tags=[]).query.sql
         if not frozen_assessments_query:
@@ -632,7 +633,7 @@ def _get_frozen_query_sql(campaign, segments, ends_at, expired_at=None):
                 frozen_assessments_query = "(%s) UNION (%s)" % (
                     frozen_assessments_query, segment_query)
         segment_query = Sample.objects.get_latest_frozen_by_accounts(
-            campaign=campaign, ends_at=ends_at,
+            campaign=campaign, start_at=start_at, ends_at=ends_at,
             segment_prefix=segment_prefix, segment_title=segment['title'],
             tags=['is_planned']).query.sql
         if not frozen_improvements_query:
@@ -744,8 +745,15 @@ ON frozen_assessments.account_id = frozen_improvements.account_id AND
     return frozen_query
 
 
-def _get_scorecard_cache_query_sql(segments, ends_at, expired_at=None):
+def _get_scorecard_cache_query_sql(segments, ends_at,
+                                   start_at=None, expired_at=None):
     segments_query = segments_as_sql(segments)
+
+    start_at_clause = ""
+    if start_at:
+        start_at_clause = "AND survey_sample.created_at >= '%(start_at)s'" % {
+            'start_at': start_at.isoformat()
+        }
 
     if expired_at:
         reporting_completed_clause = \
@@ -786,6 +794,7 @@ scorecards AS (
   INNER JOIN segments
     ON %(scorecardcache_table)s.path = segments.path
   WHERE survey_sample.created_at <= '%(ends_at)s' -- '<=' bc `organization_rate`
+    %(start_at_clause)s
   GROUP BY segments.path, segments.title, survey_sample.account_id
 )
 SELECT
@@ -823,8 +832,10 @@ INNER JOIN survey_sample
      survey_sample.account_id = scorecards.account_id AND
      survey_sample.created_at = scorecards.created_at
 WHERE survey_sample.created_at <= '%(ends_at)s' -- '<=' bc `organization_rate`
+    %(start_at_clause)s
 """ % {
     'ends_at': ends_at.isoformat(),
+    'start_at_clause': start_at_clause,
     'segments_query': segments_query,
     'reporting_planning_clause': reporting_planning_clause,
     'reporting_completed_clause': reporting_completed_clause,
@@ -835,8 +846,8 @@ WHERE survey_sample.created_at <= '%(ends_at)s' -- '<=' bc `organization_rate`
 
 
 def _get_scored_assessments_sql(campaign, accounts=None,
-                                scores_of_interest=None,
-                                db_path=None, ends_at=None, expired_at=None,
+                                scores_of_interest=None, db_path=None,
+                                start_at=None, ends_at=None, expired_at=None,
                                 sort_ordering=None):
     #pylint:disable=too-many-arguments,too-many-locals
     # The scores_of_interest do not represent solely segments. They might
@@ -853,11 +864,11 @@ def _get_scored_assessments_sql(campaign, accounts=None,
                 use_scorecard_cache = True
                 break
     if use_scorecard_cache:
-        frozen_query = _get_scorecard_cache_query_sql(
-            scores_of_interest, ends_at, expired_at=expired_at)
+        frozen_query = _get_scorecard_cache_query_sql(scores_of_interest,
+            ends_at, start_at=start_at, expired_at=expired_at)
     else:
-        frozen_query = _get_frozen_query_sql(
-            campaign, scores_of_interest, ends_at, expired_at=expired_at)
+        frozen_query = _get_frozen_query_sql(campaign, scores_of_interest,
+            ends_at, start_at=start_at, expired_at=expired_at)
     if not frozen_query:
         # We don't have any segements of interest, so nothing to do.
         return ""
@@ -1009,13 +1020,13 @@ ON %(accounts_table)s.id = assessments.account_id
 
 
 def get_scored_assessments(campaign, accounts=None,
-                           scores_of_interest=None,
-                           db_path=None, ends_at=None, expired_at=None,
+                           scores_of_interest=None, db_path=None,
+                           start_at=None, ends_at=None, expired_at=None,
                            sort_ordering=None):
     #pylint:disable=too-many-arguments
-    sql_query = _get_scored_assessments_sql(
-        campaign, accounts=accounts, scores_of_interest=scores_of_interest,
-        db_path=db_path, ends_at=ends_at, expired_at=expired_at,
+    sql_query = _get_scored_assessments_sql(campaign, accounts=accounts,
+        scores_of_interest=scores_of_interest, db_path=db_path,
+        start_at=start_at, ends_at=ends_at, expired_at=expired_at,
         sort_ordering=sort_ordering)
     if not sql_query:
         # We don't have any scorecard/chart to compute.

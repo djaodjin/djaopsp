@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+
 {% block content %}
 <div  id="app" class="backdrop mb-4">
     {% block app_content %}
@@ -14,7 +15,18 @@
 <script type="text/javascript" src="{{'/static/vendor/dropzone.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/moment.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/moment-timezone-with-data.js'|asset}}"></script>
-{% block app_bodyscripts %}{% endblock %}
+{% block app_bodyscripts %}
+{% if ASSETS_DEBUG %}
+<script type="text/javascript" src="{{'/static/vendor/chart.js/dist/chart.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/chartjs-plugin-annotation.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaodjin-pages-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/djaopsp-resources-vue.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/js/assess-vue.js'|asset}}"></script>
+{% else %}
+<script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
+{% endif %}
+{% endblock %}
 <script type="text/javascript">
 Vue.prototype.$globals = {
     'humanizeDate': humanizeDate,
