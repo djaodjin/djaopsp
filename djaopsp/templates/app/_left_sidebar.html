@@ -1,25 +1,16 @@
-<div id="app-toolbar-left" class="d-print-none bg-body text-body">
-  <header class="d-sm-none">
-    <nav{% block navbar_sidebar_extra %} class="navbar navbar-expand-sm bg-primary"{% endblock %}>
-      <div class="container-fluid">
-        <div class="navbar-header">
-          {% include "_navbarbrand.html" %}
-        </div>
-        <div class="text-end">
-          <button href="" class="sidebar-toggle btn btn-secondary d-inline-block d-sm-none" data-target="#app-toolbar-left">
-            <div class="bar1 opened"></div>
-            <div class="bar2 opened"></div>
-            <div class="bar3 opened"></div>
-          </button>
-        </div>
-      </div>
-    </nav>
-  </header>
+<div id="app-toolbar-left" class="d-print-none">
+  <div class="sidebar-animate bg-body text-body">
+  <div class="toolbar-content">
+    <div class="text-end">
+      <button class="sidebar-pin-toggle btn btn-link"
+              data-target="#app-toolbar-left">
+        <i class="fa"></i>
+      </button>
+    </div>
+    {% include "app/_progress_bar.html" %}
 
     {% block left_sidebar_header %}
     {% endblock %}
-
-  <div class="toolbar-content">
 
     {# summary #}
     {% if breadcrumbs|length > 1 %}
@@ -33,11 +24,13 @@
       <ul class="nav flex-column py-1">
         <li class="nav-item"
             v-for="tile in getEntries('', 1)">
-          <a class="nav-link" :href="'#' + getPracticeId(tile, 'results-')">[[tile.title]]</a>
+          <a class="nav-link" :href="'#' + getPracticeId(tile, 'results-')"
+             @click="appToolbarLinkClicked">[[tile.title]]</a>
           <ul style="list-style:none;">
             <li class="nav-item"
                 v-for="practice in getEntries(tile.slug, 1)">
-              <a class="nav-link" :href="'#' + getPracticeId(practice, 'results-')">[[practice.title]]</a>
+              <a class="nav-link" :href="'#' + getPracticeId(practice, 'results-')"
+                 @click="appToolbarLinkClicked">[[practice.title]]</a>
             </li>
           </ul>
         </li>
@@ -103,4 +96,5 @@
       </div>
     </div>
   </footer>{# /.toolbar-footer #}
+</div>
 </div>{# /#app-toolbar-left #}

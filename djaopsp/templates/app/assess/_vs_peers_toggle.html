@@ -1,6 +1,7 @@
 <div style="text-align:right;margin-right:15px;font-size:10px;">
     <span>{% trans %}self{% endtrans %}</span>
     <input style="width:auto;vertical-align:middle;"
-           type="range" min="0" max="1" v-model="vsPeersToggle">
+           type="range" min="0" max="1" v-model="vsPeersToggle"
+           @click="appToolbarLinkClicked">
     <span>{% if peers %}vs. {{peers}}{% else %}{% trans %}vs. peers{% endtrans %}{% endif %}</span>
 </div>

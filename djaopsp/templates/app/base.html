@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
+{% block footer %}{% endblock %}
+
+{% block sidebar %}
+{% include "app/_sidebar.html" %}
+<hr class="d-md-none" />
+<ul class="nav flex-column d-md-none">
+    {% include "_generic_navbar.html" %}
+</ul>
+{% endblock %}
 
 {% block content %}
 <div  id="app" class="backdrop mb-4">

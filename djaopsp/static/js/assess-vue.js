@@ -108,6 +108,10 @@ Vue.component('campaign-questions-list', {
                 });
             });
         },
+        appToolbarLinkClicked: function() {
+            // XXX only if not pinned
+            toggleSidebar("#app-toolbar-left");
+        },
         getPracticeId: function(practice, prefix) {
             // We define this method almost identically
             // in `'campaign-questions-list'` and `'scorecard'`.

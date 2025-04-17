@@ -4,15 +4,15 @@
 
 {% block assess_content %}
 <campaign-questions-list inline-template id="panel-icons">
-  <div class="d-flex">
+  <div class="dashboard-pane dashboard-pane-default">
 
     {# left sidebar #}
     {% block app_left_sidebar %}
     {% include "app/assess/_assess_left_sidebar.html" %}
     {% endblock %}
 
-    <div>
-      {% include "app/_progress_bar.html" %}
+    <div style="margin-left:auto;margin-right:auto;">
+
       <div class="text-center"
            v-show="!itemsLoaded">
         <i class="fa fa-spinner fa-spin fa-2x"></i>
@@ -92,7 +92,7 @@
               {% endif %}
             </h2>
             <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-            <div class="d-none d-md-block sticky-top bg-body text-body border-bottom"
+            <div class="choices-header d-none d-md-block sticky-top bg-body text-body border-bottom"
                  v-if="isEnumHeaderShown(icon)">
               <div class="row">
                 <div class="col-md-6">
@@ -186,7 +186,7 @@
                v-for="icon in getEntries('', 1)">
             <h2 class="mt-4">[[icon.title]]</h2>
             {% block vs_header_block %}
-            <div class="sticky-top bg-body text-body border-bottom"
+            <div class="choices-header sticky-top bg-body text-body border-bottom"
                  v-if="isEnumHeaderShown(icon)">
               <div class="row">
                 <div class="col-md-6">

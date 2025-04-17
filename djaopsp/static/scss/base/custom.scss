@@ -4,7 +4,9 @@
 // XXX `$navbar-height` used to be defined
 // in Bootstrap3 (it is not in Bootstrap4). We redefine it here use it stick the
 // footer at the bottom of the screen when a page is less that screen height.
-$navbar-height: max($nav-link-height, $navbar-brand-height) + $navbar-padding-y * 2;
+//$navbar-height: max($nav-link-height, $navbar-brand-height) + $navbar-padding-y * 2;
+$navbar-height: 59px; // previous formula missing border?
+
 $footer-height: 150px;
 $plan-footer-height: 70px;
 $app-toolbar-left-footer-height: 296px;
@@ -183,7 +185,6 @@ header .nav-item {
 }
 
 .progressbar li a {
-  color: white;
   text-decoration: none;
 }
 
@@ -2348,46 +2349,102 @@ pre.code{
   }
 }
 
+.choices-header.sticky-top {
+  top: #{$navbar-height};
+}
+
+
 // App Toolbar (Left)
+
 #app-toolbar-left {
-  display: none;
-  width: 200px;
-  overflow: hidden;
+  display: none;     // If we don't default to `display: none`, the animation
+  width: 350px;      // in djaodjin-dashboard.js will never hide the sidebar.
+  overflow: visible; // so we can see the shadow
   -webkit-transition: right 0.25s ease-in-out;
   -moz-transition: right 0.25s ease-in-out;
   -ms-transition: right 0.25s ease-in-out;
   -o-transition: right 0.25s ease-in-out;
   transition: right 0.25s ease-in-out;
   position: fixed;
-  top: 0;
-  z-index: 5;
-  height: 100vh;
+  top: #{$navbar-height};
+  height: calc(100vh - #{$navbar-height});
+  z-index: 2000; // sticky-top[z-index] == 1020
 }
 
-#app-toolbar-left > .toolbar-content {
+#app-toolbar-left .sidebar-animate {
+  overflow: hidden;
+  position: relative;
+  height: calc(100vh - #{$navbar-height});
+  border-right: 1px solid #ccc;
+  box-shadow: 0.3em 0.5em 1em rgb(0 0 0 / 60%);
+}
+
+#app-toolbar-left .toolbar-content {
   overflow-y: auto;
   height: calc(100vh - #{$navbar-height} - #{$app-toolbar-left-footer-height});
 }
 
-#app-toolbar-left > .toolbar-footer {
+#app-toolbar-left .toolbar-footer {
   clear: both;
+  position: absolute;
   bottom: 0;
   padding: 10px 30px 10px;
   font-size: 11px;
 }
 
+.dashboard-pane.dashboard-pane-pinned #app-toolbar-left {
+    display: block;
+    position: sticky;
+}
+
+.dashboard-pane.dashboard-pane-pinned #app-toolbar-left .sidebar-animate {
+    box-shadow: none;
+}
+
+.sidebar-toggle.sidebar-toggle-default[data-target="#dashboard-navbar"],
+.dashboard-pane-pinned .sidebar-toggle[data-target="#dashboard-navbar"],
+.dashboard-pane-pinned .sidebar-toggle.sidebar-toggle-default[data-target="#dashboard-navbar"],
+.dashboard-pane-pinned .sidebar-toggle[data-target="#app-toolbar-left"],
+.dashboard-pane-pinned .sidebar-toggle.sidebar-toggle-default[data-target="#app-toolbar-left"] {
+      display:none;
+}
+
+
 @include media-breakpoint-up(md) {
 
-    #app-toolbar-left {
-        display: block;
-        width: 25%;
-        position: sticky;
-        top: 0;
-        float: left;
-    }
+  .sidebar-toggle.sidebar-toggle-default[data-target="#dashboard-navbar"] {
+      display: block;
+  }
 
-    #app-toolbar-left + div {
-        width: 75%;
-    }
+  .dashboard-pane-default .sidebar-toggle.sidebar-toggle-default[data-target="#dashboard-navbar"] {
+      display: none;
+  }
+
+  .sidebar-toggle.sidebar-toggle-default[data-target="#app-toolbar-left"] {
+      display: none;
+  }
+
+  .sidebar-toggle.sidebar-toggle-default[data-target="#app-toolbar-left"] > .bar1  {
+  }
+
+  .sidebar-toggle.sidebar-toggle-default[data-target="#app-toolbar-left"] > .bar2 {
+      -webkit-transform: translate(5px, 0);
+      transform: translate(5px, 0);
+  }
+
+  .sidebar-toggle.sidebar-toggle-default[data-target="#app-toolbar-left"] > .bar3  {
+      -webkit-transform: translate(10px, 0);
+      transform: translate(10px, 0);
+  }
+
+  .dashboard-pane.dashboard-pane-default #app-toolbar-left {
+    // sidebar is visible on dashboard on desktops
+    display: block;
+    position: sticky;
+  }
+
+  .dashboard-pane.dashboard-pane-default #app-toolbar-left .sidebar-animate {
+    box-shadow: none;
+  }
 
 }
