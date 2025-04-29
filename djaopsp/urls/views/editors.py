@@ -1,15 +1,14 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 """
 Views URLs for campaign editors
 """
 from django.urls import path
-from survey.views.campaigns import CampaignListView
 
 from ...downloads.campaigns import CampaignXLSXView
 from ...views.content import EditablesIndexView, EditablesDetailView
-from ...views.campaigns import CampaignEditView
+from ...views.campaigns import CampaignEditView, CampaignListView
 
 
 urlpatterns = [

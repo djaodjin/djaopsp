@@ -41,6 +41,7 @@ class AppView(TemplateView):
 
             'getstarted': reverse('getstarted'),
         })
+        print("XXX FEATURES_DEBUG=%s" % str(settings.FEATURES_DEBUG))
         return context
 
 
@@ -48,29 +49,7 @@ class ProfileAppView(AccountMixin, TemplateView):
     """
     Homepage for a profile.
     """
-    template_name = 'app/index.html'
-
-    @property
-    def unlock_editors(self):
-        return self.get_unlocked(getattr(settings, 'UNLOCK_EDITORS', []))
-
-    @property
-    def unlock_portfolios(self):
-        return self.get_unlocked(getattr(settings, 'UNLOCK_PORTFOLIOS', []))
-
-
-    def get_unlocked(self, candidates):
-        is_broker = False
-        site = self.request.session.get('site')
-        if site:
-            is_broker = bool(self.account.slug == site.get('slug'))
-        accessible_plans = {plan['slug']
-            for plan in self.get_accessible_plans(self.request,
-                    profile=str(self.account) # if we don't convert to `str`,
-                                              # the equality will be `False`.
-            )}
-        return (is_broker or not candidates or accessible_plans & candidates)
-
+    template_name = 'app/profile.html'
 
     def get_template_names(self):
         candidates = ['app/%s.html' % self.account.slug]
@@ -85,31 +64,6 @@ class ProfileAppView(AccountMixin, TemplateView):
             'active_assessment_in_progress': Answer.objects.filter(
                 sample__in=get_latest_active_assessments(self.account)).exists()
         })
-        update_context_urls(context, {
-            'pages_index': reverse('pages_index'),
-            'track_metrics': reverse('track_metrics_index',
-                args=(self.account,)),
-            'scorecard_history': reverse('scorecard_history',
-                args=(self.account,)),
-            'profile_getstarted': reverse('profile_getstarted',
-                args=(self.account,)),
-        })
-        if self.unlock_portfolios:
-            update_context_urls(context, {
-                'portfolio_track': reverse('portfolio_analyze', args=(
-                    self.account,)),
-                'portfolio_engage': reverse('portfolio_engage', args=(
-                    self.account,)),
-                'portfolio_insights': reverse('portfolio_insights', args=(
-                    self.account,)),
-            })
-        if self.unlock_editors:
-            update_context_urls(context, {
-                'pages_editables_index': reverse(
-                    'pages_editables_index', args=(self.account,)),
-                'survey_campaign_list': reverse(
-                    'survey_campaign_list', args=(self.account,)),
-            })
         return context
 
 

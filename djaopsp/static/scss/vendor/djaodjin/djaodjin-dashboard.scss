@@ -163,7 +163,6 @@ pre.code{
   font-family: FontAwesome;
 }
 
-
 .dashboard-nav {
   display: none;
   width: $dashboard-sidebar-width; // col-md-2 width: 16.66666667%;
@@ -200,6 +199,7 @@ pre.code{
 
 .dashboard-nav-main .navbar {
     width: $dashboard-sidebar-width;
+    height: $dashboard-sidebar-logo-height;
 }
 
 // height 38px instead of 42px now
@@ -298,6 +298,7 @@ pre.code{
 }
 
 .dashboard-pane-pinned .dashboard-nav {
+    // sidebar is visible on dashboard on desktops
     display: block;
 }
 
@@ -309,13 +310,6 @@ pre.code{
   margin-left: $dashboard-sidebar-width;
   width: calc(100vw - #{$dashboard-sidebar-width});
 }
-
-.dashboard-pane-pinned .sidebar-toggle,
-.dashboard-pane-pinned .navbar-brand-container {
-  display: none;
-  margin-left: 0;
-}
-
 
 .content-area-container {
   color: white;
@@ -379,7 +373,6 @@ pre.code{
   -webkit-transform: translate(10px, 0);
   transform: translate(10px, 0);
 }
-
 
 .typeahead-dropdown.open>.dropdown-menu {
     display: block;
@@ -643,13 +636,14 @@ input::-webkit-datetime-edit {
 
 @include media-breakpoint-up(md) {
 
+    .dashboard-content .sidebar-toggle {
+        display: none;
+    }
+
     .dashboard-pane-default {
         position: inherit;
         width: inherit;
         left: 0;
-    }
-
-    .dashboard-pane-default {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
@@ -718,7 +712,6 @@ input::-webkit-datetime-edit {
 .dashboard-nav a:hover,
 .dashboard-nav a:focus,
 .dashboard-nav a:visited {
-    color: $dashboard-sidebar-color;
 }
 
 .dashboard-nav .bg-primary a.navbar-brand,
@@ -748,7 +741,6 @@ input::-webkit-datetime-edit {
 
 .dashboard-nav-menu > .nav li > a {
     background-color:transparent;
-    color: $dashboard-sidebar-color;
 }
 
 .dashboard-nav-menu > .nav li.active > a {

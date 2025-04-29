@@ -4,6 +4,7 @@
 """
 Views URLs
 """
+from django.conf import settings
 from django.urls import path, include
 from django.views.generic import TemplateView
 from deployutils.apps.django.redirects import AccountRedirectView
@@ -18,6 +19,7 @@ from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
 
 
 urlpatterns = [
+    path('', include('djaopsp.urls.views.redirects')), # getstarted/
     path('app/reporting/',
         AccountRedirectView.as_view(
             pattern_name='portfolio_engage'),
@@ -27,6 +29,15 @@ urlpatterns = [
     path('app/<slug:profile>/', include('djaopsp.urls.views.portfolios')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.editors')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.app')),
-    path('app/', AppView.as_view(), name='product_default_start'),
-    path('', include('djaopsp.urls.views.redirects')), # getstarted/
 ]
+
+if settings.FEATURES_DEBUG:
+    urlpatterns += [
+        path('app/', AppView.as_view(), name='product_default_start'),
+    ]
+else:
+    urlpatterns += [
+        path('app/', AccountRedirectView.as_view(
+            pattern_name='app_profile', account_url_kwarg='profile'),
+            name='product_default_start'),
+    ]

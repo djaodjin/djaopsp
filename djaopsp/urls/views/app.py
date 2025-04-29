@@ -19,5 +19,5 @@ urlpatterns = [
     path('getstarted/',
         GetStartedProfileView.as_view(),
         name='profile_getstarted'),
-    path('', ProfileAppView.as_view(), name='app'),
+    path('', ProfileAppView.as_view(), name='app_profile'),
 ]

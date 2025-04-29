@@ -806,25 +806,9 @@
   },
   "model": "pages.RelationShip", "pk": 17
 },
-
 {
   "fields": {
-    "title": "Does your company’s Employee Code of Conduct contain sections pertinent to ...",
-    "slug": "employee-code-of-conduct-follow",
-    "text_updated_at": "2025-01-01T00:00:00.000Z",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 18
-},
-{
-  "fields": {
-    "rank": 17, "orig_element": 16, "dest_element": 18
-  },
-  "model": "pages.RelationShip", "pk": 18
-},
-{
-  "fields": {
-    "title": "2.1a ... Child and Forced Labor?",
+    "title": "2.1a Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Child and Forced Labor?",
     "slug": "employee-code-of-conduct-child-and-forced-labor",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -834,13 +818,13 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 19
+    "orig_element": 17, "dest_element": 19
   },
   "model": "pages.RelationShip", "pk": 19
 },
 {
   "fields": {
-    "title": "2.1b ... Corruption and bribery?",
+    "title": "2.1b Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Corruption and bribery?",
     "slug": "employee-code-of-conduct-corruption-and-bribery",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -850,13 +834,13 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 20
+    "orig_element": 17, "dest_element": 20
   },
   "model": "pages.RelationShip", "pk": 20
 },
 {
   "fields": {
-    "title": "2.1c ... Discrimination & harassment​?",
+    "title": "2.1c Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Discrimination & harassment​?",
     "slug": "employee-code-of-conduct-discrimination",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -866,14 +850,14 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 21
+    "orig_element": 17, "dest_element": 21
   },
   "model": "pages.RelationShip", "pk": 21
 },
 
 {
   "fields": {
-    "title": "2.1d ... Diversity and inclusion?",
+    "title": "2.1d Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Diversity and inclusion?",
     "slug": "employee-code-of-conduct-diversity-inclusion",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -883,14 +867,14 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 22
+    "orig_element": 17, "dest_element": 22
   },
   "model": "pages.RelationShip", "pk": 22
 },
 
 {
   "fields": {
-    "title": "2.1e ... Working hours?",
+    "title": "2.1e Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Working hours?",
     "slug": "employee-code-of-conduct-working-hours",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -900,7 +884,7 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 23
+    "orig_element": 17, "dest_element": 23
   },
   "model": "pages.RelationShip", "pk": 23
 },
@@ -908,7 +892,7 @@
 
 {
   "fields": {
-    "title": "2.1f ... Confidentiality of information?",
+    "title": "2.1f Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Confidentiality of information?",
     "slug": "employee-code-of-conduct-confidentiality",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -918,13 +902,13 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 24
+    "orig_element": 17, "dest_element": 24
   },
   "model": "pages.RelationShip", "pk": 24
 },
 {
   "fields": {
-    "title": "2.1g ... Conflicts of interest?",
+    "title": "2.1g Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Conflicts of interest?",
     "slug": "employee-code-of-conduct-conflicts-of-interest",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -934,13 +918,13 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 25
+    "orig_element": 17, "dest_element": 25
   },
   "model": "pages.RelationShip", "pk": 25
 },
 {
   "fields": {
-    "title": "2.1h ... Antitrust/anti-competitive practices?",
+    "title": "2.1h Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Antitrust/anti-competitive practices?",
     "slug": "employee-code-of-conduct-antitrust",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -950,13 +934,13 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 26
+    "orig_element": 17, "dest_element": 26
   },
   "model": "pages.RelationShip", "pk": 26
 },
 {
   "fields": {
-    "title": "2.1i ... Money-laundering and/or insider trading/dealing?",
+    "title": "2.1i Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Money-laundering and/or insider trading/dealing?",
     "slug": "employee-code-of-conduct-money-laundering",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -966,13 +950,13 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 27
+    "orig_element": 17, "dest_element": 27
   },
   "model": "pages.RelationShip", "pk": 27
 },
 {
   "fields": {
-    "title": "2.1j ... Environment, health and safety?",
+    "title": "2.1j Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Environment, health and safety?",
     "slug": "employee-code-of-conduct-safety",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -982,13 +966,13 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 28
+    "orig_element": 17, "dest_element": 28
   },
   "model": "pages.RelationShip", "pk": 28
 },
 {
   "fields": {
-    "title": "2.1k ... Whistleblowing?",
+    "title": "2.1k Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Whistleblowing?",
     "slug": "employee-code-of-conduct-whistleblowing",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -998,13 +982,13 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 29
+    "orig_element": 17, "dest_element": 29
   },
   "model": "pages.RelationShip", "pk": 29
 },
 {
   "fields": {
-    "title": "2.1l ... Collective bargaining, labor unions?",
+    "title": "2.1l Does your company’s Employee Code of Conduct contain sections pertinent to ... ... Collective bargaining, labor unions?",
     "slug": "employee-code-of-conduct-labor-unions",
     "text_updated_at": "2025-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -1014,7 +998,7 @@
 },
 {
   "fields": {
-    "orig_element": 18, "dest_element": 30
+    "orig_element": 17, "dest_element": 30
   },
   "model": "pages.RelationShip", "pk": 30
 },

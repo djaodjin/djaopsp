@@ -1,4 +1,4 @@
-// Copyright (c) 2024, DjaoDjin inc.
+// Copyright (c) 2025, DjaoDjin inc.
 // see LICENSE.
 
 // This file contains mixins to display formatted lists of questions.
@@ -75,6 +75,26 @@ var practicesListMixin = {
                     vm.chartsAvailable = true;
                     vm.$forceUpdate();
                 });
+            }
+            // Initialize cascades
+            for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                var row = vm.items.results[idx];
+                row.visible = true;
+                if( vm.isPractice(row) ) {
+                    if( idx + 1 < vm.items.results.length ) {
+                        const next = vm.items.results[idx + 1];
+                        if( vm.isPractice(next) &&
+                            row.indent < next.indent ) {
+                            row.isCascade = true;
+                        }
+                    }
+                }
+            }
+            for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                var row = vm.items.results[idx];
+                if( row.isCascade ) {
+                    vm.setCascadeVisible(idx, vm.openCascadeAutomatically(row));
+                }
             }
         },
 
@@ -464,6 +484,32 @@ var practicesListMixin = {
             const mostlyYesRate = practice.rate[MOSTLY_YES] || 0;
             return yesRate + mostlyYesRate;
         },
+
+        // When presentation is purely based on the unit, use the following
+        // methods. When presentation requires specific layout beyond units,
+        // use the `is...UIHint` methods.
+        isDatetimeUnit: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.default_unit.system === 'datetime';
+        },
+        isEnumUnit: function(row) {
+            var vm = this;
+            return vm.isPractice(row) &&
+                row.default_unit && row.default_unit.system === 'enum';
+        },
+        isFreetextUnit: function(row) {
+            var vm = this;
+            return vm.isPractice(row) &&
+                row.default_unit && row.default_unit.system === 'freetext';
+        },
+        isNumberUnit: function(row) {
+            var vm = this;
+            return vm.isPractice(row) &&
+                (row.default_unit.system === 'standard' ||
+                row.default_unit.system === 'imperial' ||
+                row.default_unit.system === 'rank');
+        },
+
         isNotApplicable: function(practice) {
             var vm = this;
             return practice.answers && (practice.answers.length > 0) &&
@@ -493,16 +539,6 @@ var practicesListMixin = {
         isEnergyUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'energy';
-        },
-        isEnumUnit: function(row) {
-            var vm = this;
-            return vm.isPractice(row) &&
-                row.default_unit && row.default_unit.system === 'enum';
-        },
-        isFreetextUnit: function(row) {
-            var vm = this;
-            return vm.isPractice(row) &&
-                row.default_unit && row.default_unit.system === 'freetext';
         },
         isEnumRadioUIHint: function(row) {
             var vm = this;
@@ -553,19 +589,23 @@ var practicesListMixin = {
             }
             return false;
         },
+        // Returns `true` if the question requires an answer and
+        // none has been provided yet.
         isRequiredShown: function(row) {
             return row.required && !this.isRequiredAnswered(row);
         },
+        // Returns `true` if the question requires an answer and
+        // an answer has been provided.
         isRequiredAnswered: function(row) {
             return row.required && this.getPrimaryAnswer(row).measured;
-        },
-        isTargetByUIHint: function(row) {
-            var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'target-by';
         },
         isScoredPractice: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.opportunity !== null;
+        },
+        isTargetByUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'target-by';
         },
         isUnitEquivalent: function(unit, default_unit) {
             if( default_unit === 'usd' ||
@@ -631,6 +671,12 @@ var practicesListMixin = {
             }
             return unit === default_unit;
         },
+        isCascadeVisible: function(row) {
+            return row.isCascade && row.isCascadeVisible;
+        },
+        isCascadedVisible: function(row) {
+            return row.visible;
+        },
         isWasteUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'waste';
@@ -650,6 +696,47 @@ var practicesListMixin = {
             var vm = this;
             return vm.isEnumUIHint(row) &&
                 row.default_unit && row.default_unit.slug === 'yes-no';
+        },
+        openCascadeAutomatically: function(practice, newValue) {
+            const vm = this;
+            const answer = (( typeof newValue !== 'undefined' ) ? newValue :
+                  vm.getPrimaryAnswer(practice));
+            return answer === vm.YES;
+        },
+        setCascadeVisible: function(headIdx, cascadeVisible) {
+            var vm = this;
+            var head = vm.items.results[headIdx];
+            // Toggle visible status for all indented questions below.
+            for( var idx = headIdx + 1; idx < vm.items.results.length; ++idx ) {
+                var curr = vm.items.results[idx];
+                if( curr.indent <= head.indent ) {
+                    break;
+                }
+                curr.visible = cascadeVisible;
+            }
+            head.isCascadeVisible = cascadeVisible;
+        },
+        toggleCascadeVisible: function(row) {
+            var vm = this;
+            var idx = 0;
+            // Find the question in the list.
+            for( ; idx < vm.items.results.length; ++idx ) {
+                var curr = vm.items.results[idx];
+                if( curr.slug == row.slug ) {
+                    ++idx;
+                    break;
+                }
+            }
+            // Toggle visible status for all indented questions below.
+            for( ; idx < vm.items.results.length; ++idx ) {
+                var curr = vm.items.results[idx];
+                if( curr.indent <= row.indent ) {
+                    break;
+                }
+                curr.visible = !curr.visible;
+            }
+            row.isCascadeVisible = !row.isCascadeVisible;
+            vm.$forceUpdate();
         },
 
         // benchmark charts
@@ -798,6 +885,10 @@ var practicesListMixin = {
             return this.describeArc(this.arcWidth / 2, 0,
                 this.radiusOuterAngle - 2 * this.baseWidth,
                 0, (percentage / 100) * 180);
+        },
+
+        appToolbarLinkClicked: function() {
+            toggleSidebar("#app-toolbar-left");
         },
     },
     computed: {

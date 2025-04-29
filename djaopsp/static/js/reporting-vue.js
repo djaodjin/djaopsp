@@ -544,16 +544,16 @@ Vue.component('djaopsp-compare-samples', {
             }
             return [];
         },
-        getCompareAnswerMeasured: function(dataset, practice) {
+        getCompareAnswers: function(dataset, practice) {
             var vm = this;
             if( typeof dataset.results != 'undefined' && dataset.results.length > 0 ) {
                 for( let idx = 0; idx < dataset.results.length; ++idx ) {
                     if( dataset.results[idx].path === practice.path ) {
-                        return vm.getPrimaryAnswer(dataset.results[idx]).measured;
+                        return dataset.results[idx];
                     }
                 }
             }
-            return '-';
+            return {answers:[]};
         },
         selectMetric: function(dataset, question) {
             var vm = this;

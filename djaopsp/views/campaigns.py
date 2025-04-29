@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -7,6 +7,7 @@ Views used to edit assessment campaigns
 
 from deployutils.helpers import update_context_urls
 from django.views.generic import TemplateView
+from survey.views.campaigns import CampaignListView as CampaignListBaseView
 
 from ..compat import reverse, gettext_lazy as _
 from ..mixins import AccountMixin, CampaignMixin
@@ -50,3 +51,8 @@ class CampaignEditView(CampaignMixin, AccountMixin, TemplateView):
         })
         update_context_urls(context, urls)
         return context
+
+
+class CampaignListView(AccountMixin, CampaignListBaseView):
+    """
+    """

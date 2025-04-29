@@ -10,13 +10,14 @@
 
 {% block scorecard_content %}
 <scorecard inline-template>
-  <div class="d-flex">
+  <div class="dashboard-pane dashboard-pane-default">
 
     {# left sidebar #}
+    {% block app_left_sidebar %}
     {% include "app/scorecard/_scorecard_left_sidebar.html" %}
+    {% endblock %}
 
-    <div>
-    {% include "app/_progress_bar.html" %}
+    <div style="margin-left:auto;margin-right:auto;">
 
     {# scorecard #}
     <div>

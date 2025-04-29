@@ -22,7 +22,7 @@ from survey.utils import get_question_model, get_engaged_accounts
 from .compat import gettext_lazy as _, reverse
 from .models import VerifiedSample, SurveyEvent
 from .utils import (get_account_model, get_campaign_candidates,
-    get_segments_available, get_segments_candidates)
+    get_segments_available, get_segments_candidates, get_unlocked)
 
 
 class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
@@ -76,7 +76,7 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
         return self._visibility
 
 
-class AccountMixin(deployutils_mixins.AccountMixin):
+class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
 
     account_queryset = get_account_model().objects.all()
     account_lookup_field = 'slug'
@@ -85,7 +85,7 @@ class AccountMixin(deployutils_mixins.AccountMixin):
     @property
     def campaign_candidates(self):
         """
-        Returns a list of campaigns that can an account can answer against.
+        Returns a list of campaigns that a profile can answer against.
 
         Implementation note: The query filter is using the profiles/roles
         passed through the HTTP `request`. As a result, the candidates are
@@ -103,6 +103,55 @@ class AccountMixin(deployutils_mixins.AccountMixin):
                         self.account_url_kwarg))}),
             campaign_slug=self.kwargs.get('campaign'))
         return self._campaign_candidates
+
+
+    @property
+    def unlock_editors(self):
+        return get_unlocked(self.request, self.account,
+            getattr(settings, 'UNLOCK_EDITORS', []))
+
+    @property
+    def unlock_portfolios(self):
+        return get_unlocked(self.request, self.account,
+            getattr(settings, 'UNLOCK_PORTFOLIOS', []))
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountMixin, self).get_context_data(**kwargs)
+        update_context_urls(context, {
+            'api_newsfeed': reverse('api_news_feed',
+                args=(self.account,)),
+            'track_metrics': reverse('track_metrics_index',
+                args=(self.account,)),
+            'scorecard_history': reverse('scorecard_history',
+                args=(self.account,)),
+            'profile_getstarted': reverse('profile_getstarted',
+                args=(self.account,)),
+        })
+        if 'practices_index' not in context.get('urls', {}):
+            update_context_urls(context, {
+                'practices_index': reverse('pages_index'),
+            })
+        if self.unlock_portfolios:
+            update_context_urls(context, {
+                'portfolio_engage': reverse('portfolio_engage',
+                    args=(self.account,)),
+                'portfolio_track': reverse('portfolio_track',
+                    args=(self.account,)),
+                'portfolio_insights': reverse('portfolio_insights',
+                    args=(self.account,)),
+                'compare': reverse('reporting_insights_compare',
+                    args=(self.account,)),
+                'analyze': reverse('reporting_insights_analyze',
+                    args=(self.account,)),
+            })
+        if self.unlock_editors:
+            update_context_urls(context, {
+                'pages_editables_index': reverse(
+                    'pages_editables_index', args=(self.account,)),
+                'survey_campaign_list': reverse(
+                    'survey_campaign_list', args=(self.account,)),
+            })
+        return context
 
 
 class CampaignMixin(CampaignMixinBase):
@@ -132,7 +181,7 @@ class CampaignMixin(CampaignMixinBase):
         return self._sections_available
 
 
-class DashboardsAvailableQuerysetMixin(VisibilityMixin, AccountMixin):
+class DashboardsAvailableQuerysetMixin(AccountMixin):
 
     @property
     def dashboards_available(self):
@@ -154,7 +203,7 @@ class DashboardsAvailableQuerysetMixin(VisibilityMixin, AccountMixin):
         return self.dashboards_available
 
 
-class ReportMixin(VisibilityMixin, SampleMixin, AccountMixin, TrailMixin):
+class ReportMixin(SampleMixin, AccountMixin, TrailMixin):
     """
     Loads assessment and improvement for a profile
     """

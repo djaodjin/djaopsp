@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 
-{% block footer %}{% endblock %}
+{% block dashboard_inner_container_classes %}{% if FEATURES_DEBUG %}dashboard-pane-default{% endif %}{% endblock %}
 
 {% block sidebar %}
+{% if FEATURES_DEBUG %}
 {% include "app/_sidebar.html" %}
-<hr class="d-md-none" />
+{% endif %}
 <ul class="nav flex-column d-md-none">
-    {% include "_generic_navbar.html" %}
+  <hr>
+  {% include "_generic_navbar.html" %}
 </ul>
 {% endblock %}
 
@@ -24,6 +26,7 @@
 <script type="text/javascript" src="{{'/static/vendor/dropzone.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/moment.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/moment-timezone-with-data.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/marked.min.js'|asset}}"></script>
 {% block app_bodyscripts %}
 {% if ASSETS_DEBUG %}
 <script type="text/javascript" src="{{'/static/vendor/chart.js/dist/chart.js'|asset}}"></script>
@@ -41,7 +44,8 @@ Vue.prototype.$globals = {
     'humanizeDate': humanizeDate,
     'humanizeMonthDay': humanizeMonthDay,
     'humanizeNumber': humanizeNumber,
-    'humanizeTimeDelta': humanizeTimeDelta
+    'humanizeTimeDelta': humanizeTimeDelta,
+    'md': marked.parse
 };
 Vue.prototype.$itemsPerPage =
     {% if items_per_page %}{{items_per_page}}{% else %}25{% endif %};

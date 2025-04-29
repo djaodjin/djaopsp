@@ -180,6 +180,7 @@ $(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $(libDir)/node_modules/font-awesome/css/font-awesome.css $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/font-awesome/fonts/* $(ASSETS_DIR)/fonts
 	$(installFiles) $(libDir)/node_modules/jquery/dist/jquery.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/marked/marked.min.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/moment/moment.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/moment-timezone/builds/moment-timezone-with-data.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/@popperjs/core/dist/umd/popper.min.js* $(ASSETS_DIR)/vendor

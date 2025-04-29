@@ -48,9 +48,8 @@
             </div>
           </div>
           <div class="card-body">
-            <p v-if="assessment.campaign.description">
-[[assessment.campaign.description]] (XXX no `|md` filter)
-            </p>
+            <div v-html="$globals.md(assessment.campaign.description)" v-if="assessment.campaign.description">
+            </div>
 
             <div v-if="assessment.grantees && assessment.grantees.length > 0">
               <p v-if="assessment.ends_at">

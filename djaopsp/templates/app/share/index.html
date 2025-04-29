@@ -1,16 +1,28 @@
 {% extends "app/share/base.html" %}
 
 {% block share_content %}
-<div class="container mb-4">
-  <h1 class="text-center">Share {{campaign.title}}</h1>
-  <h2 class="text-center">for {{profile.printable_name}}</h2>
-  <div class="bg-body text-body px-2 py-4">
+<div class="container pt-4">
+  <div class="bg-body text-body p-4">
+    <div class="row">
+      <div class="col">
+        <a href="{{urls.complete}}">&laquo; {% trans %}Review{% endtrans%}</a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-2 text-center text-sm-end">
+        <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+      </div>
+      <div class="col-sm-10 text-center text-sm-start">
+        <h1>{% trans title=campaign.title %}Share {{title}}{% endtrans %}</h1>
+        <h2 class="my-0">{{profile.printable_name}}</h2>
+      </div>
+    </div>
     <div class="row">
       <div class="col-md-8">
         {% if not sample.is_frozen %}
-        <div class="alert alert-warning">
+        <div class="alert alert-warning mt-4">
           <div>
-<strong>{% trans %}This assessment is a work in progress.{% endtrans %}</strong>
+<strong>{% trans %}This report is a work in progress.{% endtrans %}</strong>
 {% trans %}You first need to mark it complete before it can be shared.{% endtrans %}
           </div>
         </div>
@@ -329,14 +341,13 @@ Thank you.
                     </form>
                   </div>
                 </portfolios-grant-list>
-              </div>{# /.grants #}
-
+              </div>{# /#grants #}
+              {% endif %}{# /if sample.is_frozen #}
             </div>
           </scorecard-requests>
         </div>
 
       </div>{# /.col-md-8 #}
-      {% endif %}
     </div>
   </div>
 </div>

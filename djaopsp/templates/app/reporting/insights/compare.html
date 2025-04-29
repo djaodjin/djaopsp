@@ -22,8 +22,10 @@
           <form id="individual-account-search" class="mt-4"
                 @submit.prevent="validate()">
             <fieldset :disabled="disabled">
-              <account-typeahead inline-template ref="account"
-                                 v-on:selectitem="selectAccount">
+              <account-typeahead id="profile-query"
+                                 inline-template ref="account"
+                                 v-on:selectitem="selectAccount"
+                                 v-on:typeaheadreset="resetAccount">
                 <div class="input-group mb-3">
                   <span class="input-group-text">
                     <i class="fa fa-spinner fa-spin" v-if="loading"></i>
@@ -34,6 +36,7 @@
                   </span>
                   <input class="form-control"
                          type="text"
+                         name="profileQuery"
                          placeholder="{% trans %}Enter profile name{% endtrans %}"
                          autocomplete="off"
                          v-model="query"
@@ -42,6 +45,12 @@
                          @keydown.enter.prevent="hit"
                          @blur="clear"
                          @input="update"></input>
+                  <button  class="input-group-text"
+                           role="button" href="#"
+                           aria-haspopup="true" aria-expanded="false"
+                           @click.prevent="reload">
+                      <i class="fa fa-caret-down"></i>
+                  </button>
                   {# Implementation note: If we use `d-block` instead of    #}
                   {# `style="display: block;"` the dropdown shows even when #}
                   {# `hasItems` is `False`.                                 #}
@@ -64,8 +73,9 @@
                       {% trans %}Pick a response{% endtrans %}
                   </label>
                   <select class="form-control form-select"
+                          name="sample"
                           v-model="selectedSample">
-                      <option :value="rank" v-for="(sample, rank) in samples">[[sample.title]]</option>
+                      <option :value="rank" v-for="(sample, rank) in samples">[[sample.title + " " + sample.campaign.title]]</option>
                   </select>
                   <div class="form-actions mt-2"
                        v-show="selectedSample >= 0">

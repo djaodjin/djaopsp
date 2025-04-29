@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 """
 This file contains helper functions that are used accross the project
@@ -12,6 +12,7 @@ from collections import OrderedDict
 from importlib import import_module
 
 from deployutils.crypt import JSONEncoder
+from deployutils.apps.django.mixins.base import _get_accessible_plans
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -215,6 +216,32 @@ def get_alliances(account):
         settings.ALLIANCES_CALLABLE):
         return import_string(settings.ALLIANCES_CALLABLE)(account)
     return []
+
+
+def get_unlocked(request, account, candidates):
+    """
+    Returns True if account has active subscriptions to candidates plan
+    """
+    if hasattr(settings, 'UNLOCKED_CALLABLE'):
+        if isinstance(settings.UNLOCKED_CALLABLE, six.string_types):
+            try:
+                settings.UNLOCKED_CALLABLE = import_string(
+                    settings.UNLOCKED_CALLABLE)
+            except ImportError:
+                pass
+        if callable(settings.UNLOCKED_CALLABLE):
+            return settings.UNLOCKED_CALLABLE(request, account, candidates)
+
+    is_broker = False
+    site = request.session.get('site')
+    if site:
+        is_broker = bool(account.slug == site.get('slug'))
+    accessible_plans = {plan['slug']
+        for plan in _get_accessible_plans(request,
+                profile=str(account)  # if we don't convert to `str`,
+                                      # the equality will be `False`.
+        )}
+    return (is_broker or not candidates or accessible_plans & candidates)
 
 
 def get_highlights(sample):

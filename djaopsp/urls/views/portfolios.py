@@ -28,7 +28,7 @@ urlpatterns = [
     path('reporting/track/',
         DashboardRedirectView.as_view(
             breadcrumb_url='reporting_profile_accessibles'),
-        name='portfolio_analyze'),
+        name='portfolio_track'),
     path('reporting/dashboard/',
         DashboardRedirectView.as_view(
             breadcrumb_url='reporting_organization_dashboard'),

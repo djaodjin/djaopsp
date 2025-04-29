@@ -11,6 +11,7 @@ from rest_framework import generics
 
 from survey.helpers import datetime_or_now
 from survey.models import PortfolioDoubleOptIn
+from survey.utils import get_account_model
 
 from ..api.serializers import PendingRequestsFeedSerializer
 from ..compat import reverse, gettext_lazy as _
@@ -34,6 +35,13 @@ class NewsfeedAPIView(VisibilityMixin, generics.ListAPIView):
 
     @property
     def accounts(self):
+        account_model = get_account_model()
+        try:
+            account = account_model.objects.get(
+                slug=self.kwargs.get(self.account_url_kwarg))
+            return [str(account)]
+        except account_model.DoesNotExist:
+            pass
         return self.accessible_profiles
 
     def get_pending_requests(self, at_time=None):

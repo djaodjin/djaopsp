@@ -281,7 +281,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-child-and-forced-labor",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-child-and-forced-labor",
     "content": 19,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -301,7 +301,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-corruption-and-bribery",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-corruption-and-bribery",
     "content": 20,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -321,7 +321,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-discrimination",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-discrimination",
     "content": 21,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -341,7 +341,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-diversity-inclusion",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-diversity-inclusion",
     "content": 22,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -361,7 +361,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-working-hours",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-working-hours",
     "content": 23,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -381,7 +381,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-confidentiality",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-confidentiality",
     "content": 24,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -401,7 +401,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-conflicts-of-interest",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-conflicts-of-interest",
     "content": 25,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -421,7 +421,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-antitrust",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-antitrust",
     "content": 26,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -441,7 +441,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-money-laundering",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-money-laundering",
     "content": 27,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -461,7 +461,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-safety",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-safety",
     "content": 28,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -481,7 +481,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-whistleblowing",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-whistleblowing",
     "content": 29,
     "default_unit": 202,
     "ui_hint": "radio",
@@ -501,7 +501,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct-follow/employee-code-of-conduct-labor-unions",
+    "path": "/sustainability/esg-strategy-heading/governance-policies/employee-code-of-conduct/employee-code-of-conduct-labor-unions",
     "content": 30,
     "default_unit": 202,
     "ui_hint": "radio",

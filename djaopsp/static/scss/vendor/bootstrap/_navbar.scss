@@ -103,7 +103,8 @@
   .nav-link {
     &.active,
     &.show {
-      color: var(--#{$prefix}navbar-active-color);
+      color: $primary;
+      background-color: #fff;
     }
   }
 

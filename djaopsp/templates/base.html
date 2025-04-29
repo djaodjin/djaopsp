@@ -36,51 +36,50 @@
       <div class="dashboard-container">
         <div class="{% block dashboard_inner_container_classes %}{% endblock %}">
           {% block dashboard_nav %}
-            <div id="dashboard-navbar"
-                 class="d-print-none dashboard-nav nav-main-frnt">
-              <div class="dashboard-nav-inner-container">
-                <div class="dashboard-nav-main">
-                  <header>
-                    <nav{% block navbar_sidebar_extra %} class="navbar navbar-expand-md bg-primary"{% endblock %}>
-                      <div class="navbar-header">
-                        <div class="d-inline">
-                          <button class="me-2 sidebar-toggle btn btn-secondary"
-                              data-target="#dashboard-navbar">
-                            <div class="bar1 opened"></div>
-                            <div class="bar2 opened"></div>
-                            <div class="bar3 opened"></div>
-                          </button>
-                          <button class="me-2 sidebar-toggle btn btn-secondary"
-                            disabled data-target="#app-toolbar-left">
-                            <div class="bar1 opened"></div>
-                            <div class="bar2 opened"></div>
-                            <div class="bar3 opened"></div>
-                          </button>
-                        </div>
-                        <div class="d-inline">
-                          {% include "_navbarbrand.html" %}
-                        </div>
+          <div id="dashboard-navbar"
+               class="d-print-none dashboard-nav nav-main-frnt">
+            <div class="dashboard-nav-inner-container">
+              <div class="dashboard-nav-main">
+                <header>
+                  <nav{% block navbar_sidebar_extra %} class="navbar navbar-expand-md bg-primary"{% endblock %}>
+                    <div class="d-flex align-items-center ps-3">
+                      <div class="d-flex">
+                        <button class="me-2 sidebar-toggle btn btn-secondary"
+                                data-target="#dashboard-navbar">
+                          <div class="bar1 opened"></div>
+                          <div class="bar2 opened"></div>
+                          <div class="bar3 opened"></div>
+                        </button>
+                        {% block app_left_sidebar_toggle %}
+                        {% endblock %}
                       </div>
-                    </nav>
-                  </header>
-                  <div class="sidebar-animate dashboard-nav-color-theme">
-                    <div>
-                      <div class="dashboard-nav-menu">
-                        <div>
-                          <div class="text-end">
-                            <button class="sidebar-pin-toggle btn btn-link text-white"
-                                  data-target="#dashboard-navbar">
-                                <i class="fa"></i>
-                            </button>
-                          </div>
-                          {% block sidebar %}
-                          <hr />
-                          <ul class="nav flex-column d-md-none">
-                            {% include "_generic_navbar.html" %}
-                          </ul>
-                          {% endblock %}
-                        </div>
+                      <div class="narbar-brand-container">
+                        <a class="navbar-brand" href="{{request|site_url}}">
+                          <img class="d-inline-block" src="{{'/static/img/logo-djaodjin-darkmode-320.png'|asset}}" />
+                          <span class="d-none d-sm-inline-block"
+                                >&nbsp;&nbsp;TSP</span>
+                        </a>
                       </div>
+                    </div>
+                  </nav>
+                </header>
+                <div class="sidebar-animate dashboard-nav-color-theme">
+                  <div>
+                    <div class="sidebar-content dashboard-nav-menu">
+                      <div class="text-end">
+                        <button class="sidebar-pin-toggle btn btn-link text-white"
+                                data-target="#dashboard-navbar">
+                          <i class="fa"></i>
+                        </button>
+                      </div>
+
+                      {% block sidebar %}
+                      <ul class="nav flex-column d-md-none">
+                        <hr />
+                        {% include "_generic_navbar.html" %}
+                      </ul>
+                      {% endblock %}
+                    </div>
 
                     <!-- Start Dashboard Footer -->
                     {% block dashboard_footer %}
@@ -90,31 +89,31 @@
                         <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
                       </div>
                       <div>
-                        {% trans %}Powered by &copy; 2025 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
+{% trans %}Powered by &copy; 2025 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
                       </div>
                       {# Theme color mode selection #}
                       <ul class="nav flex-column py-1" data-intro="Color mode" data-position="right">
                         <li class="nav-item dropup">
                           <a id="color-mode" class="nav-link dropdown-toggle" href="#" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
-                              <span class="fa fa-paint-brush align-middle"></span>
-                              {% trans %}Color mode{% endtrans %}
-                              <span class="caret"></span>
+                            <span class="fa fa-paint-brush align-middle"></span>
+                            {% trans %}Color mode{% endtrans %}
+                            <span class="caret"></span>
                           </a>
                           <ul class="dropdown-menu" role="menu">
                             <li role="presentation">
                               <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                                  {% trans %}Light{% endtrans %}
+                                {% trans %}Light{% endtrans %}
                               </button>
                             </li>
                             <li role="presentation">
                               <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                                  {% trans %}Dark{% endtrans %}
+                                {% trans %}Dark{% endtrans %}
                               </button>
                             </li>
                             <li role="presentation">
-                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="false">
-                                    {% trans %}Auto{% endtrans %}
-                                </button>
+                              <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="false">
+                                {% trans %}Auto{% endtrans %}
+                              </button>
                             </li>
                           </ul>
                         </li>
@@ -122,11 +121,12 @@
                     </div>
                     {% endblock %}
                     <!-- End Dashboard Footer -->
-                    </div>
-                  </div>{# /.sidebar-animate #}
-                </div>{# /.dashboard-nav-main #}
-              </div><!-- /.dashboard-nav-inner-container -->
-            </div>
+                  </div>
+                </div>{# /.sidebar-animate #}
+              </div>{# /.dashboard-nav-main #}
+
+            </div>{# /.dashboard-nav-inner-container #}
+          </div>{# /.dashboard-nav #}
           {% endblock %}
 
           <div class="dashboard-content">
@@ -134,32 +134,31 @@
               {% block body_top_template %}{% endblock %}
               <nav{% block navbar_expand_extra %} class="navbar navbar-expand-md bg-primary"{% endblock %}>
                 <div class="container-fluid">
+
                   <div class="d-flex">
                     <button class="me-2 sidebar-toggle sidebar-toggle-default btn btn-secondary"
-                          data-target="#dashboard-navbar">
+                            data-target="#dashboard-navbar">
                       <div class="bar1 default"></div>
                       <div class="bar2 default"></div>
                       <div class="bar3 default"></div>
                     </button>
-                    <button class="me-2 sidebar-toggle sidebar-toggle-default btn btn-secondary"
-                          data-target="#app-toolbar-left">
-                      <div class="bar1 default"></div>
-                      <div class="bar2 default"></div>
-                      <div class="bar3 default"></div>
-                    </button>
+                    {% block content_left_sidebar_toggle %}
+                    {% endblock %}
                   </div>
+
                   {% block content_navbarbrand %}
                   <div class="navbar-brand-container">
-                    {% include "_navbarbrand.html" %}
+                    <a class="navbar-brand" href="{{request|site_url}}">
+                      <img class="d-inline-block" src="{{'/static/img/logo-djaodjin-darkmode-320.png'|asset}}" />
+                      <span class="d-none d-md-inline-block" style="vertical-align:middle">&nbsp;&nbsp;TSP</span>
+                    </a>
                   </div>
                   {% endblock %}
 
-                  {% block header_navbar_large %}
+                  {% block content_generic_navbar %}
                   <div class="navbar-collapse collapse navbar-end justify-content-end">
                     <ul class="navbar-nav ms-auto mt-lg-0">
-                      {% block header_generic_large %}
                       {% include "_generic_navbar.html" %}
-                      {% endblock %}
                     </ul>
                   </div>
                   <div id="userMenubarItem" data-dj-menubar-user-item>

@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -17,7 +17,7 @@ from survey.models import Answer, Campaign, Choice, Sample
 from survey.utils import get_account_model
 
 from ..compat import reverse
-from ..mixins import AccountMixin, ReportMixin, VisibilityMixin
+from ..mixins import AccountMixin, ReportMixin
 from ..scores import get_score_calculator
 from ..utils import (get_highlights, get_summary_performance,
     get_latest_active_assessments)
@@ -217,7 +217,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
         return context
 
 
-class ScorecardHistoryView(VisibilityMixin, AccountMixin, TemplateView):
+class ScorecardHistoryView(AccountMixin, TemplateView):
     """
     Profile scorecard history page
     """

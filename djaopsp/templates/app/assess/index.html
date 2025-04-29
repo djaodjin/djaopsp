@@ -114,8 +114,8 @@
               </div>
             </div> {# /table header #}
 
-            <div :class="'practice-row' + (isRequiredShown(practice) ? ' practice-required' : (isRequiredAnswered(practice) ? ' practice-required-answered' : ''))"
-                 v-for="practice in getEntries(icon.slug)"
+            <div :class="'practice-row' + (isRequiredShown(practice) ? ' practice-required' : (isRequiredAnswered(practice) ? ' practice-required-answered' : '')) + (isCascadedVisible(practice) ? ' d-block' : ' d-none')"
+                 v-for="(practice, idx) in getEntries(icon.slug)"
                  v-show="itemsLoaded && items.results.length">
               {% include "app/assess/_assess_row.html" %}
             </div>

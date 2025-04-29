@@ -108,10 +108,6 @@ Vue.component('campaign-questions-list', {
                 });
             });
         },
-        appToolbarLinkClicked: function() {
-            // XXX only if not pinned
-            toggleSidebar("#app-toolbar-left");
-        },
         getPracticeId: function(practice, prefix) {
             // We define this method almost identically
             // in `'campaign-questions-list'` and `'scorecard'`.
@@ -584,6 +580,9 @@ Vue.component('campaign-questions-list', {
                     practice.opportunity = resp.question.opportunity;
                 }
             });
+            if( vm.openCascadeAutomatically(practice, newValue) ) {
+                vm.toggleCascadeVisible(practice);
+            }
         },
         toggleNotDisclosedPublicly: function(row) {
             this.updateAssessmentAnswer(row, {
@@ -1025,15 +1024,6 @@ Vue.component('scorecard', {
         isAssessmentUnit: function(row) {
             return this.isEnumUnit(row) && row.default_unit.slug === 'assessment';
         },
-        isFreetextUnit: function(row) {
-            var vm = this;
-            return vm.isPractice(row) &&
-                row.default_unit && row.default_unit.slug === 'freetext';
-        },
-        isDatetimeUnit: function(row) {
-            var vm = this;
-            return vm.isPractice(row) && (row.default_unit.system === 'datetime');
-        },
         isNumberUnit: function(row) {
             var vm = this;
             return !(vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
@@ -1044,6 +1034,7 @@ Vue.component('scorecard', {
                 row.default_unit.system === 'imperial' ||
                 row.default_unit.system === 'rank');
         },
+
         freezeAssessment: function($event) {
             var vm = this;
             vm.freezeAssessmentDisabled = true;

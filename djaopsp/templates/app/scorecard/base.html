@@ -1,5 +1,25 @@
 {% extends "app/base.html" %}
 
+{% block app_left_sidebar_toggle %}
+<button class="me-2 sidebar-toggle btn btn-secondary"
+        disabled data-target="#app-toolbar-left">
+  <div class="bar1 opened"></div>
+  <div class="bar2 opened"></div>
+  <div class="bar3 opened"></div>
+</button>
+{% endblock %}
+
+
+{% block content_left_sidebar_toggle %}
+  <button class="me-2 sidebar-toggle btn btn-secondary sidebar-toggle-default"
+          data-target="#app-toolbar-left">
+    <div class="bar1 opened"></div>
+    <div class="bar2 opened"></div>
+    <div class="bar3 opened"></div>
+  </button>
+{% endblock %}
+
+
 {% block app_content %}
   {% block scorecard_content %}
   {% endblock %}

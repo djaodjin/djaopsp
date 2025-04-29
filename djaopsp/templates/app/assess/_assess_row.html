@@ -1,6 +1,15 @@
 <div :id="getPracticeId(practice)" :class="'row ' + practiceStyle(practice)">
   <div :class="(isPractice(practice) || isEnumHeaderShown(icon)) ? 'col-md-6' : 'col-md-12'">
     <div :class="indentHeader(practice)">
+      <span :class="isCascadeVisible(practice) ? 'dropdown' : 'dropend'"
+           v-if="practice.isCascade">
+        <button class="btn btn-link dropdown-toggle"
+              @click.prevent="toggleCascadeVisible(practice)">
+        </button>
+      </span>
+      <span class="d-inline-block" style="width:30px !important;"
+           v-if="!practice.isCascade">
+      </span>
       <span class="title"
             v-if="!isPractice(practice) && !isPagebreak(practice)">
         [[practice.title]]

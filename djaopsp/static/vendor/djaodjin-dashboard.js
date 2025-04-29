@@ -30,8 +30,19 @@
 function toggleSidebar(fullSidebarId, opened) {
     var fullSidebar = $(fullSidebarId);
     if( fullSidebar.length > 0 ) {
+        // If the sidebar is pinned, we prevent triggering the toggle.
+        var pinButton = fullSidebar.find(".sidebar-pin-toggle > .fa");
+        if( pinButton.length > 0 ) {
+            const beforeContent = window.getComputedStyle(
+                pinButton[0], '::before').content;
+            if( beforeContent === '"\uf127"' ) {
+                // matches `.sidebar-pin-toggle > .fa:before` content
+                return;
+            }
+        }
+
         var animatedSidebar = fullSidebar.find('.sidebar-animate');
-        var buttons = $(`[data-target="${fullSidebarId}"].sidebar-toggle`);
+        var openToggles = $(`[data-target="${fullSidebarId}"].sidebar-toggle`);
         if( typeof opened == 'undefined' ) {
             opened = (fullSidebar.css('display') == 'none');
         }
@@ -44,19 +55,39 @@ function toggleSidebar(fullSidebarId, opened) {
                     animatedSidebar.animate({left: 0}, function(){
                         // `style="display: block, left: 0"` is compatible
                         // with a resize of the window.
-                        buttons.children().removeClass(
+                        openToggles.children().removeClass(
                             'default').addClass('opened');
-                        buttons.prev().show();
+                        openToggles.prev().each(function() {
+                            const targetPane = $(this).data('target');
+                            const menuBlocks = $(targetPane).find(
+                                ".sidebar-content>ul");
+                            for( var idx = 0; idx < menuBlocks.length; ++idx ) {
+                                if( $(menuBlocks[idx]).css('display') != 'none' ) {
+                                    $(this).show();
+                                    break;
+                                }
+                            }
+                        });
                     });
                 } else {
                     fullSidebar.show();
-                    buttons.children().removeClass(
+                    openToggles.children().removeClass(
                         'default').addClass('opened');
-                    buttons.prev().show();
+                    openToggles.prev().each(function() {
+                            const targetPane = $(this).data('target');
+                            const menuBlocks = $(targetPane).find(
+                                ".sidebar-content>ul");
+                            for( var idx = 0; idx < menuBlocks.length; ++idx ) {
+                                if( $(menuBlocks[idx]).css('display') != 'none' ) {
+                                    $(this).show();
+                                    break;
+                                }
+                            }
+                    });
                 }
             }
         } else {
-            var prevButton = buttons.prev();
+            var prevButton = openToggles.prev();
             const prevSidebarId = prevButton.data('target');
             toggleSidebar(prevSidebarId, false);
             togglePinSidebar(fullSidebarId, false);
@@ -69,13 +100,13 @@ function toggleSidebar(fullSidebarId, opened) {
                         // in the style attribute.
                         $(this).attr('style', '');
                         fullSidebar.hide();
-                        buttons.children().removeClass(
+                        openToggles.children().removeClass(
                             'default').removeClass('opened');
                         prevButton.hide();
                     });
                 } else {
                     fullSidebar.hide();
-                    buttons.children().removeClass(
+                    openToggles.children().removeClass(
                         'default').removeClass('opened');
                     prevButton.hide();
                 }
@@ -100,7 +131,7 @@ function togglePinSidebar(fullSidebarId, pinned) {
             pinned = !(parseInt(sidebarParent.css('left')) >= 0);
         }
         var openToggles = $(document).find(
-            '.sidebar-toggle[data-target="' + fullSidebarId + '"]');
+            `[data-target="${fullSidebarId}"].sidebar-toggle`);
         openToggles.removeClass('sidebar-toggle-default');
         if( pinned ) {
             if( fullSidebar.css('display') == 'none' ) {
@@ -115,7 +146,15 @@ function togglePinSidebar(fullSidebarId, pinned) {
             } else {
                 openToggles.children().addClass('opened')
             }
-            openToggles.show();
+            openToggles.each(function() {
+                var menuBlocks = fullSidebar.find(".sidebar-content>ul");
+                for( var idx = 0; idx < menuBlocks.length; ++idx ) {
+                    if( $(menuBlocks[idx]).css('display') != 'none' ) {
+                        $(this).show();
+                        break;
+                    }
+                }
+            });
         }
         if( pinned ) {
             sidebarParent.removeClass(
@@ -131,10 +170,12 @@ function togglePinSidebar(fullSidebarId, pinned) {
             }
             sidebarParent.removeClass(
                 'dashboard-pane-default dashboard-pane-pinned');
-            for( let prevPinButton of $(document).find(
-                '.sidebar-pin-toggle') ) {
+            pinButtons = $(document).find('.sidebar-pin-toggle');
+            // If we are not using jQuery 3.6+, we might not be able
+            // to iterate here.
+            for( let prevPinButton of pinButtons ) {
                 const prevSidebarId = $(prevPinButton).data('target');
-                if( prevSidebarId == fullSidebarId ) break
+                if( prevSidebarId == fullSidebarId ) break;
                 togglePinSidebar(prevSidebarId, false);
             }
         }

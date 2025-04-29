@@ -1,6 +1,6 @@
 <div id="app-toolbar-left" class="d-print-none">
   <div class="sidebar-animate bg-body text-body">
-  <div class="toolbar-content">
+  <div class="sidebar-content toolbar-content">
     <div class="text-end">
       <button class="sidebar-pin-toggle btn btn-link"
               data-target="#app-toolbar-left">
@@ -20,22 +20,23 @@
       </li>
     </ul>
     {% endif %}
-    <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
-      <ul class="nav flex-column py-1">
-        <li class="nav-item"
-            v-for="tile in getEntries('', 1)">
-          <a class="nav-link" :href="'#' + getPracticeId(tile, 'results-')"
-             @click="appToolbarLinkClicked">[[tile.title]]</a>
-          <ul style="list-style:none;">
-            <li class="nav-item"
-                v-for="practice in getEntries(tile.slug, 1)">
-              <a class="nav-link" :href="'#' + getPracticeId(practice, 'results-')"
-                 @click="appToolbarLinkClicked">[[practice.title]]</a>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+    <ul class="nav flex-column py-1" v-show="itemsLoaded && items.results.length > 0" v-cloak>
+      <li class="nav-item"
+          v-for="tile in getEntries('', 1)">
+        <a class="nav-link" :href="'#' + getPracticeId(tile, 'results-')"
+           @click="appToolbarLinkClicked">[[tile.title]]</a>
+        <ul style="list-style:none;">
+          <li class="nav-item"
+              v-for="practice in getEntries(tile.slug, 1)">
+            <a class="nav-link" :href="'#' + getPracticeId(practice, 'results-')"
+               @click="appToolbarLinkClicked">[[practice.title]]</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <ul>
+      <!-- such that `togglePinSidebar` displays the toggle button -->
+    </ul>
   </div>
 
   {# buttons #}

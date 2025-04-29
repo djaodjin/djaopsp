@@ -10,7 +10,7 @@ from pages.views.sequences import (
     SequencePageElementView as BaseSequencePageElementView)
 
 from ..compat import gettext_lazy as _, reverse
-from ..mixins import AccountMixin, SequenceProgressMixin, VisibilityMixin
+from ..mixins import AccountMixin, SequenceProgressMixin
 
 
 class SequenceProgressView(SequenceProgressMixin, BaseSequenceProgressView):
@@ -60,8 +60,7 @@ class EditablesIndexView(AccountMixin, PageElementEditableView):
         return [self.account_url_kwarg, self.path_url_kwarg]
 
 
-class EditablesDetailView(VisibilityMixin, AccountMixin,
-                          PageElementEditableView):
+class EditablesDetailView(AccountMixin, PageElementEditableView):
     """
     View to display a single editable practice details
     """

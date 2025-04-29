@@ -5,7 +5,7 @@
 // in Bootstrap3 (it is not in Bootstrap4). We redefine it here use it stick the
 // footer at the bottom of the screen when a page is less that screen height.
 //$navbar-height: max($nav-link-height, $navbar-brand-height) + $navbar-padding-y * 2;
-$navbar-height: 59px; // previous formula missing border?
+$navbar-height: 57px; // previous formula missing border?
 
 $footer-height: 150px;
 $plan-footer-height: 70px;
@@ -2401,9 +2401,6 @@ pre.code{
     box-shadow: none;
 }
 
-.sidebar-toggle.sidebar-toggle-default[data-target="#dashboard-navbar"],
-.dashboard-pane-pinned .sidebar-toggle[data-target="#dashboard-navbar"],
-.dashboard-pane-pinned .sidebar-toggle.sidebar-toggle-default[data-target="#dashboard-navbar"],
 .dashboard-pane-pinned .sidebar-toggle[data-target="#app-toolbar-left"],
 .dashboard-pane-pinned .sidebar-toggle.sidebar-toggle-default[data-target="#app-toolbar-left"] {
       display:none;
@@ -2411,14 +2408,6 @@ pre.code{
 
 
 @include media-breakpoint-up(md) {
-
-  .sidebar-toggle.sidebar-toggle-default[data-target="#dashboard-navbar"] {
-      display: block;
-  }
-
-  .dashboard-pane-default .sidebar-toggle.sidebar-toggle-default[data-target="#dashboard-navbar"] {
-      display: none;
-  }
 
   .sidebar-toggle.sidebar-toggle-default[data-target="#app-toolbar-left"] {
       display: none;

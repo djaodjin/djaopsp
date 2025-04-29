@@ -16,5 +16,26 @@
 </td>
 
 <td v-for="dataset in datasets" v-if="isPractice(practice)">
-    [[getCompareAnswerMeasured(dataset, practice)]]
+  <div v-for="datasetPractice in [getCompareAnswers(dataset, practice)]">
+    <div v-if="isEnumUnit(practice)">
+      [[getPrimaryAnswer(datasetPractice).measured]]
+    </div>
+
+    <div v-if="isFreetextUnit(practice)">
+      [[getPrimaryAnswer(datasetPractice).measured]]
+    </div>
+
+    <div v-if="isEmployeeCountUIHint(practice)">
+      [[getPrimaryAnswer(datasetPractice).measured]]
+    </div>
+
+    <div v-if="isNumberUnit(practice)">
+      [[getPrimaryAnswer(datasetPractice).measured]]
+    </div>
+
+    <div v-if="isDatetimeUnit(practice)">
+      [[getPrimaryAnswer(datasetPractice).measured]]
+    </div>
+
+  </div>
 </td>

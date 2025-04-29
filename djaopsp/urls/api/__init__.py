@@ -18,7 +18,7 @@ urlpatterns = [
     path('attendance/<slug:profile>/', include('pages.urls.api.sequences')),
     path('progress/', include('pages.urls.api.progress')),
 
-    path('content/<slug:user>/newsfeed',
+    path('content/<slug:profile>/newsfeed', # profile can be a user
          NewsfeedAPIView.as_view(), name='api_news_feed'),
     path('content/', include('pages.urls.api.readers')),
     path('content/', include('pages.urls.api.noauth')),
