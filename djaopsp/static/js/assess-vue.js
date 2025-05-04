@@ -88,6 +88,7 @@ Vue.component('campaign-questions-list', {
                 for( var idx = 0; idx < resp.results.length; ++idx ) {
                     resp.results[idx].path = resp.path + resp.results[idx].path;
                     resp.results[idx].indent += 1;
+                    resp.results[idx].visible = true;
                     vm.items.results.push(resp.results[idx]);
                 }
                 for( var key in resp.units ){
