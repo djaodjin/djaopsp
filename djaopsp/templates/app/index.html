@@ -28,7 +28,7 @@
           <div class="card-footer">
             <div class="row">
               <div class="offset-md-6 col-md-6 text-end">
-                <a href="{{urls.getstarted}}" class="btn btn-primary">{% trans %}Get started{% endtrans %}</a>
+                <a id="getstarted" href="{{urls.getstarted}}" class="btn btn-primary">{% trans %}Get started{% endtrans %}</a>
               </div>
             </div>
           </div> {# /.card-footer #}
@@ -99,7 +99,7 @@ by one of your following co-worker(s):
                    v-if="assessment.share_url">{% trans created_at='[[$globals.humanizeDate(assessment.last_completed_at)]]' %}Share {{created_at}} response{% endtrans %}</a>
               </div>
               <div class="col-md-6 text-center">
-                <a :id="assessment.slug" class="btn btn-primary my-2"
+                <a :id="assessment.account + '-' + assessment.campaign.slug" class="btn btn-primary my-2"
                    :href="assessment.update_url"
                    v-if="assessment.update_url">
                   <span v-if="assessment.share_url">{% trans %}Update response{% endtrans %}</span>

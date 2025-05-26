@@ -15,7 +15,7 @@ from django.views.generic.base import TemplateView
 from survey.models import Answer
 
 from ..compat import is_authenticated, reverse
-from ..mixins import AccountMixin
+from ..mixins import AccountMixin, VisibilityMixin
 from ..utils import (get_latest_active_assessments,
     get_latest_completed_assessment)
 from .assess import AssessRedirectView
@@ -24,7 +24,7 @@ from .assess import AssessRedirectView
 LOGGER = logging.getLogger(__name__)
 
 
-class AppView(TemplateView):
+class AppView(VisibilityMixin, TemplateView):
     """
     Homepage for a user when no profile is specified in the URL path
     """
@@ -41,8 +41,21 @@ class AppView(TemplateView):
 
             'getstarted': reverse('getstarted'),
         })
-        print("XXX FEATURES_DEBUG=%s" % str(settings.FEATURES_DEBUG))
+        if 'practices_index' not in context.get('urls', {}):
+            update_context_urls(context, {
+                'practices_index': reverse('pages_index'),
+            })
         return context
+
+    def get(self, request, *args, **kwargs):
+        candidates = self.get_accessible_profiles(
+            request, self.get_redirect_roles(request))
+        count = len(candidates)
+        if count == 1:
+            return HttpResponseRedirect(
+                reverse('app_profile', args=(candidates[0]['slug'],)))
+        return super(AppView, self).get(request, *args, **kwargs)
+
 
 
 class ProfileAppView(AccountMixin, TemplateView):

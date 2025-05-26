@@ -4,7 +4,7 @@
 <span class="ps-1">{% trans %}Browse{% endtrans %}</span>
 <ul class="navbar-nav flex-column py-1" data-intro="Profile" data-position="right">
   <li class="nav-item">
-    <a id="browse-practices" class="nav-link{% if urls.practices_index and request.path.startswith(urls.practices_index) %} active{% endif %}" href="{{urls.practices_index}}">
+    <a id="browse-practices" class="nav-link{% if urls.practices_index and request.path.startswith(urls.practices_index) %} active{% endif %}" href="{% if urls.practices_index %}{{urls.practices_index}}{% endif %}">
       <span class="ps-1">{% trans %}Practices{% endtrans %}</span>
       {% if not urls.practices_index %}
       <i class="fa fa-lock"></i>
@@ -18,7 +18,7 @@
 <span class="ps-1">{% trans %}Response{% endtrans %}</span>
 <ul class="navbar-nav flex-column py-1" data-intro="Profile" data-position="right">
   <li class="nav-item">
-    <a id="scorecard-history" class="nav-link{% if request.path == urls.scorecard_history %} active{% endif %}" href="{{urls.scorecard_history}}">
+    <a id="scorecard-history" class="nav-link{% if request.path == urls.scorecard_history %} active{% endif %}" href="{% if urls.scorecard_history %}{{urls.scorecard_history}}{% endif %}">
       <span class="ps-1">{% trans %}History{% endtrans %}</span>
       {% if not urls.scorecard_history %}
       <i class="fa fa-lock"></i>
@@ -26,7 +26,7 @@
     </a>
   </li>
   <li class="nav-item">
-    <a id="energy-ghg-emissions" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'energy-ghg-emissions/')  %} active {% endif %}" href="{{urls.track_metrics}}energy-ghg-emissions/">
+    <a id="track-energy-ghg-emissions" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'energy-ghg-emissions/')  %} active {% endif %}" href="{% if urls.track_metrics %}{{urls.track_metrics}}energy-ghg-emissions/{% endif %}">
       <span class="ps-1">{% trans %}Energy &amp; GHG Emissions{% endtrans %}</span>
       {% if not urls.track_metrics %}
       <i class="fa fa-lock"></i>
@@ -35,7 +35,7 @@
 
   </li>
   <li class="nav-item">
-    <a id="waste" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'waste/') %} active{% endif %}" href="{{urls.track_metrics}}waste/">
+    <a id="track-waste" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'waste/') %} active{% endif %}" href="{% if urls.track_metrics %}{{urls.track_metrics}}waste/{% endif %}">
       <span class="ps-1">{% trans %}Waste{% endtrans %}</span>
       {% if not urls.track_metrics %}
       <i class="fa fa-lock"></i>
@@ -43,7 +43,7 @@
     </a>
   </li>
   <li class="nav-item">
-    <a id="water" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'water/') %} active{% endif %}" href="{{urls.track_metrics}}water/">
+    <a id="track-water" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'water/') %} active{% endif %}" href="{% if urls.track_metrics %}{{urls.track_metrics}}water/{% endif %}">
       <span class="ps-1">{% trans %}Water{% endtrans %}</span>
       {% if not urls.track_metrics %}
       <i class="fa fa-lock"></i>
@@ -57,7 +57,7 @@
 <span class="ps-1">{% trans %}suppliers{% endtrans %}</span>
 <ul class="navbar-nav flex-column py-1" data-intro="Dashboards" data-position="right">
   <li class="nav-item">
-    <a id="suppliers-engage" class="nav-link{% if request.path == urls.portfolio_engage %} active{% endif %}" href="{{urls.portfolio_engage}}">
+    <a id="suppliers-engage" class="nav-link{% if request.path == urls.portfolio_engage %} active{% endif %}" href="{% if urls.portfolio_engage %}{{urls.portfolio_engage}}{% endif %}">
       <span class="ps-1">{% trans %}Engage{% endtrans %}</span>
       {% if not urls.portfolio_engage %}
       <i class="fa fa-lock"></i>
@@ -66,7 +66,7 @@
   </li>
 
   <li class="nav-item">
-    <a id="suppliers-compare" class="nav-link{% if request.path == urls.compare %}  active{% endif %}" href="{{urls.compare}}">
+    <a id="suppliers-compare" class="nav-link{% if request.path == urls.compare %}  active{% endif %}" href="{% if urls.compare %}{{urls.compare}}{% endif %}">
       <span class="ps-1">{% trans %}Compare{% endtrans %}</span>
       {% if not urls.compare %}
       <i class="fa fa-lock"></i>
@@ -75,7 +75,7 @@
   </li>
 
   <li class="nav-item">
-    <a id="suppliers-analyze" class="nav-link{% if request.path == urls.analyze %} active{% endif %}" href="{{urls.analyze}}">
+    <a id="suppliers-analyze" class="nav-link{% if request.path == urls.analyze %} active{% endif %}" href="{% if urls.analyze %}{{urls.analyze}}{% endif %}">
       <span class="ps-1">{% trans %}Analyze{% endtrans %}</span>
       {% if not urls.analyze %}
       <i class="fa fa-lock"></i>
@@ -89,7 +89,7 @@
 <span class="ps-1">{% trans %}editors{% endtrans %}</span>
 <ul class="navbar-nav flex-column py-1" data-intro="Editors" data-position="right">
   <li class="nav-item">
-    <a id="edit-campaigns" class="nav-link{% if urls.survey_campaign_list and request.path.startswith(urls.survey_campaign_list) %} active{% endif %}" href="{{urls.survey_campaign_list}}">
+    <a id="edit-campaigns" class="nav-link{% if urls.survey_campaign_list and request.path.startswith(urls.survey_campaign_list) %} active{% endif %}" href="{% if urls.survey_campaign_list %}{{urls.survey_campaign_list}}{% endif %}">
       <span class="ps-1">{% trans %}Questionnaires{% endtrans %}</span>
       {% if not urls.survey_campaign_list %}
       <i class="fa fa-lock"></i>
@@ -97,7 +97,7 @@
     </a>
   </li>
   <li class="nav-item">
-    <a id="edit-practices" class="nav-link{% if urls.pages_editables_index and request.path.startswith(urls.pages_editables_index) %} active{% endif %}" href="{{urls.pages_editables_index}}">
+    <a id="edit-practices" class="nav-link{% if urls.pages_editables_index and request.path.startswith(urls.pages_editables_index) %} active{% endif %}" href="{% if urls.pages_editables_index %}{{urls.pages_editables_index}}{% endif %}">
       <span class="ps-1">{% trans %}Practices{% endtrans %}</span>
       {% if not urls.pages_editables_index %}
       <i class="fa fa-lock"></i>

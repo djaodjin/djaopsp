@@ -12,10 +12,6 @@ from deployutils.apps.django.templatetags.deployutils_prefixtags import (
     site_url)
 
 from ...views.app import AppView
-from ...views.assess import TrackMetricsView, AssessPracticesView
-from ...views.content import ContentDetailView, ContentIndexView
-from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
-    ScorecardRedirectView)
 
 
 urlpatterns = [

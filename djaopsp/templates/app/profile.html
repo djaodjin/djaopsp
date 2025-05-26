@@ -58,7 +58,7 @@ Manage invites sent to organizations, and their reporting status.
           {% if urls.portfolio_engage %}
           <div class="row">
             <div class="col-4 text-center">
-              <a id="engage-portfolios" href="{{urls.portfolio_engage}}">{% trans %}Engage{% endtrans %}</a>
+              <a id="suppliers-engage" href="{{urls.portfolio_engage}}">{% trans %}Engage{% endtrans %}</a>
             </div>
             <div class="col-4 text-center">
               <a id="track-portfolios" href="{{urls.portfolio_track}}">{% trans %}Track{% endtrans %}</a>
@@ -69,7 +69,7 @@ Manage invites sent to organizations, and their reporting status.
           </div>
           {% else %}
           <div class="col-12 text-center">
-            <strong><span class="fa fa-lock"></span> Premium content</strong>
+            <strong id="suppliers-engage"><span class="fa fa-lock"></span> Premium content</strong>
           </div>
           <p class="mt-2">
 This website is supported by organizations actively promoting best practices
@@ -124,7 +124,7 @@ Create practices and organize them in assessment campaigns.
           {% else %}
           <div class="row">
             <div class="col-12 text-center">
-              <strong><span class="fa fa-lock"></span> Premium content</strong>
+              <strong id="edit-practices"><span class="fa fa-lock"></span> Premium content</strong>
             </div>
             <p class="mt-2">
 This website is supported by professional trade organizations actively

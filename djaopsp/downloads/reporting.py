@@ -1064,22 +1064,12 @@ ORDER BY answers.path, answers.account_id
         # We overide `get_queryset` instead of `get_decorated_questions`
         # and don't pass a `prefix` to `get_answers_by_paths` such that
         # answers are colapsed by 'slug'.
-        by_paths = self.get_answers_by_paths(self.latest_assessments)
-        self._report_queries(descr="collected questions answers")
-
         if self.show_planned:
-            planned_by_paths = self.get_answers_by_paths(
-                self.latest_improvements)
-            for path, row in planned_by_paths.items():
-                by_paths_row = by_paths.get(path)
-                if row and by_paths_row:
-                    assert len(row) == len(by_paths_row)
-                    for by_paths_cell, cell in zip(by_paths_row, row):
-                        assert by_paths_cell.get('account_id') == \
-                            cell.get('account_id')
-                        by_paths_cell.update({
-                            'planned': cell.get('measured', '')})
-        self._report_queries(descr="collected planned answers")
+            by_paths = self.get_answers_by_paths(self.latest_improvements)
+            self._report_queries(descr="collected planned answers")
+        else:
+            by_paths = self.get_answers_by_paths(self.latest_assessments)
+            self._report_queries(descr="collected questions answers")
 
         for entry in questions:
             slug = entry.get('slug')
@@ -1418,13 +1408,16 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
         self.errors = []
         queryset = self.get_queryset()
         self._report_queries("built list of questions")
+
+        key = 'measured'
         if self.show_planned:
-            self.write_sheet(title="Planned", key='planned', queryset=queryset)
+            title = "Planned"
         else:
-            self.write_sheet(title="Answers", key='measured', queryset=queryset)
-            if self.show_comments:
-                self.write_sheet(title="Comments", key='comments',
-                    queryset=queryset)
+            title = "Answers"
+        self.write_sheet(title=title, key=key, queryset=queryset)
+        if self.show_comments:
+            self.write_sheet(title="Comments", key='comments',
+                queryset=queryset)
 
         if self.errors:
             LOGGER.info('\n'.join(self.errors))

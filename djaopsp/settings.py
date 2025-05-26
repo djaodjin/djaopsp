@@ -30,6 +30,8 @@ DB_PORT = 5432
 DB_USER = None
 DB_PASSWORD = None
 
+DEFAULT_FORCE_FREEZE = False
+
 update_settings(sys.modules[__name__],
     load_config(APP_NAME, 'credentials', 'site.conf', verbose=True))
 
@@ -643,6 +645,7 @@ SURVEY = {
     'ACCOUNT_URL_KWARG': 'profile',
     'BYPASS_SAMPLE_AVAILABLE': 'djaopsp.utils.is_portfolios_bypass',
     'CONTENT_MODEL': 'pages.PageElement',
+    'DEFAULT_FORCE_FREEZE': DEFAULT_FORCE_FREEZE
     # Use djaodjin-survey defaults
     # for converting answers units to question units.
 }
