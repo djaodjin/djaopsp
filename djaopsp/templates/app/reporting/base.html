@@ -65,7 +65,7 @@
               <div>
                 <img class="img-fluid" style="max-height:100px;vertical-align:top;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
                 <div class="d-inline-block ps-2">
-                  <h1 class="d-inline pb-0 my-0">{% block reporting_title %}{% endblock %}</h1>
+                  <h1 class="d-inline pb-0 my-0 text-body">{% block reporting_title %}{% endblock %}</h1>
                   {% if campaign %}
                   <h3 class="d-inline pb-0 my-0">/ {{campaign.title}}</h3>
                   {% endif %}

@@ -312,7 +312,6 @@ pre.code{
 }
 
 .content-area-container {
-  color: white;
   background: map-get($theme-colors, "primary");
   background: -webkit-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
   background:    -moz-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
@@ -320,6 +319,11 @@ pre.code{
   background:         linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
   min-height: 300px;
 }
+
+.content-area-container h1 {
+  color: white;
+}
+
 
 .no-results {
     text-align: center;

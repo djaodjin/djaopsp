@@ -13,7 +13,7 @@
         <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
       </div>
       <div class="col-sm-10 text-center text-sm-start">
-        <h1>{% trans title=campaign.title %}Share {{title}}{% endtrans %}</h1>
+        <h1 class="text-body">{% trans title=campaign.title %}Share {{title}}{% endtrans %}</h1>
         <h2 class="my-0">{{profile.printable_name}}</h2>
       </div>
     </div>
@@ -134,33 +134,8 @@
 {% trans %}You have shared a copy with the following organizations in the past. Pro-actively notify them of an updated response.{% endtrans %}
 <strong>{% trans %}No data will be shared until you click the "Send updates" button.{% endtrans %}</strong>
                     </p>
-                    <div :id="'candidate-' + (candidate.grantee.slug ? candidate.grantee.slug : candidate.grantee)"
-                      class="card mt-1 mb-2"
-                      v-for="(candidate, index) in grantCandidates">
-                      <div class="card-body">
-                        <div class="row align-items-center">
-                          <div class="col-2">
-<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(candidate.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
-                          </div>
-                          <div class="col-5">
-                            [[getAccountPrintableName(candidate.grantee)]]
-                          </div>
-                          <div class="col-5 text-end" v-show="!candidate.done">
-                            <button class="btn btn-primary"
-                              @click.prevent="submitPortfolios({grantee: {slug: candidate.grantee}, campaign: candidate.campaign})">
-                              {% trans %}Send updates{% endtrans %}
-                            </button>
-                          </div>
-                          <div class="col-5 text-end" v-show="candidate.done">
-                            <span>{% trans %}Sent{% endtrans %}</span>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="offset-2 col-10">
-                            <small v-if="candidate.last_shared_at"><em>{% trans last_shared_at='[[$globals.humanizeDate(candidate.last_shared_at)]]' %}last shared on {{last_shared_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(candidate.last_shared_at)]])</em></small>
-                          </div>
-                        </div>
-                      </div>
+                    <div v-for="(candidate, index) in grantCandidates">
+                      {% include "app/share/_grant_candidate.html" %}
                     </div>{# /.card /in grantCandidates #}
 
                     <label v-if="itemsLoaded && (items.results.length > 0 || grantCandidates.length > 0)">

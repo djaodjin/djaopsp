@@ -26,7 +26,7 @@
             <div class="tab-content">
                 <div class="panel-grey panel-cartitem over-radius bg-body text-body">
                     <div class="p-2">
-                      <h1 class="editable" data-key="title" v-cloak>{% if element %}{{element.title}}{% else %}[[item.title]]{% endif %}</h1>
+                      <h1 class="editable text-body" data-key="title" v-cloak>{% if element %}{{element.title}}{% else %}[[item.title]]{% endif %}</h1>
                       <div data-key="tags" class="editable text-end text-right">
                         {% if element.extra and element.extra.tags %}
                         {% for tag in element.extra.tags %}

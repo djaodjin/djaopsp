@@ -62,7 +62,9 @@ class ProfileAppView(AccountMixin, TemplateView):
     """
     Homepage for a profile.
     """
-    template_name = 'app/profile.html'
+    template_name = ('app/index.html' if settings.FEATURES_DEBUG
+        else 'app/profile.html')
+
 
     def get_template_names(self):
         candidates = ['app/%s.html' % self.account.slug]
@@ -71,6 +73,15 @@ class ProfileAppView(AccountMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileAppView, self).get_context_data(**kwargs)
+        update_context_urls(context, {
+            'api_accounts': site_url("/api/profile"),
+            'api_users': site_url("/api/users"),
+            'pages_index': reverse('pages_index'),
+        })
+        if 'practices_index' not in context.get('urls', {}):
+            update_context_urls(context, {
+                'practices_index': reverse('pages_index'),
+            })
         context.update({
             'latest_completed_assessment': get_latest_completed_assessment(
                 self.account),

@@ -27,7 +27,7 @@
                 <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
               </div>
               <div class="col-sm-8 text-center text-sm-start">
-                <h1 class="mt-4">{{sample.account.printable_name}}</h1>
+                <h1 class="mt-4 text-body">{{sample.account.printable_name}}</h1>
                 <h2>{{sample.campaign.title}}</h2>
               </div>
             </div>

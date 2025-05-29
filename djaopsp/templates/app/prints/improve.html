@@ -38,7 +38,7 @@
     {% endfor %}
     <hr>
     {% for item in object_list %}
-    <h1 class="bestpractice-title">{{item.title}}</h1>
+    <h2 class="bestpractice-title">{{item.title}}</h2>
     <div class="bestpractice-body">
       {% if item.text %}
       {{item.text|safe}}

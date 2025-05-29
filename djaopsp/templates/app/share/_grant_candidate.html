@@ -1,0 +1,33 @@
+<div :id="'candidate-' + (candidate.grantee.slug ? candidate.grantee.slug : candidate.grantee)"
+     class="card mt-1 mb-2">
+  <div class="card-body">
+    <div class="row align-items-center">
+      <div class="col-2">
+<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(candidate.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
+      </div>
+      <div class="col-5">
+        [[getAccountPrintableName(candidate.grantee)]]
+        <div v-if="candidate.members">
+          <span v-for="member in candidate.members">
+            <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(member) || '{{'/static/img/default-organization.png'|asset}}'" 
+          </span>
+          <a href="">{% trans %}See all...{% endtrans %}</a>
+        </div>
+      </div>
+      <div class="col-5 text-end" v-show="!candidate.done">
+        <button class="btn btn-primary"
+                @click.prevent="submitPortfolios({grantee: {slug: candidate.grantee}, campaign: candidate.campaign})">
+            {% trans %}Send updates{% endtrans %}
+        </button>
+      </div>
+      <div class="col-5 text-end" v-show="candidate.done">
+          <span>{% trans %}Sent{% endtrans %}</span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="offset-2 col-10">
+        <small v-if="candidate.last_shared_at"><em>{% trans last_shared_at='[[$globals.humanizeDate(candidate.last_shared_at)]]' %}last shared on {{last_shared_at}}{% endtrans %} ([[$globals.humanizeTimeDelta(candidate.last_shared_at)]])</em></small>
+      </div>
+    </div>
+  </div>
+</div>

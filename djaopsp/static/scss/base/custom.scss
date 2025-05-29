@@ -1167,23 +1167,6 @@ a.text-grey{
   }
 }
 
-#load {
-  color: white;
-  background: #3ca65b;
-  background: -webkit-linear-gradient(#3ca65b, white);
-  background: -o-linear-gradient(#3ca65b, white);
-  background: -moz-linear-gradient(#3ca65b, white);
-  background: linear-gradient(#3ca65b, white);
-}
-
-#load a.white,
-#load a.white:active,
-#load a.white:hover,
-#load a.white:visited {
-  color: #fff;
-  text-decoration: underline;
-}
-
 .index-users,
 .index-users a {
   color: #222;
@@ -1196,11 +1179,6 @@ a.text-grey{
 }
 
 @include media-breakpoint-up(sm) {
-
-  #load {
-    min-height: calc(100vh - 53px);
-    height: calc(100vh - 53px);
-  }
 
   .index-users,
   .index-users a {

@@ -6,8 +6,8 @@
     <div class="row">
       <div class="col-12 offset-md-3 col-md-6 my-4 py-4">
         {% if redirects %}
-        <h1 class="text-dark">Redirect to ...</h1>
-        <p class="text-dark">
+        <h1 class="text-body">Redirect to ...</h1>
+        <p>
           Please pick an assessment dashboard you wish to browse.
         </p>
         {% for redirect in redirects %}
@@ -17,7 +17,7 @@
         </div>
         {% endfor %}
         {% else %}
-        <p class="text-center text-dark">
+        <p class="text-center">
 Your organization does not have access to portfolios dashboards.
         </p>
         {% endif %}
