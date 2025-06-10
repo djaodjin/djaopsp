@@ -75,6 +75,50 @@
 },
 { "fields": {
     "date_joined": "2024-01-01T00:00:00+00:00",
+    "email": "steve+1@localhost.localdomain",
+    "first_name": "Steve",
+    "last_name": "One",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "steve1"
+  },
+  "model": "auth.User", "pk": 3
+},
+{ "fields": {
+    "date_joined": "2024-01-01T00:00:00+00:00",
+    "email": "steve+2@localhost.localdomain",
+    "first_name": "Steve",
+    "last_name": "Two",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "steve2"
+  },
+  "model": "auth.User", "pk": 4
+},
+{ "fields": {
+    "date_joined": "2024-01-01T00:00:00+00:00",
+    "email": "steve+3@localhost.localdomain",
+    "first_name": "Steve",
+    "last_name": "Three",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "steve3"
+  },
+  "model": "auth.User", "pk": 5
+},
+{ "fields": {
+    "date_joined": "2024-01-01T00:00:00+00:00",
+    "email": "steve+4@localhost.localdomain",
+    "first_name": "Steve",
+    "last_name": "Four",
+    "is_active": true,
+    "password": "pbkdf2_sha256$10000$z0MBiWn0Rlem$iZdC6uHomlE07qGK/TqfcfxNzKJtFp03c0JILF1frRc=",
+    "username": "steve4"
+  },
+  "model": "auth.User", "pk": 6
+},
+{ "fields": {
+    "date_joined": "2024-01-01T00:00:00+00:00",
     "email": "tspproject@localhost.localdomain",
     "first_name": "Steve",
     "is_active": true,
@@ -179,4 +223,30 @@
     "full_name": "S100 - Completed NotShared (Demo)"
   },
   "model" : "djaopsp.account", "pk" : 100
-}]
+},
+
+{ "fields" : {
+    "slug": "supplier-1-onboarding",
+    "full_name": "S1 - Onboarding (Test)"
+  },
+  "model" : "djaopsp.account", "pk" : 101
+},
+{ "fields" : {
+    "slug": "supplier-2-onboarding",
+    "full_name": "S2 - Onboarding (Test)"
+  },
+  "model" : "djaopsp.account", "pk" : 102
+},
+{ "fields" : {
+    "slug": "supplier-3-onboarding",
+    "full_name": "S3 - Onboarding (Test)"
+  },
+  "model" : "djaopsp.account", "pk" : 103
+},
+{ "fields" : {
+    "slug": "supplier-4-onboarding",
+    "full_name": "S4 - Onboarding (Test)"
+  },
+  "model" : "djaopsp.account", "pk" : 104
+}
+]

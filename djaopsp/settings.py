@@ -560,6 +560,63 @@ DEPLOYUTILS = {
                 'email': '%s@localhost.localdomain' % APP_NAME
             }
         },
+        # Sessions to test onboarding
+        'steve1': {
+            'username': 'steve1',
+            'last_visited': '2025-01-01T00:00:00.000Z',
+            'roles': {
+                'manager': [{
+                    'slug': 'supplier-1-onboarding',
+                    'printable_name': 'S1 - Onboarding (Test)'
+                }]},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
+        'steve2': {
+            'username': 'steve2',
+            'last_visited': '2025-01-01T00:00:00.000Z',
+            'roles': {
+                'manager': [{
+                    'slug': 'supplier-2-onboarding',
+                    'printable_name': 'S2 - Onboarding (Test)'
+                }]},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
+        'steve3': {
+            'username': 'steve3',
+            'last_visited': '2025-01-01T00:00:00.000Z',
+            'roles': {
+                'manager': [{
+                    'slug': 'supplier-3-onboarding',
+                    'printable_name': 'S3 - Onboarding (Test)'
+                }]},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
+        'steve4': {
+            'username': 'steve4',
+            'last_visited': '2025-01-01T00:00:00.000Z',
+            'roles': {
+                'manager': [{
+                    'slug': 'supplier-4-onboarding',
+                    'printable_name': 'S4 - Onboarding (Test)'
+                }]},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        }
     },
     'ALLOWED_NO_SESSION': [
         STATIC_URL,

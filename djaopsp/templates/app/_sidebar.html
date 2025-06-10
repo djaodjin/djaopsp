@@ -1,11 +1,10 @@
 {# App menu items #}
 
 {# Browse menu items #}
-<span class="ps-1">{% trans %}Browse{% endtrans %}</span>
 <ul class="navbar-nav flex-column py-1" data-intro="Profile" data-position="right">
   <li class="nav-item">
     <a id="browse-practices" class="nav-link{% if urls.practices_index and request.path.startswith(urls.practices_index) %} active{% endif %}" href="{% if urls.practices_index %}{{urls.practices_index}}{% endif %}">
-      <span class="ps-1">{% trans %}Practices{% endtrans %}</span>
+      <span class="ps-1">{% trans %}Browse Practices{% endtrans %}</span>
       {% if not urls.practices_index %}
       <i class="fa fa-lock"></i>
       {% endif %}
@@ -15,7 +14,6 @@
 <hr class="my-1" />
 
 {# Responding menu items #}
-<span class="ps-1">{% trans %}Response{% endtrans %}</span>
 <ul class="navbar-nav flex-column py-1" data-intro="Profile" data-position="right">
   <li class="nav-item">
     <a id="scorecard-history" class="nav-link{% if request.path == urls.scorecard_history %} active{% endif %}" href="{% if urls.scorecard_history %}{{urls.scorecard_history}}{% endif %}">
@@ -54,11 +52,10 @@
 <hr class="my-1" />
 
 {# Tracking reporting profiles menu items #}
-<span class="ps-1">{% trans %}suppliers{% endtrans %}</span>
 <ul class="navbar-nav flex-column py-1" data-intro="Dashboards" data-position="right">
   <li class="nav-item">
     <a id="suppliers-engage" class="nav-link{% if request.path == urls.portfolio_engage %} active{% endif %}" href="{% if urls.portfolio_engage %}{{urls.portfolio_engage}}{% endif %}">
-      <span class="ps-1">{% trans %}Engage{% endtrans %}</span>
+      <span class="ps-1">{% trans %}Engage Suppliers{% endtrans %}</span>
       {% if not urls.portfolio_engage %}
       <i class="fa fa-lock"></i>
       {% endif %}
@@ -67,7 +64,7 @@
 
   <li class="nav-item">
     <a id="suppliers-compare" class="nav-link{% if request.path == urls.compare %}  active{% endif %}" href="{% if urls.compare %}{{urls.compare}}{% endif %}">
-      <span class="ps-1">{% trans %}Compare{% endtrans %}</span>
+      <span class="ps-1">{% trans %}Compare{% endtrans %} <small class="text-warning border border-warning">&nbsp;beta&nbsp;</small></span>
       {% if not urls.compare %}
       <i class="fa fa-lock"></i>
       {% endif %}
@@ -76,7 +73,7 @@
 
   <li class="nav-item">
     <a id="suppliers-analyze" class="nav-link{% if request.path == urls.analyze %} active{% endif %}" href="{% if urls.analyze %}{{urls.analyze}}{% endif %}">
-      <span class="ps-1">{% trans %}Analyze{% endtrans %}</span>
+      <span class="ps-1">{% trans %}Analyze{% endtrans %} <small class="text-warning border border-warning">&nbsp;beta&nbsp;</small></span>
       {% if not urls.analyze %}
       <i class="fa fa-lock"></i>
       {% endif %}
@@ -86,7 +83,6 @@
 <hr class="my-1" />
 
 {# Editor menu items #}
-<span class="ps-1">{% trans %}editors{% endtrans %}</span>
 <ul class="navbar-nav flex-column py-1" data-intro="Editors" data-position="right">
   <li class="nav-item">
     <a id="edit-campaigns" class="nav-link{% if urls.survey_campaign_list and request.path.startswith(urls.survey_campaign_list) %} active{% endif %}" href="{% if urls.survey_campaign_list %}{{urls.survey_campaign_list}}{% endif %}">
@@ -98,7 +94,7 @@
   </li>
   <li class="nav-item">
     <a id="edit-practices" class="nav-link{% if urls.pages_editables_index and request.path.startswith(urls.pages_editables_index) %} active{% endif %}" href="{% if urls.pages_editables_index %}{{urls.pages_editables_index}}{% endif %}">
-      <span class="ps-1">{% trans %}Practices{% endtrans %}</span>
+      <span class="ps-1">{% trans %}Content Editors{% endtrans %}</span>
       {% if not urls.pages_editables_index %}
       <i class="fa fa-lock"></i>
       {% endif %}

@@ -314,7 +314,7 @@ var practicesListMixin = {
                 !this.isUnitEquivalent(
                     practice.answers[0].unit, practice.default_unit.slug) ) {
                 practice['answers'] = [{
-                    unit: practice.default_unit.slug,
+                    unit: ( typeof practice.default_unit != 'undefined' ) ? practice.default_unit.slug : "",
                     measured: null,
                     created_at: null
                 }].concat(practice['answers']);
