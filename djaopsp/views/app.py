@@ -77,6 +77,7 @@ class ProfileAppView(AccountMixin, TemplateView):
             'api_accounts': site_url("/api/profile"),
             'api_users': site_url("/api/users"),
             'pages_index': reverse('pages_index'),
+            'getstarted': reverse('profile_getstarted', args=(self.account,)),
         })
         if 'practices_index' not in context.get('urls', {}):
             update_context_urls(context, {

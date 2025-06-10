@@ -4,7 +4,7 @@
 """
 Views URLs
 """
-from django.urls import path
+from django.urls import path, re_path
 
 from ...views.app import ProfileAppView, GetStartedProfileView
 
@@ -19,5 +19,7 @@ urlpatterns = [
     path('getstarted/',
         GetStartedProfileView.as_view(),
         name='profile_getstarted'),
-    path('', ProfileAppView.as_view(), name='app_profile'),
+    # Use a `re_path` such that clicking on subscriber in djaoapp does
+    # not result in a 404.
+    re_path('[a-zA-Z\-/]*', ProfileAppView.as_view(), name='app_profile'),
 ]

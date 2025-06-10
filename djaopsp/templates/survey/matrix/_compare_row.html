@@ -9,7 +9,7 @@
       <a class="title"
          :href="'{{urls.pages_index}}' + practice.slug + '/'"
          v-if="isPractice(practice)">
-        [[practice.title]]
+        [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
       </a>
     </div>
   </div>

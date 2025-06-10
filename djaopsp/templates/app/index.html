@@ -41,16 +41,34 @@
               <div class="col-2">
                 <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) ? getAccountPicture(assessment.account) : '{{'/static/img/default-organization.png'|asset}}'" >
               </div>
-              <div class="col-5">
+              <div class="col-10">
                 <h5>[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h5>
-                <h6>[[assessment.campaign.title]]</h6>
+                <h6>[[assessment.title]]</h6>
               </div>
             </div>
           </div>
           <div class="card-body">
-            <div v-html="$globals.md(assessment.campaign.description)" v-if="assessment.campaign.description">
+            <div class="row" v-if="assessment.picture">
+              <div class="col-4">
+                <img class="img-fluid" :src="assessment.picture" />
+              </div>
+              <div class="col-8"
+                   v-html="$globals.md(assessment.descr)">
+              </div>
             </div>
-
+            <div class="col-md-9"
+                 v-html="$globals.md(assessment.descr)"
+                 v-if="!assessment.picture">
+            </div>
+            <p v-if="assessment.last_completed_at">
+This assessment was last completed on [[$globals.humanizeDate(assessment.last_completed_at)]]
+<span v-if="assessment.respondents && assessment.respondents.length > 0">
+by one of your following co-worker(s):
+  <span v-for="user in assessment.respondents">
+    <span class="author"><a :href="'mailto:' + getAccountField(user, 'email')">[[getAccountPrintableName(user) ? getAccountPrintableName(user) : user]]</a></span>
+  </span>
+</span>.
+            </p>
             <div v-if="assessment.grantees && assessment.grantees.length > 0">
               <p v-if="assessment.ends_at">
 {% trans ends_at='[[$globals.humanizeDate(assessment.ends_at)]]' %}The following organizations would like a copy of the up-to-date response before {{ends_at}}.{% endtrans %}
@@ -80,18 +98,8 @@
                 </div>
               </decorate-profiles>
             </div>{# /assessment.grantees #}
-
-            <p v-if="assessment.last_completed_at">
-This assessment was last completed on [[$globals.humanizeDate(assessment.last_completed_at)]]
-<span v-if="assessment.respondents && assessment.respondents.length > 0">
-by one of your following co-worker(s):
-  <span v-for="user in assessment.respondents">
-    <span class="author"><a :href="'mailto:' + getAccountField(user, 'email')">[[getAccountPrintableName(user) ? getAccountPrintableName(user) : user]]</a></span>
-  </span>
-</span>.
-            </p>
           </div>{# /.card-body #}
-          <div class="card-footer">
+          <div class="card-footer" v-if="assessment.update_url">
             <div class="row">
               <div class="col-md-6 text-center">
                 <a class="btn btn-primary my-2"
@@ -99,21 +107,18 @@ by one of your following co-worker(s):
                    v-if="assessment.share_url">{% trans created_at='[[$globals.humanizeDate(assessment.last_completed_at)]]' %}Share {{created_at}} response{% endtrans %}</a>
               </div>
               <div class="col-md-6 text-center">
-                <a :id="assessment.account + '-' + assessment.campaign.slug" class="btn btn-primary my-2"
-                   :href="assessment.update_url"
-                   v-if="assessment.update_url">
-                  <span v-if="assessment.share_url">{% trans %}Update response{% endtrans %}</span>
-                  <span v-if="!assessment.share_url">{% trans %}Continue{% endtrans %}</span>
-                </a>
-                <form action="." method="post" v-if="!assessment.update_url">
+                <form :id="assessment.account + '-' + assessment.slug" :action="assessment.update_url" method="post">
                   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                  <button :id="assessment.slug"
-                          class="btn btn-primary"
+                  <button class="btn btn-primary"
                           type="submit"
                           name="campaign"
                           :value="assessment.slug"
                           role="menuitem"
-                          tabindex="-1">{% trans %}Get started{% endtrans %} &raquo;</button>
+                          tabindex="-1">
+                    <span v-if="assessment.share_url">{% trans %}Update response{% endtrans %}</span>
+                    <span v-if="!assessment.share_url && assessment.update_url && assessment.update_url.indexOf('/getstarted/') < 0">{% trans %}Continue{% endtrans %}</span>
+                    <span v-if="!assessment.share_url && assessment.update_url && assessment.update_url.indexOf('/getstarted/') >= 0">{% trans %}Get started{% endtrans %} &raquo;</span>
+                  </button>
                 </form>
               </div>
             </div>

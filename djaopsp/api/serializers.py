@@ -5,7 +5,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
-    PageElementSerializer as BasePageElementSerializer)
+    PageElementDetailSerializer as BasePageElementDetailSerializer,
+    UserNewsSerializer as UserNewsBaseSerializer)
 from survey.models import PortfolioDoubleOptIn, Sample, Unit
 from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
     AnswerSerializer, CampaignSerializer, SampleSerializer,
@@ -70,6 +71,7 @@ class ContentNodeSerializer(PRACTICE_SERIALIZER):
 
     rank = serializers.SerializerMethodField()
     required = serializers.SerializerMethodField(required=False)
+    ref_num = serializers.SerializerMethodField(required=False)
     frozen = serializers.SerializerMethodField(required=False)
 
     url = serializers.CharField(required=False)
@@ -78,7 +80,7 @@ class ContentNodeSerializer(PRACTICE_SERIALIZER):
 
     class Meta(PRACTICE_SERIALIZER.Meta):
         fields = PRACTICE_SERIALIZER.Meta.fields + (
-            'rank', 'required', 'frozen', 'url', 'segments')
+            'rank', 'required', 'ref_num', 'frozen', 'url', 'segments')
 
     @staticmethod
     def get_rank(obj):
@@ -101,6 +103,16 @@ class ContentNodeSerializer(PRACTICE_SERIALIZER):
         return False
 
     @staticmethod
+    def get_ref_num(obj):
+        if hasattr(obj, 'ref_num'):
+            return obj.ref_num
+        try:
+            return obj['ref_num']
+        except (TypeError, KeyError):
+            pass
+        return ""
+
+    @staticmethod
     def get_frozen(obj):
         if hasattr(obj, 'frozen'):
             return obj.required
@@ -111,7 +123,7 @@ class ContentNodeSerializer(PRACTICE_SERIALIZER):
         return False
 
 
-class ContentElementSerializer(BasePageElementSerializer):
+class ContentElementSerializer(BasePageElementDetailSerializer):
     """
     Serializes a PageElement extended with intrinsic values
     """
@@ -272,9 +284,11 @@ class AssessmentContentSerializer(serializers.ListSerializer):
     results = serializers.ListField(child=AssessmentNodeSerializer())
 
     class Meta(object):
-        model = BasePageElementSerializer.Meta.model
-        fields = BasePageElementSerializer.Meta.fields + ('labels', 'units',)
-        read_only_fields = BasePageElementSerializer.Meta.read_only_fields + (
+        model = BasePageElementDetailSerializer.Meta.model
+        fields = BasePageElementDetailSerializer.Meta.fields + (
+            'labels', 'units',)
+        read_only_fields = \
+            BasePageElementDetailSerializer.Meta.read_only_fields + (
             'labels', 'units',)
 
 
@@ -553,12 +567,10 @@ class RequestSerializer(NoModelSerializer):
         help_text=_("The profile that initiated the request"))
 
 
-class PendingRequestsFeedSerializer(NoModelSerializer):
-
-    account = serializers.CharField(
-        help_text=_("The profile being requested for a response"))
-    campaign = CampaignSerializer(allow_null=True,
-        help_text=_("The questionnaire a response is being requested on"))
+class UserNewsSerializer(UserNewsBaseSerializer):
+    """
+    News item for updates in `PageElement`, or pending questionnaire request
+    """
     grantees = serializers.ListSerializer(
         child=RequestSerializer(), required=False,
         help_text=_("Profiles that made the request for a response to"\
@@ -574,3 +586,9 @@ class PendingRequestsFeedSerializer(NoModelSerializer):
     respondents = serializers.ListSerializer(
         child=serializers.CharField(), required=False,
         help_text=_("Users that previously responded to the questionnaire"))
+
+    class Meta(UserNewsBaseSerializer.Meta):
+        fields = UserNewsBaseSerializer.Meta.fields + (
+            'grantees', 'ends_at', 'last_completed_at', 'share_url', 'update_url', 'respondents')
+        read_only_fields = UserNewsBaseSerializer.Meta.read_only_fields + (
+            'grantees', 'ends_at', 'last_completed_at', 'share_url', 'update_url', 'respondents')

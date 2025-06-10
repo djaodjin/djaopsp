@@ -304,10 +304,11 @@ def get_latest_completed_assessment(account, campaign=None):
         kwargs.update({'account': account})
     else:
         kwargs.update({'account__slug': str(account)})
-    return Sample.objects.filter(
+    queryset = Sample.objects.filter(
         is_frozen=True, extra__isnull=True,
         **kwargs).order_by('-created_at').select_related(
-            'campaign', 'account').first()
+            'campaign', 'account')
+    return queryset.first()
 
 
 def get_score_weight(campaign, path, default_value=1.0):

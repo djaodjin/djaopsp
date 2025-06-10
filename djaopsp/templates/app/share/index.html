@@ -131,7 +131,7 @@
                     </div>{# /pending grants #}
 
                     <p class="mt-2" v-show="grantCandidates.length > 0">
-{% trans %}You have shared a copy with the following organizations in the past. Pro-actively notify them of an updated response.{% endtrans %}
+{% trans %}You might be interested to share a copy with the following organizations. Pro-actively notify them of an updated response.{% endtrans %}
 <strong>{% trans %}No data will be shared until you click the "Send updates" button.{% endtrans %}</strong>
                     </p>
                     <div v-for="(candidate, index) in grantCandidates">
@@ -214,7 +214,7 @@ This is an opportunity to invite her/him.
                                        name="full_name" max-length="150"
                                        ref="fullName" type="text"
                                        v-model="grant.grantee.full_name"
-                                       autofocus />
+                                        />
                               </div>
                               <div class="mb-3">
                                 <label class="form-label" for="message">
@@ -311,8 +311,8 @@ Thank you.
                           <button class="btn btn-primary w-100"
                                   type="submit"
                                   v-show="showAccounts && grant.accounts.length > 0">{% trans %}Send updates{% endtrans %}</button>
-                        </div>
-                      </div>
+                        </div>{# /.card-footer #}
+                      </div>{# /.card #}
                     </form>
                   </div>
                 </portfolios-grant-list>

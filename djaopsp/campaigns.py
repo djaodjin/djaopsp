@@ -99,19 +99,20 @@ def _import_campaign_section(campaign, rows, seg_prefixes,
         row = next(rows)
         while row:
             # XXX follow on rows could be heading or practice
-            title = row[0]
+            title = row[1]
             if not title:
                 # Excel spreadsheets have a tendancy to have extraneous blank
                 # lines.
                 break
-            level_unit = row[1]
-            required = row[2]
+            level_unit = row[2]
+            required = row[3]
             if isinstance(required, str):
-                required = not(row[2] and row[2].lower() == "false")
+                required = not(row[3] and row[3].lower() == "false")
             if not required:
                 required = False
-            LOGGER.info('adding "%s" (level_unit=%s, required=%s) ...',
-                title, level_unit, required)
+            ref_num = row[0]
+            LOGGER.info('adding %s "%s" (level_unit=%s, required=%s) ...',
+                ref_num, title, level_unit, required)
             section_level = 0
             default_unit = None
             try:
@@ -133,7 +134,7 @@ def _import_campaign_section(campaign, rows, seg_prefixes,
                     seg_prefixes.pop()
                     headings.pop()
                 if section_level == 1:
-                    for idx, col in enumerate(row[3:]):
+                    for idx, col in enumerate(row[4:]):
                         if col:
                             heading = content_model.objects.get(
                                 slug=seg_prefixes[0][idx][1:])

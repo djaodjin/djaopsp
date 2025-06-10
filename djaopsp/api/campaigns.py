@@ -186,6 +186,7 @@ class CampaignContentMixin(CampaignDecorateMixin):
             'path': question.get('path'),
             'rank': question.get('enumeratedquestions__rank'),
             'required': question.get('enumeratedquestions__required'),
+            'ref_num': question.get('enumeratedquestions__ref_num'),
             'default_unit': {
                 'slug': question.get('default_unit__slug'),
                 'title': question.get('default_unit__title'),
@@ -196,6 +197,7 @@ class CampaignContentMixin(CampaignDecorateMixin):
             'extra': self._as_extra_dict(question.get('content__extra')),
         } for question in queryset.values('path',
             'enumeratedquestions__rank', 'enumeratedquestions__required',
+            'enumeratedquestions__ref_num',
             'default_unit__slug', 'default_unit__title', 'default_unit__system',
             'content__title', 'content__picture', 'content__extra').order_by(
             'enumeratedquestions__rank')]

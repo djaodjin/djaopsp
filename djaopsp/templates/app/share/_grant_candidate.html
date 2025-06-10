@@ -8,10 +8,10 @@
       <div class="col-5">
         [[getAccountPrintableName(candidate.grantee)]]
         <div v-if="candidate.members">
-          <span v-for="member in candidate.members">
-            <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(member) || '{{'/static/img/default-organization.png'|asset}}'" 
+          <span class="me-1" v-for="member in candidate.members">
+            <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(member) || '{{'/static/img/default-organization.png'|asset}}'">
           </span>
-          <a href="">{% trans %}See all...{% endtrans %}</a>
+          <small><a href="">{% trans %}See all...{% endtrans %}</a></small>
         </div>
       </div>
       <div class="col-5 text-end" v-show="!candidate.done">
