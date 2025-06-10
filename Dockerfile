@@ -1,10 +1,11 @@
-FROM python:3.10-slim-bullseye
-# As of 2023-04-21: Python 3.10.11, Debian 11.0 (Bullseye)
+FROM python:3.10-slim-bookworm
+#2025-04-15: python:3.10-slim-bookworm - Python 3.10.17, Debian 12.10 (Bookworm)
+#2023-04-21: python:3.10-slim-bullseye - Python 3.10.11, Debian 11.0 (Bullseye)
 
 LABEL org.opencontainers.image.source https://github.com/djaodjin/djaopsp
 
 # Print version info for build log
-RUN echo "Building with" `python --version` '('`which python`')' "on Debian" `cat /etc/debian_version` "(Bullseye Slim)..."
+RUN echo "Building with" `python --version` '('`which python`')' "on Debian" `cat /etc/debian_version` "..."
 
 #     Without the following line we have trouble fetching libxml2
 RUN apt-get clean all
@@ -22,7 +23,7 @@ RUN /usr/local/bin/python3 -m venv --upgrade-deps /app --system-site-packages
 #    so we don't have to rebuild a container to investigate when something
 #    goes wrong.
 RUN /app/bin/pip install cairocffi==1.7.1 coverage==6.3.2 psycopg2-binary==2.9.3 setproctitle==1.2.3
-RUN /app/bin/pip install Django==4.2.21 djangorestframework==3.14.0 djaodjin-deployutils==0.13.1 djaodjin-extended-templates==0.4.6 djaodjin-pages==0.8.3 djaodjin-survey==0.15.1 docutils==0.20.1 drf-spectacular==0.27.2 gunicorn==20.1.0 jinja2==3.1.2 html5lib==1.1 monotonic==1.6 openpyxl==3.1.2 python-pptx==0.6.21 pytz==2023.3 django-debug-toolbar==3.5.0 django-extensions==3.2.0 Faker==2.0.0 sqlparse==0.4.4
+RUN /app/bin/pip install Django==4.2.22 djangorestframework==3.15.2 djaodjin-deployutils==0.13.1 djaodjin-extended-templates==0.4.9 djaodjin-pages==0.8.4 djaodjin-survey==0.16.0 docutils==0.20.1 drf-spectacular==0.27.2 gunicorn==23.0.0 jinja2==3.1.6 html5lib==1.1 monotonic==1.6 openpyxl==3.1.5 python-pptx==0.6.21 pytz==2025.2 django-debug-toolbar==3.8.1 django-extensions==3.2.3 Faker==2.0.0 sqlparse==0.5.3
 
 #    Bundle app source
 COPY . /app/reps/djaopsp

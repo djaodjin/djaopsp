@@ -22,9 +22,9 @@ pytz==2025.2
 
 # These have C/C++ components, they can be installed through the recent wheel
 # pip feature or through the native package manager
-cairocffi==1.3.0                  # >=1.3.0 not available with Py36?
+cairocffi==1.7.1                  # >=1.3.0 not available with Py36?
 coverage==6.3.2                   # >=6.3.2 not available with Py36?
-cryptography==41.0.7              # 38.0.3 for pyOpenSSL 22.1.0 compatibility
+cryptography==43.0.1              # 38.0.3 for pyOpenSSL 22.1.0 compatibility
 psycopg2-binary==2.9.3
 setproctitle==1.2.3
 
@@ -44,7 +44,7 @@ django-debug-toolbar==5.2.0 ; python_version >= "3.9"
 # and django-extensions is installed.
 django-extensions==3.2.3          # required by Django==4.0
 Faker==2.0.0
-sqlparse==0.4.4                   # required by django-debug-toolbar
+sqlparse==0.5.3                   # required by django-debug-toolbar
                                   # without being a prerequisite
 
 # To run with API_DEBUG=1
