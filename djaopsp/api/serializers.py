@@ -579,16 +579,20 @@ class UserNewsSerializer(UserNewsBaseSerializer):
         help_text=_("Date before which the questionnaire should be answered"))
     last_completed_at = serializers.DateTimeField(required=False,
         help_text=_("Last time the questionnaire was completed"))
-    share_url = serializers.CharField(required=False, allow_blank=True,
-        help_text=_("URL to share the latest response"))
-    update_url = serializers.CharField(required=False, allow_blank=True,
-        help_text=_("URL to answer the questionnaire"))
     respondents = serializers.ListSerializer(
         child=serializers.CharField(), required=False,
         help_text=_("Users that previously responded to the questionnaire"))
+    share_url = serializers.URLField(required=False, allow_blank=True,
+        help_text=_("URL to share the latest response"))
+    update_url = serializers.URLField(required=False, allow_blank=True,
+        help_text=_("URL to answer the questionnaire"))
+    external_url = serializers.URLField(required=False, allow_blank=True,
+        help_text=_("URL to external information"))
 
     class Meta(UserNewsBaseSerializer.Meta):
         fields = UserNewsBaseSerializer.Meta.fields + (
-            'grantees', 'ends_at', 'last_completed_at', 'share_url', 'update_url', 'respondents')
+            'grantees', 'ends_at', 'last_completed_at', 'respondents',
+            'share_url', 'update_url', 'external_url')
         read_only_fields = UserNewsBaseSerializer.Meta.read_only_fields + (
-            'grantees', 'ends_at', 'last_completed_at', 'share_url', 'update_url', 'respondents')
+            'grantees', 'ends_at', 'last_completed_at', 'respondents',
+            'share_url', 'update_url', 'external_url')

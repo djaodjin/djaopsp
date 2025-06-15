@@ -12,6 +12,7 @@ Vue.component('newsfeed', {
         return {
             url: this.$urls.api_newsfeed,
             getCompleteCb: 'getCompleted',
+            logExternalRedirectUrl: this.$urls.api_log_external_redirect,
         }
     },
     methods: {
@@ -36,6 +37,20 @@ Vue.component('newsfeed', {
                 }, function() {
                     // discard errors (ex: "not found").
                 });
+            }
+        },
+        redirectToExternalUrl: function(externalUrl) {
+            var vm = this;
+            // XXX depends on jQuery / bootstrap.js
+            var dialog = $("#redirectToExternalModal.modal");
+            if( dialog && jQuery().modal ) {
+                var form = dialog.find('form');
+                form.removeAttr('onsubmit')
+                    .submit(function(event) {
+                        logExternalRedirect(event, externalUrl,
+                            vm.logExternalRedirectUrl);
+                });
+                dialog.modal("show");
             }
         },
     },

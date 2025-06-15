@@ -11,7 +11,7 @@
           <span class="me-1" v-for="member in candidate.members">
             <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(member) || '{{'/static/img/default-organization.png'|asset}}'">
           </span>
-          <small><a href="">{% trans %}See all...{% endtrans %}</a></small>
+          <small><a :href="candidate.list_members_url" target="_blank">{% trans %}See all...{% endtrans %}</a></small>
         </div>
       </div>
       <div class="col-5 text-end" v-show="!candidate.done">

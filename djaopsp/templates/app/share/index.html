@@ -138,6 +138,8 @@
                       {% include "app/share/_grant_candidate.html" %}
                     </div>{# /.card /in grantCandidates #}
 
+                    {% include "app/share/_default_grant_candidates.html" %}
+
                     <label v-if="itemsLoaded && (items.results.length > 0 || grantCandidates.length > 0)">
 {% trans %}Send a copy to an organization not listed above:{% endtrans %}
                     </label>

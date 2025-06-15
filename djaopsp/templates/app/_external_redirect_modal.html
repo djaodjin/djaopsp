@@ -1,0 +1,37 @@
+<div id="redirectToExternalModal" class="modal fade"
+     tabindex="-1" role="dialog"
+     aria-labelledby="Forward to Ad Website" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" onsubmit="">
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+      <div class="modal-header">
+        <h4 class="modal-title">About to leave TSP Website...</h4>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close">
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+You will be redirected to the product Website advertised on in the Ad
+you clicked on.
+        </p>
+        <p>
+TSP only allows products that could be relevant to environmental, social
+and governance practitioners to advertise on its Website. None-the-less
+this is not in any way an endorsement of the product advertised by TSP.
+        </p>
+        <p>
+Do you wish to be redirected to the advertised product Website?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary"
+                data-bs-dismiss="modal">No</button>
+        <button type="submit" class="btn btn-primary"
+                data-bs-dismiss="modal">Yes</button>
+      </div>
+    </form>
+  </div>
+</div>
