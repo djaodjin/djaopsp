@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 
-{% block dashboard_inner_container_classes %}{% if FEATURES_DEBUG %}dashboard-pane-default{% endif %}{% endblock %}
+{% block dashboard_inner_container_classes %}dashboard-pane-default{% endblock %}
 
 {% block sidebar %}
-{% if FEATURES_DEBUG %}
 {% include "app/_sidebar.html" %}
-{% endif %}
 <ul class="nav flex-column d-md-none">
   <hr>
   {% include "_generic_navbar.html" %}

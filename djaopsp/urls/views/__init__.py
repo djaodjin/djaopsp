@@ -25,15 +25,5 @@ urlpatterns = [
     path('app/<slug:profile>/', include('djaopsp.urls.views.portfolios')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.editors')),
     path('app/<slug:profile>/', include('djaopsp.urls.views.app')),
+    path('app/', AppView.as_view(), name='product_default_start'),
 ]
-
-if settings.DEBUG and settings.FEATURES_DEBUG:
-    urlpatterns += [
-        path('app/', AppView.as_view(), name='product_default_start'),
-    ]
-else:
-    urlpatterns += [
-        path('app/', AccountRedirectView.as_view(
-            pattern_name='app_profile', account_url_kwarg='profile'),
-            name='product_default_start'),
-    ]
