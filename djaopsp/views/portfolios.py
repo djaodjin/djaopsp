@@ -141,11 +141,6 @@ class UpdatedMenubarMixin(object):
                 'reporting_organization_dashboard', args=(
                 self.account, self.campaign)),
         })
-        if False and settings.FEATURES_DEBUG:
-            update_context_urls(context, {
-                'insights': reverse('reporting_insights_campaign', args=(
-                    self.account, self.campaign)),
-            })
         return context
 
 

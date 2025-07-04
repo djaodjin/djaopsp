@@ -62,8 +62,7 @@ class ProfileAppView(AccountMixin, TemplateView):
     """
     Homepage for a profile.
     """
-    template_name = ('app/index.html' if settings.FEATURES_DEBUG
-        else 'app/profile.html')
+    template_name = 'app/profile.html'
 
 
     def get_template_names(self):

@@ -27,7 +27,7 @@ urlpatterns = [
     path('app/<slug:profile>/', include('djaopsp.urls.views.app')),
 ]
 
-if settings.FEATURES_DEBUG:
+if settings.DEBUG and settings.FEATURES_DEBUG:
     urlpatterns += [
         path('app/', AppView.as_view(), name='product_default_start'),
     ]

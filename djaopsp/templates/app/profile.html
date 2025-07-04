@@ -1,6 +1,9 @@
-{% extends "app/base.html" %}
+{% extends "app/index.html" %}
 
 {% block app_content %}
+{% if FEATURES_DEBUG %}
+{{super()}}
+{% else %}
 <div class="container">
   <h1 class="text-center py-4">LEARN. ASSESS. IMPROVE.</h1>
   <div class="row">
@@ -139,4 +142,5 @@ please <a href="{{'/contact/'|site_url}}">contact us</a>.
     </div>
   </div>{# .row #}
 </div>{# .container #}
+{% endif %}
 {% endblock %}
