@@ -71,9 +71,7 @@ class CampaignDecorateMixin(CampaignMixin):
                     for part in parts[:-1]:
                         prefix = DB_PATH_SEP.join([prefix, part])
                         if prefix not in practices:
-                            practices[prefix] = ({
-                                'slug': part,
-                            }, OrderedDict())
+                            practices[prefix] = ({'slug': part}, OrderedDict())
                         extra = practices[prefix][0].get('extra', {})
                         segments = extra.get('segments', [])
                         extra.update({'segments': list(set(segments + [
@@ -83,35 +81,33 @@ class CampaignDecorateMixin(CampaignMixin):
                         practices = practices[prefix][1]
                     part = parts[-1]
                     prefix = DB_PATH_SEP.join([prefix, part])
+                    # We cannot blindly replace the leaf question as it might
+                    # be a cascaded question that was inserted after a question
+                    # in the cascade.
                     if prefix not in practices:
-                        if not ('title' in question and
-                                'picture' in question and
-                                'extra' in question):
-                            element = PageElement.objects.filter(
-                                slug=part).values(
-                                'title', 'picture', 'extra').first()
-                            # `rank` is aldready set in the `question` dict
-                            # as it is critical it is unique accross radio
-                            # buttons presented to the request.user.
-                            question.update({
-                                'title': element.get('title'),
-                                'picture': element.get('picture'),
-                                'extra': extra_as_internal(element),
-                            })
-                        question.update({
-                            'slug': part,
-#                            'url': reverse('campaign_practice_detail',
-#                                args=(self.account, self.campaign,
-#                                    prefix[1:] if (prefix and
-#                                    prefix.startswith('/')) else prefix))
+                        practices[prefix] = ({'slug': part}, OrderedDict())
+                    tile_key = practices[prefix][0]
+                    tile_key.update(question)
+                    if not ('title' in tile_key and
+                            'picture' in tile_key and
+                            'extra' in tile_key):
+                        element = PageElement.objects.filter(
+                            slug=part).values(
+                            'title', 'picture', 'extra').first()
+                        # `rank` is aldready set in the `question` dict
+                        # as it is critical it is unique accross radio
+                        # buttons presented to the request.user.
+                        tile_key.update({
+                            'title': element.get('title'),
+                            'picture': element.get('picture'),
+                            'extra': extra_as_internal(element),
                         })
-                        practices[prefix] = (question, OrderedDict())
-                    extra = practices[prefix][0].get('extra', {})
+                    extra = tile_key.get('extra', {})
                     segments = extra.get('segments', [])
                     extra.update({'segments': list(set(segments + [
                         segment_prefix]))})
-                    if 'extra' not in practices[prefix][0]:
-                        practices[prefix][0].update({'extra': extra})
+                    if 'extra' not in tile_key:
+                        tile_key.update({'extra': extra})
 
         # Adds 'text' summaries for top-level tiles
         summaries = PageElement.objects.filter(slug__in={val[0].get('slug')

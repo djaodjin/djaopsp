@@ -8,7 +8,7 @@ djangorestframework==3.15.2       # 3.15 requires Django>=4.2, Python>=3.8
                                   # 3.12.4 not compatible with Django4.2
 djaodjin-deployutils==0.13.1
 djaodjin-extended-templates==0.4.9
-djaodjin-pages==0.8.4
+djaodjin-pages==0.8.5
 djaodjin-survey==0.16.0
 docutils==0.20.1          # Technically only needed for schema generation but
                           # djangorestframework will import regardless.

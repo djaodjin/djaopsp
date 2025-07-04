@@ -28,6 +28,16 @@ class ContentIndexView(PageElementView):
     """
     account_url_kwarg = 'profile'
 
+    def get_context_data(self, **kwargs):
+        context = super(ContentIndexView, self).get_context_data(**kwargs)
+        update_context_urls(context, {
+            'api_accounts': site_url("/api/users"),
+            'download': reverse('pages_element_download', kwargs={
+                'path': self.kwargs.get('path')}),
+            'practices_index': reverse('pages_index'),
+        })
+        return context
+
 
 class ContentDetailView(PageElementView):
     """
@@ -42,7 +52,8 @@ class ContentDetailView(PageElementView):
         update_context_urls(context, {
             'api_accounts': site_url("/api/users"),
             'download': reverse('pages_element_download', kwargs={
-                'path': self.kwargs.get('path')})
+                'path': self.kwargs.get('path')}),
+            'practices_index': reverse('pages_index'),
         })
         return context
 

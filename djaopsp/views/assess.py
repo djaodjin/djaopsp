@@ -168,12 +168,15 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
         return sample
 
     def form_valid(self, form):
+        campaign_slug = form.cleaned_data['campaign']
         try:
-            campaign = self.campaign_candidates.get(
-                slug=form.cleaned_data['campaign'])
+            # Uses `get_campaign_candidates` because we want to find
+            # the specified campaign even if it is not searchable.
+            campaign = self.get_campaign_candidates(
+                campaign_slug=campaign_slug).get(slug=campaign_slug)
         except Campaign.DoesNotExist:
             raise Http404('No candidate campaign matches %(campaign)s.' % {
-                'campaign': form.cleaned_data['campaign']})
+                'campaign': campaign_slug})
         sample = self.create_sample(campaign)
         kwargs = {
             self.account_url_kwarg: self.account,

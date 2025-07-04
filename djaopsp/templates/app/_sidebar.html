@@ -16,7 +16,7 @@
 {# Responding menu items #}
 <ul class="navbar-nav flex-column py-1" data-intro="Profile" data-position="right">
   <li class="nav-item">
-    <a id="scorecard-history" class="nav-link{% if request.path == urls.scorecard_history %} active{% endif %}" href="{% if urls.scorecard_history %}{{urls.scorecard_history}}{% endif %}">
+    <a id="scorecard-history" class="nav-link{% if request.path == urls.scorecard_history %} active{% endif %}" {% if urls.scorecard_history %}href="{{urls.scorecard_history}}"{% endif %}>
       <span class="ps-1">{% trans %}History{% endtrans %}</span>
       {% if not urls.scorecard_history %}
       <i class="fa fa-lock"></i>
@@ -24,7 +24,7 @@
     </a>
   </li>
   <li class="nav-item">
-    <a id="track-energy-ghg-emissions" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'energy-ghg-emissions/')  %} active {% endif %}" href="{% if urls.track_metrics %}{{urls.track_metrics}}energy-ghg-emissions/{% endif %}">
+    <a id="track-energy-ghg-emissions" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'energy-ghg-emissions/')  %} active {% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}energy-ghg-emissions/"{% endif %}>
       <span class="ps-1">{% trans %}Energy &amp; GHG Emissions{% endtrans %}</span>
       {% if not urls.track_metrics %}
       <i class="fa fa-lock"></i>
@@ -33,16 +33,16 @@
 
   </li>
   <li class="nav-item">
-    <a id="track-waste" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'waste/') %} active{% endif %}" href="{% if urls.track_metrics %}{{urls.track_metrics}}waste/{% endif %}">
-      <span class="ps-1">{% trans %}Waste{% endtrans %}</span>
+    <a id="track-water" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'water/') %} active{% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}water/"{% endif %}>
+      <span class="ps-1">{% trans %}Water{% endtrans %}</span>
       {% if not urls.track_metrics %}
       <i class="fa fa-lock"></i>
       {% endif %}
     </a>
   </li>
   <li class="nav-item">
-    <a id="track-water" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'water/') %} active{% endif %}" href="{% if urls.track_metrics %}{{urls.track_metrics}}water/{% endif %}">
-      <span class="ps-1">{% trans %}Water{% endtrans %}</span>
+    <a id="track-waste" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'waste/') %} active{% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}waste/"{% endif %}>
+      <span class="ps-1">{% trans %}Waste{% endtrans %}</span>
       {% if not urls.track_metrics %}
       <i class="fa fa-lock"></i>
       {% endif %}
@@ -54,7 +54,7 @@
 {# Tracking reporting profiles menu items #}
 <ul class="navbar-nav flex-column py-1" data-intro="Dashboards" data-position="right">
   <li class="nav-item">
-    <a id="suppliers-engage" class="nav-link{% if request.path == urls.portfolio_engage %} active{% endif %}" href="{% if urls.portfolio_engage %}{{urls.portfolio_engage}}{% endif %}">
+    <a id="suppliers-engage" class="nav-link{% if request.path == urls.portfolio_engage %} active{% endif %}{% if not urls.portfolio_engage %} disabled{% endif %}" {% if urls.portfolio_engage %}href="{{urls.portfolio_engage}}"{% endif %}>
       <span class="ps-1">{% trans %}Engage Suppliers{% endtrans %}</span>
       {% if not urls.portfolio_engage %}
       <i class="fa fa-lock"></i>
@@ -63,7 +63,7 @@
   </li>
 
   <li class="nav-item">
-    <a id="suppliers-compare" class="nav-link{% if request.path == urls.compare %}  active{% endif %}" href="{% if urls.compare %}{{urls.compare}}{% endif %}">
+    <a id="suppliers-compare" class="nav-link{% if request.path == urls.compare %}  active{% endif %}{% if not urls.compare %} disabled{% endif %}" {% if urls.compare %}href="{{urls.compare}}"{% endif %}>
       <span class="ps-1">{% trans %}Compare{% endtrans %} <small class="text-warning border border-warning">&nbsp;beta&nbsp;</small></span>
       {% if not urls.compare %}
       <i class="fa fa-lock"></i>
@@ -72,7 +72,7 @@
   </li>
 
   <li class="nav-item">
-    <a id="suppliers-analyze" class="nav-link{% if request.path == urls.analyze %} active{% endif %}" href="{% if urls.analyze %}{{urls.analyze}}{% endif %}">
+    <a id="suppliers-analyze" class="nav-link{% if request.path == urls.analyze %} active{% endif %}{% if not urls.analyze %} disabled{% endif %}" {% if urls.analyze %}href="{{urls.analyze}}"{% endif %}>
       <span class="ps-1">{% trans %}Analyze{% endtrans %} <small class="text-warning border border-warning">&nbsp;beta&nbsp;</small></span>
       {% if not urls.analyze %}
       <i class="fa fa-lock"></i>
@@ -85,7 +85,7 @@
 {# Editor menu items #}
 <ul class="navbar-nav flex-column py-1" data-intro="Editors" data-position="right">
   <li class="nav-item">
-    <a id="edit-campaigns" class="nav-link{% if urls.survey_campaign_list and request.path.startswith(urls.survey_campaign_list) %} active{% endif %}" href="{% if urls.survey_campaign_list %}{{urls.survey_campaign_list}}{% endif %}">
+    <a id="edit-campaigns" class="nav-link{% if urls.survey_campaign_list and request.path.startswith(urls.survey_campaign_list) %} active{% endif %}{% if not urls.survey_campaign_list %} disabled{% endif %}" {% if urls.survey_campaign_list %}href="{{urls.survey_campaign_list}}"{% endif %}>
       <span class="ps-1">{% trans %}Questionnaires{% endtrans %}</span>
       {% if not urls.survey_campaign_list %}
       <i class="fa fa-lock"></i>
@@ -93,7 +93,7 @@
     </a>
   </li>
   <li class="nav-item">
-    <a id="edit-practices" class="nav-link{% if urls.pages_editables_index and request.path.startswith(urls.pages_editables_index) %} active{% endif %}" href="{% if urls.pages_editables_index %}{{urls.pages_editables_index}}{% endif %}">
+    <a id="edit-practices" class="nav-link{% if urls.pages_editables_index and request.path.startswith(urls.pages_editables_index) %} active{% endif %}{% if not urls.pages_editables_index %} disabled{% endif %}" {% if urls.pages_editables_index %}href="{{urls.pages_editables_index}}"{% endif %}>
       <span class="ps-1">{% trans %}Content Editors{% endtrans %}</span>
       {% if not urls.pages_editables_index %}
       <i class="fa fa-lock"></i>

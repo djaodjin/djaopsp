@@ -25,8 +25,10 @@ Vue.component('newsfeed', {
             var vm = this;
             var users = new Set();
             for( var idx = 0; idx < vm.items.results.length; ++idx ) {
-                for(let item of vm.items.results[idx].respondents) {
-                    users.add(item);
+                if( vm.items.results[idx].respondents ) {
+                    for(let item of vm.items.results[idx].respondents) {
+                        users.add(item);
+                    }
                 }
             }
             for( const key of users ) {
@@ -163,65 +165,47 @@ Vue.component('campaign-questions-list', {
             var vm = this;
             if( !row.choices_headers ) {
                 var defaultUnit = null;
-                var entries = vm.getEntries(row.slug);
-                if( entries.length === 0 ) {
-                    // We are dealing with a single practice.
-                    entries.push(row);
-                }
-                for( var idx = 0; idx < entries.length; ++idx ) {
-                    if( entries[idx].default_unit ) {
-                        if( !defaultUnit ) {
-                            defaultUnit = entries[idx].default_unit;
-                        } else if( defaultUnit.slug !==
-                                   entries[idx].default_unit.slug ) {
-                            defaultUnit = null;
-                            break;
+                if( vm.isPractice(row) ) { // i.e. `row.default_unit`
+                    // We are dealing with a practice.
+                    defaultUnit = row.default_unit;
+                    if( defaultUnit && !defaultUnit.choices ) {
+                        const defaultUnitSlug = (
+                            defaultUnit.slug || defaultUnit);
+                        if( vm.items.units &&
+                            vm.items.units[defaultUnitSlug] ) {
+                            defaultUnit = vm.items.units[defaultUnitSlug];
+                        }
+                    }
+                } else {
+                    // We are dealing with a header.
+                    const entries = vm.getEntries(row.slug);
+                    for( var idx = 0; idx < entries.length; ++idx ) {
+                        if( entries[idx].default_unit ) {
+                            if( !defaultUnit ) {
+                                defaultUnit = entries[idx].default_unit;
+                            } else if( defaultUnit.slug !==
+                                       entries[idx].default_unit.slug ) {
+                                defaultUnit = null;
+                                break;
+                            }
+                        }
+                    }
+                    if( defaultUnit ) {
+                        // When dealing with an icon we take
+                        // the generic unit choices instead of the row ones
+                        // to avoid missing `descr` in the first row.
+                        const defaultUnitSlug = (
+                            defaultUnit.slug || defaultUnit);
+                        if( vm.items.units &&
+                            vm.items.units[defaultUnitSlug] ) {
+                            defaultUnit = vm.items.units[defaultUnitSlug];
                         }
                     }
                 }
                 row.choices_headers = [];
                 if( defaultUnit && defaultUnit.choices ) {
-                    if( icon ) {
-                        var iconChoices = vm.getChoices(icon);
-                        var isIdentDescr = (iconChoices.length > 0);
-                        if( defaultUnit.choices.length ===
-                            iconChoices.length ) {
-                            for( var idx = 0; idx < defaultUnit.choices.length;
-                                 ++idx ) {
-                                if( defaultUnit.choices[idx].descr !==
-                                    iconChoices[idx].descr ) {
-                                    isIdentDescr = false;
-                                    break;
-                                }
-                            }
-                        }
-                        // using `isEnumHeaderShown(icon)` and `'d-md-none'`
-                        // to achieve the same result.
-                        if( false && isIdentDescr ) {
-                            for( var idx = 0; idx < defaultUnit.choices.length;
-                                 ++idx ) {
-                                row.choices_headers.push({
-                                    text: defaultUnit.choices[idx].text,
-                                    descr: ""
-                                });
-                            }
-                        }
-                    }
-                    if( row.choices_headers.length === 0 ) {
-                        if( entries.length > 1 ) {
-                            // We are dealing with an icon so we take
-                            // the generic unit choices instead of the row ones
-                            // to avoid missing `descr` in the first row.
-                            var defaultUnitSlug = (
-                                defaultUnit.slug || defaultUnit);
-                            if( vm.items.units &&
-                                vm.items.units[defaultUnitSlug] ) {
-                                defaultUnit = vm.items.units[defaultUnitSlug];
-                            }
-                        }
-                        row.choices_headers = defaultUnit.choices;
-                    }
-                }// if( defaultUnit && defaultUnit.choices )
+                    row.choices_headers = defaultUnit.choices;
+                }
             }
             return row.choices_headers;
         },
@@ -282,6 +266,9 @@ Vue.component('campaign-questions-list', {
         },
         isEnumHeaderShown: function(icon) {
             var vm = this;
+            if( typeof icon.choices_headers == 'undefined' ) {
+                vm.getChoices(icon);
+            }
             return icon.choices_headers && icon.choices_headers.length > 0;
         },
         isActiveCommentsShown: function(practice) {

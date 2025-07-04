@@ -45,18 +45,23 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         return account_model.objects.filter(slug__in=self.accessible_profiles)
 
     @staticmethod
-    def _get_pending_request_initial_data(account, campaign):
+    def _get_pending_request_initial_data(campaign, account=None):
         initial_data = {
-            'account': account,
             'slug': campaign.slug,
             'title': campaign.title,
             'descr': campaign.description,
             'ends_at': None,
             'last_completed_at': None,
             'share_url': None,
-            'update_url': reverse('profile_getstarted', args=(account,)),
+            'update_url': reverse('getstarted_campaign', args=(campaign,)),
             'grantees': [],
             'respondents': []}
+        if account:
+            initial_data.update({
+                'account': account,
+                'update_url': reverse('profile_getstarted_campaign', args=(
+                    account, campaign)),
+            })
         return initial_data
 
 
@@ -81,7 +86,7 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                     if not campaign in by_campaigns:
                         by_campaigns[optin.campaign] = \
                             self._get_pending_request_initial_data(
-                                account, campaign)
+                                campaign, account=account)
                     if optin.ends_at:
                         campaign_ends_at = by_campaigns[campaign]['ends_at']
                         by_campaigns[campaign]['ends_at'] = (optin.ends_at
@@ -100,7 +105,7 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                 if not sample.campaign in by_campaigns:
                     by_campaigns[sample.campaign] = \
                         self._get_pending_request_initial_data(
-                                account, sample.campaign)
+                                sample.campaign, account=account)
                 # We would use `reverse('assess_index', args=(account, sample))`
                 # if the template was not written to always make a POST request.
                 by_campaigns[sample.campaign]['update_url'] = reverse(
@@ -118,17 +123,25 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                         get_user_model().objects.filter(
                             answer__sample=sample).distinct()
 
-            if False:
-                campaign_candidates = get_campaign_candidates(
-                        accounts=self.accessible_profiles,
-                        tags=(set(['public']) | {plan['slug']
-                            for plan in self.get_accessible_plans(self.request)
-                }))
-                for campaign in campaign_candidates:
-                    if not campaign in by_campaigns:
-                        by_campaigns[campaign] = \
-                            self._get_pending_request_initial_data(
-                                account, campaign)
+            assessments += by_campaigns.values()
+
+        if not assessments:
+            # THere are no pending requests, we will add candidates
+            # so default questionnaires shows up.
+            account = None
+            if len(self.accounts) == 1:
+                account = next(iter(self.accounts))
+            by_campaigns = OrderedDict()
+            campaign_candidates = get_campaign_candidates(
+                    accounts=self.accessible_profiles,
+                    tags=(set(['public']) | {plan['slug']
+                        for plan in self.get_accessible_plans(self.request)
+            }))
+            for campaign in campaign_candidates:
+                if not campaign in by_campaigns:
+                    by_campaigns[campaign] = \
+                        self._get_pending_request_initial_data(
+                            campaign, account=account)
             assessments += by_campaigns.values()
 
         return assessments
@@ -140,4 +153,5 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         return context
 
     def get_queryset(self):
-        return list(self.get_pending_requests())# + list(self.get_updated_elements())
+        return list(self.get_pending_requests()) + list(
+            self.get_updated_elements())

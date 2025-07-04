@@ -7,9 +7,6 @@
               @click.prevent="toggleCascadeVisible(practice)">
         </button>
       </span>
-      <span class="d-inline-block" style="width:30px !important;"
-           v-if="!practice.isCascade">
-      </span>
       <span class="title"
             v-if="!isPractice(practice) && !isPagebreak(practice)">
         [[practice.title]]
@@ -477,6 +474,23 @@
       </div>
     </div>
   </div>{# /question.unit.system is 'enum' and UI hint computes to 'radio' #}
+
+  {# A straightforward datetime #}
+  <div class="col-md-6 text-center"
+       v-if="isDatetimeUnit(practice) && !isTargetByUIHint(practice)">
+    <div class="input-group">
+      <label class="font-monospace input-group-text">
+        {% trans %}At{% endtrans %}
+      </label>
+      <input class="form-control"
+             type="date"
+             v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+             :disabled="practice.frozen"
+             {% if not sample.is_frozen %}
+             @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
+             {% endif %}></input>
+    </div>
+  </div>
 
   {# Targets #}
   <div class="col-md-6 text-center"

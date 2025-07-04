@@ -51,7 +51,7 @@ def import_campaign(campaign, file_d):
     content_model = get_content_model()
     with transaction.atomic():
         # First are title of segments
-        segments = _import_campaign_segments(campaign, col_headers[3:],
+        segments = _import_campaign_segments(campaign, col_headers[4:],
             content_model=content_model)
         # follow on rows could be heading or practice
         _import_campaign_section(campaign, rows, [segments],
@@ -169,7 +169,7 @@ def _import_campaign_section(campaign, rows, seg_prefixes,
                         'rank': section_rank
                     })
                 section_rank += 1
-                for idx, col in enumerate(row[3:]):
+                for idx, col in enumerate(row[4:]):
                     if col:
                         path = DB_PATH_SEP.join(
                             [seg_prefixes[-1][idx], content.slug])
@@ -188,7 +188,8 @@ def _import_campaign_section(campaign, rows, seg_prefixes,
                             question=question,
                             defaults={
                                 'rank': rank,
-                                'required': required
+                                'required': required,
+                                'ref_num': ref_num
                             })
                         rank = rank + 1
             row = next(rows)

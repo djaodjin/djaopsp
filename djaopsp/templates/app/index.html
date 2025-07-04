@@ -102,7 +102,7 @@ by one of your following co-worker(s):
           <div class="card-footer" v-if="assessment.update_url || assessment.external_url">
             <div class="row">
               <div class="col-md-6 text-center">
-                <a class="btn btn-primary my-2"
+                <a class="btn btn-primary"
                    :href="assessment.share_url"
                    v-if="assessment.share_url">{% trans created_at='[[$globals.humanizeDate(assessment.last_completed_at)]]' %}Share {{created_at}} response{% endtrans %}</a>
               </div>

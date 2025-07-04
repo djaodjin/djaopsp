@@ -95,13 +95,8 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
         accounts.
         """
         if not hasattr(self, '_campaign_candidates'):
-            self._campaign_candidates = get_campaign_candidates(
-                accounts=self.accessible_profiles,
-                tags=(set(['public']) | {plan['slug']
-                    for plan in self.get_accessible_plans(
-                        self.request, profile=self.kwargs.get(
-                        self.account_url_kwarg))}),
-            campaign_slug=self.kwargs.get('campaign'))
+            self._campaign_candidates = self.get_campaign_candidates(
+                campaign_slug=self.kwargs.get('campaign'))
         return self._campaign_candidates
 
 
@@ -114,6 +109,27 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
     def unlock_portfolios(self):
         return get_unlocked(self.request, self.account,
             getattr(settings, 'UNLOCK_PORTFOLIOS', []))
+
+
+    def get_campaign_candidates(self, campaign_slug=None):
+        """
+        Returns a list of campaigns that a profile can answer against.
+
+        Implementation note: The query filter is using the profiles/roles
+        passed through the HTTP `request`. As a result, the candidates are
+        consistant when there is a direct relationship between the {account}
+        specified in the URL and the authenticated user.
+        Results are inconsistent for broker profile managers accessing other
+        accounts.
+        """
+        return get_campaign_candidates(
+            accounts=self.accessible_profiles,
+            tags=(set(['public']) | {plan['slug']
+                    for plan in self.get_accessible_plans(
+                        self.request, profile=self.kwargs.get(
+                        self.account_url_kwarg))}),
+            campaign_slug=campaign_slug)
+
 
     def get_context_data(self, **kwargs):
         context = super(AccountMixin, self).get_context_data(**kwargs)
