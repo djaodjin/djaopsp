@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block assess_no_questions %}
+<div v-if="getEntries('', 1).length == 0">
 <div class="container bg-body text-body">
   <h1 class="text-center pt-4 text-body">{% trans %}Improvement planning ...{% endtrans %}</h1>
   <div class="row">
@@ -31,6 +32,7 @@ an industry-specific practices segment.{% endtrans %}
       {% endif %}
     </div>
   </div>
+</div>
 </div>
 {% endblock %}
 

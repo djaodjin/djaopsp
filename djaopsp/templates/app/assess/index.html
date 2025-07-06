@@ -77,6 +77,8 @@
         </div>
 
         <div v-show="!showVsPeers">
+          {% block assess_no_questions %}
+          {% endblock %}
           <div class="tab-pane"
                :id="getPracticeId(icon)"
                v-for="icon in getEntries('', 1)">
