@@ -56,10 +56,9 @@
                    v-html="$globals.md(assessment.descr)">
               </div>
             </div>
-            <div class="col-md-9"
-                 v-html="$globals.md(assessment.descr)"
-                 v-if="!assessment.picture">
-            </div>
+            <p v-html="$globals.md(assessment.descr)"
+               v-if="!assessment.picture">
+            </p>
             <p v-if="assessment.last_completed_at">
 This assessment was last completed on [[$globals.humanizeDate(assessment.last_completed_at)]]
 <span v-if="assessment.respondents && assessment.respondents.length > 0">

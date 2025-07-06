@@ -118,6 +118,12 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
                     'survey_api_sample_benchmarks_index',
                     args=(self.account, self.sample)),
             })
+            if (not self.sample.is_frozen and
+                self.account == self.sample.account):
+                update_context_urls(context, {
+                    'invite_contributor': site_url(
+                        '/profile/%s/roles/contributor/' % str(self.account))
+                })
         # Upload supporting documents
         storage_class = get_storage_class()
         if 's3boto' in storage_class.__name__.lower():
