@@ -172,7 +172,8 @@ clean-dbs:
 # `es-check es5`. The webpack.config.js file rules loader excludes
 # `node_modules` from babel, so we install chart.js in $srcDir here.
 $(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
-	$(installFiles) $^ $(libDir)
+	$(installDirs) $(libDir)/tmp
+	$(installFiles) $^ $(libDir)/tmp
 	$(NPM) install --loglevel verbose --cache $(libDir)/.npm --tmp $(libDir)/tmp --prefix $(libDir)
 	$(installDirs) $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.min.js $(ASSETS_DIR)/vendor
