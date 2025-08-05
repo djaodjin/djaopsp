@@ -83,6 +83,7 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
             'track_metrics_index': reverse(
                 'track_metrics_index', args=(self.account,)),
             'api_profiles': site_url("/api/accounts/users"),
+            'api_units': reverse('survey_api_units'),
             'api_asset_upload_complete': self.request.build_absolute_uri(
                 reverse('pages_api_upload_asset', args=(self.account,))),
             'api_aggregate_metric_base': reverse(

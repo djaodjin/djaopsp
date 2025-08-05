@@ -540,17 +540,6 @@ var practicesListMixin = {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'energy';
         },
-        isEnumRadioUIHint: function(row) {
-            var vm = this;
-            return vm.isEnumUnit(row) && (row.ui_hint === 'radio' ||
-                row.ui_hint === 'yes-no-comments' ||
-                row.ui_hint === 'yes-comments');
-        },
-        isEnumSelectUIHint: function(row) {
-            var vm = this;
-            return vm.isEnumUnit(row) && row.ui_hint === 'select'
-                && row.default_unit.slug !== 'verifiability';
-        },
         isFreetextUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'textarea';

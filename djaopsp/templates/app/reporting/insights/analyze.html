@@ -610,43 +610,66 @@
             <div class="col-md-4 text-end">
               <div class="d-inline-block">
                 <div class="input-group mb-4">
-                  <button type="button"
-                          class="btn btn-outline-primary"
-                          @click.prevent="exportData">
-                      {% trans %}Download{% endtrans %} (.xlsx)
-                  </button>
+                  <form action="{{urls.api_benchmarks_export}}"
+                        method="post">
+                    <div v-for="(practice, practiceIdx) in getEntries(displayMetric.path)">
+                      <div v-for="(dataset, datasetIdx) in datasets">
+                        <div v-for="(benchmark, benchmarkIdx) in getBenchmarks(dataset, practice)">
+                          <div v-for="(choiceMeasured, choiceMeasuredIdx) in benchmark.values">
+                            {# XXX Will override all except the last benchmark. #}
+                            <input type="hidden" :name="'title_'+ choiceMeasuredIdx" :value="benchmark.title">
+                            <input type="hidden" :name="'unit_'+ choiceMeasuredIdx" :value="choiceMeasured[0]">
+                            <input type="hidden" :name="'measured_'+ choiceMeasuredIdx" :value="choiceMeasured[1]">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="submit"
+                            class="btn btn-outline-primary">
+                        {% trans %}Download{% endtrans %} (.xlsx)
+                    </button>
+                  </form>
                   <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="visually-hidden">Toggle Dropdown</span>
                   </button>
                   <ul class="dropdown-menu">
                     <li>
-                        <form action="{{urls.api_benchmarks_export}}"
-                              method="post">
-                          <!-- XXX use real data!!! -->
-<div v-for="practice in getEntries(displayMetric.path)">
-  <div v-for="dataset in datasets">
-    <div v-for="benchmark in getBenchmarks(dataset, practice) ">
-
-        XXX[[benchmark]]YYY
-        <div v-for="choiceMeasured in benchmark.values">
-          <input type="hidden" name="title_0" :value="benchmark.title">
-          <input type="hidden" name="unit_0" :value="choiceMeasured[0]">
-          <input type="hidden" name="measured_0" :value="choiceMeasured[1]">
-        </div>
-
-    </div>
-  </div>
-</div>
-                          <button type="submit" class="dropdown-item">
-                              {% trans %}Download{% endtrans %} (.xlsx)
-                          </button>
-                        </form>
+                      <form action="{{urls.api_benchmarks_export}}"
+                            method="post">
+                        <div v-for="(practice, practiceIdx) in getEntries(displayMetric.path)">
+                          <div v-for="(dataset, datasetIdx) in datasets">
+                            <div v-for="(benchmark, benchmarkIdx) in getBenchmarks(dataset, practice)">
+                              <div v-for="(choiceMeasured, choiceMeasuredIdx) in benchmark.values">
+                                <input type="hidden" :name="'title_'+ choiceMeasuredIdx" :value="benchmark.title">
+                                <input type="hidden" :name="'unit_'+ choiceMeasuredIdx" :value="choiceMeasured[0]">
+                                <input type="hidden" :name="'measured_'+ choiceMeasuredIdx" :value="choiceMeasured[1]">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="submit" class="dropdown-item">
+                            {% trans %}Download{% endtrans %} (.xlsx)
+                        </button>
+                      </form>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="#"
-                           @click.prevent="exportData">
+                      <form action="{{urls.api_benchmarks_export}}"
+                            method="post">
+                        <div v-for="(practice, practiceIdx) in getEntries(displayMetric.path)">
+                          <div v-for="(dataset, datasetIdx) in datasets">
+                            <div v-for="(benchmark, benchmarkIdx) in getBenchmarks(dataset, practice)">
+                              <div v-for="(choiceMeasured, choiceMeasuredIdx) in benchmark.values">
+                                <input type="hidden" :name="'title_'+ choiceMeasuredIdx" :value="benchmark.title">
+                                <input type="hidden" :name="'unit_'+ choiceMeasuredIdx" :value="choiceMeasured[0]">
+                                <input type="hidden" :name="'measured_'+ choiceMeasuredIdx" :value="choiceMeasured[1]">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="submit" class="dropdown-item" disabled>
                             {% trans %}Download{% endtrans %} (.pptx)
-                        </a>
+                        </button>
+                      </form>
                     </li>
                   </ul>
                 </div>

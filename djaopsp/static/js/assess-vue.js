@@ -276,11 +276,25 @@ Vue.component('campaign-questions-list', {
             return vm.isOpenComments && (vm.activeElement &&
                 vm.activeElement.slug === practice.slug);
         },
-        isNAICSUIHint: function(row) {
+
+        // Selects UI widget to input an enum answer based on the number
+        // of enumerated values (`choices`) in the enum unit.
+        isEnumRadioUIHint: function(row) {
             var vm = this;
-            return vm.isPractice(row) && (
-                row.default_unit && row.default_unit.slug == 'naics');
+            return vm.isEnumUnit(row) && (row.ui_hint === 'radio' ||
+                row.ui_hint === 'yes-no-comments' ||
+                row.ui_hint === 'yes-comments');
         },
+        isEnumSelectUIHint: function(row) {
+            var vm = this;
+            return vm.isEnumUnit(row) && row.ui_hint === 'select'
+                && row.default_unit.slug !== 'verifiability';
+        },
+        isEnumTypeaheadUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'typeahead';
+        },
+
         isRevenueUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'revenue'
@@ -543,6 +557,10 @@ Vue.component('campaign-questions-list', {
                 (practice.ui_hint === 'yes-comments' &&
                  newValue === this.YES) ||
                 practice.ui_hint === 'yes-no-comments';
+        },
+        updateEnumAnswer: function(newValue, practice) {
+            var vm = this;
+            vm.updateAssessmentAnswer(practice, newValue);
         },
         updateAssessmentAnswer: function(practice, newValue, tag) {
             var vm = this;

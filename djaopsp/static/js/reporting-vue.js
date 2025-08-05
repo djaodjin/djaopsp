@@ -563,7 +563,8 @@ Vue.component('djaopsp-compare-samples', {
             var vm = this;
             vm.$refs.accountsTab.click();
         },
-        exportData: function() {
+        exportData: function() { // XXX deprecate. downloading through
+                                 // direct POST requests.
             var vm = this;
             const entries = vm.getEntries(vm.displayMetric.path);
             for( var entIdx = 0; entIdx < entries.length; ++entIdx ) {

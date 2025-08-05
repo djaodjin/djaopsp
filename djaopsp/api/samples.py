@@ -145,7 +145,7 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                 campaign=self.sample.campaign,
                 extra=self.sample.extra).order_by('created_at').first()
             if latest_completed:
-                if self.sample.has_identical_answers(latest_completed):
+                if False and self.sample.has_identical_answers(latest_completed):
                     raise ValidationError({'detail': _("This sample contains"\
                     " the same answers has the previously frozen sample.")})
 

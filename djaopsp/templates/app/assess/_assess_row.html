@@ -431,19 +431,6 @@
     </div>
   </div>
 
-  {# when question.unit.system is 'enum' and UI hint computes to 'select' #}
-  <div class="col-md-6 text-center" {# default value from `getNbInputCols` #}
-       v-if="isEnumSelectUIHint(practice)">
-    <select class="form-select"
-            v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
-            @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-            :disabled="practice.frozen">
-      <option :value="null" disabled>{% trans %}Select ...{% endtrans %}</option>
-      <option :value="choice.text"
-              v-for="(choice, idx) in getChoices(practice, icon)">[[choice.descr]]</option>
-    </select>
-  </div>
-
   {# when question.unit.system is 'enum' and UI hint computes to 'radio' #}
   <div :class="'text-start text-md-center' + ' col-md-' + getNbInputCols(practice) + {% if assess_type == 'planned' %}(getPrimaryAnswer(practice).measured === choice.text ? ' green-level-4' : ''){% else %}(getPrimaryCandidate(practice).measured === choice.text ? ' candidate-answer' : ''){% endif %}"
        v-for="(choice, idx) in getChoices(practice, icon)"
@@ -474,6 +461,76 @@
       </div>
     </div>
   </div>{# /question.unit.system is 'enum' and UI hint computes to 'radio' #}
+
+  {# when question.unit.system is 'enum' and UI hint computes to 'select' #}
+  <div class="col-md-6 text-center" {# default value from `getNbInputCols` #}
+       v-if="isEnumSelectUIHint(practice)">
+    <select class="form-select"
+            v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+            @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
+            :disabled="practice.frozen">
+      <option :value="null" disabled>{% trans %}Select ...{% endtrans %}</option>
+      <option :value="choice.text"
+              v-for="(choice, idx) in getChoices(practice, icon)">[[choice.descr]]</option>
+    </select>
+  </div>
+
+  {#  when question.unit.system is 'enum' and UI hint computes to 'typeahead' #}
+  <div class="col-md-6 text-center"
+       v-if="isEnumTypeaheadUIHint(practice)">
+    <enum-choices-typeahead inline-template ref="typeahead"
+        v-bind:question="practice"
+        v-bind:value="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+        v-bind:dataset="items.results"
+        v-on:selectitem="updateEnumAnswer">
+      <div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">
+            <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+            <template v-else>
+              <i class="fa fa-search" v-show="isEmpty"></i>
+              <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+            </template>
+          </span>
+          <input class="form-control"
+                 type="text"
+                 name="user"
+                 placeholder="{% trans %}Enter keyword...{% endtrans %}"
+                 autocomplete="off"
+                 v-model="query"
+                 @keydown.down="down"
+                 @keydown.up="up"
+                 @keydown.enter.prevent="hit"
+                 @blur="clearAndForget"
+                 @input="update"
+                 ref="input"/>
+          <button  class="input-group-text"
+                   role="button" href="#"
+                   @click.prevent="resetAndReload"
+                   aria-haspopup="true"
+                   aria-expanded="false">
+            <i class="fa fa-caret-down"></i>
+          </button>
+          {# Implementation note: If we use `d-block` instead of    #}
+          {# `style="display: block;"` the dropdown shows even when #}
+          {# `hasItems` is `False`.                                 #}
+          <ul id="candidateList" :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+               style="max-height: 250px;">
+            <li v-for="(item, $item) in items" class="nav-item"
+                @mousedown="hit"
+                @mousemove="setActive($item)" v-if="item.descr">
+              <a :class="'nav-link px-3 py-2' + activeClass($item)">
+                <dl>
+                  <dt v-html="highlightQuery(item.text)"></dt>
+                  <dd v-html="highlightQuery(item.descr)"></dd>
+                </dl>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </enum-choices-typeahead>
+  </div>{# /question.unit.system is 'enum' and UI hint computes to 'typeahead'#}
 
   {# A straightforward datetime #}
   <div class="col-md-6 text-center"
