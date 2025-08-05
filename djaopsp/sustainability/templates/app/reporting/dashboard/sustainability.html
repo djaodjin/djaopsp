@@ -196,9 +196,9 @@
     <div class="col-sm-4">
       <reporting-benchmarks inline-template
                             ref="ghgEmissionsTargetScope1" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by">
         <div>
-          <h3 class="text-center">Scope 1&nbsp;<a id="download-ghg-emissions-scope1-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
+          <h3 class="text-center">Scope 1&nbsp;<a id="download-ghg-emissions-scope1-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
             <div class="card-body" v-if="!itemLoaded">
@@ -223,9 +223,9 @@
     <div class="col-sm-4">
       <reporting-benchmarks inline-template
                             ref="ghgEmissionsTargetScope2" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by">
         <div>
-          <h3 class="text-center">Scope 2&nbsp;<a id="download-ghg-emissions-scope2-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
+          <h3 class="text-center">Scope 2&nbsp;<a id="download-ghg-emissions-scope2-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
             <div class="card-body" v-if="!itemLoaded">
@@ -250,9 +250,9 @@
     <div class="col-sm-4">
       <reporting-benchmarks inline-template
                             ref="ghgEmissionsTargetScope3" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by">
         <div>
-          <h3 class="text-center">Scope 3&nbsp;<a id="download-ghg-emissions-scope3-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
+          <h3 class="text-center">Scope 3&nbsp;<a id="download-ghg-emissions-scope3-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
             <div class="card-body" v-if="!itemLoaded">
@@ -282,9 +282,9 @@
     <div class="col-sm-4">
       <reporting-benchmarks inline-template
                             ref="water-target-by" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/water-reporting/water-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/water-reporting/water-target/water-target-by">
         <div>
-          <h3 class="text-center">Water use target&nbsp;<a id="download-water-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/water-reporting/water-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
+          <h3 class="text-center">Water use target&nbsp;<a id="download-water-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/water-reporting/water-target/water-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
             <div class="card-body" v-if="!itemLoaded">
@@ -309,9 +309,9 @@
     <div class="col-sm-4">
       <reporting-benchmarks inline-template
                             ref="waste-target-by" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/waste-reporting/waste-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/waste-reporting/waste-target/waste-target-by">
         <div>
-          <h3 class="text-center">Waste reduction target&nbsp;<a id="download-waste-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/waste-reporting/waste-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
+          <h3 class="text-center">Waste reduction target&nbsp;<a id="download-waste-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/waste-reporting/waste-target/waste-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
             <div class="card-body" v-if="!itemLoaded">
@@ -336,9 +336,9 @@
     <div class="col-sm-4">
       <reporting-benchmarks inline-template
                             ref="energy-target-by" :params="params"
-                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/energy-target-by">
+                            data-url="{{urls.api_benchmarks_index}}/sustainability/environmental-reporting/ghg-emissions-reporting/energy-target/energy-target-by">
         <div>
-          <h3 class="text-center">Energy reduction target&nbsp;<a id="download-energy-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/energy-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
+          <h3 class="text-center">Energy reduction target&nbsp;<a id="download-energy-target-by" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download}}sustainability/environmental-reporting/ghg-emissions-reporting/energy-target/energy-target-by' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h3>
           <h4 class="text-center">([[params.unit == 'percentage' ? '%' : 'Nb']] of suppliers)</h4>
           <div class="p-4">
             <div class="card-body" v-if="!itemLoaded">

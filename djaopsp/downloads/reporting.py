@@ -276,10 +276,7 @@ class BenchmarkPPTXView(BenchmarkPSPMixin, FullReportPPTXView):
     def title(self):
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_title'):
-            question = get_question_model().objects.filter(
-                path=self.db_path).first()
-            if question:
-                self._title = question.title
+            self._title = self.question.title
         return self._title
 
     def get_title(self):
