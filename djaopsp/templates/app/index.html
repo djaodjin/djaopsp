@@ -34,7 +34,7 @@
           </div> {# /.card-footer #}
         </div>
       </div>
-      <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
+      <div id="newsfeed" v-show="itemsLoaded && items.results.length > 0" v-cloak>
         <div class="card mb-4" v-for="assessment in items.results">
           <div class="card-header">
             <div class="row align-items-center">
