@@ -13,9 +13,17 @@
 
     <div style="margin-left:auto;margin-right:auto;">
 
-      <div class="text-center"
+      <div class="text-center mt-4"
            v-show="!itemsLoaded">
-        <i class="fa fa-spinner fa-spin fa-2x"></i>
+        <p>
+          <i class="fa fa-spinner fa-spin fa-2x"></i>
+        </p>
+        <p>
+{% trans %}Please wait...{% endtrans %}
+        </p>
+        <small>
+{% trans %}(if loading takes forever, try to force reload the page, i.e. press Ctrl + Shift + R){% endtrans %}
+        </small>
       </div>
 
       <div class="container bg-body text-body"
