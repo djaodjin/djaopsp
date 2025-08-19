@@ -411,7 +411,8 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
         return queryset
 
 
-class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
+class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
+                               QuestionListAPIView):
     """
     Formats answers matching prefix
 
@@ -571,13 +572,16 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
         return context
 
     def list(self, request, *args, **kwargs):
+        self._start_time()
         queryset = self.filter_queryset(self.get_queryset())
 
         # Ready to serialize
         serializer = self.get_serializer_class()(
             queryset, many=True, context=self.get_serializer_context())
 
-        return self.get_paginated_response(serializer.data)
+        resp = self.get_paginated_response(serializer.data)
+        self._report_queries("AssessmentContentAPIView.list done")
+        return resp
 
     def get_paginated_response(self, data):
         if not hasattr(self, 'units'):

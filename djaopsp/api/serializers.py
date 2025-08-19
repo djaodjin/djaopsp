@@ -38,6 +38,7 @@ class PracticeSerializer(BaseNodeElementSerializer):
         model = BaseNodeElementSerializer.Meta.model
         fields = BaseNodeElementSerializer.Meta.fields + (
             'default_unit', 'score_weight')
+        extra_fields = ('title', 'picture', 'extra')
 
     def get_default_unit(self, obj):
         default_unit = None

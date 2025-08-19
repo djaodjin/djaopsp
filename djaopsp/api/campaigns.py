@@ -87,22 +87,29 @@ class CampaignDecorateMixin(CampaignMixin):
                     if prefix not in practices:
                         practices[prefix] = ({'slug': part}, OrderedDict())
                     tile_key = practices[prefix][0]
-                    tile_key.update(question)
-                    if not ('title' in tile_key and
-                            'picture' in tile_key and
-                            'extra' in tile_key):
+                    tile_key.update(question) # insert question fields
+                    extra = extra_as_internal(tile_key)
+                    extra_fields = {'title', 'picture', 'extra'}
+                    absent = False
+                    for field_name in extra_fields:
+                        absent = (field_name not in tile_key)
+                        if absent:
+                            break
+                    if absent:
                         element = PageElement.objects.filter(
                             slug=part).values(
                             'title', 'picture', 'extra').first()
-                        # `rank` is aldready set in the `question` dict
+                        # `rank` is already set in the `question` dict
                         # as it is critical it is unique accross radio
                         # buttons presented to the request.user.
-                        tile_key.update({
-                            'title': element.get('title'),
-                            'picture': element.get('picture'),
-                            'extra': extra_as_internal(element),
-                        })
-                    extra = tile_key.get('extra', {})
+                        if not extra:
+                            extra = extra_as_internal(element)
+                            tile_key.update({'extra': extra})
+                        extra_fields.remove('extra')
+                        for field_name in extra_fields:
+                            if field_name not in tile_key:
+                                tile_key.update({
+                                    field_name: element.get(field_name)})
                     segments = extra.get('segments', [])
                     extra.update({'segments': list(set(segments + [
                         segment_prefix]))})
@@ -160,12 +167,26 @@ class CampaignContentMixin(CampaignDecorateMixin):
     )
 
     @staticmethod
-    def _as_extra_dict(extra): # not using extra_as_internal because of
-                               # `content__extra`
+    def _as_extra_dict(extra, additional_extra=None):
         try:
             extra = json.loads(extra)
         except (TypeError, ValueError):
             extra = {}
+        if additional_extra:
+            try:
+                additional_extra = json.loads(extra)
+            except (TypeError, ValueError):
+                additional_extra = {}
+            for key, val in additional_extra.items():
+                if key not in extra:
+                    extra.update({key: val})
+                else:
+                    orig_val = extra.get(key)
+                    if not isinstance(orig_val, list):
+                        orig_val = [orig_val]
+                    if not isinstance(val, list):
+                        val = [val]
+                    extra.update({key: orig_val + val})
         return extra
 
     def get_decorated_questions(self, prefix=None):
@@ -190,8 +211,9 @@ class CampaignContentMixin(CampaignDecorateMixin):
             },
             'title': question.get('content__title'),
             'picture': question.get('content__picture'),
-            'extra': self._as_extra_dict(question.get('content__extra')),
-        } for question in queryset.values('path',
+            'extra': self._as_extra_dict(question.get('extra'),
+                additional_extra=question.get('content__extra')),
+        } for question in queryset.values('path', 'extra',
             'enumeratedquestions__rank', 'enumeratedquestions__required',
             'enumeratedquestions__ref_num',
             'default_unit__slug', 'default_unit__title', 'default_unit__system',
