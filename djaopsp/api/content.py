@@ -58,9 +58,13 @@ class PageElementAPIView(VisibilityMixin, PageElementBaseAPIView):
     #authentication_classes = [] # XXX permissions are handled somewhere else.
 
     def get_extra_fields(self):
+        extra_fields_select = []
         if hasattr(self.practice_serializer_class.Meta, 'extra_fields'):
-            return self.practice_serializer_class.Meta.extra_fields
-        return []
+            extra_fields = self.practice_serializer_class.Meta.extra_fields
+            if extra_fields:
+                for field in extra_fields:
+                    extra_fields_select += ['content__%s' % field]
+        return extra_fields_select
 
     def attach(self, elements):
         extra_fields = self.get_extra_fields()

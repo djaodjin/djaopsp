@@ -1598,6 +1598,11 @@ class CompletionRateMixin(DashboardAggregateMixin):
         requested_accounts = self.get_engaged_accounts(
             account, aggregate_set=aggregate_set)
         nb_requested_accounts = len(requested_accounts)
+        query_kwargs = {}
+        if self.campaign:
+            query_kwargs = {
+                'samples__campaign': self.campaign
+            }
         start_at = weekends_at[0]
         for ends_at in weekends_at[1:]:
             queryset = account_model.objects.filter(
@@ -1605,7 +1610,8 @@ class CompletionRateMixin(DashboardAggregateMixin):
                 samples__is_frozen=True,
                 samples__created_at__gte=start_at,
                 samples__created_at__lt=ends_at,
-                samples__account_id__in=requested_accounts
+                samples__account_id__in=requested_accounts,
+                **query_kwargs
             ).distinct()
             nb_frozen_samples = queryset.count()
             if self.is_percentage:
