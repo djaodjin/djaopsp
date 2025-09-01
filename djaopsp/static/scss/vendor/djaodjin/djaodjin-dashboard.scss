@@ -686,7 +686,8 @@ input::-webkit-datetime-edit {
     }
 
     .dashboard-pane-default .sidebar-toggle,
-    .dashboard-pane-default .navbar-brand-container {
+    .dashboard-pane-default .navbar-brand-container,
+    .dashboard-pane-pinned .navbar-brand-container {
         display: none;
         margin-left: 0;
     }

@@ -72,7 +72,9 @@ class CampaignDecorateMixin(CampaignMixin):
                         prefix = DB_PATH_SEP.join([prefix, part])
                         if prefix not in practices:
                             practices[prefix] = ({'slug': part}, OrderedDict())
-                        extra = practices[prefix][0].get('extra', {})
+                        extra = practices[prefix][0].get('extra')
+                        if extra is None:
+                            extra = {}
                         segments = extra.get('segments', [])
                         extra.update({'segments': list(set(segments + [
                             segment_prefix]))})

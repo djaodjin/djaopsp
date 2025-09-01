@@ -110,21 +110,28 @@ class VerifiedSample(models.Model):
     """
     STATUS_NO_REVIEW = 0
     STATUS_UNDER_REVIEW = 1
-    STATUS_REVIEW_COMPLETED = 2
-    STATUS_DISCREPANCIES = 3
-    STATUS_LACK_CONSISTENCY = 4
-    STATUS_MEET_EXPECTATIONS = 5
-    STATUS_RIGOROUS = 6
+    STATUS_FIRST_FOLLOWUP = 2
+    STATUS_SECOND_FOLLOWUP = 3
+    STATUS_ESCALATED = 4
+    STATUS_REVIEW_COMPLETED = 5 # XXX previously set to 2
+
+    STATUS_DISCREPANCIES = 6
+    STATUS_LACK_CONSISTENCY = 7
+    STATUS_MEET_EXPECTATIONS = 8
+    STATUS_RIGOROUS = 9
 
     STATUSES = [
-            (STATUS_NO_REVIEW, 'no-review'),
-            (STATUS_UNDER_REVIEW, 'under-review'),
-            (STATUS_REVIEW_COMPLETED, 'review-completed'),
-            (STATUS_DISCREPANCIES, 'discrepencies'),
-            (STATUS_LACK_CONSISTENCY, 'lack-consistency'),
-            (STATUS_MEET_EXPECTATIONS, 'meet-expectations'),
-            (STATUS_RIGOROUS, 'rigorous'),
-        ]
+        (STATUS_NO_REVIEW, 'no-review'),
+        (STATUS_UNDER_REVIEW, 'under-review'),
+        (STATUS_FIRST_FOLLOWUP, 'first-followup'),
+        (STATUS_SECOND_FOLLOWUP, 'second-followup'),
+        (STATUS_ESCALATED, 'escalated'),
+        (STATUS_REVIEW_COMPLETED, 'review-completed'),
+        (STATUS_DISCREPANCIES, 'discrepencies'),
+        (STATUS_LACK_CONSISTENCY, 'lack-consistency'),
+        (STATUS_MEET_EXPECTATIONS, 'meet-expectations'),
+        (STATUS_RIGOROUS, 'rigorous'),
+    ]
 
     sample = models.OneToOneField(Sample, on_delete=models.CASCADE,
         related_name='verified')

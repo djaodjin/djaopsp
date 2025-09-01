@@ -1692,6 +1692,10 @@ thead{
   border-top: 1px solid #111;
 }
 
+.panel-grey h1 {
+  color: var(--bs-card-color);
+}
+
 .form-btn{
   float:left;
   margin-right:10px;
