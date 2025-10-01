@@ -56,6 +56,7 @@ class DashboardRedirectView(DashboardsAvailableQuerysetMixin,
             # and verification partners.
             context = self.get_context_data(**kwargs)
             update_context_urls(context, {
+                'profile_base': site_url("/activities/accounts/"),
                 'api_accounts': site_url("/api/profile"),
                 'api_users': site_url("/api/accounts/users"),
                 'api_roles': site_url("/api/profile/%s/roles" % self.account),

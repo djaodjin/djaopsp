@@ -1,4 +1,9 @@
-<img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(entry) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(entry) || entry.account]]<br />
+{% if urls and urls.profile_base %}
+<a :href="'{{urls.profile_base}}' + entry.slug + '/'"><img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(entry) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(entry) || entry.account]]</a>
+{% else %}
+<img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(entry) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(entry) || entry.account]]
+{% endif %}
+<br />
 <small><a href="" class="btn-link" @click.prevent="toggleContacts(index)"><i class="fa fa-envelope"></i> {% trans %}Contacts{% endtrans %}</a></small>
 <div v-for="contact in entry.contacts" v-show="index === showContacts">
   <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(contact) || '{{'/static/img/default-user.png'|asset}}'"> [[getAccountPrintableName(contact.user) || contact.user.username]] &lt;[[contact.user.email]]&gt;<br />
