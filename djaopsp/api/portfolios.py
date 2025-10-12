@@ -2005,8 +2005,11 @@ class LastByCampaignAccessiblesMixin(TimersMixin, DateRangeContextMixin,
                 #pylint:disable=protected-access
                 account.extra = account._extra
             extra = {}
-            for val in account.values:
-                extra.update(extra_as_internal(val))
+            if hasattr(account, 'values'):
+                for val in account.values:
+                    extra.update(extra_as_internal(val))
+            else:
+                account.values = []
             account.extra = extra_as_internal(account)
             try:
                 account.extra.update(extra)
