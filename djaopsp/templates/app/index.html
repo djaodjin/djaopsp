@@ -63,8 +63,9 @@
 This assessment was last completed on [[$globals.humanizeDate(assessment.last_completed_at)]]
 <span v-if="assessment.respondents && assessment.respondents.length > 0">
 by one of your following co-worker(s):
-  <span v-for="user in assessment.respondents">
-    <span class="author"><a :href="'mailto:' + getAccountField(user, 'email')">[[getAccountPrintableName(user) ? getAccountPrintableName(user) : user]]</a></span>
+  <span v-for="(user, index) in assessment.respondents">
+    <span class="author" v-if="index == 0"><a :href="'mailto:' + getAccountField(user, 'email')">[[getAccountPrintableName(user) ? getAccountPrintableName(user) : user]]</a></span>
+    <span class="author" v-if="index >= 1">, <a :href="'mailto:' + getAccountField(user, 'email')">[[getAccountPrintableName(user) ? getAccountPrintableName(user) : user]]</a></span>
   </span>
 </span>.
             </p>
