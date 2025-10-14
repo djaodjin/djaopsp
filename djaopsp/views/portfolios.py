@@ -1,9 +1,9 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 
 import io, json, logging, re
 
-from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from django.conf import settings
@@ -24,7 +24,7 @@ from ..api.portfolios import CompletedAssessmentsMixin
 from ..api.rollups import GraphMixin
 from ..compat import reverse
 from ..helpers import as_valid_sheet_title
-from ..mixins import (AccountMixin, AccountsAggregatedQuerysetMixin,
+from ..mixins import (AccountsAggregatedQuerysetMixin,
     DashboardsAvailableQuerysetMixin)
 from ..models import VerifiedSample
 from ..utils import get_scores_tree
@@ -196,7 +196,7 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/accessibles/")
         })
-        if self.manages(self.account) or self.manages_broker:
+        if self.manages(self.account) or self.manages(settings.BROKER_NAME):
             update_context_urls(context, {
                 'api_portfolios_received': reverse(
                     'survey_api_portfolios_received', args=(self.account,)),

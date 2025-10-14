@@ -1,7 +1,7 @@
 # Copyright (c) 2024, DjaoDjin inc.
 
-from deployutils.apps.django.mockup.views import SigninView
-from deployutils.apps.django.urlbuilders import url_prefixed
+from deployutils.apps.django_deployutils.mockup.views import SigninView
+from deployutils.apps.django_deployutils.urlbuilders import url_prefixed
 from django.conf import settings
 from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as django_static_serve
@@ -59,7 +59,8 @@ urlpatterns += [
     url_prefixed(r'', include('djaopsp.urls.views')),
 
     # Theses views will be intercepted by the proxy.
-    url_prefixed(r'', include('deployutils.apps.django.mockup.urls')),
+    url_prefixed(r'',
+        include('deployutils.apps.django_deployutils.mockup.urls')),
     url_prefixed(r'$', TemplateView.as_view(template_name='index.html'),
         name='homepage'),
 ]

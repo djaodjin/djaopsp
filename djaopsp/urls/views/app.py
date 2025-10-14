@@ -21,5 +21,5 @@ urlpatterns = [
         name='profile_getstarted'),
     # Use a `re_path` such that clicking on subscriber in djaoapp does
     # not result in a 404.
-    re_path('[a-zA-Z\-/]*', ProfileAppView.as_view(), name='app_profile'),
+    re_path(r'[a-zA-Z\-/]*', ProfileAppView.as_view(), name='app_profile'),
 ]

@@ -6,9 +6,9 @@ from __future__ import absolute_import
 from django.conf import settings
 import django.template.defaulttags
 from django.utils.translation import gettext, ngettext
-from deployutils.apps.django.themes import get_template_search_path
-from deployutils.apps.django.templatetags import (deployutils_extratags,
-    deployutils_prefixtags)
+from deployutils.apps.django_deployutils.themes import get_template_search_path
+from deployutils.apps.django_deployutils.templatetags import (
+    deployutils_extratags, deployutils_prefixtags)
 from jinja2.ext import i18n
 from jinja2.sandbox import SandboxedEnvironment as Jinja2Environment
 from pages.templatetags import pages_tags

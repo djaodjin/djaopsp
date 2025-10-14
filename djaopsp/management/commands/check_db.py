@@ -384,6 +384,7 @@ ON %(account_table)s.id = request_no_portfolios.grantee_id""" % {
                     campaign_id = optin[2]
                     ends_at = optin[3]
                     if show_fix:
+                        #pylint:disable=line-too-long
                         self.stdout.write("INSERT INTO survey_portfolio (grantee_id, account_id, campaign_id, ends_at) VALUES ((SELECT id FROM %(account_table)s WHERE slug='%(grantee_slug)s'), (SELECT id FROM %(account_table)s WHERE slug='%(account_slug)s'), %(campaign_id)s, '%(ends_at)s');" % {
                         'account_table': self.account_model._meta.db_table,
                         'grantee_slug': grantee_slug,

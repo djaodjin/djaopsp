@@ -94,7 +94,7 @@ class CampaignDecorateMixin(CampaignMixin):
                     extra_fields = {'title', 'picture', 'extra'}
                     absent = False
                     for field_name in extra_fields:
-                        absent = (field_name not in tile_key)
+                        absent = field_name not in tile_key
                         if absent:
                             break
                     if absent:
@@ -776,6 +776,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
 
     def perform_create(self, serializer):
+        #pylint:disable=too-many-locals
         content_model = get_content_model()
         enum_question_model = EnumeratedQuestions
         question_model = get_question_model()
@@ -848,6 +849,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
 
     def update(self, request, *args, **kwargs):
+        #pylint:disable=too-many-locals
         # Implementation note: overrides overide in `PageElementEditableDetail`
         partial = kwargs.pop('partial', False)
         serializer = self.get_serializer(data=request.data, partial=partial)
@@ -900,8 +902,9 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
 
         question = question_model.objects.filter(
             path__endswith=self.db_path).first()
-        resp = super(CampaignEditableQuestionAPIView,
-            self).get_serializer_class()().to_representation(question)
+        serializer_class = super(CampaignEditableQuestionAPIView,
+            self).get_serializer_class()
+        resp = serializer_class().to_representation(question)
 
         return Response(resp)
 

@@ -3,12 +3,11 @@
 
 import logging
 
-from deployutils.apps.django.redirects import AccountRedirectView
-from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+from deployutils.apps.django_deployutils.redirects import AccountRedirectView
+from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from django import forms
-from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView

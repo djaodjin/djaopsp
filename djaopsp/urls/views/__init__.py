@@ -7,8 +7,8 @@ Views URLs
 from django.conf import settings
 from django.urls import path, include
 from django.views.generic import TemplateView
-from deployutils.apps.django.redirects import AccountRedirectView
-from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+from deployutils.apps.django_deployutils.redirects import AccountRedirectView
+from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 
 from ...views.app import AppView

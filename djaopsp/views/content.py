@@ -1,7 +1,8 @@
 # Copyright (c) 2024, DjaoDjin inc.
 # see LICENSE.
 
-from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+from django.conf import settings
+from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from pages.views.elements import PageElementView, PageElementEditableView
@@ -93,6 +94,6 @@ class EditablesDetailView(AccountMixin, PageElementEditableView):
         context.update({
             'element': self.element,
             'edit_perm': (self.manages(self.element.account) or
-                self.manages_broker)
+                self.manages(settings.BROKER_NAME))
         })
         return context

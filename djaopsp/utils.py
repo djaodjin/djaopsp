@@ -12,7 +12,8 @@ from collections import OrderedDict
 from importlib import import_module
 
 from deployutils.crypt import JSONEncoder
-from deployutils.apps.django.mixins.base import _get_accessible_plans
+from deployutils.apps.django_deployutils.mixins.base import (
+    _get_accessible_plans)
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured

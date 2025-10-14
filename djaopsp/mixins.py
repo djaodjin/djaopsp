@@ -3,7 +3,7 @@
 import json
 
 from dateutil.relativedelta import relativedelta
-from deployutils.apps.django import mixins as deployutils_mixins
+from deployutils.apps.django_deployutils import mixins as deployutils_mixins
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db import transaction
@@ -34,7 +34,7 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
     @property
     def owners(self):
         if not hasattr(self, '_owners'):
-            if self.manages_broker:
+            if self.manages(settings.BROKER_NAME):
                 self._owners = None
             else:
                 self._owners = self.accessible_profiles
@@ -69,7 +69,7 @@ class VisibilityMixin(deployutils_mixins.AccessiblesMixin):
     @property
     def visibility(self):
         if not hasattr(self, '_visibility'):
-            if self.manages_broker:
+            if self.manages(settings.BROKER_NAME):
                 self._visibility = None
             else:
                 self._visibility = set(['public']) | self.accessible_plans
@@ -354,7 +354,6 @@ class ReportMixin(SampleMixin, AccountMixin, TrailMixin):
         """
         if not url_kwarg:
             url_kwarg = self.sample_url_kwarg
-        sample = None
         sample_slug = self.kwargs.get(url_kwarg)
         if sample_slug:
             # If the `account` verified the response, then it can always

@@ -8,8 +8,7 @@ from django.db import connection
 from django.db.models.query import QuerySet, RawQuerySet
 from survey.models import Campaign, PortfolioDoubleOptIn, Sample
 from survey.queries import (as_sql_date_trunc, is_sqlite3,
-    get_sample_by_accounts_context, sql_latest_frozen_by_accounts,
-    sql_latest_frozen_by_accounts_by_period)
+    sql_latest_frozen_by_accounts, sql_latest_frozen_by_accounts_by_period)
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
 

@@ -20,6 +20,7 @@ DEBUG = True
 FEATURES_REVERT_TO_DJANGO = False
 FEATURES_USE_PORTFOLIOS = False
 TESTING_USERNAMES = []
+BROKER_NAME = APP_NAME
 
 ALLOWED_HOSTS = ('*',)
 
@@ -85,7 +86,7 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'deployutils.apps.django',
+    'deployutils.apps.django_deployutils',
     'rest_framework',
     'survey',
     'pages',
@@ -96,8 +97,8 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
 
 MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
-    'deployutils.apps.django.middleware.RequestLoggingMiddleware',
-    'deployutils.apps.django.middleware.SessionMiddleware',
+    'deployutils.apps.django_deployutils.middleware.RequestLoggingMiddleware',
+    'deployutils.apps.django_deployutils.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -137,7 +138,7 @@ LOGGING = {
         },
         # Add an unbound RequestFilter.
         'request': {
-            '()': 'deployutils.apps.django.logging.RequestFilter',
+            '()': 'deployutils.apps.django_deployutils.logging.RequestFilter',
         },
     },
     'formatters': {
@@ -146,7 +147,7 @@ LOGGING = {
             'datefmt': '%d/%b/%Y:%H:%M:%S %z'
         },
         'json': {
-            '()': 'deployutils.apps.django.logging.JSONFormatter',
+            '()': 'deployutils.apps.django_deployutils.logging.JSONFormatter',
             'format':
             'gunicorn.' + APP_NAME + '.app: [%(process)d] '\
                 '%(log_level)s %(remote_addr)s %(http_host)s %(username)s'\
@@ -346,8 +347,8 @@ if FEATURES_REVERT_TO_DJANGO:
             'libraries': {},
             'builtins': [
                 'django.templatetags.i18n',# XXX Format incompatible with Jinja2
-                'deployutils.apps.django.templatetags.deployutils_extratags',
-                'deployutils.apps.django.templatetags.deployutils_prefixtags',
+                'deployutils.apps.django_deployutils.templatetags.deployutils_extratags',
+                'deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags',
                 ]
         }
     }
@@ -402,7 +403,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ------------
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'deployutils.apps.django.authentication.JWTAuthentication',
+        'deployutils.apps.django_deployutils.authentication.JWTAuthentication',
         # `rest_framework.authentication.SessionAuthentication` is the last
         # one in the list because it will raise a PermissionDenied if the CSRF
         # is absent.
@@ -436,11 +437,12 @@ if not DEBUG:
 # Session settings
 # ----------------
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
-SESSION_ENGINE = 'deployutils.apps.django.backends.jwt_session_store'
+SESSION_ENGINE = 'deployutils.apps.django_deployutils.backends.jwt_session_store'
 
 JWT_ALGORITHM = 'HS256'
 
 DEPLOYUTILS = {
+    'APP_NAME': APP_NAME,
     # Hardcoded mockups here.
     'MOCKUP_SESSIONS': {
         'donny': {
@@ -639,7 +641,7 @@ ACCOUNT_ACTIVATION_DAYS = 2
 # The Django Middleware expects to find the authentication backend
 # before returning an authenticated user model.
 AUTHENTICATION_BACKENDS = (
-    'deployutils.apps.django.backends.auth.ProxyUserBackend',
+    'deployutils.apps.django_deployutils.backends.auth.ProxyUserBackend',
     # XXX We cannot remove dependency on a db `User` until django_comments
     # is made to use the deployutils version.
     'django.contrib.auth.backends.ModelBackend'

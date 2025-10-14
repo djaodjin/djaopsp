@@ -6,7 +6,7 @@ import csv, io, math
 
 # importing `survey.mixins.TimersMixin` results in an import loop:
 #   cannot import name 'get_object_or_404' from 'rest_framework.generics'??
-from deployutils.apps.django.mixins.timers import TimersMixin
+from deployutils.apps.django_deployutils.mixins.timers import TimersMixin
 from rest_framework.renderers import BaseRenderer
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side

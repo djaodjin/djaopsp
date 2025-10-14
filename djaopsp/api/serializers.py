@@ -7,10 +7,9 @@ from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementDetailSerializer as BasePageElementDetailSerializer,
     UserNewsSerializer as UserNewsBaseSerializer)
-from survey.models import PortfolioDoubleOptIn, Sample, Unit
+from survey.models import PortfolioDoubleOptIn, Sample
 from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
-    AnswerSerializer, CampaignSerializer, SampleSerializer,
-    TableSerializer, UnitSerializer)
+    AnswerSerializer, SampleSerializer, TableSerializer, UnitSerializer)
 from survey.utils import get_account_model
 
 from .. import humanize

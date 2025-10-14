@@ -55,4 +55,5 @@ class CampaignEditView(CampaignMixin, AccountMixin, TemplateView):
 
 class CampaignListView(AccountMixin, CampaignListBaseView):
     """
+    List campaigns
     """

@@ -1,8 +1,8 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE
 from dateutil.relativedelta import relativedelta
 
-from deployutils.apps.django.compat import (
+from deployutils.apps.django_deployutils.compat import (
     is_authenticated as base_is_authenticated)
 from django import template
 from django.contrib.messages.api import get_messages

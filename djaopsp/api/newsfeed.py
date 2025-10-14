@@ -24,6 +24,7 @@ LOGGER = logging.getLogger(__name__)
 
 class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
     """
+    Main feed
     """
     account_url_kwarg = 'profile'
     serializer_class = UserNewsSerializer

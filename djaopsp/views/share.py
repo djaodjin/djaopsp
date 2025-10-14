@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 import logging
 
-from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from django.views.generic.base import TemplateResponseMixin, RedirectView

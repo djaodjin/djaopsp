@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2025, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -7,7 +7,7 @@ from collections import OrderedDict
 from io import BytesIO
 
 from dateutil.relativedelta import relativedelta
-from deployutils.apps.django.templatetags.deployutils_prefixtags import (
+from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from django import forms
