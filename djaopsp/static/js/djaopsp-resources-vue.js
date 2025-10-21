@@ -216,6 +216,38 @@ var practicesListMixin = {
             return results;
         },
 
+        // returns the path of sections the practice belongs to in the tree
+        getParents: function(practice) {
+            var vm = this;
+            if( !practice ) return [];
+
+            var parents = [];
+            for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                if( parents.length == 0 ) {
+                    parents.push(vm.items.results[idx]);
+                } else {
+                    if( vm.items.results[idx].indent > parents[parents.length - 1].indent ) {
+                        parents.push(vm.items.results[idx]);
+                    } else if( vm.items.results[idx].indent == parents[parents.length - 1].indent ) {
+                        parents[parents.length - 1] = vm.items.results[idx];
+                    } else {
+                        var found = -1;
+                        for( var pdx = parents.length - 1; pdx >= 0; --pdx ) {
+                            if( parents[pdx].indent < vm.items.results[idx].indent ) {
+                                parents = parents.slice(0, pdx + 1);
+                                break;
+                            }
+                        }
+                        parents.push(vm.items.results[idx]);
+                    }
+                }
+                if( vm.items.results[idx].slug == practice.slug ) {
+                    return parents.reverse();
+                }
+            }
+            return [];
+        },
+
         // Rendering helpers
         _getValForActiveAccount: function(practice, fieldName) {
             if( typeof practice.accounts !== 'undefined' ) {

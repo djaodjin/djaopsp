@@ -258,12 +258,12 @@
       <!-- modals -->
       <div id="syncBaselineAt" class="modal fade"
            tabindex="-1" role="dialog"
-           aria-labelledby="{% trans %}Update all reporting start dates{% endtrans %}"
+           aria-labelledby="{% trans %}Update reporting start dates{% endtrans %}"
            aria-hidden="true">
         <form class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">{% trans %}Update all reporting start dates{% endtrans %} ...</h4>
+              <h4 class="modal-title">{% trans %}Update reporting start dates{% endtrans %} ...</h4>
               <button type="button"
                       class="btn-close"
                       data-bs-dismiss="modal"
@@ -272,16 +272,24 @@
             </div>
             <div class="modal-body">
               <p>
-                {% trans %}Before going further, would you like to update all reporting start date to [[getAnswerStartsAt(activeElement).measured]]?{% endtrans %}
+                {% trans %}Before going further, would you like to update all reporting start date under one of the following sections to [[$globals.humanizeDate(getAnswerStartsAt(activeElement).measured)]]?{% endtrans %}
               </p>
               <div class="modal-footer">
-                <button type="button"
-                        class="btn btn-outline-primary"
-                        data-bs-dismiss="modal">{% trans %}No{% endtrans %}</button>
-                <button type="submit"
-                        class="btn btn-primary"
-                        data-bs-dismiss="modal"
-                        @click.prevent="updateAllStartsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
+                <div class="d-grid gap-2 w-100" v-for="(parent, idx) in getParents(activeElement)">
+                  <button type="button"
+                          :class="'btn' + (idx == 1 ? ' btn-primary' : ' btn-outline-primary')"
+                          data-bs-dismiss="modal"
+                          @click.prevent="updateAllStartsAt(activeElement, parent)"
+                          v-if="idx > 0">
+                    {% trans %}Yes, all start date under{% endtrans %} <em>[[parent.title]]</em>
+                  </button>
+                  <div v-if="idx == 0">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-dismiss="modal">{% trans %}No, only update the start date for{% endtrans %} <em>[[parent.title]]</em></button>
+                    <hr />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -290,12 +298,12 @@
 
       <div id="syncEndsAt" class="modal fade"
            tabindex="-1" role="dialog"
-           aria-labelledby="{% trans %}Update all reporting end dates{% endtrans %}"
+           aria-labelledby="{% trans %}Update reporting end dates{% endtrans %}"
            aria-hidden="true">
         <form class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">{% trans %}Update all reporting end dates{% endtrans %} ...</h4>
+              <h4 class="modal-title">{% trans %}Update reporting end dates{% endtrans %} ...</h4>
               <button type="button"
                       class="btn-close"
                       data-bs-dismiss="modal"
@@ -304,16 +312,24 @@
             </div>
             <div class="modal-body">
               <p>
-                {% trans %}Before going further, would you like to update all reporting end date to [[getAnswerEndsAt(activeElement).measured]]?{% endtrans %}
+                {% trans %}Before going further, would you like to update all reporting end date under one of the following sections to [[$globals.humanizeDate(getAnswerEndsAt(activeElement).measured)]]?{% endtrans %}
               </p>
               <div class="modal-footer">
-                <button type="button"
-                        class="btn btn-outline-primary"
-                        data-bs-dismiss="modal">{% trans %}No{% endtrans %}</button>
-                <button type="submit"
-                        class="btn btn-primary"
-                        data-bs-dismiss="modal"
-                        @click.prevent="updateAllEndsAt(activeElement)">{% trans %}Yes{% endtrans %}</button>
+                <div class="d-grid gap-2 w-100" v-for="(parent, idx) in getParents(activeElement)">
+                  <button type="button"
+                          :class="'btn' + (idx == 1 ? ' btn-primary' : ' btn-outline-primary')"
+                          data-bs-dismiss="modal"
+                          @click.prevent="updateAllEndsAt(activeElement, parent)"
+                          v-if="idx > 0">
+                    {% trans %}Yes, all end date under{% endtrans %} <em>[[parent.title]]</em>
+                  </button>
+                  <div v-if="idx == 0">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-dismiss="modal">{% trans %}No, only update the end date for{% endtrans %} <em>[[parent.title]]</em></button>
+                    <hr />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

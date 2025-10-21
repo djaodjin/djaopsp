@@ -107,7 +107,7 @@ def _import_campaign_section(campaign, rows, seg_prefixes,
             level_unit = row[2]
             required = row[3]
             if isinstance(required, str):
-                required = not(row[3] and row[3].lower() == "false")
+                required = not(row[3] and "false" in row[3].lower())
             if not required:
                 required = False
             ref_num = row[0]

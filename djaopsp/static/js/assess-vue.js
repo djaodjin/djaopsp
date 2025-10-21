@@ -446,7 +446,10 @@ Vue.component('campaign-questions-list', {
                 }
             }
         },
-        resetAssessment: function($event, prefix) {
+        // Reset an entire section. It also works to reset a single question,
+        // but that requires to set the activeTile, and it will reload the whole
+        // response (because of `++idx` in the first loop).
+        resetAssessment: function($event, prefix) {//'campaign-questions-list'
             var vm = this;
             var form = $($event.target);
             var modalDialog = form.parents('.modal');
@@ -458,6 +461,7 @@ Vue.component('campaign-questions-list', {
             vm.reqPost(url, function success(resp) {
               // remove answers under the active tile.
               var idx = 0;
+              var nbQuestionsReset = 0;
               for( ; idx < vm.items.results.length; ++idx ) {
                   if( vm.items.results[idx].slug === vm.activeTile.slug ) {
                       ++idx;
@@ -473,6 +477,7 @@ Vue.component('campaign-questions-list', {
                            jdx < vm.items.results[idx].answers.length; ++jdx ) {
                           vm.items.results[idx].answers[jdx].measured = null;
                       }
+                      ++nbQuestionsReset;
                   }
               }
               // reloads is simpler.
@@ -558,6 +563,24 @@ Vue.component('campaign-questions-list', {
                  newValue === this.YES) ||
                 practice.ui_hint === 'yes-no-comments';
         },
+        // reset answers on a single question.
+        resetAssessmentAnswer: function(practice, prefix) {
+            var vm = this;
+            var path = (prefix ? prefix : '') + '/' + practice.path;
+            var url = vm._safeUrl(vm.$urls.api_assessment_reset ?
+                vm.$urls.api_assessment_reset : vm._safeUrl(
+                    vm.api_assessment_sample, '/reset'), path);
+
+            vm.reqPost(url,
+            function success(resp) {
+                if( practice.answers ) {
+                    for( var jdx = 0;
+                         jdx < practice.answers.length; ++jdx ) {
+                        practice.answers[jdx].measured = null;
+                    }
+                }
+            });
+        },
         updateEnumAnswer: function(newValue, practice) {
             var vm = this;
             vm.updateAssessmentAnswer(practice, newValue);
@@ -605,11 +628,22 @@ Vue.component('campaign-questions-list', {
                 vm.toggleCascadeVisible(practice);
             }
         },
-        toggleNotDisclosedPublicly: function(row) {
-            this.updateAssessmentAnswer(row, {
-                measured: this.getAnswerByUnit(row, 'yes-no').measured === 'Yes' ?
-                    'No' : 'Yes', unit: 'yes-no'})
+        // specific to revenue UI elements
+        isNotDisclosedPublicly: function(row) {
+            return this.getAnswerByUnit(row, 'yes-no').measured === 'Yes';
         },
+        toggleNotDisclosedPublicly: function(row) {
+            var vm = this;
+            const data = {
+                unit: 'yes-no',
+                measured: vm.getAnswerByUnit(row, 'yes-no').measured === 'Yes' ?
+                    'No' : 'Yes'};
+            vm.getAnswerByUnit(row, 'yes-no').measured =
+                vm.getAnswerByUnit(row, 'yes-no').measured === 'Yes' ?
+                    'No' : 'Yes';
+            vm.updateAssessmentAnswer(row, data);
+        },
+        // specific to data ranges
         updateStartsAt: function(practice) {
             var vm = this;
             vm.setActiveElement(practice);
@@ -631,12 +665,12 @@ Vue.component('campaign-questions-list', {
             });
         },
         // We update all `starts-at` in the UI and in the database.
-        updateAllStartsAt: function(practice, tag) {
+        updateAllStartsAt: function(practice, parent, tag) {
             var vm = this;
             const newValue = vm.getAnswerStartsAt(
                 practice ? practice : vm.activeElement)
             const atTime = newValue.measured;
-            var practices = vm.getEntries();
+            var practices = vm.getEntries(parent.slug);
             for( var idx = 0; idx < practices.length; ++idx ) {
                 var row = practices[idx];
                 if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
@@ -647,12 +681,12 @@ Vue.component('campaign-questions-list', {
             }
         },
         // We update all `ends-at` in the UI and in the database.
-        updateAllEndsAt: function(practice, tag) {
+        updateAllEndsAt: function(practice, parent, tag) {
             var vm = this;
             var newValue = vm.getAnswerEndsAt(
                 practice ? practice : vm.activeElement)
             const atTime = newValue.measured;
-            var practices = vm.getEntries();
+            var practices = vm.getEntries(parent.slug);
             for( var idx = 0; idx < practices.length; ++idx ) {
                 var row = practices[idx];
                 if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
@@ -1097,7 +1131,7 @@ Vue.component('scorecard', {
                 }
             }
         },
-        resetAssessment: function($event, prefix) {
+        resetAssessment: function($event, prefix) {//'scorecard'
             var vm = this;
             var form = $($event.target);
             var modalDialog = form.parents('.modal');
@@ -1406,6 +1440,7 @@ Vue.component('scorecard-history', {
     }
 });
 
+// Specific UI Elements
 
 Vue.component('data-tracker', {
     data: function() {
