@@ -363,3 +363,45 @@ Vue.component('editable-practices-list', {
         this._loadData();
     }
 });
+
+
+Vue.component('editable-markdown-editor', {
+    mixins: [
+        itemMixin
+    ],
+    data: function() {
+        return {
+            url: this.$urls.api_content,
+            editor: null,
+            preview: ""
+        }
+    },
+    methods: {
+        showPreview: function() {
+            var vm = this;
+            const markdownContent = vm.editor.value();
+            const htmlContent = vm.editor.markdown(markdownContent);
+            vm.preview = htmlContent;
+        },
+        saveContent: function() {
+            var vm = this;
+            vm.reqPut(vm.url, {
+                text: vm.editor.value(),
+                content_format: "MD"
+            });
+        }
+    },
+    mounted: function(){
+        var vm = this;
+        vm.editor = new EasyMDE({
+            element: vm.$el.getElementsByTagName('textarea')[0]
+        });
+        const codeMirrorInstance = vm.editor.codemirror;
+        codeMirrorInstance.on("blur", function() {
+            vm.saveContent();
+        });
+        vm.reqGet(vm.url, function(resp) {
+            vm.editor.value(resp.text);
+        });
+    }
+});

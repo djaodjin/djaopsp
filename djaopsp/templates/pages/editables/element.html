@@ -1,1 +1,233 @@
 {% extends "pages/element.html" %}
+
+{% block pages_content %}
+<div>
+<editables-detail inline-template>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="bg-body text-body p-3">
+          <h1 class="editable text-body" data-key="title" v-cloak>[[item.title]]</h1>
+          <div class="text-end">
+            <div data-key="tags">
+              <input id="tags" class="tags text-start" type="text" placeholder="tags ..." />
+            </div>
+          </div>
+          <img class="editable edit-media img-fluid m-2" :src="item.picture" />
+          <editable-markdown-editor inline-template>
+            <div>
+              <textarea></textarea>
+            </div>
+          </editable-markdown-editor>
+
+          {% if profile %}
+          <div id="create-chapter">
+            <div class="text-end">
+              <a id="new-page" class="btn btn-primary"
+                 data-bs-toggle="modal" data-bs-target="#new-pageelement"
+                 data-toggle="modal" data-target="#new-pageelement"
+                 href="#new-pageelement">{% trans %}New practice{% endtrans %}</a>
+            </div>
+            <!-- modal to create a new page -->
+            <div id="new-pageelement" class="modal fade"
+                 tabindex="-1" role="dialog"
+                 aria-labelledby="Create a page" aria-hidden="true" style="color: #000;">
+              <div class="modal-dialog">
+                <form class="modal-content" @submit.prevent="create($event)">
+                  <div class="modal-header">
+                    <h4 class="modal-title">{% trans %}Create a new practice ...{% endtrans %}</h4>
+                    <button class="btn-close" type="button"
+                            data-bs-dismiss="modal" data-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <label class="form-label">
+                        {% trans %}Title{% endtrans %}
+                    </label>
+                    <input class="form-control w-100"
+                           type="text" name="title" placeholder="Title"
+                           v-model="newItem.title">
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-outline-primary"
+                            data-bs-dismiss="modal" data-dismiss="modal"
+                            type="button">{% trans %}Cancel{% endtrans %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans %}Create{% endtrans %}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>{# /#create-chapter #}
+          {% endif %}
+
+          <hr />
+
+          <div v-if="item.account == 'envconnect'">
+            <p class="text-center mt-3">
+              <a href="{{'/docs/faq/#environmental-practices'|site_url}}">{% trans %}How was this practice identified and selected?{% endtrans %}</a>
+            </p>
+            <p class="text-center mt-3">
+<img height="32" src="{{'/static/img/cc_icon_black_x2.png'|asset}}" />
+<img height="32" src="{{'/static/img/sa_black_x2.png'|asset}}" />
+<img height="32" src="{{'/static/img/attribution_icon_black_x2.png'|asset}}" />
+            </p>
+            <p>
+{% trans %}This material is licensed as Creative Commons{% endtrans %} <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.
+{% trans %}When using it for any project, you are required to give credit to The Sustainability Project (TSP). Please use the following attribution:{% endtrans %}
+            </p>
+            <p class="border-start ps-2 border-left pl-2" v-cloak>
+<em>&quot;<a :href="'{{request|site_url}}/app/info' + item.path">[[item.title]]</a> by <a href="{{request|site_url}}">The Sustainability Project (TSP)</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.&quot;</em>
+            </p>
+          </div>
+          {% if edit_perm %}
+          <div class="text-center">
+            {% if aliases %}
+            <div style="margin-top: 15px;">
+              <h4>{% trans %}This content is aliased through:{% endtrans %}</h4>
+              {% for alias in aliases %}
+              <ol class="breadcrumb">
+                {% for alias_breadcrumb in alias %}
+                <li class="breadcrumb-item">{{alias_breadcrumb.title}}</li>
+                {% endfor %}
+              </ol>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        <hr class="featurette-divider">
+        {% block follow_vote %}
+        {% include "pages/_follow_vote.html" %}
+        {% endblock %}
+        {% block comments %}
+        {% include "pages/_comments.html" %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>{# /.container #}
+</editables-detail>
+
+{# media editors #}
+{# ------------- #}
+<div id="media-gallery" class="dj-gallery custom-gallery" style="display:none;">
+  <div class="px-2">
+    <div class="modal-header">
+      <h4>{% trans %}Media gallery{% endtrans %}</h4>
+      <button type="button" class="dj-close btn-close" aria-label="{% trans %}Close{% endtrans %}"></button>
+    </div>
+    <div class="dj-gallery-items-container">
+      <input placeholder="{% trans %}Search by tags...{% endtrans %}" class="dj-gallery-filter dj-input" type="text" />
+      <div class="dj-gallery-items">
+      </div>
+      <div class="clickable-area">
+        <em>{% trans %}Drag'n'drop or click here{% endtrans %}</em>
+      </div>
+      <div class="dj-gallery-upload-progress progress" style="display:none;">
+        <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+          <span class="progress-bar-info"></span>
+        </div>
+      </div>
+      <div class="form-text help-block">
+        <small class="dj-gallery-message text-muted"></small>
+      </div>
+    </div>
+    <hr />
+    <div class="dj-gallery-info-item">
+      <div class="dj-gallery-info-item-empty">
+        <em>{% trans %}Click on an item to view its metadata{% endtrans %}</em>
+      </div>
+      <div class="dj-gallery-info-item-selected" style="display: none;">
+        <div class="input-group">
+          <input class="dj-gallery-location-input form-control" type="text" readonly />
+          <button class="dj-gallery-copy-location btn btn-secondary" type="button">
+            <i class="fa fa-copy"></i>
+          </button>
+        </div>
+        <div class="input-group mt-2">
+          <input class="dj-gallery-tag-input form-control" type="text" placeholder="{% trans %}tags{% endtrans %} ..." />
+        </div>
+        <div class="dj-help-block form-text help-block">
+          <small class="text-muted">{% trans %}Tags must be separated by a comma. ex: video, title{% endtrans %}</small>
+        </div>
+        <div class="d-grid gap-2">
+          <button class="dj-gallery-preview-item btn btn-primary" type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modal-preview-media">
+            <i class="fa fa-eye fa-lg"></i> {% trans %}Preview{% endtrans %}
+          </button>
+          <hr />
+          <button class="dj-gallery-delete-item btn btn-danger">
+            <i class="fa fa-trash-o fa-lg"></i> {% trans %}Delete{% endtrans %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modal-preview-media" tabindex="-1" role="dialog"
+       aria-labelledby="modal-preview-media">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4>{% trans %}Preview{% endtrans %}</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans %}Close{% endtrans %}"></button>
+        </div>
+        <div class="dj-gallery-info-preview modal-body">
+        </div>
+        <div class="modal-footer">
+          <div class="input-group">
+            <input class="dj-gallery-location-input form-control" type="text" readonly />
+            <button class="dj-gallery-copy-location btn btn-secondary" type="button">
+              <i class="fa fa-copy"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>{# /#media-gallery #}
+</div>
+{% endblock %}
+
+{% block pages_scripts %}
+<script type="text/javascript" charset="utf-8">
+{% if edit_perm %}
+assetsUploadUrl = "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_url}}{% endif %}";
+
+$(document).ready(function(){
+	$(".editable").editor({
+		baseUrl: "{{urls.api_content}}",
+		preventBlurOnClick: "#media-gallery, .dj-gallery-item"
+	});
+
+    // media gallery
+    $("#media-gallery").djgallery({
+        url: "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_url}}{% endif %}",
+        S3DirectUploadUrl: "{% if urls.media_upload %}{{urls.media_upload}}?public=1{% endif %}",
+        csrfToken: "{{csrf_token}}",
+
+        // internationalization messages
+        uploadCompleteLabel: "{% trans %}Upload completed{% endtrans %}",
+        uploadSuccessMessage: function(filename, location) {
+            return '{% trans %}"${filename}" uploaded sucessfully to "${location}"{% endtrans %}'.replace(
+                '${filename}', filename).replace('${location}', location);
+        },
+        uploadPreviousSuccessMessage: function(filename, location) {
+            return '"{% trans %}${filename}" has previously been uploaded to "${location}"{% endtrans %}'.replace(
+                '${filename}', filename).replace('${location}', location);
+        },
+        placeholderAcceptsErrorMessage: function(filetypes) {
+            return '{% trans %}This placeholder accepts only: ${filetypes} files.{% endtrans %}'.replace(
+                '${filetypes}', filetypes);
+        },
+
+        // overriden `Djgallery` defaults not expected to change in HTML
+        selectedMediaClass: "thumbnail-active",
+    });
+
+});
+{% endif %}
+</script>
+{% endblock %}
