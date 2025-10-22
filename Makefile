@@ -176,7 +176,7 @@ clean-dbs:
 $(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installDirs) $(libDir)/tmp
 	$(installFiles) $^ $(libDir)/tmp
-	$(NPM) install --loglevel verbose --cache $(libDir)/.npm --tmp $(libDir)/tmp --prefix $(libDir)
+	$(NPM) install --cache $(libDir)/.npm --tmp $(libDir)/tmp --prefix $(libDir)
 	$(installDirs) $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.min.js $(ASSETS_DIR)/vendor
 	cp -rf $(libDir)/node_modules/chart.js $(srcDir)/djaopsp/static/vendor
