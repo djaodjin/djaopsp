@@ -15,7 +15,7 @@ const webpack = require('webpack');
 
 var confPaths = JSON.parse(fs.readFileSync('webpack-conf-paths.json').toString())
 
-module.exports = {
+module.exports = env => ({
   mode: 'production',
   target: ['web', 'es5'],
   entry: {
@@ -58,7 +58,7 @@ module.exports = {
   },
   output: {
       path: path.resolve(__dirname, 'htdocs/static/cache'),
-      filename: '[name].js',
+      filename: env.app_version_suffix ? '[name]' + env.app_version_suffix + '.js' : '[name].js',
   },
   externals: {
     jQuery: 'jQuery',
@@ -103,4 +103,4 @@ module.exports = {
       modules: [path.resolve(__dirname, 'djaopsp/static/vendor')].concat(
           confPaths.node_modules),
   }
-};
+});

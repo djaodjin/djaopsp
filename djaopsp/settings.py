@@ -14,6 +14,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Default values that can be overriden by `update_settings` later on.
 APP_NAME = os.path.basename(BASE_DIR)
+APP_VERSION = "2025-10-21"
+
+FEATURES_REVERT_ASSETS_CDN = False  # 2025-10-21 temporary reverts cached js/css
+
 RUN_DIR = os.path.join(BASE_DIR, 'var', 'run', 'cache')
 
 DEBUG = True
@@ -258,6 +262,22 @@ if DEBUG:
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+
+if FEATURES_REVERT_ASSETS_CDN:
+    ASSETS_CDN = {}
+else:
+    ASSETS_CDN = {
+        '/static/cache/assess.js': '%scache/assess-%s.js' % (
+            STATIC_URL, APP_VERSION),
+        '/static/cache/editors.js': '%scache/editors-%s.js' % (
+            STATIC_URL, APP_VERSION),
+        '/static/cache/reporting.js': '%scache/reporting-%s.js' % (
+            STATIC_URL, APP_VERSION),
+        '/static/cache/app.css': '%s/cache/app-%s.css' % (
+            STATIC_URL, APP_VERSION),
+        '/static/cache/email.css': '%s/cache/email-%s.css' % (
+            STATIC_URL, APP_VERSION),
+    }
 
 ASSETS_MAP = {
     'cache/base.css': (

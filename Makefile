@@ -36,6 +36,7 @@ WEBPACK       ?= NODE_PATH=$(libDir)/node_modules webpack --stats-error-details
 # before running the manage.py command (else missing SECRECT_KEY).
 MANAGE        := DJAOPSP_SETTINGS_LOCATION=$(CONFIG_DIR) $(PYTHON) manage.py
 RUNSYNCDB     = $(if $(findstring --run-syncdb,$(shell cd $(srcDir) && $(MANAGE) migrate --help 2>/dev/null)),--run-syncdb,)
+NOIMPORTS     = $(if $(findstring --no-imports,$(shell $(MANAGE) shell --help 2>/dev/null)),--no-imports,)
 
 
 ifneq ($(wildcard $(CONFIG_DIR)/site.conf),)
@@ -47,8 +48,9 @@ else
 DB_FILENAME   ?= $(RUN_DIR)/db.sqlite
 endif
 
-MY_EMAIL          ?= $(shell cd $(srcDir) && git config user.email)
-EMAIL_FIXTURE_OPT := $(if $(MY_EMAIL),--email="$(MY_EMAIL)",)
+MY_EMAIL           ?= $(shell cd $(srcDir) && git config user.email)
+EMAIL_FIXTURE_OPT  := $(if $(MY_EMAIL),--email="$(MY_EMAIL)",)
+APP_VERSION_SUFFIX ?= $(shell cd $(srcDir) && $(MANAGE) shell $(NOIMPORTS) -c 'from django.conf import settings ; print("" if settings.FEATURES_REVERT_ASSETS_CDN else "-%s" % settings.APP_VERSION)' 2>/dev/null)
 
 # We generate the SECRET_KEY this way so it can be overriden
 # in test environments.
@@ -67,9 +69,9 @@ all:
 # from node_modules.
 # Implementation note: chart.js is a directory. chartjs-plugin-annotation.js
 # is not ES5 compatible.
-build-assets: $(ASSETS_DIR)/cache/app.css \
-              $(ASSETS_DIR)/cache/email.css \
-              $(ASSETS_DIR)/cache/assess.js
+build-assets: $(ASSETS_DIR)/cache/app$(APP_VERSION_SUFFIX).css \
+              $(ASSETS_DIR)/cache/email$(APP_VERSION_SUFFIX).css \
+              $(ASSETS_DIR)/cache/assess$(APP_VERSION_SUFFIX).js
 	cd $(srcDir) && DEBUG=0 $(MANAGE) collectstatic --noinput
 	rm -rf $(ASSETS_DIR)/rest_framework $(ASSETS_DIR)/scss $(ASSETS_DIR)/css
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-dashboard.js $(ASSETS_DIR)/vendor
@@ -181,6 +183,8 @@ $(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $(libDir)/node_modules/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.js $(srcDir)/djaopsp/static/vendor
 	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/easymde/dist/easymde.min.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/easymde/dist/easymde.min.css $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/font-awesome/css/font-awesome.css $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/font-awesome/fonts/* $(ASSETS_DIR)/fonts
 	$(installFiles) $(libDir)/node_modules/jquery/dist/jquery.js $(ASSETS_DIR)/vendor
@@ -203,24 +207,25 @@ schema.yml:
 	cd $(srcDir) && swagger-cli validate $@
 
 
-$(ASSETS_DIR)/cache/assess.js: $(srcDir)/webpack.config.js \
+$(ASSETS_DIR)/cache/assess$(APP_VERSION_SUFFIX).js: \
+                               $(srcDir)/webpack.config.js \
                                webpack-conf-paths.json \
                                $(wildcard $(srcDir)/djaopsp/static/js/*.js)
-	cd $(srcDir) && $(WEBPACK) -c $<
+	cd $(srcDir) && $(WEBPACK) --env app_version_suffix="$(APP_VERSION_SUFFIX)" -c $<
 
 
 webpack-conf-paths.json: $(srcDir)/djaopsp/settings.py
 	cd $(srcDir) && $(MANAGE) generate_webpack_paths -o $@
 
 
-$(ASSETS_DIR)/cache/app.css: \
+$(ASSETS_DIR)/cache/app$(APP_VERSION_SUFFIX).css: \
         $(wildcard $(srcDir)/djaopsp/static/scss/vendor/bootstrap/*.scss) \
         $(wildcard $(srcDir)/djaopsp/static/scss/vendor/djaodjin/*.scss) \
         $(wildcard $(srcDir)/djaopsp/static/scss/vendor/*.scss) \
         $(wildcard $(srcDir)/djaopsp/static/scss/base/*.scss)
 	cd $(srcDir) && $(SASSC) djaopsp/static/scss/base/base.scss $@
 
-$(ASSETS_DIR)/cache/email.css: \
+$(ASSETS_DIR)/cache/email$(APP_VERSION_SUFFIX).css: \
         $(wildcard $(srcDir)/djaopsp/static/scss/email/*.scss)
 	cd $(srcDir) && $(SASSC) djaopsp/static/scss/email/email.scss $@
 
