@@ -98,10 +98,11 @@
         <i class="fa fa-times"
            @click="resetAssessmentAnswer(practice)"></i>
       </span>
-      <input class="form-control text-end"
+      <input class="form-control"
              type="number"
-             placeholder=""
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+             :placeholder="getPrimaryCandidate(practice).measured"
+             style="direction:rtl;"
              @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
              :disabled="practice.frozen"></input>
       <select class="form-control form-select input-group-suffix"
@@ -198,6 +199,7 @@
              min="0"
              max="100"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+             :placeholder="getPrimaryCandidate(practice).measured"
              :disabled="practice.frozen"
              {% if not sample.is_frozen %}
              @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
@@ -245,8 +247,8 @@
       </span>
       <input class="form-control text-end"
              type="number"
-             placeholder=""
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+             :placeholder="getPrimaryCandidate(practice).measured"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
              :disabled="practice.frozen"></input>
       <select class="form-control form-select input-group-suffix"
@@ -429,8 +431,8 @@
       </span>
       <input class="form-control text-end"
              type="number"
-             placeholder=""
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+             :placeholder="getPrimaryCandidate(practice).measured"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
              :disabled="practice.frozen"></input>
       <select class="form-control form-select"

@@ -33,6 +33,8 @@ $example-color-dark: rgb(193, 193, 193);
 $jumbotron-shadow-start-color-dark: $jumbotron-shadow-end-color;
 $jumbotron-shadow-end-color-dark: $jumbotron-shadow-start-color;
 
+$candidate-bg: color.scale(#0275ff, $lightness: 50%);
+
 :root,
 [data-bs-theme="light"] {
     --example-title-bg: #{$example-title-bg};
@@ -158,7 +160,7 @@ header .nav-item {
   display: inline-block;
   line-height: 0;
   border-radius: 50%;
-  background: color.scale(#0275ff, $lightness: 50%);
+  background: $candidate-bg;
 }
 
 .progressbar-container {
@@ -1024,6 +1026,14 @@ a.text-grey{
     padding-bottom: 0.25rem;
     padding-right: 12px;
     padding-left: 12px;
+}
+
+.practice-row input::placeholder { // For most modern browsers
+    border-color: $candidate-bg;
+}
+
+.practice-row input:invalid {
+    border-color: red;
 }
 
 .practice-row:nth-of-type(#{$table-striped-order}) {
