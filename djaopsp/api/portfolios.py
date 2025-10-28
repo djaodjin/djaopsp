@@ -1943,20 +1943,9 @@ class LastByCampaignAccessiblesMixin(TimersMixin, DateRangeContextMixin,
         for visible in set(['public']):
             filtered_in &= Q(extra__contains=visible)
         dashboards_available = Campaign.objects.filter(
-            Q(account__slug=self.account) | filtered_in)
-        # If at least one profiles granted access to all campaigns it responds
-        # against, then we don't need to filter further.
-        accessibles = Portfolio.objects.filter(
-            grantee=self.account, account__in=self.get_queryset())
-        if accessibles.exists() and not accessibles.filter(
-                campaign__isnull=True).exists():
-            # We want the labels consistent between different pages
-            # returned. As a result we use `self.get_queryset()` here
-            # to compute labels.
-            dashboards_available = dashboards_available.filter(
-                portfolios__grantee=self.account,
-                portfolios__account__in=self.get_queryset())
-        dashboards_available = dashboards_available.distinct()
+            Q(portfolios__grantee=self.account) |
+            Q(account__slug=self.account) |
+            filtered_in).distinct()
         self.labels = [{
             'slug': campaign.slug,
             'title': campaign.title,
