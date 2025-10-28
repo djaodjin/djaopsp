@@ -276,10 +276,10 @@ def _get_engagement_sql(campaign=None,
     samples_sql_query = sql_latest_frozen_by_accounts(
         campaign=campaign, start_at=start_at, ends_at=ends_at,
         segment_prefix=segment_prefix, segment_title=segment_title,
-        accounts=accounts, grantees=grantees, tags=tags)
+        accounts=accounts, tags=tags)
 
     sql_query = """
-WITH accessible_samples AS (
+WITH latest_samples AS (
 %(samples_sql_query)s
 ),
 requests AS (
@@ -301,29 +301,29 @@ ON  survey_portfoliodoubleoptin.grantee_id = last_requests.grantee_id AND
 ),
 completed_by_accounts AS (
 SELECT DISTINCT
-  accessible_samples.account_id,
-  accessible_samples.id,
-  accessible_samples.slug,
-  accessible_samples.created_at,
+  latest_samples.account_id,
+  latest_samples.id,
+  latest_samples.slug,
+  latest_samples.created_at,
   requests.grantee_id AS grantee_id,
   CASE WHEN (survey_portfolio.ends_at IS NOT NULL AND
-             accessible_samples.created_at <= survey_portfolio.ends_at)
+             latest_samples.created_at <= survey_portfolio.ends_at)
            THEN %(REPORTING_COMPLETED)s
        WHEN requests.state = %(optin_request_denied)d
            THEN %(REPORTING_COMPLETED_DENIED)s
        ELSE %(REPORTING_COMPLETED_NOTSHARED)s END AS reporting_status
-FROM accessible_samples
+FROM latest_samples
 INNER JOIN requests
-ON requests.account_id = accessible_samples.account_id
+ON requests.account_id = latest_samples.account_id
 LEFT OUTER JOIN survey_portfolio
-ON accessible_samples.account_id = survey_portfolio.account_id AND
+ON latest_samples.account_id = survey_portfolio.account_id AND
    requests.grantee_id = survey_portfolio.grantee_id  -- avoids 'completed' and
                                       -- 'completed-notshared' in same queryset
 WHERE (survey_portfolio.campaign_id IS NULL OR
-       survey_portfolio.campaign_id = accessible_samples.campaign_id)
+       survey_portfolio.campaign_id = latest_samples.campaign_id)
     AND (requests.ends_at IS NULL OR
-       accessible_samples.created_at < requests.ends_at)
-    AND (accessible_samples.created_at > requests.created_at OR
+       latest_samples.created_at < requests.ends_at)
+    AND (latest_samples.created_at > requests.created_at OR
        survey_portfolio.ends_at > requests.created_at)
 ),
 verified_by_accounts AS (
@@ -357,7 +357,8 @@ SELECT
   MAX(survey_sample.updated_at) AS last_updated_at
 FROM survey_sample
 INNER JOIN requests ON
-  requests.account_id = survey_sample.account_id
+  requests.account_id = survey_sample.account_id AND
+  requests.campaign_id = survey_sample.campaign_id
 WHERE
   survey_sample.updated_at >= requests.created_at
   %(sample_extra_filters_clause)s
@@ -371,7 +372,8 @@ SELECT
   MAX(survey_sample.created_at) AS last_updated_at
 FROM survey_sample
 INNER JOIN requests ON
-  requests.account_id = survey_sample.account_id
+  requests.account_id = survey_sample.account_id AND
+  requests.campaign_id = survey_sample.campaign_id
 WHERE
   survey_sample.is_frozen
   %(sample_extra_filters_clause)s

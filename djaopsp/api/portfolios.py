@@ -1587,8 +1587,8 @@ class CompletionRateMixin(DashboardAggregateMixin):
             first_date = self.accounts_start_at
         else:
             first_date = last_date - relativedelta(months=4)
-        weekends_at = construct_weekly_periods(
-            first_date, last_date, years=years)
+        weekends_at = construct_weekly_periods(first_date, last_date,
+            years=years)
         if len(weekends_at) < 2:
             # Not enough time periods
             return []
@@ -1761,8 +1761,7 @@ class EngagementStatsMixin(DashboardAggregateMixin):
             first_date = self.accounts_start_at
         else:
             first_date = last_date - relativedelta(months=4)
-        weekends_at = construct_weekly_periods(
-            first_date, last_date)
+        weekends_at = construct_weekly_periods(first_date, last_date)
 
         engagement = get_engagement_by_reporting_status(
             self.campaign, requested_accounts,
@@ -1945,7 +1944,7 @@ class LastByCampaignAccessiblesMixin(TimersMixin, DateRangeContextMixin,
         dashboards_available = Campaign.objects.filter(
             Q(portfolios__grantee=self.account) |
             Q(account__slug=self.account) |
-            filtered_in).distinct()
+            filtered_in).exclude(slug__endswith='-verified').distinct()
         self.labels = [{
             'slug': campaign.slug,
             'title': campaign.title,

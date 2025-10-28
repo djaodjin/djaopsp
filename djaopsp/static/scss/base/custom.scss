@@ -1029,7 +1029,7 @@ a.text-grey{
 }
 
 .practice-row input::placeholder { // For most modern browsers
-    border-color: $candidate-bg;
+    border: 1px solid $candidate-bg;
 }
 
 .practice-row input:invalid {
