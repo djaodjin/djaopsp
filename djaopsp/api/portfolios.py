@@ -758,7 +758,8 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
 
     search_fields = (
         'full_name',
-        'printable_name'
+        'printable_name',
+        'campaign__title'
     )
     alternate_fields = {
         'full_name': 'account__full_name',
