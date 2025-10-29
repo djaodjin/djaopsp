@@ -1,0 +1,53 @@
+<explainer inline-template
+           v-bind:callback-arg="practice"
+           v-bind:collected-by-picture="getPicture(getCommentsAnswer(practice).collected_by)"
+           v-bind:collected-by-printable-name="getPrintableName(getCommentsAnswer(practice).collected_by)"
+           v-bind:collected-at-time="getCommentsAnswer(practice).created_at"
+           v-bind:init-text="getCommentsAnswer(practice).measured"
+           v-on:update-text="updateComment"
+           :disabled="practice.frozen">
+  <div>
+    <form>
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+      <textarea class="form-control"
+                name="other-measures"
+                type="text" rows="10"
+                :placeholder="isTagged('verify') ? '{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}' : '{% trans %}Please provide context and supporting evidence for your answer, including public URL links, or uploaded documents. Thank you.{% endtrans %}'"
+                v-model="text"
+                :disabled="disabled"
+                @keydown="fitToText"
+                @blur="saveText"
+                @drop.prevent="dropFile" @dragenter.prevent @dragover.prevent
+                ></textarea>
+      <div class="progress upload-progress" v-show="uploadInProgress">
+        <div class="progress-bar" role="progressbar"
+             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+             style="width: 60%;">
+            <span class="progress-bar-info"></span>
+        </div>
+      </div>
+      <div class="row text-start">
+        <div class="col-3">
+          <div class="mt-2">
+            <button type="button" class="btn btn-primary" :disabled="disabled">
+              <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
+                  {% trans %}Upload{% endtrans %}
+              </label>
+            </button>
+            <input name="file" type="file" :id="callbackArg.slug + '-file'" style="display:none;" @change.prevent="uploadFile" :disabled="disabled" />
+          </div>
+        </div>
+        <div class="col-9">
+          <div class="mt-2" v-if="!(callbackArg.extra && callbackArg.extra.tags && callbackArg.extra.tags.includes('verify'))">
+            <small v-if="collectedByPrintableName">
+              <img class="rounded-circle float-start m-1" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+              {% trans %}updated by{% endtrans %} [[collectedByPrintableName]]
+                [[humanizeDate(collectedAtTime)]]
+                ([[humanizeTimeDelta(collectedAtTime)]])
+            </small>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</explainer>
