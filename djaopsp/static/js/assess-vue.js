@@ -220,11 +220,20 @@ Vue.component('campaign-questions-list', {
             return 6;
         },
         getPrimaryCandidate: function(practice) {
+            var self = this;
             if( (typeof practice.candidates === 'undefined') ||
                 practice.candidates.length < 1 ) {
                 practice['candidates'] = [{
+                    unit: practice.default_unit.slug,
                     measured: null
                 }];
+            }
+            if( !self.isUnitEquivalent(
+                practice.candidates[0].unit, practice.default_unit.slug) ) {
+                return {
+                    unit: practice.default_unit.slug,
+                    measured: null
+                }
             }
             return practice.candidates[0];
         },
