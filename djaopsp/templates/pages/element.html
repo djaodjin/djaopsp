@@ -5,169 +5,71 @@
 <meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
 {% endblock %}
 
-{% block content %}
-<section  id="app" class="backdrop container-fluid">
-  {% include "pages/_breadcrumbs.html" %}
-  <editables-detail inline-template>
-    <div {% if element %}id="{{element.slug}}"{% else %}:id="item.slug"{% endif %}>
-      <div class="row">
-        <div class="col-12">
-          <ul class="nav nav-tabs surrounded-tabs">
-            <li class="nav-item squared-tabs-li text-center first_tab">
-                <img class="editable droppable-image"
-                     {% if element %}src="{% if element.picture %}{{element.picture}}{% endif %}"{% else %}:src="item.picture"{% endif %} />
-            </li>
-          </ul>
+{% block pages_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="bg-body text-body p-3">
+        <div class="row mb-4">
+          <div class="col-sm-2">
+            {% if element.picture %}
+            <img class="img-fluid" style="max-height:100px;" src="{{element.picture}}">
+            {% endif %}
+          </div>
+          <div class="col-sm-10">
+            <h1 class="text-body">{{element.title}}</h1>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-12">
-          <div class="tab-pane active in">
-            <div class="tab-content">
-                <div class="panel-grey panel-cartitem over-radius bg-body text-body">
-                    <div class="p-2">
-                      <h1 class="editable text-body" data-key="title" v-cloak>{% if element %}{{element.title}}{% else %}[[item.title]]{% endif %}</h1>
-                      <div data-key="tags" class="editable text-end text-right">
-                        {% if element.extra and element.extra.tags %}
-                        {% for tag in element.extra.tags %}
-                        <span class="badge rounded-pill bg-secondary">{{tag}}</span>
-                        {% endfor %}
-                        {% endif %}
-                        <span class="badge rounded-pill bg-info"
-                              v-for="tag in tags"></span>
-                        {% if edit_perm %}
-                        <span id="lock">{% trans %}add tags ...{% endtrans %} <i class="fa fa-edit"></i></span>
-                        {% endif %}
-                      </div>
-                      <div class="mt-2 text-justify markdown-description">
-                        {% if element %}
-                        <div class="editable edit-formatted" data-key="text"
-                             style="min-height: 25vh">
-                          {% if element.text %}
-                          {{element.text|safe}}
-                          {% else %}
-                          {% trans %}This page is currently empty.{% endtrans %}
-                          {% endif %}
-                        </div>
-                        {% else %}
-                        <div style="min-height: 25vh"
-                             v-if="!itemLoaded">
-                          <i class="fa fa-spinner fa-spin fa-2x"></i>
-                        </div>
-                        <div class="editable edit-formatted" data-key="text"
-                             style="min-height: 25vh"
-                             v-html="item.text ? item.text : '{% trans %}This page is currently empty.{% endtrans %}'"
-                             v-show="itemLoaded" {# v-show instead of v-if such that the jQuery editor plugin can find the node in the DOM. #}
-                             v-cloak>
-                        </div>
-                        {% endif %}
-                        <hr />
-                        {% if profile %}
-                        <div id="create-chapter">
-                          <div class="text-end">
-                            <div class="d-grid gap-2">
-                              <a id="new-page" class="btn btn-primary"
-                                 data-bs-toggle="modal" data-bs-target="#new-pageelement"
-                                 data-toggle="modal" data-target="#new-pageelement"
-                                 href="#new-pageelement">{% trans %}New practice{% endtrans %}</a>
-                            </div>
-                          </div>
-                          <!-- modal to create a new page -->
-                          <div id="new-pageelement" class="modal fade"
-                               tabindex="-1" role="dialog"
-                               aria-labelledby="Create a page" aria-hidden="true" style="color: #000;">
-                            <div class="modal-dialog">
-                              <form class="modal-content"
-                                    @submit.prevent="create($event)">
-                                <div class="modal-header">
-                                  <h4 class="modal-title">{% trans %}Create a new practice ...{% endtrans %}</h4>
-                                  <button class="btn-close" type="button"
-                                          data-bs-dismiss="modal" data-dismiss="modal"
-                                          aria-label="Close">
-                                  </button>
-                                </div>
-                                <div class="modal-body">
-                                  <label class="form-label">
-                                    Title
-                                  </label>
-                                  <input class="form-control w-100"
-                                         type="text" name="title" placeholder="Title"
-                                         v-model="newItem.title">
-                                </div>
-                                <div class="modal-footer">
-                                  <button class="btn btn-outline-primary"
-                                          data-bs-dismiss="modal" data-dismiss="modal"
-                                          type="button">{% trans %}Cancel{% endtrans %}</button>
-                                  <button type="submit" class="btn btn-primary">{% trans %}Create{% endtrans %}</button>
-                                </div>
-                              </form>
-                            </div>
-                          </div>
-                        </div>{# /#create-chapter #}
-                        {% endif %}
-                        <div v-if="item.account == 'envconnect'">
-                            <p class="text-center mt-3">
-<a href="{{'/docs/faq/#environmental-practices'|site_url}}">{% trans %}How was this practice identified and selected?{% endtrans %}</a>
-                            </p>
-                          <p class="text-center mt-3">
+        <div data-key="tags" class="text-end text-right">
+          {% if element.extra and element.extra.tags %}
+          {% for tag in element.extra.tags %}
+          <span class="badge rounded-pill bg-secondary">{{tag}}</span>
+          {% endfor %}
+          {% endif %}
+        </div>
+        <div class="mt-2 text-justify markdown-description">
+          <div class="editable edit-formatted" data-key="text"
+               style="min-height: 25vh">
+            {% if element.text %}
+            {{element.text|safe}}
+            {% else %}
+            {% trans %}This page is currently empty.{% endtrans %}
+            {% endif %}
+          </div>
+        </div>
+        {% if element.account.slug == 'envconnect' %}
+        <hr />
+        <div>
+          <p class="text-center mt-3">
+            <a href="{{'/docs/questionnaires/sustainability/#best-practices-1'|site_url}}" target="_blank">{% trans %}How was this practice identified and selected?{% endtrans %}</a>
+          </p>
+          <p class="text-center mt-3">
 <img height="32" src="{{'/static/img/cc_icon_black_x2.png'|asset}}" />
 <img height="32" src="{{'/static/img/sa_black_x2.png'|asset}}" />
 <img height="32" src="{{'/static/img/attribution_icon_black_x2.png'|asset}}" />
-                          </p>
-                          <p>
+          </p>
+          <p>
 {% trans %}This material is licensed as Creative Commons{% endtrans %} <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.
 {% trans %}When using it for any project, you are required to give credit to The Sustainability Project (TSP). Please use the following attribution:{% endtrans %}
-                          </p>
-                            <p class="border-start ps-2 border-left pl-2" v-cloak>
-<em>&quot;<a :href="'{{request|site_url}}/app/info' + item.path">[[item.title]]</a> by <a href="{{request|site_url}}">The Sustainability Project (TSP)</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.&quot;</em>
-                            </p>
-                        </div>
-                        {% if edit_perm %}
-                        <div class="text-center">
-                          {% if aliases %}
-                          <div style="margin-top: 15px;">
-                            <h4>{% trans %}This content is aliased through:{% endtrans %}</h4>
-                                  {% for alias in aliases %}
-                            <ol class="breadcrumb">
-                              {% for alias_breadcrumb in alias %}
-                              <li class="breadcrumb-item">{{alias_breadcrumb.title}}</li>
-                              {% endfor %}
-                            </ol>
-                            {% endfor %}
-                          </div>
-                          {% endif %}
-                        </div>
-                        {% endif %}
-                      </div>
-                      <hr class="featurette-divider">
-                      {% block follow_vote %}
-                      {% include "pages/_follow_vote.html" %}
-                      {% endblock %}
-                      {% block comments %}
-                      {% include "pages/_comments.html" %}
-                      {% endblock %}
-                    </div>
-                </div>
-            </div>{# /.tab-content #}
-          </div>
+          </p>
+          <p class="border-start ps-2 border-left pl-2">
+<em>&quot;<a href="{{request.path}}">{{element.title}}</a> by <a href="{{request|site_url}}">The Sustainability Project (TSP)</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.&quot;</em>
+          </p>
         </div>
+        {% endif %}
       </div>
+      <hr class="featurette-divider">
+      <editables-detail inline-template>
+        <div>
+          {% block follow_vote %}
+          {% include "pages/_follow_vote.html" %}
+          {% endblock %}
+          {% block comments %}
+          {% include "pages/_comments.html" %}
+          {% endblock %}
+        </div>
+      </editables-detail>
     </div>
-  </editables-detail>
-</section>
-{% endblock %}
-
-{% block pages_scripts %}
-<script type="text/javascript" charset="utf-8">
-{% if edit_perm %}
-assetsUploadUrl = "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_url}}{% endif %}";
-
-$(document).ready(function(){
-	$(".editable").editor({
-		baseUrl: "{{urls.api_content}}",
-		preventBlurOnClick: "#media-gallery, .dj-gallery-item"
-	});
-});
-{% endif %}
-</script>
+  </div>
+</div>
 {% endblock %}

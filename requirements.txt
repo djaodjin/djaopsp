@@ -2,19 +2,18 @@
 #
 # `tiktoken` (AI audits) requires Python>=3.8
 
-Django==4.2.23
+Django==4.2.26
 djangorestframework==3.15.2       # 3.15 requires Django>=4.2, Python>=3.8
                                   # 3.13.1 is last version supporting Django 2.2
                                   # 3.12.4 not compatible with Django4.2
-djaodjin-deployutils==0.14.1
-djaodjin-extended-templates==0.4.9
-djaodjin-pages==0.8.6
+djaodjin-deployutils==0.14.2
+djaodjin-extended-templates==0.4.11
+djaodjin-pages==0.8.7
 djaodjin-survey==0.17.3
 docutils==0.20.1          # Technically only needed for schema generation but
                           # djangorestframework will import regardless.
 gunicorn==23.0.0
-jinja2==3.1.6             # >=3.1 not available with Py36?
-html5lib==1.1
+jinja2==3.1.6                     # >=3.1 not available with Py36?
 monotonic==1.6
 openpyxl==3.1.5
 python-pptx==0.6.21
