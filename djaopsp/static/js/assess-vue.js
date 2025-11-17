@@ -653,20 +653,26 @@ Vue.component('campaign-questions-list', {
             vm.updateAssessmentAnswer(row, data);
         },
         // specific to data ranges
-        updateStartsAt: function(practice) {
+        updateStartsAt: function(practice, newValue) {
             var vm = this;
             vm.setActiveElement(practice);
-            vm.updateAssessmentAnswer(practice);
+            if( typeof newValue === 'undefined' ) {
+                newValue = vm.getAnswerStartsAt(practice)
+            }
+            vm.updateAssessmentAnswer(practice, newValue);
             this.$nextTick(function() {
                 if( !jQuery('#syncEndsAt').is(':visible') ) {
                     jQuery('#syncBaselineAt').modal("show");
                 }
             });
         },
-        updateEndsAt: function(practice) {
+        updateEndsAt: function(practice, newValue) {
             var vm = this;
             vm.setActiveElement(practice);
-            vm.updateAssessmentAnswer(practice);
+            if( typeof newValue === 'undefined' ) {
+                newValue = vm.getAnswerEndsAt(practice)
+            }
+            vm.updateAssessmentAnswer(practice, newValue);
             this.$nextTick(function() {
                 if( !jQuery('#syncBaselineAt').is(':visible') ) {
                     jQuery('#syncEndsAt').modal("show");
@@ -682,8 +688,7 @@ Vue.component('campaign-questions-list', {
             var practices = vm.getEntries(parent.slug);
             for( var idx = 0; idx < practices.length; ++idx ) {
                 var row = practices[idx];
-                if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
-                    vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ) {
+                if( vm.isDataForPeriod(row) ) {
                     vm.getAnswerStartsAt(row).measured = atTime;
                     vm._callUpdateAnswer(row, newValue, tag);
                 }
@@ -698,8 +703,7 @@ Vue.component('campaign-questions-list', {
             var practices = vm.getEntries(parent.slug);
             for( var idx = 0; idx < practices.length; ++idx ) {
                 var row = practices[idx];
-                if( vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
-                    vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ) {
+                if( vm.isDataForPeriod(row) ) {
                     vm.getAnswerEndsAt(row).measured = atTime;
                     vm._callUpdateAnswer(row, newValue, tag);
                 }

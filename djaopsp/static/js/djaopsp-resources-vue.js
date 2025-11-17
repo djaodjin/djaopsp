@@ -698,6 +698,12 @@ var practicesListMixin = {
         isCascadedVisible: function(row) {
             return row.visible;
         },
+        isDataForPeriod: function(row) {
+            var vm = this;
+            return vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
+                vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ||
+                row.ui_hint === 'revenue';
+        },
         isWasteUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'waste';

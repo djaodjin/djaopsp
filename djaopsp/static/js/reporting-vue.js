@@ -291,15 +291,17 @@ Vue.component('engage-profiles', {
                 });
             } else {
                 vm.reqPost(vm.$urls.api_accessibles, data,
-                function success(resp) {
-                    const now = new Date(Date.now());
-                    const endsAt = new Date(vm.params.ends_at);
-                    if( isNaN(endsAt) || endsAt < now ) {
-                        vm.params.ends_at = now.toISOString();
+                function success(resp, textStatus, jqXHR) {
+                    if( jqXHR.status == 201 ) {
+                        const now = new Date(Date.now());
+                        const endsAt = new Date(vm.params.ends_at);
+                        if( isNaN(endsAt) || endsAt < now ) {
+                            vm.params.ends_at = now.toISOString();
+                        }
+                        if( vm.params.page ) vm.params.page = 1;
+                        vm.params.q = vm.newItem.full_name;
+                        vm.get();
                     }
-                    if( vm.params.page ) vm.params.page = 1;
-                    vm.params.q = vm.newItem.full_name;
-                    vm.get();
                     vm.hideModal($event);
                 });
             }

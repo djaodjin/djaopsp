@@ -71,7 +71,7 @@
             v-model="getAnswerStartsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateStartsAt(practice, '{{assess_type}}')"
+            @blur="updateStartsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -83,7 +83,7 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateEndsAt(practice, '{{assess_type}}')"
+            @blur="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -218,7 +218,7 @@
             v-model="getAnswerStartsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateStartsAt(practice, '{{assess_type}}')"
+            @blur="updateStartsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -230,7 +230,7 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateEndsAt(practice, '{{assess_type}}')"
+            @blur="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -284,7 +284,7 @@
             v-model="getAnswerStartsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateStartsAt(practice, '{{assess_type}}')"
+            @blur="updateStartsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -296,7 +296,7 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateEndsAt(practice, '{{assess_type}}')"
+            @blur="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -343,7 +343,7 @@
             v-model="getAnswerStartsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateStartsAt(practice, '{{assess_type}}')"
+            @blur="updateStartsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -355,7 +355,7 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateEndsAt(practice, '{{assess_type}}')"
+            @blur="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -402,7 +402,7 @@
             v-model="getAnswerStartsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateStartsAt(practice, '{{assess_type}}')"
+            @blur="updateStartsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -414,7 +414,7 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateEndsAt(practice, '{{assess_type}}')"
+            @blur="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
