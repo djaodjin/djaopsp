@@ -88,6 +88,9 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
                     primary_planned = answer.get('measured')
         # base_headers
         title = entry['title']
+        ref_num = entry.get('ref_num')
+        if ref_num:
+            title = "%s %s" % (ref_num, title)
         if default_unit and default_unit_choices:
             subtitle = ""
             for choice in default_unit_choices:

@@ -1216,6 +1216,9 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
     @staticmethod
     def _get_title(element):
         title = element.get('title', "")
+        ref_num = element.get('ref_num')
+        if ref_num:
+            title = "%s %s" % (ref_num, title)
         default_unit = element.get('default_unit', {})
         if default_unit and default_unit.get('system') in Unit.METRIC_SYSTEMS:
             title += " (in %s)" % default_unit.get('title')
