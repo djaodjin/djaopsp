@@ -557,6 +557,8 @@ class LongFormatSerializer(NoModelSerializer):
         help_text=_("Unit the measured field is in"))
     title = serializers.CharField(
         help_text=_("Title of the question as displayed in user interfaces"))
+    ref_num = serializers.CharField(
+        help_text=_("RefNum of the question as displayed in user interfaces"))
 
 
 class RequestSerializer(NoModelSerializer):

@@ -1109,8 +1109,12 @@ ORDER BY answers.path, answers.account_id
 
 class AnswersPivotableView(AnswersDownloadMixin, ListAPIView):
 
+    basename = 'answers'
     headings = ['Created at', 'SupplierID', 'Profile name',
-        'Measured', 'Unit', 'Question title']
+        'Measured', 'Unit', 'Question title', 'Question RefNum']
+
+    def get_filename(self, ext='.csv'):
+        return datetime_or_now().strftime(self.basename + '-%Y%m%d' + ext)
 
     def get_queryset(self):
         #pylint:disable=too-many-locals
@@ -1127,6 +1131,7 @@ class AnswersPivotableView(AnswersDownloadMixin, ListAPIView):
 
         for entry in queryset:
             question_title = entry.get('title')
+            ref_num = entry.get('ref_num')
             by_accounts = entry.get('accounts', [])
             if by_accounts:
                 for col in by_accounts:
@@ -1146,6 +1151,7 @@ class AnswersPivotableView(AnswersDownloadMixin, ListAPIView):
                         'measured': measured,
                         'unit': unit_title,
                         'title': question_title,
+                        'ref_num': ref_num
                     }]
 
         return results

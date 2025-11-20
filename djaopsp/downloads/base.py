@@ -46,6 +46,12 @@ class CSVDownloadRenderer(BaseRenderer):
         return row
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
+        resp = renderer_context.get('response')
+        view = renderer_context.get('view')
+        if resp and view:
+            resp['Content-Disposition'] = \
+                'attachment; filename="{}"'.format(view.get_filename())
+
         if six.PY2:
             content = io.BytesIO()
         else:
