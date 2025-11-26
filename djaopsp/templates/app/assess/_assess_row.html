@@ -544,9 +544,9 @@
   <div class="col-md-6 text-center"
        v-if="isEnumTypeaheadUIHint(practice)">
     <enum-choices-typeahead inline-template ref="typeahead"
-        v-bind:question="practice"
+        :data-url="'{{urls.api_units}}/' + practice.default_unit.slug + '/choices'"
         v-bind:value="getPrimaryAnswer(practice, '{{assess_type}}').measured"
-        v-bind:dataset="items.results"
+        v-bind:dataset="practice"
         v-on:selectitem="updateEnumAnswer">
       <div>
         <div class="input-group mb-3">

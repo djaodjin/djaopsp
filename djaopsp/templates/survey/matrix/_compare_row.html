@@ -1,40 +1,45 @@
-<td :id="practice.slug" :colspan="!isPractice(practice) ? datasets.length + 1 : 1">
+<td :id="row.slug" :colspan="!isPractice(row) ? datasets.length + 1 : 1">
   <div style="display:inline-block;">
-    <div :class="indentHeader(practice)"
+    <div :class="indentHeader(row)"
          style="display:inline-block;">
       <span class="title"
-            v-if="!isPractice(practice)">
-        [[practice.title]]
+            v-if="!isPractice(row)">
+        [[row.title]]
       </span>
       <a class="title"
-         :href="'{{urls.pages_index}}' + practice.slug + '/'"
-         v-if="isPractice(practice)">
-        [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
+         :href="'{{urls.pages_index}}' + row.slug + '/'"
+         v-if="isPractice(row)">
+        [[row.ref_num ? (row.ref_num + " ") : ""]][[row.title]]
       </a>
     </div>
   </div>
 </td>
 
-<td v-for="dataset in datasets" v-if="isPractice(practice)">
-  <div v-for="datasetPractice in [getCompareAnswers(dataset, practice)]">
+<td v-for="dataset in datasets" v-if="isPractice(row)">
+  <div v-for="practice in [getCompareAnswers(dataset, row)]">
     <div v-if="isEnumUnit(practice)">
-      [[getPrimaryAnswer(datasetPractice).measured]]
+      [[getPrimaryAnswer(practice).measured]]
+      {% include "app/scorecard/_secondary_answers.html" %}
     </div>
 
     <div v-if="isFreetextUnit(practice)">
-      [[getPrimaryAnswer(datasetPractice).measured]]
+      [[getPrimaryAnswer(practice).measured]]
+      {% include "app/scorecard/_secondary_answers.html" %}
     </div>
 
     <div v-if="isEmployeeCountUIHint(practice)">
-      [[getPrimaryAnswer(datasetPractice).measured]]
+      [[getPrimaryAnswer(practice).measured]]
+      {% include "app/scorecard/_secondary_answers.html" %}
     </div>
 
     <div v-if="isNumberUnit(practice)">
-      [[getPrimaryAnswer(datasetPractice).measured]]
+      [[getPrimaryAnswer(practice).measured]]
+      {% include "app/scorecard/_secondary_answers.html" %}
     </div>
 
     <div v-if="isDatetimeUnit(practice)">
-      [[getPrimaryAnswer(datasetPractice).measured]]
+      [[getPrimaryAnswer(practice).measured]]
+      {% include "app/scorecard/_secondary_answers.html" %}
     </div>
 
   </div>

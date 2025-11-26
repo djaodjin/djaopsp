@@ -606,6 +606,24 @@ Vue.component('djaopsp-compare-samples', {
             var vm = this;
             vm.populateAccounts(vm.selectedAccounts);
         },
+        // display with active links
+        textAsHtml: function(text, required) {
+            var vm = this;
+            if( !text ) {
+                return required ? "&dash;" : "";
+            }
+            var activeLinks = text.replace(
+                /(https?:\/\/\S+)/gi,
+                '<a href="$1" target="_blank">external link</a>');
+            if( vm.upload_complete_url ) {
+                var reg = new RegExp(
+                    '<a href="(' + vm.upload_complete_url +
+                    '\/\\S+)" target="_blank">(external link)<\/a>', 'gi');
+                activeLinks = activeLinks.replace(reg,
+                    '<a href="$1">uploaded document</a>');
+            }
+            return activeLinks;
+        },
         updateChart: function() {
             var vm = this;
             const entries = vm.getEntries(vm.displayMetric.path);

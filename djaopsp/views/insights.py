@@ -76,9 +76,13 @@ class CompareInsightsView(InsightsView):
 
     def get_context_data(self, **kwargs):
         context = super(CompareInsightsView, self).get_context_data(**kwargs)
+        api_account_candidates = reverse(
+            'api_last_by_campaign_accessibles', args=(self.account,))
+        if self.account in self.verifier_accounts:
+            api_account_candidates = site_url("/api/accounts/profiles")
         update_context_urls(context, {
             'api_version': site_url("/api"),
-            'api_account_candidates': site_url("/api/accounts/profiles"),
+            'api_account_candidates': api_account_candidates,
             'api_accounts': site_url("/api/profile"),
             'api_plans': site_url("/api/profile/%(profile)s/plans" % {
                 'profile': self.account}),

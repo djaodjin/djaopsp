@@ -273,9 +273,9 @@ else:
             STATIC_URL, APP_VERSION),
         '/static/cache/reporting.js': '%scache/reporting-%s.js' % (
             STATIC_URL, APP_VERSION),
-        '/static/cache/app.css': '%s/cache/app-%s.css' % (
+        '/static/cache/app.css': '%scache/app-%s.css' % (
             STATIC_URL, APP_VERSION),
-        '/static/cache/email.css': '%s/cache/email-%s.css' % (
+        '/static/cache/email.css': '%scache/email-%s.css' % (
             STATIC_URL, APP_VERSION),
     }
 

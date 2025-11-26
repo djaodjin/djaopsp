@@ -23,46 +23,53 @@
                 @submit.prevent="validate()">
             <fieldset :disabled="disabled">
               <account-typeahead id="profile-query"
-                                 inline-template ref="account"
-                                 v-on:selectitem="selectAccount"
-                                 v-on:typeaheadreset="resetAccount">
-                <div class="input-group mb-3">
-                  <span class="input-group-text">
-                    <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                    <template v-else>
-                      <i class="fa fa-search" v-show="isEmpty"></i>
-                      <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                    </template>
-                  </span>
-                  <input class="form-control"
-                         type="text"
-                         name="profileQuery"
-                         placeholder="{% trans %}Enter profile name{% endtrans %}"
-                         autocomplete="off"
-                         v-model="query"
-                         @keydown.down="down"
-                         @keydown.up="up"
-                         @keydown.enter.prevent="hit"
-                         @blur="clear"
-                         @input="update"></input>
-                  <button  class="input-group-text"
-                           role="button" href="#"
-                           aria-haspopup="true" aria-expanded="false"
-                           @click.prevent="reload">
-                      <i class="fa fa-caret-down"></i>
-                  </button>
-                  {# Implementation note: If we use `d-block` instead of    #}
-                  {# `style="display: block;"` the dropdown shows even when #}
-                  {# `hasItems` is `False`.                                 #}
-                  <ul class="dropdown-menu nav-pills p-1 top-100"
-                      style="display: block;"
-                      v-show="hasItems">
+                            inline-template ref="account"
+                            data-url="{{urls.api_account_candidates}}"
+                            v-on:selectitem="selectAccount">
+                <div>
+                  <div class="input-group mb-3">
+                    <span class="input-group-text">
+                      <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                      <template v-else>
+                        <i class="fa fa-search" v-show="isEmpty"></i>
+                        <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                      </template>
+                    </span>
+                    <input class="form-control"
+                           type="text"
+                           name="profile"
+                           placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
+                           autocomplete="off"
+                           v-model="query"
+                           @keydown.down="down"
+                           @keydown.up="up"
+                           @keydown.enter.prevent="hit"
+                           @blur="clearAndForget"
+                           @input="update"
+                           ref="input"/>
+                    <button  class="input-group-text"
+                             role="button" href="#"
+                             @click.prevent="resetAndReload"
+                             aria-haspopup="true"
+                             aria-expanded="false">
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                    {# Implementation note: If we use `d-block` instead of    #}
+                    {# `style="display: block;"` the dropdown shows even when #}
+                    {# `hasItems` is `False`.                                 #}
+                    <ul id="candidateList" :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+                        style="max-height: 250px;">
                       <li v-for="(item, $item) in items" class="nav-item"
                           @mousedown="hit"
-                          @mousemove="setActive($item)">
-                          <a :class="'nav-link px-3 py-2' + activeClass($item)" v-text="item.printable_name"></a>
+                          @mousemove="setActive($item)" v-if="item.printable_name">
+                        <a :class="'nav-link px-3 py-2' + activeClass($item)">
+                          <dl>
+                            <dd v-html="highlightQuery(item.printable_name)"></dd>
+                          </dl>
+                        </a>
                       </li>
-                  </ul>
+                    </ul>
+                  </div>
                 </div>
               </account-typeahead>
               <div v-show="hasAccount && !hasSamples">
@@ -122,7 +129,7 @@
         <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
           <td colspan="7">{% trans %}No response to compare{% endtrans %}</td>
         </tr>
-        <tr v-for="practice in getEntries(displayMetric.path)"
+        <tr v-for="row in getEntries(displayMetric.path)"
             v-show="itemsLoaded && items.results.length > 0" v-cloak>
             {% include "survey/matrix/_compare_row.html" %}
         </tr>

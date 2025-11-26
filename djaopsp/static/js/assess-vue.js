@@ -592,7 +592,7 @@ Vue.component('campaign-questions-list', {
         },
         updateEnumAnswer: function(newValue, practice) {
             var vm = this;
-            vm.updateAssessmentAnswer(practice, newValue);
+            vm.updateAssessmentAnswer(practice, newValue.text);
         },
         updateAssessmentAnswer: function(practice, newValue, tag) {
             var vm = this;

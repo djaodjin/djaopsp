@@ -50,7 +50,7 @@ Vue.component('editable-practices-list', {
                 vm._loadData();
             });
         },
-        addPractice: function(practices, newPractice) {
+        addPractice: function(newPractice, practices) {
             var vm = this;
             vm.activeEntry.title = newPractice.title;
             return false;

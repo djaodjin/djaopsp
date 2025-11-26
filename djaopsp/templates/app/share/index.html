@@ -173,14 +173,13 @@
                                      @keydown.up="up"
                                      @keydown.enter.prevent="hit"
                                      @blur="reset"
-                                     @input="update" />
+                                     @input="update"
+                                     ref="input" />
                               <!-- the list -->
                             {# Implementation note: If we use `d-block` instead of    #}
                             {# `style="display: block;"` the dropdown shows even when #}
                             {# `hasItems` is `False`.                                 #}
-                                  <ul class="dropdown-menu nav-pills p-1 top-100"
-                                      style="display: block;"
-                                      v-show="hasItems">
+                                  <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')">
                                     <li v-for="(item, $item) in items" class="nav-item"
                                         @mousedown="hit"
                                         @mousemove="setActive($item)">
