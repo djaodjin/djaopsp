@@ -760,7 +760,18 @@ var practicesListMixin = {
                 if( curr.indent <= row.indent ) {
                     break;
                 }
-                curr.visible = !curr.visible;
+                if( true ) {
+                    // only open one cascade level
+                    if( curr.indent == row.indent + 1 ) {
+                        curr.visible = !curr.visible;
+                    }
+                } else {
+                    // open all cascade levels
+                    curr.visible = !curr.visible;
+                    if( typeof curr.isCascadeVisible !== 'undefined' ) {
+                        curr.isCascadeVisible = !curr.isCascadeVisible;
+                    }
+                }
             }
             row.isCascadeVisible = !row.isCascadeVisible;
             vm.$forceUpdate();

@@ -145,7 +145,7 @@ header .nav-item {
 }
 
 .practice-required-answered>div {
-  border-right: 1px solid #{$table-border-color} !important;
+  border-left: 5px solid #{$table-border-color} !important;
 }
 
 .candidate-answer {
@@ -161,6 +161,10 @@ header .nav-item {
   line-height: 0;
   border-radius: 50%;
   background: $candidate-bg;
+}
+
+button.candidate-answer {
+  color: $candidate-bg;
 }
 
 .progressbar-container {
@@ -1020,12 +1024,14 @@ a.text-grey{
 }
 
 .practice-row {
-    border-bottom: 1px solid #{$table-border-color};
-//    border-top: 1px solid #{$table-border-color};
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
     padding-right: 12px;
     padding-left: 12px;
+}
+
+.practice-row>.bestpractice {
+    border-bottom: 1px solid #{$table-border-color};
 }
 
 .practice-row input::placeholder { // For most modern browsers
@@ -1036,9 +1042,17 @@ a.text-grey{
     border-color: red;
 }
 
+/*
 .practice-row:nth-of-type(#{$table-striped-order}) {
     color: #{$table-striped-color};
     background-color: #{$table-striped-bg};
+}
+*/
+
+.practice-row .descr {
+  font-size: var(--bs-body-font-size);
+  --bs-text-opacity: 1;
+  color: var(--bs-secondary-color) !important;
 }
 
 .heading-tile {
@@ -2168,8 +2182,8 @@ a.header-anchor:hover{
     margin-left: 140px;
   }
 
-  .practice-row .bestpractice {
-    min-height: 100px;
+  .practice-row>.bestpractice {
+    //min-height: 100px;
   }
 
   .radio-label {

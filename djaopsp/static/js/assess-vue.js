@@ -237,6 +237,24 @@ Vue.component('campaign-questions-list', {
             }
             return practice.candidates[0];
         },
+        // use the primary candidate answer as the primary answer.
+        useCandidateAnswer: function(practice) {
+            var vm = this;
+            const candidate = vm.getPrimaryCandidate(practice);
+            // This code shouldn't be necessary as `candidate.measured`
+            // is already a number (i.e. not of type `String`).
+            //if( practice.default_unit && practice.default_unit.system ) {
+            //    if( practice.default_unit.system == 'standard' ||
+            //        practice.default_unit.system == 'imperial' ||
+            //        practice.default_unit.system == 'rank' ) {
+            //        candidate.measured = parseInt(candidate.measured);
+            //    }
+            //}
+            var primaryAnswer = vm.getPrimaryAnswer(practice);
+            vm.$set(primaryAnswer, 'measured', candidate.measured);
+            vm.$set(primaryAnswer, 'unit', candidate.unit);
+            vm.updateAssessmentAnswer(practice, candidate);
+        },
         importFromTrackingTool: function(practice) {
             var vm = this;
             var primaryAnswer = vm.getPrimaryAnswer(practice);
@@ -642,6 +660,21 @@ Vue.component('campaign-questions-list', {
             return this.getAnswerByUnit(row, 'yes-no').measured === 'Yes';
         },
         toggleNotDisclosedPublicly: function(row) {
+            var vm = this;
+            const data = {
+                unit: 'yes-no',
+                measured: vm.getAnswerByUnit(row, 'yes-no').measured === 'Yes' ?
+                    'No' : 'Yes'};
+            vm.getAnswerByUnit(row, 'yes-no').measured =
+                vm.getAnswerByUnit(row, 'yes-no').measured === 'Yes' ?
+                    'No' : 'Yes';
+            vm.updateAssessmentAnswer(row, data);
+        },
+        // specific to UI elements that track metrics
+        isNotYetMeasured: function(row) {
+            return this.getAnswerByUnit(row, 'yes-no').measured === 'Yes';
+        },
+        toggleNotYetMeasured: function(row) {
             var vm = this;
             const data = {
                 unit: 'yes-no',

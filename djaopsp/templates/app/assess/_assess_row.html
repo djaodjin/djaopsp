@@ -1,4 +1,4 @@
-<div :id="getPracticeId(practice)" :class="'row ' + practiceStyle(practice)">
+<div :id="getPracticeId(practice)" :class="(isPractice(practice) && isFreetextUIHint(practice) ? 'bestpractice row ' : 'row ') + practiceStyle(practice)">
   <div :class="(isPractice(practice) || isEnumHeaderShown(icon)) ? 'col-md-6' : 'col-md-12'">
     <div :class="indentHeader(practice)">
       <span :class="isCascadeVisible(practice) ? 'dropdown' : 'dropend'"
@@ -7,10 +7,10 @@
               @click.prevent="toggleCascadeVisible(practice)">
         </button>
       </span>
-      <span class="title"
-            v-if="!isPractice(practice) && !isPagebreak(practice)">
-        [[practice.title]]
-      </span>
+      <div class="title" v-if="!isPractice(practice) && !isPagebreak(practice)">
+        <div>[[practice.title]]</div>
+        <div class="descr">[[practice.text]]</div>
+      </div>
       <a :href="practice.slug + '/'"
          v-if="!isPractice(practice) && isPagebreak(practice)">
         [[practice.title]]
@@ -21,14 +21,6 @@
         <a :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
            target="_blank"><i class="fa fa-question-circle"></i></a>
       </span>
-    </div>
-    <div class="text-end me-2"
-         v-if="isPractice(practice) && !isFreetextUIHint(practice)">
-      <a class="title" href=""
-         title="Got a comment? Click here."
-         @click.prevent="openComments(practice)">
-        <i class="fa fa-sticky-note-o"></i>
-      </a>
     </div>
   </div>
 
@@ -123,24 +115,16 @@
               @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
               :disabled="practice.frozen">
         <option v-bind:value="null" disabled selected hidden>Please select a range ...</option>
-        <option value="0">&lt; 25</option>
-        <option value="25">25-50</option>
-        <option value="50">50-250</option>
-        <option value="250">250-500</option>
-        <option value="500">500-1,000</option>
-        <option value="1000">1,000-5,000</option>
-        <option value="5000">5,000-10,000</option>
-        <option value="10000">10,000-30,000</option>
-        <option value="30000">&gt;30,000</option>
-      </select>
-      <select class="form-control form-select input-group-suffix"
-              v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
-              @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-              :disabled="practice.frozen">
-        <option value="usd">US Dollars ($)</option>
-        <option value="million-usd">Millions US Dollars ($M)</option>
-        <option value="eur">Euros</option>
-        <option value="million-eur">Millions Euros</option>
+        <option value="0">&lt; 25 million USD</option>
+        <option value="25">25-50 million USD</option>
+        <option value="50">50-250 million USD</option>
+        <option value="250">250-500 million USD</option>
+        <option value="500">500 million - 1 billion USD</option>
+        <option value="1000">1-5 billion USD</option>
+        <option value="5000">5-10 billion USD</option>
+        <option value="10000">10-30 billion USD</option>
+        <option value="30000">&gt;30 billion USD</option>
+        <option value="-1">Unable to disclose a range</option>
       </select>
     </div>
   </div>{# /isRevenueUIHint #}
@@ -265,7 +249,7 @@
           @click.prevent="importFromTrackingTool(practice)">{% trans %}import from tracking tool{% endtrans %}</button>
       </div>
       <div class="col-6">
-        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}energy-ghg-emissions/">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
+        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}energy-ghg-emissions/" target="_blank">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
       </div>
     </div>
   </div>
@@ -324,7 +308,7 @@
           @click.prevent="importFromTrackingTool(practice)">{% trans %}import from tracking tool{% endtrans %}</button>
       </div>
       <div class="col-6">
-        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}water/">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
+        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}water/" target="_blank">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
       </div>
     </div>
   </div>
@@ -385,7 +369,7 @@
           @click.prevent="importFromTrackingTool(practice)">{% trans %}import from tracking tool{% endtrans %}</button>
       </div>
       <div class="col-6">
-        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}waste/">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
+        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}waste/" target="_blank">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
       </div>
     </div>
   </div>
@@ -419,31 +403,42 @@
         </div>
       </div>
     </div>
-    <div class="input-group">
-      <span class="input-group-text">
-        <i class="fa fa-times"
-           @click="resetAssessmentAnswer(practice)"></i>
-      </span>
-      <input class="form-control text-end"
+    <div class="row">
+      <div class="col-md-12">
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="fa fa-times"
+               @click="resetAssessmentAnswer(practice)"></i>
+          </span>
+          <input class="form-control text-end"
              type="number"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
              :placeholder="getPrimaryCandidate(practice).measured"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
              :disabled="practice.frozen"></input>
-      <select class="form-control form-select"
-              v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
-              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-              :disabled="practice.frozen">
-        <option value="t-year">Metric Tons CO2e</option>
-      </select>
+          <select class="form-control form-select"
+                  v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
+                  @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
+                  :disabled="practice.frozen">
+            <option value="t-year">Metric Tons CO2e</option>
+          </select>
+        </div>
+        <div class="text-start mt-1">
+          <input class="form-check-input"
+                 type="checkbox"
+                 :checked="isNotYetMeasured(practice)"
+                 @change="toggleNotYetMeasured(practice)">
+          <label class="form-check-label">{% trans %}Not yet measured / Not applicable{% endtrans %}</label>
+        </div>
+      </div>
     </div>
     <div class="row mt-1" v-if="!isGHGEmissionsScope3(practice)">
       <div class="col-6">
         <button class="btn btn-sm btn-outline-primary"
-          @click.prevent="importFromTrackingTool(practice)">{% trans %}import from tracking tool{% endtrans %}</button>
+          @click.prevent="importFromTrackingTool(practice)">{% trans %}Use calculator result{% endtrans %}</button>
       </div>
       <div class="col-6">
-        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}energy-ghg-emissions/">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
+        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}energy-ghg-emissions/" target="_blank">{% trans %}GHG Emissions calculator{% endtrans %} &raquo;</a>
       </div>
     </div>
   </div>
@@ -674,14 +669,44 @@
 </div>{# /.row #}
 
 {# optional comments #}
-<div :class="'row ' + practiceStyle(practice)"
-     v-if="isPractice(practice)"
-     v-show="isActiveCommentsShown(practice)">
+<div :class="(isPractice(practice) && !isFreetextUIHint(practice) ? 'bestpractice row ' : 'row ') + practiceStyle(practice)"
+     v-if="isPractice(practice) && !isFreetextUIHint(practice)">
   <div class="col-md-6">
   </div>
   <div class="col-md-6">
+    <div class="row">
+      <div class="col-md-6">
+        <button class="btn btn-link ps-0"
+           title="{% trans %}Got a comment? Click here.{% endtrans %}"
+           @click.prevent="openComments(practice)">
+          <i class="fa fa-sticky-note-o"></i>
+        </button>
+      </div>
+      <div class="col-md-6 text-end">
+        <!-- XXX waiting for more testing before enabling
+        <button class="btn candidate-answer"
+                title="{% trans %}Use calculator result{% endtrans %}"
+          @click.prevent="importFromTrackingTool(practice)"
+          v-if="isEnergyUIHint(practice) || (isGHGEmissions(practice) & !isGHGEmissionsScope3(practice)) || isWaterUIHint(practice) || isWasteUIHint(practice)">
+          <i class="fa fa-cogs"></i>
+        </button>
+        <button class="btn candidate-answer"
+                title="{% trans %}Use suggested answer{% endtrans %}"
+                @click.prevent="useCandidateAnswer(practice)"
+                v-if="getPrimaryCandidate(practice).measured != null">
+          <i class="fa fa-bullseye"></i>
+        </button>
+        <button class="btn btn-link text-danger"
+                title="{% trans %}Clear answer{% endtrans %}"
+                @click.prevent="resetAssessmentAnswer(practice)"
+                v-if="getPrimaryAnswer(practice).measured != null">
+          <i class="fa fa-times"></i>
+        </button>
+        -->
+      </div>
+    </div>
     {# comments #}
-    <div class="mt-2">
+    <div class="mt-2" v-show="isActiveCommentsShown(practice)">
       <h5 class="my-0">{% trans %}Notes, Public URL Links, and/or Uploaded Documents{% endtrans %}</h5>
       <p class="text-danger" v-if="isNotApplicable(practice)">
         You selected <strong>&quot;Not Applicable&quot;</strong>, please explain.

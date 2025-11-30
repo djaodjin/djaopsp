@@ -91,7 +91,7 @@ class CampaignDecorateMixin(CampaignMixin):
                     tile_key = practices[prefix][0]
                     tile_key.update(question) # insert question fields
                     extra = extra_as_internal(tile_key)
-                    extra_fields = {'title', 'picture', 'extra'}
+                    extra_fields = {'title', 'picture', 'extra', 'text'}
                     absent = False
                     for field_name in extra_fields:
                         absent = field_name not in tile_key
@@ -99,8 +99,7 @@ class CampaignDecorateMixin(CampaignMixin):
                             break
                     if absent:
                         element = PageElement.objects.filter(
-                            slug=part).values(
-                            'title', 'picture', 'extra').first()
+                            slug=part).values(*extra_fields).first()
                         # `rank` is already set in the `question` dict
                         # as it is critical it is unique accross radio
                         # buttons presented to the request.user.
@@ -131,17 +130,14 @@ class CampaignDecorateMixin(CampaignMixin):
         headings = [element['slug'] for element in elements
             if 'title' not in element]
 
+        extra_fields = {'title', 'picture', 'extra', 'text'}
         headings_queryset = PageElement.objects.filter(
-            slug__in=headings).values(
-                'slug', 'title', 'picture', 'extra').annotate(
-                    rank=Max('to_element__rank'))
+            slug__in=headings).values('slug', *extra_fields).annotate(
+            rank=Max('to_element__rank'))
         headings_by_slug = {
-            element['slug']: {
-                'title': element['title'],
-                'picture': element['picture'],
-                'rank': element['rank'],
-                'extra': extra_as_internal(element)
-            } for element in headings_queryset}
+            element['slug']: element for element in headings_queryset}
+        for element in headings_by_slug.values():
+            element['extra'] = extra_as_internal(element)
         for element in elements:
             slug = element.get('slug')
             if slug:
