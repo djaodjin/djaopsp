@@ -43,8 +43,7 @@ from ..mixins import (AccountMixin, CampaignMixin,
     AccountsNominativeQuerysetMixin)
 from ..models import ScorecardCache
 from ..scores.base import get_top_normalized_score
-from ..utils import get_alliances
-
+from ..utils import get_alliances, get_practice_serializer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -258,6 +257,7 @@ class BenchmarkPPTXView(BenchmarkPSPMixin, FullReportPPTXView):
     Download benchmarks a .pptx presentation
     """
     basename = 'benchmarks'
+    serializer_class = get_practice_serializer()
 
     @property
     def question(self):
