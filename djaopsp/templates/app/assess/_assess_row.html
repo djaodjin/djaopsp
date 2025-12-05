@@ -424,11 +424,16 @@
           </select>
         </div>
         <div class="text-start mt-1">
-          <input class="form-check-input"
-                 type="checkbox"
-                 :checked="isNotYetMeasured(practice)"
-                 @change="toggleNotYetMeasured(practice)">
-          <label class="form-check-label">{% trans %}Not yet measured / Not applicable{% endtrans %}</label>
+          <select class="form-control form-select"
+                  v-model="getAnswerByUnit(practice, 'relevance').measured"
+                  @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'relevance'), '{{assess_type}}')"
+                  :disabled="practice.frozen">
+            <option value="relevant-and-calculated">{% trans %}Relevant, calculated{% endtrans %}</option>
+            <option value="relevant-not-yet-calculated">{% trans %}Relevant, not yet calculated{% endtrans %}</option>
+            <option value="not-relevant-calculated">{% trans %}Not relevant, calculated{% endtrans %}</option>
+            <option value="not-relevant-explanation-provided">{% trans %}Not relevant, explanation provided{% endtrans %}</option>
+            <option value="not-evaluated">{% trans %}Not evaluated{% endtrans %}</option>
+          </select>
         </div>
       </div>
     </div>

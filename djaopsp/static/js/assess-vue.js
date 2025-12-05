@@ -671,10 +671,10 @@ Vue.component('campaign-questions-list', {
             vm.updateAssessmentAnswer(row, data);
         },
         // specific to UI elements that track metrics
-        isNotYetMeasured: function(row) {
+        isNotYetMeasured: function(row) { // deprecated
             return this.getAnswerByUnit(row, 'yes-no').measured === 'Yes';
         },
-        toggleNotYetMeasured: function(row) {
+        toggleNotYetMeasured: function(row) { // deprecated
             var vm = this;
             const data = {
                 unit: 'yes-no',
