@@ -385,16 +385,20 @@ Vue.component('editable-markdown-editor', {
         },
         saveContent: function() {
             var vm = this;
-            vm.reqPut(vm.url, {
-                text: vm.editor.value(),
-                content_format: "MD"
-            });
+            const text = vm.editor.value();
+            if( text ) {
+                vm.reqPut(vm.url, {
+                    text: text,
+                    content_format: "MD"
+                });
+            }
         }
     },
     mounted: function(){
         var vm = this;
         vm.editor = new EasyMDE({
-            element: vm.$el.getElementsByTagName('textarea')[0]
+            element: vm.$el.getElementsByTagName('textarea')[0],
+            autofocus: true
         });
         const codeMirrorInstance = vm.editor.codemirror;
         codeMirrorInstance.on("blur", function() {
