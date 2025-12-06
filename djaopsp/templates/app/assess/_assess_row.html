@@ -428,6 +428,7 @@
                   v-model="getAnswerByUnit(practice, 'relevance').measured"
                   @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'relevance'), '{{assess_type}}')"
                   :disabled="practice.frozen">
+            <option :value="null" disabled>{% trans %}Select ...{% endtrans %}</option>
             <option value="relevant-and-calculated">{% trans %}Relevant, calculated{% endtrans %}</option>
             <option value="relevant-not-yet-calculated">{% trans %}Relevant, not yet calculated{% endtrans %}</option>
             <option value="not-relevant-calculated">{% trans %}Not relevant, calculated{% endtrans %}</option>
