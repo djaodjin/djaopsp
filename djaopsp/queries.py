@@ -258,7 +258,7 @@ def _get_engagement_sql(campaign=None,
     filter_by_clause = ""
     if filter_by:
         filter_by_clause = "WHERE reporting_status IN (%s)" % ",".join(
-            ["'%s'" % val for val in filter_by])
+            ["%d" % val for val in filter_by])
     order_by_clause = ""
     if order_by:
         order_by_clause = "ORDER BY "
