@@ -209,9 +209,14 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                       </tr>
                     </tbody>
                   </table>
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                  <div class="row">
+                    <div class="offset-md-4 col-md-4 text-center">
+                      <button class="btn btn-primary record my-3"
+                              @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                    </div>
+                    <div class="col-md-4 text-end my-4">
+                      <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                    </div>
                   </div>
                 </div>{# /!showEmissionsEstimate #}
                 <div v-show="showEmissionsEstimate">
@@ -249,7 +254,7 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                       <tr :id="item.slug"
                           v-for="item in items.results"
                           v-show="itemsLoaded && items.results.length > 0">
-                        <td>[[item.printable_name]]</td>
+                        <td>[[getAccountPrintableName(item)]]</td>
                         <td>[[humanizeFuelType(item.extra.fuel_type)]]</td>
                         <td>[[estimateCO2(item)]]</td>
                         <td>[[estimateCH4(item)]]</td>
@@ -259,9 +264,14 @@ Includes fuel consumption at a facility to produce electricity, steam, heat, or 
                       </tr>
                     </tbody>
                   </table>
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                  <div class="row">
+                    <div class="offset-md-4 col-md-4 text-center">
+                      <button class="btn btn-primary record my-3"
+                              @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                    </div>
+                    <div class="col-md-4 text-end my-4">
+                      <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                    </div>
                   </div>
                 </div>{# /showEmissionsEstimate #}
               </div>
@@ -438,9 +448,14 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                       </tr>
                     </tbody>
                   </table>
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                  <div class="row">
+                    <div class="offset-md-4 col-md-4 text-center">
+                      <button class="btn btn-primary record my-3"
+                              @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                    </div>
+                    <div class="col-md-4 text-end my-4">
+                      <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                    </div>
                   </div>
                 </div>{# /!showEmissionsEstimate #}
                 <div v-show="showEmissionsEstimate">
@@ -480,7 +495,7 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                       <tr :id="item.slug"
                           v-for="item in items.results"
                           v-show="itemsLoaded && items.results.length > 0">
-                        <td>[[item.printable_name]]</td>
+                        <td>[[getAccountPrintableName(item)]]</td>
                         <td>[[humanizeActivityType(item.extra.activity_type)]]</td>
                         <td>[[humanizeFuelSource(item.extra.fuel_type)]]</td>
                         <td>[[humanizeVehicleType(item.extra.vehicle_type)]]</td>
@@ -492,9 +507,14 @@ Includes fuel consumption by vehicles that are owned or leased by the company. C
                       </tr>
                     </tbody>
                   </table>
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                  <div class="row">
+                    <div class="offset-md-4 col-md-4 text-center">
+                      <button class="btn btn-primary record my-3"
+                              @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                    </div>
+                    <div class="col-md-4 text-end my-4">
+                      <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                    </div>
                   </div>
                 </div>{# /showEmissionsEstimate #}
               </div>
@@ -635,9 +655,14 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                       </tr>
                     </tbody>
                   </table>
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                  <div class="row">
+                    <div class="offset-md-4 col-md-4 text-center">
+                      <button class="btn btn-primary record my-3"
+                              @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                    </div>
+                    <div class="col-md-4 text-end my-4">
+                      <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                    </div>
                   </div>
                 </div>{# /!showEmissionsEstimate #}
                 <div v-show="showEmissionsEstimate">
@@ -665,7 +690,7 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                           v-for="item in items.results"
                           v-show="itemsLoaded && items.results.length > 0">
                         <td>
-                          [[item.printable_name]]
+                          [[getAccountPrintableName(item)]]
                         </td>
                         <td>[[item.extra.equipment_type]]</td>
                         <td>[[humanizeRefrigerantUsed(item.extra.refrigerant_used)]]</td>
@@ -673,9 +698,14 @@ Includes leaks in your company's HVAC system, chillers, refrigerators, etc., thr
                       </tr>
                     </tbody>
                   </table>
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                  <div class="row">
+                    <div class="offset-md-4 col-md-4 text-center">
+                      <button class="btn btn-primary record my-3"
+                              @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                    </div>
+                    <div class="col-md-4 text-end my-4">
+                      <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                    </div>
                   </div>
                 </div>{# /showEmissionsEstimate #}
               </div>
@@ -848,11 +878,15 @@ Electricity and other sources of energy purchased from your local utility (that 
                      </tr>
                    </tbody>
                  </table>
-
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
-                  </div>
+                 <div class="row">
+                   <div class="offset-md-4 col-md-4 text-center">
+                     <button class="btn btn-primary record my-3"
+                             @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                   </div>
+                   <div class="col-md-4 text-end my-4">
+                     <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                   </div>
+                 </div>
                </div>{# /!showEmissionsEstimate #}
                <div v-show="showEmissionsEstimate">
                  <table class="table table-striped table-bordered">
@@ -888,7 +922,7 @@ Electricity and other sources of energy purchased from your local utility (that 
                      <tr :id="item.slug"
                          v-for="item in items.results"
                          v-show="itemsLoaded && items.results.length > 0">
-                       <td>[[item.printable_name]]</td>
+                       <td>[[getAccountPrintableName(item)]]</td>
                        <td>[[humanizeGrid(item.extra.grid)]]</td>
                        <td>[[humanizeCalculationApproach(item.extra.calculation_approach)]]</td>
                        <td>[[humanizeTypeOfEmissionFactor(item.extra.type_of_emission_factor)]]</td>
@@ -899,10 +933,15 @@ Electricity and other sources of energy purchased from your local utility (that 
                      </tr>
                    </tbody>
                  </table>
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
-                  </div>
+                 <div class="row">
+                   <div class="offset-md-4 col-md-4 text-center">
+                     <button class="btn btn-primary record my-3"
+                             @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                   </div>
+                   <div class="col-md-4 text-end my-4">
+                     <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                   </div>
+                 </div>
                </div>{# /showEmissionsEstimate #}
              </div>
            </scope2-purchased-electricity>
@@ -1094,10 +1133,15 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                      </tr>
                    </tbody>
                  </table>
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
-                  </div>
+                 <div class="row">
+                   <div class="offset-md-4 col-md-4 text-center">
+                     <button class="btn btn-primary record my-3"
+                             @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                   </div>
+                   <div class="col-md-4 text-end my-4">
+                     <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                   </div>
+                 </div>
                </div>{# /!showEmissionsEstimate #}
                <div v-show="showEmissionsEstimate">
                  <table class="table table-striped table-bordered">
@@ -1136,7 +1180,7 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                      <tr :id="item.slug"
                          v-for="item in items.results"
                          v-show="itemsLoaded && items.results.length > 0">
-                       <td>[[item.printable_name]]</td>
+                       <td>[[getAccountPrintableName(item)]]</td>
                        <td>[[humanizeCategory(item.extra.category)]]</td>
                        <td>[[item.extra.emission_factor_dataset]]</td>
                        <td>[[humanizeModeOfTransport(item.extra.mode_of_transport)]]</td>
@@ -1150,10 +1194,15 @@ Fuel consumption by vehicles used to conduct company-financed travel. Examples i
                      </tr>
                    </tbody>
                  </table>
-                  <div class="text-center my-4">
-                    <button class="btn btn-primary record"
-                            @click.prevent="save">{% trans %}Record{% endtrans %}</button>
-                  </div>
+                 <div class="row">
+                   <div class="offset-md-4 col-md-4 text-center">
+                     <button class="btn btn-primary record my-3"
+                             @click.prevent="save">{% trans %}Record{% endtrans %}</button>
+                   </div>
+                   <div class="col-md-4 text-end my-4">
+                     <a href="../values/">{% trans %}View recorded data{% endtrans %}</a>
+                   </div>
+                 </div>
                </div>{# /showEmissionsEstimate #}
              </div>
           </scope3-transportation>

@@ -1,10 +1,10 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 import logging
 
-from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
-    site_url)
+from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags \
+    import site_url
 from deployutils.helpers import update_context_urls
 from django import forms
 from django.db import transaction
@@ -255,6 +255,7 @@ class DataValuesView(AccountMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(DataValuesView, self).get_context_data(**kwargs)
         update_context_urls(context, {
+            'api_accounts': site_url("/api/profile"),
             'api_data_values': reverse('survey_api_accounts_values',
                     args=(self.account,)),
         })

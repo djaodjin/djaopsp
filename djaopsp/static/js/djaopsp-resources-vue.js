@@ -310,13 +310,18 @@ var practicesListMixin = {
             if( !practice ) return startsAt;
             return this.getAnswerByUnit(practice, 'starts-at', startsAt);
         },
+        // Returns a `Datetime` instead of an `Answer`.
         getAnswerEndsAt: function(practice) {
             // We need to get the dates in a "YYY-MM-DD" format
             // for the <input> tag to behave properly.
+            var vm = this;
             const lastYear = new Date(Date.now()).getFullYear() - 1;
             const endsAt = (
                 new Date(lastYear, 11, 31)).toISOString().substr(0, 10);
             if( !practice ) return endsAt;
+            //const answerEndsAt = vm.asDateInputField(
+            //    vm.getPrimaryAnswer(practice).created_at);
+            //return answerEndsAt ? answerEndsAt : endsAt;
             return this.getAnswerByUnit(practice, 'ends-at', endsAt);
         },
         getCommentsAnswer: function(practice) {
@@ -629,6 +634,23 @@ var practicesListMixin = {
             return vm.isPractice(row) && row.ui_hint === 'target-by';
         },
         isUnitEquivalent: function(unit, default_unit) {
+            var vm = this;
+            if( unit === default_unit ) {
+                return true;
+            }
+            if( vm.items.units ) {
+                // `default_unit` is guarenteed to be present because it is
+                // part of the question.
+                const defaultUnit = vm.items.units[default_unit];
+                if( defaultUnit && defaultUnit.equivalences ) {
+                    for( let idx = 0;
+                         idx < defaultUnit.equivalences.length; ++idx ) {
+                        if( defaultUnit.equivalences[idx].slug === unit ) {
+                            return true;
+                        }
+                    }
+                }
+            }
             if( default_unit === 'usd' ||
                 default_unit === 'million-usd' ||
                 default_unit === 'eur' ||
@@ -690,7 +712,7 @@ var practicesListMixin = {
                 unit === 'ft3' ||
                 unit === 'gallons';
             }
-            return unit === default_unit;
+            return false;
         },
         isCascadeVisible: function(row) {
             return row.isCascade && row.isCascadeVisible;

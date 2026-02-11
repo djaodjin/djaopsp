@@ -477,9 +477,12 @@ class AutoSchema(BaseAutoSchema):
                             " of parts from %s (%d parts)" % (
                             example['path'], len(example_path_parts),
                             path, len(path_parts)))
+                    self.view.kwargs = {}
                     for path_part, example_path_part in zip(
                             path_parts, example_path_parts):
                         if path_part.startswith('{'):
+                            self.view.kwargs.update({
+                                path_part[1:-1]: example_path_part})
                             continue
                         if example_path_part != path_part:
                             warnings.warn(

@@ -430,7 +430,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS':
-        'rest_framework.pagination.PageNumberPagination',
+        'djaopsp.pagination.PageNumberPagination',
     'DEFAULT_SCHEMA_CLASS': 'djaopsp.api_docs.schemas.AutoSchema',
     'EXCEPTION_HANDLER': 'djaopsp.views.errors.drf_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'detail',

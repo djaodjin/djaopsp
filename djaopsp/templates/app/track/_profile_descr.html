@@ -1,6 +1,6 @@
 <div>
   <div v-if="!isActiveItem(item)">
-    [[item.printable_name]]
+    [[getAccountPrintableName(item)]]
     <button class="btn btn-lnk title"
             style="float:right;"
             title="Add a comment? Click here."
@@ -14,7 +14,7 @@
       <i class="fa fa-times"></i>
     </button>
     <input class="form-control" name="full_name"
-           type="text" v-model="item.printable_name" />
+           type="text" v-model="item.full_name" />
     <button class="btn btn-primary"
             @click.prevent="update(item)">
       <i class="fa fa-save"></i>

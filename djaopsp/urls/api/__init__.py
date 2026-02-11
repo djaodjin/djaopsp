@@ -1,4 +1,4 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -7,7 +7,7 @@ API URLs
 from django.urls import path, include
 
 from ...api.content import PageElementAPIView, PageElementIndexAPIView
-from ...api.campaigns import CampaignContentAPIView
+from ...api.campaigns import CampaignContentAPIView, CampaignContentIndexAPIView
 from ...api.newsfeed import NewsfeedAPIView
 from ...api.samples import RespondentsAPIView, PortfolioRequestsSend
 
@@ -24,7 +24,7 @@ urlpatterns = [
     path('content/', include('pages.urls.api.noauth')),
     path('content/campaigns/<slug:campaign>', CampaignContentAPIView.as_view(),
          name='api_campaign_questions'),
-    path('content/campaigns', CampaignContentAPIView.as_view(),
+    path('content/campaigns', CampaignContentIndexAPIView.as_view(),
          name='api_campaign_base'),
     path('content/<path:path>',
         PageElementAPIView.as_view(), name="api_content"),

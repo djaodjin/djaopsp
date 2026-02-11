@@ -32,7 +32,7 @@ class BenchmarksExportAPIView(generics.CreateAPIView):
 
         .. code-block:: http
 
-            POST /api/exports HTTP/1.1
+            POST /api/energy-utility/exports HTTP/1.1
 
         .. code-block:: json
 
@@ -84,6 +84,11 @@ class BenchmarksExportAPIView(generics.CreateAPIView):
                 for dummy in range(len(table), idx + 1):
                     table += [OrderedDict()]
             if key in ('title', 'unit', 'measured'):
+                try:
+                    # In Python 3, the plain `int` type is unbounded.
+                    val = int(val)
+                except ValueError:
+                    pass
                 table[idx].update({key: val})
 
         data = {'results': table}

@@ -209,8 +209,8 @@ def persist_answers(oa_answers, sample):
         question = get_question_model().objects.get(path=question_path)
         obj, _ = update_or_create_answer(
             datapoint={'measured': openai_answer, 'unit': unit},
-            sample=sample, question=question, created_at=created_at,
-            collected_by=collected_by)
+            sample=sample, question=question,
+            at_time=created_at, collected_by=collected_by)
         results.append(obj)
 
     return results

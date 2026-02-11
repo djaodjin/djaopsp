@@ -2,7 +2,7 @@
 # see LICENSE.
 from __future__ import unicode_literals
 
-import csv, json
+import csv, json, logging
 from collections import OrderedDict
 
 from django.db import transaction
@@ -32,6 +32,8 @@ from ..campaigns import import_campaign
 from ..compat import six
 from ..mixins import CampaignMixin, DashboardsAvailableQuerysetMixin
 
+LOGGER = logging.getLogger(__name__)
+
 
 class CampaignDecorateMixin(CampaignMixin):
     """
@@ -39,6 +41,7 @@ class CampaignDecorateMixin(CampaignMixin):
     available.
     """
     strip_segment_prefix = False
+    content_extra_fields = {'title', 'picture', 'extra', 'text'}
 
     def get_queryset(self):
         #pylint:disable=too-many-locals,too-many-statements
@@ -91,24 +94,25 @@ class CampaignDecorateMixin(CampaignMixin):
                     tile_key = practices[prefix][0]
                     tile_key.update(question) # insert question fields
                     extra = extra_as_internal(tile_key)
-                    extra_fields = {'title', 'picture', 'extra', 'text'}
                     absent = False
-                    for field_name in extra_fields:
+                    for field_name in self.content_extra_fields:
                         absent = field_name not in tile_key
                         if absent:
+                            LOGGER.debug("cannot find %s in tile_key(%s)",
+                                field_name, tile_key)
                             break
                     if absent:
-                        element = PageElement.objects.filter(
-                            slug=part).values(*extra_fields).first()
+                        element = PageElement.objects.filter(slug=part).values(
+                            *self.content_extra_fields).first()
                         # `rank` is already set in the `question` dict
                         # as it is critical it is unique accross radio
                         # buttons presented to the request.user.
                         if not extra:
                             extra = extra_as_internal(element)
                             tile_key.update({'extra': extra})
-                        extra_fields.remove('extra')
-                        for field_name in extra_fields:
-                            if field_name not in tile_key:
+                        for field_name in self.content_extra_fields:
+                            if (field_name != 'extra' and
+                                field_name not in tile_key):
                                 tile_key.update({
                                     field_name: element.get(field_name)})
                     segments = extra.get('segments', [])
@@ -130,9 +134,9 @@ class CampaignDecorateMixin(CampaignMixin):
         headings = [element['slug'] for element in elements
             if 'title' not in element]
 
-        extra_fields = {'title', 'picture', 'extra', 'text'}
         headings_queryset = PageElement.objects.filter(
-            slug__in=headings).values('slug', *extra_fields).annotate(
+            slug__in=headings).values(
+            'slug', *self.content_extra_fields).annotate(
             rank=Max('to_element__rank'))
         headings_by_slug = {
             element['slug']: element for element in headings_queryset}
@@ -226,7 +230,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
 
     def get(self, request, *args, **kwargs):
         """
-        List segments in a campaign
+        Lists segments in a campaign
 
         **Tags**: editors
 
@@ -319,9 +323,9 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
 
 class CampaignContentAPIView(CampaignContentMixin, generics.ListAPIView):
     """
-    List questions in a campaign
+    Lists questions in a campaign
 
-    **Tags**: editors
+    **Tags**: content
 
     **Examples
 
@@ -378,11 +382,70 @@ class CampaignContentAPIView(CampaignContentMixin, generics.ListAPIView):
     # matching the question.path field of rows in the database. As a result,
     # the creation of accounts-by-answers filters will fail (404 Not Found).
 
-    @extend_schema(operation_id='content_campaign_index')
     def get(self, request, *args, **kwargs):
         results = self.get_queryset()
         serializer = self.get_serializer(results, many=True)
         return Response({'results': serializer.data})
+
+
+class CampaignContentIndexAPIView(CampaignContentAPIView):
+    """
+    Lists questions accross all accessible campaigns
+
+    **Tags**: content
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/content/campaigns HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+            "count": 5,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "path": null,
+                    "title": "Construction",
+                    "tags": ["public"],
+                    "indent": 0
+                },
+                {
+                  "path": null,
+                  "title": "Governance & management",
+                  "picture": "https://assets.tspproject.org/management.png",
+                  "indent": 1
+                },
+                {
+                    "path": "/construction/governance/the-assessment\
+-process-is-rigorous",
+                    "title": "The assessment process is rigorous",
+                    "indent": 2
+                },
+                {
+                  "path": null,
+                  "title": "Production",
+                  "picture": "https://assets.tspproject.org/production.png",
+                  "indent": 1
+                },
+                {
+                    "path": "/construction/production/adjust-air-fuel\
+-ratio",
+                    "title": "Adjust Air fuel ratio",
+                    "indent": 2
+                }
+            ]
+        }
+    """
+    @extend_schema(operation_id='content_campaign_index')
+    def get(self, request, *args, **kwargs):
+        return super(CampaignContentIndexAPIView, self).get(
+            request, *args, **kwargs)
 
 
 class CampaignEditableContentAPIView(CampaignContentMixin,
@@ -399,7 +462,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
 
     def get(self, request, *args, **kwargs):
         """
-        List questions in a campaign
+        Lists questions in an editable campaign
 
         **Tags**: editors
 
@@ -458,7 +521,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
     @extend_schema(operation_id='editables_campaigns_create_index')
     def post(self, request, *args, **kwargs):
         """
-        Creates a practice
+        Creates a question
 
         Updates the title, text and, if applicable, the metrics associated
         associated to the content element referenced by *path*.
@@ -651,7 +714,9 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
 class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
                                       PageElementEditableDetail):
     """
-    Retrieves a question
+    Retrieves an editable question
+
+    Retrieves ``title``, ``text`` and ``default_unit`` of a question.
 
     **Tags**: editors
 
@@ -686,9 +751,10 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
     def get_object(self):
         return self.question
 
+    @extend_schema(operation_id='editables_campaigns_delete')
     def delete(self, request, *args, **kwargs):
         """
-        Deletes questions
+        Deletes a subset of questions
 
         Deletes all questions under prefix *path*.
 
@@ -703,9 +769,10 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
         return self.destroy(request, *args, **kwargs)
 
 
+    @extend_schema(operation_id='editables_campaigns_create')
     def post(self, request, *args, **kwargs):
         """
-        Creates a question
+        Creates a question under a prefix
 
         Creates a new question under prefix *path*.
 

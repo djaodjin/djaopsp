@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="DjaoDjin inc.">
-    <meta name="copyright" content="Copyright (c) 2025 DjaoDjin inc.">
+    <meta name="copyright" content="Copyright (c) 2026 DjaoDjin inc.">
     <link rel="icon" href="{{'/favicon.ico'|site_url}}" type="image/x-icon">
     <meta property="og:site_name" content="{% if request and request.site %}{{request.site.printable_name}}{% else %}Practices Sharing Platform{% endif %}" />
     <meta property="og:type" content="website" />
@@ -89,7 +89,7 @@
                         <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
                       </div>
                       <div>
-{% trans %}Powered by &copy; 2025 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
+{% trans %}Powered by &copy; 2026 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
                       </div>
                       {# Theme color mode selection #}
                       <ul class="nav flex-column py-1" data-intro="Color mode" data-position="right">
@@ -239,7 +239,7 @@
           <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm ps-1"></i></a>
         </div>
         <div class="my-2">
-          {% trans %}Powered by DjaoDjin. &copy; 2025 All rights reserved.{% endtrans %}
+          {% trans %}Powered by DjaoDjin. &copy; 2026 All rights reserved.{% endtrans %}
         </div>
       </div>
     </footer>
@@ -250,9 +250,19 @@
 <script type="text/javascript" src="{{'/static/vendor/jquery.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/popper.min.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/bootstrap.min.js'|asset}}"></script>
+
+<script type="text/javascript" src="{{'/static/js/djaodjin-resources.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/djaodjin-menubar.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/djaodjin-dashboard.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/djaoapp-theme-color-mode.js'|asset}}" defer></script>
+<script type="text/javascript" src="{{'/static/vendor/djaoapp-theme-color-mode.js'|asset}}"></script>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+  if( typeof djApi !== 'undefined' ) {
+    djApi.apiBase = "{{''|site_url}}"; // djaodjin-saas et al.
+    djApi.defaultCSRFToken = "{{csrf_token}}";
+  }
+});
+</script>
 {% block bodyscripts %}
 {% endblock %}
 {% endblock %}

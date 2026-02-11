@@ -12,11 +12,12 @@ from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
 from survey.api.base import QuestionListAPIView
+from survey.api.matrix import (
+    SampleBenchmarksAPIView as SampleBenchmarksBaseAPIView)
 from survey.api.sample import (attach_answers,
     SampleCandidatesMixin, SampleAnswersMixin, SampleFreezeAPIView,
     SampleRecentCreateAPIView as SampleRecentCreateBaseAPIView)
-from survey.api.matrix import (
-    SampleBenchmarksAPIView as SampleBenchmarksBaseAPIView)
+from survey.api.serializers import UnitDetailSerializer
 from survey.filters import OrderingFilter, SearchFilter
 from survey.helpers import datetime_or_now
 from survey.mixins import SampleMixin, TimersMixin
@@ -38,8 +39,7 @@ from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignDecorateMixin
 from .rollups import GraphMixin, RollupMixin
 from .serializers import (AssessmentNodeSerializer, RespondentAccountSerializer,
-    ExtendedSampleSerializer, ExtendedSampleBenchmarksSerializer,
-    UnitSerializer)
+    ExtendedSampleSerializer, ExtendedSampleBenchmarksSerializer)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
 
     def post(self, request, *args, **kwargs):
         """
-        Freezes answers matching prefix
+        Freezes answers for a subset of questions
 
         A frozen sample cannot be edited to add and/or update answers.
 
@@ -329,7 +329,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
         attach_answers(
             units,
             questions_by_key,
-            self.get_answers(prefix=prefix, sample=self.sample,
+            self.get_answers_collected(prefix=prefix, sample=self.sample,
                 excludes=self.exclude_questions),
             extra_fields=extra_fields)
 
@@ -414,7 +414,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
 class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
                                QuestionListAPIView):
     """
-    Formats answers matching prefix
+    Formats answers for a subset of questions
 
     The list returned contains at least one measurement for each question
     in the campaign. If there are no measurement yet on a question, ``measured``
@@ -608,7 +608,7 @@ class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
                 verified_sample.verified_status if verified_sample
                 else VerifiedSample.STATUS_NO_REVIEW][1]),
             ('results', data),
-            ('units', {key: UnitSerializer().to_representation(val)
+            ('units', {key: UnitDetailSerializer().to_representation(val)
                     for key, val in six.iteritems(self.units)})
         ]))
 
@@ -1133,6 +1133,8 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         """
+        Resends requests
+
         Resends all requests directed to {profile}
 
         **Tags**: portfolios
@@ -1153,7 +1155,9 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
 
         .. code-block:: json
 
-            {}
+            {
+              "email": "steve@example.com"
+            }
         """
         return self.create(request, *args, **kwargs)
 
@@ -1163,4 +1167,5 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         send_reminders(self.account,
             email=serializer.validated_data.get('email'))
-        return http.Response({}, status=http_status.HTTP_201_CREATED)
+        return http.Response(serializer.data,
+            status=http_status.HTTP_201_CREATED)

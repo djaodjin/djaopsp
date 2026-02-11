@@ -12,8 +12,9 @@ The annotation plugin also needs to be registered (done through
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 
-var confPaths = JSON.parse(fs.readFileSync('webpack-conf-paths.json').toString())
+const confPaths = JSON.parse(fs.readFileSync('webpack-conf-paths.json').toString())
 
 module.exports = env => ({
   mode: 'production',
@@ -53,6 +54,28 @@ module.exports = env => ({
           }]]
         }
       }
+    }, {
+      test: /djaodjin-resources\.js$/,
+      loader: 'expose-loader',
+      type: "javascript/auto",
+      options: {
+          exposes: [{
+              globalName: 'clearMessages',
+              moduleLocalName: 'clearMessages',
+          }, {
+              globalName: 'showMessages',
+              moduleLocalName: 'showMessages',
+          }, {
+              globalName: 'showErrorMessages',
+              moduleLocalName: 'showErrorMessages',
+          }, {
+              globalName: 'getUrlParameter',
+              moduleLocalName: 'getUrlParameter',
+          }, {
+              globalName: 'djApi',
+              moduleLocalName: 'djApi',
+          }]
+      }
     }
     ]
   },
@@ -62,6 +85,19 @@ module.exports = env => ({
   },
   externals: {
     jQuery: 'jQuery',
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          mangle: {
+            reserved: ['clearMessages', 'showMessages', 'showErrorMessages', 'getUrlParameter', 'djApi'],
+            properties: false,
+          },
+        }
+      }),
+    ],
   },
   plugins: [
       new webpack.LoaderOptionsPlugin({

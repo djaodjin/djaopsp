@@ -493,7 +493,7 @@ Vue.component('engage-profiles', {
 
 Vue.component('djaopsp-compare-samples', {
     mixins: [
-        practicesListMixin,
+        practicesListMixin, // defines `_start_at` and `_ends_at`
         accountDetailMixin
     ],
     data: function() {
@@ -506,7 +506,8 @@ Vue.component('djaopsp-compare-samples', {
             periodType: '',
             displayMetric: {
                 path: null,
-                unit: null
+                unit: null,
+                campaign: null
             },
             visualize: 'chart', //'table',
             percentToggle: true,
@@ -557,7 +558,7 @@ Vue.component('djaopsp-compare-samples', {
             }
             return {answers:[]};
         },
-        selectMetric: function(dataset, question) {
+        selectMetric: function(question, dataset) {
             var vm = this;
             vm.displayMetric = question;
         },
@@ -1374,7 +1375,7 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
             var vm = this;
             var results = [];
             if( typeof benchmark.values !== 'undefined' ) {
-                if( vm._isArray(benchmark.values[0][1]) ) {
+                if( djApi._isArray(benchmark.values[0][1]) ) {
                     return benchmark.values[0][1];
                 }
                 return benchmark.values;

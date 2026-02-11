@@ -137,7 +137,7 @@ class PageElementIndexAPIView(PageElementAPIView):
 
 class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
     """
-    List editable page elements
+    Lists editable page elements
 
     This API endpoint lists page elements that are owned and thus editable
     by an account.

@@ -1,11 +1,50 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 from collections import OrderedDict
 
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import (
+    PageNumberPagination as BasePageNumberPagination)
 from rest_framework.response import Response
 from survey.pagination import MetricsPagination
+
+from .compat import gettext_lazy as _
+
+
+class PageNumberPagination(BasePageNumberPagination):
+
+    max_page_size = 100
+    page_size_query_param = 'page_size'
+    page_size_query_description = _("Number of results to return per page"\
+    " between 1 and 100 (defaults to 25).")
+
+    def get_paginated_response_schema(self, schema):
+        if 'description' not in schema:
+            schema.update({'description': "Records in the queryset"})
+        return {
+            'type': 'object',
+            'properties': {
+                'count': {
+                    'type': 'integer',
+                    'description': "The number of records"
+                },
+                'next': {
+                    'type': 'string',
+                    'description': "API end point to get the next page"\
+                        " of records matching the query",
+                    'nullable': True,
+                    'format': 'uri',
+                },
+                'previous': {
+                    'type': 'string',
+                    'description': "API end point to get the previous page"\
+                        " of records matching the query",
+                    'nullable': True,
+                    'format': 'uri',
+                },
+                'results': schema,
+            },
+        }
 
 
 class BenchmarksPagination(MetricsPagination):

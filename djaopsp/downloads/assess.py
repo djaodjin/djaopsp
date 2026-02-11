@@ -1,7 +1,8 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 from survey.helpers import datetime_or_now
+from survey.models import Unit, UnitEquivalences
 
 from .content import PracticesSpreadsheetView
 from ..api.samples import AssessmentContentMixin
@@ -50,7 +51,7 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
         headers += self.intrinsic_value_headers
         return headers
 
-    def get_title_row(self):
+    def get_title(self):
         return [self.sample.account.printable_name,
             self.sample.created_at.strftime("%Y-%m-%d")]
 
@@ -58,13 +59,6 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
     def format_row(self, entry, key=None):
         #pylint:disable=too-many-locals
         default_unit = entry.get('default_unit', {})
-        default_unit_choices = []
-        if default_unit:
-            try:
-                default_unit = default_unit.slug
-            except AttributeError:
-                default_unit_choices = default_unit.get('choices', [])
-                default_unit = default_unit.get('slug', "")
         answers = entry.get('answers')
         primary_assessed = None
         primary_planned = None
@@ -73,13 +67,36 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
         if answers:
             for answer in answers:
                 unit = answer.get('unit')
-                if unit and default_unit and unit.slug == default_unit:
-                    primary_assessed = answer.get('measured')
-                    continue
                 if unit and unit.slug == 'freetext': #XXX
                     comments = answer.get('measured')
+                    continue
                 if unit and unit.slug == 'points': #XXX
                     points = float(answer.get('measured'))
+                    continue
+                if unit and default_unit:
+                    if isinstance(default_unit, Unit):
+                        if unit == default_unit:
+                            primary_assessed = answer.get('measured')
+                            continue
+                        # XXX if we don't convert, we should write the correct
+                        #     unit in the row header.
+                        if UnitEquivalences.objects.filter(
+                                source=unit, target=default_unit).exists():
+                            primary_assessed = answer.get('measured')
+                            continue
+                    else:
+                        default_unit_slug = default_unit.get('slug')
+                        if unit.slug == default_unit_slug:
+                            primary_assessed = answer.get('measured')
+                            continue
+                        # XXX if we don't convert, we should write the correct
+                        #     unit in the row header.
+                        if UnitEquivalences.objects.filter(source=unit,
+                                target__slug=default_unit_slug).exists():
+                            primary_assessed = answer.get('measured')
+                            continue
+
+
         planned = entry.get('planned')
         if planned:
             for answer in planned:
@@ -87,21 +104,8 @@ class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
                 if unit and default_unit and unit.slug == default_unit:
                     primary_planned = answer.get('measured')
         # base_headers
-        title = entry['title']
-        ref_num = entry.get('ref_num')
-        if ref_num:
-            title = "%s %s" % (ref_num, title)
-        if default_unit and default_unit_choices:
-            subtitle = ""
-            for choice in default_unit_choices:
-                text = choice.get('text', "").strip()
-                descr = choice.get('descr', "").strip()
-                if text != descr:
-                    subtitle += "\n%s - %s" % (text, descr)
-            if subtitle:
-                title += "\n" + subtitle
         row = [
-            title,
+            self._get_row_header(entry),
             points,
             primary_assessed,
             primary_planned,

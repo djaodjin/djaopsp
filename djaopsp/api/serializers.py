@@ -30,7 +30,8 @@ class NoModelSerializer(serializers.Serializer):
 
 class PracticeSerializer(BaseNodeElementSerializer):
 
-    default_unit = serializers.SerializerMethodField()
+    default_unit = serializers.SerializerMethodField(
+        help_text=_("Default unit used to select the primary answer"))
     score_weight = serializers.SerializerMethodField(required=False)
 
     class Meta(BaseNodeElementSerializer.Meta):
@@ -69,12 +70,18 @@ PRACTICE_SERIALIZER = get_practice_serializer()
 
 class ContentNodeSerializer(PRACTICE_SERIALIZER):
 
-    rank = serializers.SerializerMethodField()
-    required = serializers.SerializerMethodField(required=False)
-    ref_num = serializers.SerializerMethodField(required=False)
-    frozen = serializers.SerializerMethodField(required=False)
+    rank = serializers.SerializerMethodField(
+        help_text=_("Natural number to present practices in a logical order"))
+    required = serializers.SerializerMethodField(required=False,
+        help_text=_("True when an answer with a default_unit is required"))
+    ref_num = serializers.SerializerMethodField(required=False,
+        help_text=_("Purely visual short identifier for the question"\
+            " (ex: 1, 1.1, 2a)"))
+    frozen = serializers.SerializerMethodField(required=False,
+        help_text=_("True when answers cannot be changed"))
 
-    url = serializers.CharField(required=False)
+    url = serializers.CharField(required=False,
+        help_text=_("Location of the text description for the practice"))
     segments = serializers.ListSerializer(child=serializers.CharField(),
         required=False)
 

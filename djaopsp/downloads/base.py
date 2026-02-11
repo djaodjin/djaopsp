@@ -87,7 +87,7 @@ class XLSXRenderer(TimersMixin, BaseRenderer):
     def format_row(self, entry):
         row = []
         for field_value in six.itervalues(entry):
-            row += [str(field_value)]
+            row += [field_value]
         return row
 
     def get_headings(self, renderer_context=None):
@@ -162,7 +162,7 @@ class PracticesXLSXRenderer(TimersMixin, BaseRenderer):
         self.wbook = None
         self.wsheet = None
 
-    def get_title_row(self):
+    def get_title(self):
         return []
 
     def get_value_fill(self, val):
@@ -242,7 +242,7 @@ class PracticesXLSXRenderer(TimersMixin, BaseRenderer):
         view = renderer_context.get('view')
         intrinsic_value_headers = view.intrinsic_value_headers
 
-        self.wsheet.append(self.get_title_row())
+        self.wsheet.append(self.get_title())
         super_headers = []
         nb_peer_value_headers = 0
         nb_intrinsic_value_headers = 0

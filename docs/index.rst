@@ -1,5 +1,5 @@
 Welcome to Djaodjin DjaoPsp's documentation!
-=========================================
+============================================
 
 djaopsp is a Django project that implements a practice sharing platform.
 
@@ -20,6 +20,7 @@ Contents:
    models
    workflows
    share
+   data-entry
 
 Indices and tables
 ==================

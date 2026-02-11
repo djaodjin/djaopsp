@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 import io, math
 
@@ -12,6 +12,7 @@ from openpyxl.utils import get_column_letter
 from pages.api.elements import PageElementAPIView
 from survey.helpers import datetime_or_now
 from survey.mixins import TimersMixin
+from survey.models import Unit
 
 from .base import PracticesXLSXRenderer
 from ..compat import gettext_lazy as _
@@ -63,25 +64,80 @@ class PracticesSpreadsheetView(TimersMixin, ListView):
         self.wbook = None
         self.wsheet = None
 
-    def get_title_row(self):
+    # Methods to be redefined in subclasses
+    def get_title(self):
+        """
+        Returns title with source information for the data on the sheet
+        """
         return []
+
+    def get_headings(self):
+        """
+        Returns column headings for the data on the sheet
+        """
+        return []
+
+    def format_row(self, entry, key=None):
+        """
+        Returns a formatted row of data to write on the sheet
+        """
+        #pylint:disable=unused-argument
+        return []
+
+    def get_queryset(self):
+        """
+        Returns data from the database
+        """
+        return []
+
+    @staticmethod
+    def _get_row_header(entry):
+        default_unit = entry.get('default_unit', {})
+        default_unit_choices = []
+        if default_unit:
+            try:
+                default_unit = default_unit.slug
+            except AttributeError:
+                default_unit_choices = default_unit.get('choices', [])
+                default_unit = default_unit.get('slug', "")
+
+        title = entry.get('title', "")
+        ref_num = entry.get('ref_num')
+        if ref_num:
+            title = "%s %s" % (ref_num, title)
+
+        default_unit = entry.get('default_unit', {})
+        if default_unit:
+            try:
+                default_unit_system = default_unit.system
+                default_unit_title = default_unit.title
+            except AttributeError:
+                default_unit_system = default_unit.get('system')
+                default_unit_title = default_unit.get('title')
+            if default_unit_system in Unit.METRIC_SYSTEMS:
+                title += " (in %s)" % default_unit_title
+            else:
+                subtitle = ""
+                try:
+                    default_unit_choices = default_unit.choices
+                except AttributeError:
+                    default_unit_choices = default_unit.get('choices', [])
+                for choice in default_unit_choices:
+                    text = choice.get('text', "").strip()
+                    descr = choice.get('descr', "").strip()
+                    if text != descr:
+                        subtitle += "\n%s - %s" % (text, descr)
+                if subtitle:
+                    title += "\n" + subtitle
+
+        return title
+
 
     def get_value_fill(self, val):
         idx = val - 1
         if idx < len(self.valueFills):
             return self.valueFills[idx]
         return self.valueFills[-1]
-
-    # Methods to be redefined in subclasses
-    def get_headings(self):
-        return []
-
-    def format_row(self, entry, key=None):
-        #pylint:disable=unused-argument
-        return []
-
-    def get_queryset(self):
-        return []
 
     def is_practice(self, entry):
         return 'default_unit' in entry and entry['default_unit']
@@ -118,7 +174,7 @@ class PracticesSpreadsheetView(TimersMixin, ListView):
         """
         Write table headers in the worksheet
         """
-        self.writerow(self.get_title_row())
+        self.writerow(self.get_title())
         super_headers = []
         nb_peer_value_headers = 0
         nb_intrinsic_value_headers = 0

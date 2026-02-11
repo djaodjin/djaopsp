@@ -75,6 +75,7 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
+            @change="changeCreatedAt(practice, $event.target.value)"
             @blur="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
@@ -162,6 +163,7 @@
              v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
              :disabled="practice.frozen"
              {% if not sample.is_frozen %}
+             @change="changeCreatedAt(practice, $event.target.value)"
              @blur="updateAssessmentAnswer(practice, getAnswerEndsAt(practice, '{{assess_type}}'), '{{assess_type}}')"
              {% endif %}></input>
     </div>
@@ -214,6 +216,7 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
+            @change="changeCreatedAt(practice, $event.target.value)"
             @blur="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
@@ -243,15 +246,6 @@
         <option value="gj-year">Giga Joules (GJ)</option>
       </select>
     </div>
-    <div class="row mt-1">
-      <div class="col-6">
-        <button class="btn btn-sm btn-outline-primary"
-          @click.prevent="importFromTrackingTool(practice)">{% trans %}import from tracking tool{% endtrans %}</button>
-      </div>
-      <div class="col-6">
-        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}energy-ghg-emissions/" target="_blank">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
-      </div>
-    </div>
   </div>
   {# end of energy #}
 
@@ -259,6 +253,23 @@
   {# - The unit is variable (out of an "water units" drop down list) #}
   {# - question.ui_hint === 'water' #}
   <div class="col-md-6 text-center" v-if="isWaterUIHint(practice)">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="text-start mb-1">
+          <select class="form-control form-select"
+                  :value="getRelevance(practice)"
+                  @change="updateRelevance(practice, $event)"
+                  :disabled="practice.frozen">
+            <option :value="null" disabled>{% trans %}Select relevance ...{% endtrans %}</option>
+            <option value="relevant-and-calculated">{% trans %}Relevant, calculated{% endtrans %}</option>
+            <option value="relevant-not-yet-calculated">{% trans %}Relevant, not yet calculated{% endtrans %}</option>
+            <option value="not-relevant-calculated">{% trans %}Not relevant, calculated{% endtrans %}</option>
+            <option value="not-relevant-explanation-provided">{% trans %}Not relevant, explanation provided{% endtrans %}</option>
+            <option value="not-evaluated">{% trans %}Not evaluated{% endtrans %}</option>
+          </select>
+        </div>
+      </div>
+    </div>
     <div class="row">
       <div class="col-md-6">
         <div class="input-group">
@@ -280,35 +291,32 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
+            @change="changeCreatedAt(practice, $event.target.value)"
             @blur="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
     </div>
-    <div class="input-group">
-      <input class="form-control text-end"
-             type="text"
-             placeholder=""
-             v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
-             @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-             :disabled="practice.frozen"></input>
-      <select class="form-control form-select input-group-suffix"
+    <div class="row">
+      <div class="col-md-12">
+        <div class="input-group">
+          <input class="form-control text-end"
+              type="number"
+              :placeholder="getPrimaryCandidate(practice).measured"
+              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+              @keyup="updateMeasurement(practice)"
+              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
+              :disabled="practice.frozen"></input>
+          <select class="form-control form-select"
               v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
               @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
               :disabled="practice.frozen">
-        <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
-        <option value="kiloliters-year">Kilo liters</option>
-        <option value="ft3-year">Cubic feet (ft.<sup>3</sup>)</option>
-        <option value="gallons-year">US Gallon</option>
-      </select>
-    </div>
-    <div class="row mt-1">
-      <div class="col-6">
-        <button class="btn btn-sm btn-outline-primary"
-          @click.prevent="importFromTrackingTool(practice)">{% trans %}import from tracking tool{% endtrans %}</button>
-      </div>
-      <div class="col-6">
-        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}water/" target="_blank">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
+            <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
+            <option value="kiloliters-year">Kilo liters</option>
+            <option value="ft3-year">Cubic feet (ft.<sup>3</sup>)</option>
+            <option value="gallons-year">US Gallon</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -319,6 +327,23 @@
   {# - question.ui_hint === 'waste' #}
   <div class="col-md-6 text-center" v-if="isWasteUIHint(practice)">
     <div class="row">
+      <div class="col-md-12">
+        <div class="text-start mb-1">
+          <select class="form-control form-select"
+                  :value="getRelevance(practice)"
+                  @change="updateRelevance(practice, $event)"
+                  :disabled="practice.frozen">
+            <option :value="null" disabled>{% trans %}Select relevance ...{% endtrans %}</option>
+            <option value="relevant-and-calculated">{% trans %}Relevant, calculated{% endtrans %}</option>
+            <option value="relevant-not-yet-calculated">{% trans %}Relevant, not yet calculated{% endtrans %}</option>
+            <option value="not-relevant-calculated">{% trans %}Not relevant, calculated{% endtrans %}</option>
+            <option value="not-relevant-explanation-provided">{% trans %}Not relevant, explanation provided{% endtrans %}</option>
+            <option value="not-evaluated">{% trans %}Not evaluated{% endtrans %}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="row">
       <div class="col-md-6">
         <div class="input-group">
           <label class="font-monospace input-group-text">{% trans %}From{% endtrans %}</label>
@@ -339,6 +364,7 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
+            @change="changeCreatedAt(practice, $event.target.value)"
             @blur="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
@@ -346,9 +372,10 @@
     </div>
     <div class="input-group">
       <input class="form-control text-end"
-             type="text"
-             placeholder=""
+             type="number"
+             :placeholder="getPrimaryCandidate(practice).measured"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+             @keyup="updateMeasurement(practice)"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
              :disabled="practice.frozen"></input>
       <select class="form-control form-select input-group-suffix"
@@ -363,20 +390,28 @@
         <option value="gallons-year">US Gallon</option>
       </select>
     </div>
-    <div class="row mt-1">
-      <div class="col-6">
-        <button class="btn btn-sm btn-outline-primary"
-          @click.prevent="importFromTrackingTool(practice)">{% trans %}import from tracking tool{% endtrans %}</button>
-      </div>
-      <div class="col-6">
-        <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}waste/" target="_blank">{% trans %}enter data in tracking tool{% endtrans %} &raquo;</a>
-      </div>
-    </div>
   </div>
   {# end of waste #}
 
   {# GHG Emissions #}
   <div class="col-md-6 text-center" v-if="isGHGEmissions(practice)">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="text-start mb-1">
+          <select class="form-control form-select"
+                  :value="getRelevance(practice)"
+                  @change="updateRelevance(practice, $event)"
+                  :disabled="practice.frozen">
+            <option :value="null" disabled>{% trans %}Select relevance ...{% endtrans %}</option>
+            <option value="relevant-and-calculated">{% trans %}Relevant, calculated{% endtrans %}</option>
+            <option value="relevant-not-yet-calculated">{% trans %}Relevant, not yet calculated{% endtrans %}</option>
+            <option value="not-relevant-calculated">{% trans %}Not relevant, calculated{% endtrans %}</option>
+            <option value="not-relevant-explanation-provided">{% trans %}Not relevant, explanation provided{% endtrans %}</option>
+            <option value="not-evaluated">{% trans %}Not evaluated{% endtrans %}</option>
+          </select>
+        </div>
+      </div>
+    </div>
     <div class="row">
       <div class="col-md-6">
         <div class="input-group">
@@ -398,7 +433,8 @@
             v-model="getAnswerEndsAt(practice, '{{assess_type}}').measured"
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
-            @blur="updateEndsAt(practice)"
+            @change="changeCreatedAt(practice, $event.target.value)"
+            @update="updateEndsAt(practice)"
             {% endif %}></input>
         </div>
       </div>
@@ -406,14 +442,11 @@
     <div class="row">
       <div class="col-md-12">
         <div class="input-group">
-          <span class="input-group-text">
-            <i class="fa fa-times"
-               @click="resetAssessmentAnswer(practice)"></i>
-          </span>
           <input class="form-control text-end"
              type="number"
-             v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
              :placeholder="getPrimaryCandidate(practice).measured"
+             v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+             @keyup="updateMeasurement(practice)"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
              :disabled="practice.frozen"></input>
           <select class="form-control form-select"
@@ -423,21 +456,9 @@
             <option value="t-year">Metric Tons CO2e</option>
           </select>
         </div>
-        <div class="text-start mt-1">
-          <select class="form-control form-select"
-                  v-model="getAnswerByUnit(practice, 'relevance').measured"
-                  @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'relevance'), '{{assess_type}}')"
-                  :disabled="practice.frozen">
-            <option :value="null" disabled>{% trans %}Select ...{% endtrans %}</option>
-            <option value="relevant-and-calculated">{% trans %}Relevant, calculated{% endtrans %}</option>
-            <option value="relevant-not-yet-calculated">{% trans %}Relevant, not yet calculated{% endtrans %}</option>
-            <option value="not-relevant-calculated">{% trans %}Not relevant, calculated{% endtrans %}</option>
-            <option value="not-relevant-explanation-provided">{% trans %}Not relevant, explanation provided{% endtrans %}</option>
-            <option value="not-evaluated">{% trans %}Not evaluated{% endtrans %}</option>
-          </select>
-        </div>
       </div>
     </div>
+    {% if UPDATE_ACTIONS_DISABLED %}
     <div class="row mt-1" v-if="!isGHGEmissionsScope3(practice)">
       <div class="col-6">
         <button class="btn btn-sm btn-outline-primary"
@@ -447,6 +468,7 @@
         <a class="btn btn-link btn-sm" href="{{urls.track_metrics_index}}energy-ghg-emissions/" target="_blank">{% trans %}GHG Emissions calculator{% endtrans %} &raquo;</a>
       </div>
     </div>
+    {% endif %}
   </div>
   {# end of scope ghg emissions #}
 
@@ -689,7 +711,8 @@
         </button>
       </div>
       <div class="col-md-6 text-end">
-        <!-- XXX waiting for more testing before enabling
+        {% if not UPDATE_ACTIONS_DISABLED %}
+        <!-- XXX waiting for more testing before enabling -->
         <button class="btn candidate-answer"
                 title="{% trans %}Use calculator result{% endtrans %}"
           @click.prevent="importFromTrackingTool(practice)"
@@ -708,7 +731,7 @@
                 v-if="getPrimaryAnswer(practice).measured != null">
           <i class="fa fa-times"></i>
         </button>
-        -->
+        {% endif %}
       </div>
     </div>
     {# comments #}

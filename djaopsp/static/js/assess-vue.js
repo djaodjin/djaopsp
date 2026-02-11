@@ -1,4 +1,4 @@
-// Copyright (c) 2025, DjaoDjin inc.
+// Copyright (c) 2026, DjaoDjin inc.
 // see LICENSE.
 
 // This file contains UI elements used during survey/assessment (data input).
@@ -509,7 +509,7 @@ Vue.component('campaign-questions-list', {
               }
               // reloads is simpler.
               vm.get();
-              vm.showMessages([
+              showMessages([
                   "Reset successful. Please continue with this assessment or an assessment in a different industry segment."],
                   "success");
             });
@@ -555,15 +555,26 @@ Vue.component('campaign-questions-list', {
                   vm._safeUrl(vm.api_assessment_sample, '/answers');
             var data = null;
             if( typeof measured === 'undefined' || measured === null ) return;
-            if( vm._isArray(measured) ) {
+            if( djApi._isArray(measured) ) {
                 data = measured;
-            } else if( vm._isObject(measured) ) {
-                data = measured;
-                if( typeof data.measured === 'undefined' ||
-                    data.measured === null ) return;
+            } else if( djApi._isObject(measured) ) {
+                if( typeof measured.measured === 'undefined' ||
+                    measured.measured === null ) return;
+                data = [measured];
             } else {
-                data = {measured: measured};
+                data = [{measured: measured}];
             }
+            // XXX tentative fixing post UI updates
+            //for( let idx = 0; idx < data.length; ++idx ) {
+            //    if( vm.isUnitEquivalent(data[idx].unit,
+            //            practice.default_unit.slug) &&
+            //        !vm.isUnitEquivalent(practice.default_unit.slug,
+            //            data[idx].unit) ) {
+            //        if( !isNaN(data[idx].measured) ) {
+            //            data[idx].unit = practice.default_unit.slug;
+            //        }
+            //    }
+            //}
             vm.reqPost(vm._safeUrl(apiUrl, vm.prefix + path), data,
             function success(resp, textStatus, jqXHR) {
                 if( jqXHR.status == 201 ) {
@@ -577,7 +588,7 @@ Vue.component('campaign-questions-list', {
                 }
             },
             function error(resp) {
-                vm.showErrorMessages(resp);
+                showErrorMessages(resp);
                 if( errorCallback ) {
                     errorCallback(resp);
                 }
@@ -608,6 +619,32 @@ Vue.component('campaign-questions-list', {
                 }
             });
         },
+        getRelevance: function(practice) {
+            const primary = this.getPrimaryAnswer(practice);
+            if( primary.unit === 'relevance' ) return primary.measured;
+            return "relevant-and-calculated";
+        },
+        updateRelevance: function(practice, event) {
+            var vm = this;
+            const relevance = event.target.value;
+            console.log('XXX Value changed to:', relevance)
+            var primary = vm.getPrimaryAnswer(practice);
+            if( relevance === "relevant-and-calculated" ) {
+                primary.unit = practice.default_unit.slug;
+                primary.measured = null;
+            } else {
+                primary.unit = 'relevance';
+                primary.measured = relevance;
+                vm.updateAssessmentAnswer(practice, primary);
+            }
+        },
+        updateMeasurement: function(practice) {
+            const primary = this.getPrimaryAnswer(practice);
+            if( primary.unit === 'relevance' ) {
+                primary.unit = practice.default_unit.slug;
+            }
+        },
+        // for `enum-choices-typeahead` callback
         updateEnumAnswer: function(newValue, practice) {
             var vm = this;
             vm.updateAssessmentAnswer(practice, newValue.text);
@@ -659,6 +696,7 @@ Vue.component('campaign-questions-list', {
         isNotDisclosedPublicly: function(row) {
             return this.getAnswerByUnit(row, 'yes-no').measured === 'Yes';
         },
+        // to update revenue not disclosed publicly.
         toggleNotDisclosedPublicly: function(row) {
             var vm = this;
             const data = {
@@ -670,22 +708,14 @@ Vue.component('campaign-questions-list', {
                     'No' : 'Yes';
             vm.updateAssessmentAnswer(row, data);
         },
-        // specific to UI elements that track metrics
-        isNotYetMeasured: function(row) { // deprecated
-            return this.getAnswerByUnit(row, 'yes-no').measured === 'Yes';
-        },
-        toggleNotYetMeasured: function(row) { // deprecated
-            var vm = this;
-            const data = {
-                unit: 'yes-no',
-                measured: vm.getAnswerByUnit(row, 'yes-no').measured === 'Yes' ?
-                    'No' : 'Yes'};
-            vm.getAnswerByUnit(row, 'yes-no').measured =
-                vm.getAnswerByUnit(row, 'yes-no').measured === 'Yes' ?
-                    'No' : 'Yes';
-            vm.updateAssessmentAnswer(row, data);
-        },
         // specific to data ranges
+        changeCreatedAt: function(practice, newVal) {
+            if( typeof newVal === 'undefined' ) {
+                newVal = vm.getAnswerEndsAt(practice).measured
+            }
+            this.$set(vm.getPrimaryAnswer(practice), 'created_at',
+                this.asDateISOString(newVal));
+        },
         updateStartsAt: function(practice, newValue) {
             var vm = this;
             vm.setActiveElement(practice);
@@ -730,15 +760,15 @@ Vue.component('campaign-questions-list', {
         // We update all `ends-at` in the UI and in the database.
         updateAllEndsAt: function(practice, parent, tag) {
             var vm = this;
-            var newValue = vm.getAnswerEndsAt(
-                practice ? practice : vm.activeElement)
-            const atTime = newValue.measured;
+            const atTime = vm.getAnswerEndsAt(
+                practice ? practice : vm.activeElement).measured;
             var practices = vm.getEntries(parent.slug);
             for( var idx = 0; idx < practices.length; ++idx ) {
                 var row = practices[idx];
                 if( vm.isDataForPeriod(row) ) {
                     vm.getAnswerEndsAt(row).measured = atTime;
-                    vm._callUpdateAnswer(row, newValue, tag);
+                    vm.getPrimaryAnswer(row, tag).created_at = atTime;
+                    vm._callUpdateAnswer(row, atTime, tag);
                 }
             }
         },
@@ -1155,7 +1185,7 @@ Vue.component('scorecard', {
                 vm.$nextTick(function() {
                     var modalDialog = jQuery('#complete-assessment.modal');
                     if( modalDialog ) modalDialog.modal('hide');
-                    vm.showErrorMessages(resp);
+                    showErrorMessages(resp);
                 });
             });
         },
@@ -1530,6 +1560,10 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
         }
     },
     methods: {
+        getAccountPrintableName: function(acccount) {
+            return acccount.full_name;
+        },
+
         clearNewItem: function() {
             return {
                 full_name: "",
@@ -1539,7 +1573,7 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
         addItem: function() {
             var vm = this;
             if( vm.isInvalidNewItem ) {
-                vm.showErrorMessages({"detail": "Please enter all information that defines the new row."});
+                showErrorMessages({"detail": "Please enter all information that defines the new row."});
                 return
             }
             var data = {extra: JSON.stringify(vm.newItem.extra)};
@@ -1718,13 +1752,21 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
                 return;
             }
             if( vm.isInvalidStartsAt || vm.isInvalidEndsAt ) {
-                vm.showErrorMessages({"detail": "Please specify a valid reporting period."});
+                showErrorMessages({"detail": "Please specify a valid reporting period."});
                 return;
+            }
+            var items = [];
+            for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                items.push({
+                    account: vm.items.results[idx].slug,
+                    measured: vm.items.results[idx].measured,
+                    unit: vm.items.results[idx].unit
+                })
             }
             vm.reqPost(vm._safeUrl(vm.url, 'values'), {
                 baseline_at: vm.starts_at,
                 created_at: vm.ends_at,
-                items: vm.items.results
+                items: items
             },
             function(resp) {
                 if( callback ) {
@@ -1733,8 +1775,8 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
                     for( var idx = 0; idx < vm.items.results.length; ++idx ) {
                         vm.items.results[idx].measured = null;
                     }
-                    vm.showMessages(
-                        [`${vm.items.length} datapoints have been recorded.`],
+                    showMessages(
+                        [`${resp.count} datapoints have been created.`],
                         'success');
                 }
             }, function error(resp) {
@@ -1749,7 +1791,7 @@ var dataMetricTracker = Vue.component('data-metric-tracker', {
                         }
                     }
                 } else {
-                    vm.showErrorMessages(resp);
+                    showErrorMessages(resp);
                 }
             });
         },
@@ -1899,19 +1941,19 @@ var ghgEmissionsEstimator = Vue.component(
                return;
            }
            if( vm.isInvalidStartsAt || vm.isInvalidEndsAt ) {
-               vm.showErrorMessages({
+               showErrorMessages({
                    "detail": "Please specify a valid reporting period."});
                return;
            }
            var items = [];
            for( var idx = 0; idx < vm.items.results.length; ++idx ) {
                items.push({
-                   slug: vm.items.results[idx].slug,
+                   account: vm.items.results[idx].slug,
                    measured: vm.items.results[idx].measured,
                    unit: vm.items.results[idx].unit
                })
                items.push({
-                   slug: vm.items.results[idx].slug,
+                   account: vm.items.results[idx].slug,
                    measured: vm.estimateCO2e(vm.items.results[idx]),
                    unit: "t"
                })
@@ -1925,7 +1967,7 @@ var ghgEmissionsEstimator = Vue.component(
                 for( var idx = 0; idx < vm.items.results.length; ++idx ) {
                     vm.items.results[idx].measured = null;
                 }
-                vm.showMessages([
+                showMessages([
                     `${items.length} datapoints have been recorded.`],
                     'success');
             }, function error(resp) {
@@ -1941,7 +1983,7 @@ var ghgEmissionsEstimator = Vue.component(
                     }
                     vm.$forceUpdate();
                 } else {
-                    vm.showErrorMessages(resp);
+                    showErrorMessages(resp);
                 }
             });
         }
@@ -1951,10 +1993,6 @@ var ghgEmissionsEstimator = Vue.component(
             return parseInt(this.emissionsEstimate) > 0;
         },
     },
-    mounted: function() {
-        var vm = this;
-        vm.get();
-    }
 }));
 
 
@@ -2308,21 +2346,28 @@ Vue.component('scope3-transportation', ghgEmissionsEstimator.extend({
 Vue.component('data-values', {
     mixins: [
         itemListMixin,
+        accountDetailMixin
     ],
     data: function() {
         return {
             url: this.$urls.api_data_values,
+            getCompleteCb: 'getCompleted',
         }
     },
     methods: {
+        getCompleted: function(){
+            var vm = this;
+            vm.populateAccounts(vm.items.results, 'account');
+            vm.$forceUpdate();
+        },
         humanizeMeasured: function(item) {
             return item.measured + " " + item.unit;
         },
         humanizeDescription: function(item) {
-            var result = (
-                item.account.printable_name ? item.account.printable_name : "");
-            var sep = item.account.printable_name ? ", " : "";
-            var extra = item.account.extra;
+            var vm = this;
+            var result = vm.getAccountPrintableName(item.account);
+            var sep = result ? ", " : "";
+            const extra = vm.getAccountField(item.account, 'extra');
             for( var fieldName in extra ) {
                 if( extra.hasOwnProperty(fieldName) && extra[fieldName] ) {
                     result += sep + extra[fieldName];

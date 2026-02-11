@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 import csv, datetime, io, logging, os, re
@@ -587,8 +587,7 @@ class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
             'Tags',
             'Status',
             'Last update',
-            'Last reminder',
-            'Added']
+            'Invited']
 
     def queryrow_to_columns(self, record):
         reporting_statuses = dict(EngagementSerializer.REPORTING_STATUSES)
@@ -599,7 +598,6 @@ class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
             ", ".join(get_extra(record, 'tags', [])),
             reporting_statuses[record.reporting_status],
             record.last_activity_at.date() if record.last_activity_at else "",
-            "",
             record.requested_at.date() if record.requested_at else ""]
         return row
 
@@ -679,6 +677,7 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
     basename = 'answers'
     show_comments = True
     add_expanded_styles = False
+    write_all_engaged = False
     paginator = None
 
 #    ordering = ('full_name',)
@@ -741,10 +740,24 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
         return self._verified_campaign
 
     @property
+    def engaged_accounts(self):
+        """
+        All accounts that have been engaged (there exists
+        a `PortfolioDoubleOptIn`).
+        """
+        if not hasattr(self, '_engaged_accounts'):
+            #pylint:disable=attribute-defined-outside-init
+            self._engaged_accounts = list(self.get_accounts())
+        return self._engaged_accounts
+
+    @property
     def latest_assessments(self):
+        """
+        Latest responses for engaged accounts
+        """
         if not hasattr(self, '_latest_assessments'):
             #pylint:disable=attribute-defined-outside-init
-            if self.accounts_with_engagement:
+            if self.engaged_accounts:
                 self._latest_assessments = \
                     Sample.objects.get_latest_frozen_by_accounts(
                         campaign=self.verified_campaign,
@@ -752,7 +765,7 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
                     # create a list to prevent RawQuerySet if-condition later on
                         grantees=[self.account],
                         accounts=[account.pk for account
-                            in self.accounts_with_engagement],
+                            in self.engaged_accounts],
                         tags=[])
             else:
                 self._latest_assessments = Sample.objects.none()
@@ -762,7 +775,7 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
     def latest_improvements(self):
         if not hasattr(self, '_improvements'):
             #pylint:disable=attribute-defined-outside-init
-            if self.accounts_with_engagement:
+            if self.engaged_accounts:
                 self._improvements = \
                     Sample.objects.get_latest_frozen_by_accounts(
                         campaign=self.verified_campaign,
@@ -770,30 +783,52 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
                         grantees=[self.account],
                 # create a list to prevent RawQuerySet if-condition later on
                         accounts=[account.pk for account
-                            in self.accounts_with_engagement],
+                            in self.engaged_accounts],
                         tags=['is_planned'])
             else:
                 self._improvements = Sample.objects.none()
         return self._improvements
 
     @property
-    def accounts_with_engagement(self):
+    def accounts_with_completed_assessment(self):
+        """
+        Engaged accounts that have completed a response
+        """
         #pylint:disable=attribute-defined-outside-init
-        if not hasattr(self, '_accounts_with_engagement'):
-            self._accounts_with_engagement = list(self.get_accounts())
+        if not hasattr(self, '_accounts_with_completed_assessment'):
+            self._accounts_with_completed_assessment = []
+
+            # filter engaged accounts that have completed a response,
+            # and decorate the account with `last_activity_at`.
+            last_activity_at_by_accounts = {}
+            for sample in self.latest_assessments:
+                last_activity_at_by_accounts.update({
+                    sample.account_id: sample.created_at})
+            for reporting in self.engaged_accounts:
+                account_id = reporting.pk
+                last_activity_at = last_activity_at_by_accounts.get(account_id)
+                if last_activity_at:
+                    reporting.last_activity_at = last_activity_at
+                    self._accounts_with_completed_assessment += [reporting]
+                elif self.write_all_engaged:
+                    reporting.last_activity_at = None
+                    self._accounts_with_completed_assessment += [reporting]
+
+            # Decorate the account with `Portfolio` extra for the account.
             extras = {
                 (val.grantee_id, val.account_id): extra_as_internal(val)
                 for val in Portfolio.objects.filter(
                     grantee=self.account, # XXX forces a single grantee
-                    account_id__in=[
-                        val.pk for val in self.accounts_with_engagement])}
-            for reporting in self._accounts_with_engagement:
+                    account_id__in=[val.pk for val
+                        in self._accounts_with_completed_assessment])}
+            for reporting in self._accounts_with_completed_assessment:
                 # Merge portfolio extra field into account extra field.
                 extra = extras.get((self.account.pk, reporting.pk))
                 if extra:
                     reporting.extra = extra_as_internal(reporting)
                     reporting.extra.update(extra)
-        return self._accounts_with_engagement
+
+        return self._accounts_with_completed_assessment
 
 
     def merge_records(self, left_records, right_records):
@@ -1127,7 +1162,7 @@ class AnswersPivotableView(AnswersDownloadMixin, ListAPIView):
                 sample.account_id: sample.created_at})
 
         by_account_ids = {account.pk: account
-            for account in self.accounts_with_engagement}
+            for account in self.accounts_with_completed_assessment}
 
         for entry in queryset:
             question_title = entry.get('title')
@@ -1218,17 +1253,22 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
     Download a spreadsheet of answers/comments with questions as rows
     and accessible accounts as columns.
     """
+    content_extra_fields = {'title',}
 
-    @staticmethod
-    def _get_title(element):
-        title = element.get('title', "")
-        ref_num = element.get('ref_num')
-        if ref_num:
-            title = "%s %s" % (ref_num, title)
-        default_unit = element.get('default_unit', {})
-        if default_unit and default_unit.get('system') in Unit.METRIC_SYSTEMS:
-            title += " (in %s)" % default_unit.get('title')
-        return title
+    def __init__(self, *args):
+        super(TabularizedAnswersXLSXView, self).__init__(*args)
+        self.equivs = {}
+        self.no_equiv = UnitEquivalences()
+
+    def get_title(self):
+        ends_at = self.ends_at.date()
+        source = "Source: %s" % self.request.build_absolute_uri(location='/')
+        if not self.start_at:
+            return ["Organization/profiles engaged to %s (%s)" % (
+                ends_at.isoformat(), source)]
+        start_at = self.start_at.date()
+        return ["Organization/profiles engaged from %s to %s (%s)" %
+            (start_at.isoformat(), ends_at.isoformat(), source)]
 
     def add_error(self, msg):
         self.errors += [msg]
@@ -1273,18 +1313,21 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
         elif unit_id == self.comments_unit.pk:
             account['comments'] += str(text) if text else ""
         else:
-            unit = Unit.objects.get(pk=unit_id)
-            if unit.system in (Unit.SYSTEM_STANDARD, Unit.SYSTEM_IMPERIAL):
-                default_unit = Unit.objects.get(pk=default_unit_id)
+            unit_equiv = self.equivs.get(unit_id, {})
+            equiv = unit_equiv.get(default_unit_id)
+            if not equiv:
                 try:
                     equiv = UnitEquivalences.objects.get(
-                        source=unit, target=default_unit)
-                    account.update({
-                        'measured': equiv.as_target_unit(measured)})
+                        source_id=unit_id, target_id=default_unit_id)
                 except UnitEquivalences.DoesNotExist:
-                    account.update({'measured': ""})
-                    self.add_error("cannot convert '%s' to '%s' for %s:%s" % (
-                        unit, default_unit, account_id, row[self.path_idx]))
+                    equiv = self.no_equiv
+                unit_equiv.update({default_unit_id: equiv})
+                if unit_id not in self.equivs:
+                    self.equivs.update({unit_id: unit_equiv})
+            try:
+                account.update({'measured': equiv.as_target_unit(measured)})
+            except NotImplementedError:
+                account.update({'measured': text})
 
 
     def as_account(self, key):
@@ -1387,15 +1430,15 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
 
 
     def format_row(self, entry, key=None):
-        row = [self._get_title(entry)]
+        row = [self._get_row_header(entry)]
         by_accounts = self.tabularize(entry.get('accounts', []),
-            self.accounts_with_engagement)
+            self.accounts_with_completed_assessment)
         if by_accounts:
             for account in by_accounts:
                 # XXX Showing scores as % needs to be done when applying styles.
                 row += [account.get(key, "")]
         else:
-            for account in self.accounts_with_engagement:
+            for account in self.accounts_with_completed_assessment:
                 row += [""]
 
         if entry.get('default_unit'):
@@ -1436,26 +1479,21 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
 
     def write_headers(self):
         """
-        Write table headers in the worksheet
+        Write table headers in the worksheet, i.e. row of profile name
+        for `self.accounts_with_completed_assessment`, row of SupplierID, row
+        of tags, row of Last completed at.
         """
-        ends_at = self.ends_at.date()
-        source = "Source: %s" % self.request.build_absolute_uri(location='/')
-        if not self.start_at:
-            self.writerow(["Organization/profiles engaged to %s (%s)" % (
-                ends_at.isoformat(), source)])
-        else:
-            start_at = self.start_at.date()
-            self.writerow(["Organization/profiles engaged from %s to %s (%s)" %
-                (start_at.isoformat(), ends_at.isoformat(), source)])
+        self.writerow(self.get_title())
+
         headings = [force_str(_("Profile name"))] + [
             reporting.printable_name
-            for reporting in self.accounts_with_engagement]
+            for reporting in self.accounts_with_completed_assessment]
         self.writerow(headings)
 
         # Adds SupplierID and Tags headings
         key_headings = [force_str(_("SupplierID"))]
         tags_headings = [force_str(_("Tags"))]
-        for reporting in self.accounts_with_engagement:
+        for reporting in self.accounts_with_completed_assessment:
             key_headings += [get_extra(reporting, 'supplier_key')]
             tags = get_extra(reporting, 'tags')
             if tags:
@@ -1465,15 +1503,10 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
         self.writerow(key_headings)
         self.writerow(tags_headings)
 
-        # creates row with last completed date
-        last_activity_at_by_accounts = {}
-        for sample in self.latest_assessments:
-            last_activity_at_by_accounts.update({
-                sample.account_id: sample.created_at})
+        # Adds the last completed date
         headings = [force_str(_("Last completed at"))]
-        for reporting in self.accounts_with_engagement:
-            account_id = reporting.pk
-            last_activity_at = last_activity_at_by_accounts.get(account_id)
+        for reporting in self.accounts_with_completed_assessment:
+            last_activity_at = reporting.last_activity_at
             if last_activity_at:
                 headings += [datetime.date(
                     last_activity_at.year,

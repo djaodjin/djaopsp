@@ -1309,7 +1309,7 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
     Lists accessible samples for reporting profiles by period (either yearly
     or monthly)
 
-    **Tags**: sharing
+    **Tags**: reporting
 
     **Examples
 
@@ -2020,7 +2020,7 @@ class LastByCampaignAccessiblesAPIView(LastByCampaignAccessiblesMixin,
 
     Lists last accessible sample by campaign for reporting profiles.
 
-    **Tags**: sharing
+    **Tags**: reporting
 
     **Examples
 
@@ -2033,32 +2033,59 @@ class LastByCampaignAccessiblesAPIView(LastByCampaignAccessiblesMixin,
     .. code-block:: json
 
         {
-          "count": 1,
+          "count": 2,
           "next": null,
           "previous": null,
+          "scale": 1,
+          "title": "Accessibles",
+          "labels": [
+            {
+              "slug": "sustainability",
+              "title": "Sustainability Practices",
+              "url": "https://tspproject.org/app/energy-utilty/reporting/\
+sustainability/accessibles/"
+            },
+            {
+              "slug": "cybersecurity",
+              "title": "Cybersecurity Practices",
+              "url": "https://tspproject.org/app/energy-utilty/reporting/\
+cybersecurity/accessibles/"
+            }
+          ],
           "results": [
                 {
                     "slug": "andy-shop",
                     "printable_name": "Andy's Shop",
                     "values": [
-                        ["2023-01-01T00:00:00Z", "complete", 95],
-                        ["2022-01-01T00:00:00Z", "complete", 95],
-                        ["2021-01-01T00:00:00Z", "declined", null],
-                        ["2020-01-01T00:00:00Z", "no-data", null],
-                        ["2019-01-01T00:00:00Z", "no-data", null],
-                        ["2018-01-01T00:00:00Z", "no-data", null]
+                        {
+                          "created_at": "2023-01-01T00:00:00Z",
+                          "state": "completed",
+                          "url": "https://tspproject.org/app/energy-utility/\
+scorecard/d5061dd164794f689061362f858358ff/",
+                          "normalized_score": 96
+                        }, {
+                          "created_at": "2026-01-01T00:00:00Z",
+                          "state": "no-data",
+                          "url": null,
+                          "normalized_score":  null
+                        }
                     ]
                 },
                 {
                     "slug": "supplier-1",
                     "printable_name": "Supplier 1",
                     "values": [
-                        ["2023-01-01T00:00:00Z", "complete", 82],
-                        ["2022-01-01T00:00:00Z", "complete", 82],
-                        ["2021-01-01T00:00:00Z", "declined", null],
-                        ["2020-01-01T00:00:00Z", "no-data", null],
-                        ["2019-01-01T00:00:00Z", "no-data", null],
-                        ["2018-01-01T00:00:00Z", "no-data", null]
+                        {
+                          "created_at": "2026-01-01T00:00:00Z",
+                          "state": "no-data",
+                          "url": null,
+                          "normalized_score": null
+                        }, {
+                          "created_at": "2026-01-01T00:00:00Z",
+                          "state": "no-data",
+                          "url": null,
+                          "normalized_score":  null
+                        }
                     ]
                 }
           ]

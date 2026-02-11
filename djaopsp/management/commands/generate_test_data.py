@@ -112,7 +112,7 @@ class Command(BaseCommand):
                         'measured': choice
                     }
                     update_or_create_answer(
-                        datapoint, question, sample, created_at)
+                        datapoint, question, sample, at_time=created_at)
             frozen_sample = freeze_scores(sample, created_at=created_at)
             calculator = get_score_calculator(segment_path)
             populate_scorecard_cache(

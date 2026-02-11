@@ -531,7 +531,7 @@
                 <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
                   <td colspan="7">{% trans %}No response to compare{% endtrans %}</td>
                 </tr>
-                <tr v-for="practice in getEntries(displayMetric.path)"
+                <tr v-for="row in getEntries(displayMetric.path)"
                     v-show="itemsLoaded && items.results.length > 0" v-cloak>
                     {% include "survey/matrix/_compare_row.html" %}
                 </tr>

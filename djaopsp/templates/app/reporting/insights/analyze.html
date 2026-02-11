@@ -57,7 +57,8 @@
                           @keydown.up="up"
                           @keydown.enter.prevent="hit"
                           @blur="clear"
-                          @input="update"></input>
+                          @input="update"
+                          ref="input"></input>
                         <button  class="input-group-text"
                           role="button" href="#"
                           aria-haspopup="true" aria-expanded="false"
@@ -96,7 +97,8 @@
                         @keydown.up="up"
                         @keydown.enter.prevent="hit"
                         @blur="clear"
-                        @input="update"></input>
+                        @input="update"
+                        ref="input"></input>
                       <button  class="input-group-text"
                         role="button" href="#"
                         aria-haspopup="true" aria-expanded="false"
@@ -348,9 +350,12 @@
 
             <!-- select accounts by affinity -->
             <query-accounts-by-extended-affinity inline-template
-                v-bind:period="periodType"
-                v-bind:prefix="displayMetric.path"
                 v-bind:disabled="datasetLoading"
+                v-bind:campaign="displayMetric.campaign"
+                v-bind:prefix="displayMetric.path"
+                v-bind:start-at="_start_at"
+                v-bind:ends-at="_ends_at"
+                v-bind:period="periodType"
                 v-on:updatedataset="addDataset"
                 v-show="queryType == 'accounts-by-affinity'">
               <div>
@@ -368,11 +373,11 @@
                     <div>
                       <div class="input-group mt-2">
                         <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-                        <input class="form-control" type="date" v-model="_start_at">
+                        <input class="form-control" type="date" v-model="_accounts_start_at">
                       </div>
                       <div class="input-group mt-2">
                         <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        <input class="form-control" type="date" v-model="_ends_at">
+                        <input class="form-control" type="date" v-model="_accounts_ends_at">
                       </div>
                       <button class="btn btn-primary mt-2 w-100"
                               type="submit">
@@ -574,7 +579,7 @@
                 <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
                   <td colspan="7">{% trans %}No response to compare{% endtrans %}</td>
                 </tr>
-                <tr v-for="practice in getEntries(displayMetric.path)"
+                <tr v-for="row in getEntries(displayMetric.path)"
                     v-show="itemsLoaded && items.results.length > 0" v-cloak>
                     {% include "survey/matrix/_compare_row.html" %}
                 </tr>

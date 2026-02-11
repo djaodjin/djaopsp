@@ -74,14 +74,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         #pylint:disable=too-many-locals,too-many-statements
         start_time = datetime.datetime.utcnow()
-        self.check_active_samples(show=options['show_active'])
-        self.check_updated_not_frozen(
-            show=options['show_updated_not_frozen'])
-        self.check_completed_notshared(
-            show=options['show_completed_notshared'])
         self.check_portfolios(
             show=options['show_portfolios'],
             show_fix=options['show_portfolios_fix'])
+        self.check_completed_notshared(
+            show=options['show_completed_notshared'])
+        self.check_active_samples(show=options['show_active'])
+        self.check_updated_not_frozen(
+            show=options['show_updated_not_frozen'])
         if options['show_questions'] or options['show_answers']:
             self.check_questions(
                 show=options['show_questions'],
@@ -156,6 +156,20 @@ class Command(BaseCommand):
         #pylint:disable=too-many-locals
         if show_fix:
             show = True
+
+        count = PortfolioDoubleOptIn.objects.filter(state__in=[
+            PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
+            PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED
+        ], verification_key__isnull=True).count()
+        self.stderr.write(
+            "%d initiated portfolio optins with no verification_key" % count)
+        count = PortfolioDoubleOptIn.objects.exclude(state__in=[
+            PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED,
+            PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED
+        ]).exclude(verification_key__isnull=True).count()
+        self.stderr.write(
+          "%d completed portfolio optins still with a verification_key" % count)
+
         duplicates_query = """
 WITH duplicates AS (
   SELECT grantee_id, account_id, campaign_id, COUNT(*) AS nb_duplicates
@@ -260,6 +274,7 @@ FROM portfolios INNER JOIN %(account_table)s
 ON portfolios.grantee_id = %(account_table)s.id) AS portfolio_grantees
 INNER JOIN %(account_table)s
 ON portfolio_grantees.account_id = %(account_table)s.id
+ORDER BY grantee_slug
 """ % {
     'grant_accepted': PortfolioDoubleOptIn.OPTIN_GRANT_ACCEPTED,
     'request_accepted': PortfolioDoubleOptIn.OPTIN_REQUEST_ACCEPTED,
@@ -363,7 +378,8 @@ SELECT
   request_no_portfolios.created_at
 FROM request_no_portfolios
 INNER JOIN %(account_table)s
-ON %(account_table)s.id = request_no_portfolios.grantee_id""" % {
+ON %(account_table)s.id = request_no_portfolios.grantee_id
+ORDER BY grantee_slug""" % {
     'account_table': self.account_model._meta.db_table
 }
         count = 0
@@ -494,9 +510,9 @@ ON %(account_table)s.id = request_no_portfolios.grantee_id""" % {
 
             while first_sample and second_sample:
                 first_answers = Answer.objects.raw(sql_frozen_answers(
-                    campaign, [first_sample.pk]))
+                    [first_sample.pk], campaign=campaign))
                 second_answers = Answer.objects.raw(sql_frozen_answers(
-                    campaign, [second_sample.pk]))
+                    [second_sample.pk], campaign=campaign))
                 first_answers_count = len(first_answers)
                 second_answers_count = len(second_answers)
                 if first_answers_count != second_answers_count:
