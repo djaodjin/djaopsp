@@ -6,8 +6,16 @@
   <div class="offset-sm-1 offset-md-2 offset-lg-3 col-sm-10 col-md-8 col-lg-6">
   <newsfeed inline-template>
     <div>
-      <div v-show="!itemsLoaded">
-        <i class="fa fa-refresh fa-spin fa-2x"></i>
+      <div class="text-center" v-show="!itemsLoaded">
+        <p>
+          <i class="fa fa-spinner fa-spin fa-2x"></i>
+        </p>
+        <p>
+{% trans %}Please wait...{% endtrans %}
+        </p>
+        <small>
+{% trans %}(if loading takes forever, try to force reload the page, i.e. press Ctrl + Shift + R){% endtrans %}
+        </small>
       </div>
       <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
         <div class="card mb-4">
