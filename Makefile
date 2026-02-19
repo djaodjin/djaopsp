@@ -1,4 +1,4 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE
 
 -include $(buildTop)/share/dws/prefix.mk
@@ -215,6 +215,7 @@ schema.yml:
 $(ASSETS_DIR)/cache/assess.js: $(srcDir)/webpack.config.js \
                                webpack-conf-paths.json \
                                $(wildcard $(srcDir)/djaopsp/static/js/*.js)
+	rm -f $(ASSETS_DIR)/js/*
 	cd $(srcDir) && $(WEBPACK) -c $<
 
 

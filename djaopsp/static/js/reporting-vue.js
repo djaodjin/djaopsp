@@ -307,6 +307,19 @@ Vue.component('engage-profiles', {
             }
             return false;
         },
+        requestAssessmentExample: function(email, campaign) {
+            var vm = this;
+            var data = {
+                accounts: [{slug: 'supplier-1', email: email}],
+            };
+            if( typeof campaign !== 'undefined' ) {
+                data['campaign'] = campaign;
+            }
+            vm.reqPost(vm._safeUrl(vm.$urls.api_accessibles, 'send'), data,
+            function success(resp, textStatus, jqXHR) {
+                showMessages(resp.detail, 'info');
+            });
+        },
         remove: function ($event, idx) {
             var vm = this;
             if( vm.items.results[idx].api_remove ) {

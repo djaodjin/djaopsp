@@ -1,11 +1,11 @@
 {% extends "notification/base.eml" %}
 
 {% block subject %}
-{% trans %}Assessment Invitation{% endtrans %}
+{% trans campaign=campaign.title %}Invitation to complete the {{campaign}} assessment{% endtrans %}
 {% endblock %}
 
 {% block title %}
-{% trans %}Assessment Invitation{% endtrans %}
+{{campaign.title}}
 {% endblock %}
 
 {% block html_content %}
@@ -15,36 +15,45 @@
 </pre>
 {% else %}
 <p>
-{% if user.nick_name %}
-{% trans nick_name=user.nick_name %}Hello {{nick_name}}{% endtrans %},
-{% else %}
-Hello,
-{% endif %}
-</p>
-<p>
-{% trans profile=account.printable_name %}I would like to invite you to complete and share an assessment for {{profile}}.{% endtrans %}
-</p>
-<p>
-Sincerely,<br />
-{{originated_by.printable_name}}<br />
-{% if originated_by.email %}{{originated_by.email}}{% endif %}
+Hello{% if user and user.nick_name %} {{user.nick_name}}{% endif %},
 </p>
 {% endif %}
 
-<hr />
 <p>
-This is an invitation to complete an {% if campaign %}{{campaign}} {% endif %}
-assessment on {{broker.printable_name}}. Your company was selected
-by one or more of your customers to complete this assessment.
+{% trans profile=account.printable_name, campaign=campaign.title %}{{profile}} was selected by one or more of your valuable customers as a supplier of interest. The customers listed below would greatly appreciate if you could complete the {{campaign}} assessment. Thank you.{% endtrans %}
 </p>
+{% if grantee %}
 <ul>
-  <li>{{grantee.printable_name}}</li>
+<li>{{grantee.printable_name}}</li>
 </ul>
+{% endif %}
+{% if requesters %}
+<ul>
+{% for requester in requesters %}
+<li>{{requester.printable_name}}</li>
+{% endfor %}
+</ul>
+{% endif %}
 
 <p>
-{% trans %}Get started by clicking on the link below:{% endtrans %}
+{% trans profile=account.printable_name, campaign=campaign.title %}You are receiving this email, because you have been identified as a point of contact for {{profile}} to complete the {{campaign}} assessment.{% endtrans %}
 </p>
+{% if last_completed_at %}
 <p>
+<strong>{% trans deadline=last_completed_at|humanizeDate, deadline_relative=last_completed_at|humanize_relative_to_now %}You have {{deadline_relative}} to complete the assessment before the {{deadline}} target date.{% endtrans %}</strong>
+</p>
+{% endif %}
+<p>
+{% trans %}If your company has already completed the assessment, please share your assessment results with the customer(s) above by following these 3 steps:{% endtrans %}
+</p>
+<ol>
+  <li>Login to <a href="{{back_url}}">{{back_url}}</a></li>
+  <li>{% trans %}Click on the <strong>Share response</strong> button{% endtrans %}</li>
+  <li>{% trans %}Click on the <strong>Accept</strong> button next to the customer name{% endtrans %}</li>
+</ol>
+<p>
+If you are new to the platform, get started by going to
 <a href="{{back_url}}">{{back_url}}</a>
+and clicking the orange <span>&quot;Get started!&quot;</span> button.
 </p>
 {% endblock %}

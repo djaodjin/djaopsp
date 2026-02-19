@@ -1,4 +1,4 @@
-# Copyright (c) 2022, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE
 
 from __future__ import absolute_import
@@ -12,6 +12,7 @@ from deployutils.apps.django_deployutils.templatetags import (
 from jinja2.ext import i18n
 from jinja2.sandbox import SandboxedEnvironment as Jinja2Environment
 from pages.templatetags import pages_tags
+from survey.templatetags import survey_tags
 
 from .compat import import_string, reverse
 from .templatetags import djaopsp_tags
@@ -45,6 +46,8 @@ def environment(**options):
     env.filters['no_cache'] = djaopsp_tags.no_cache
     env.filters['pluralize'] = djaopsp_tags.pluralize
     env.filters['rstrip_sep'] = djaopsp_tags.rstrip_sep
+    env.filters['humanize_relative_to_now'] = \
+        survey_tags.humanize_relative_to_now
     env.filters['site_url'] = deployutils_prefixtags.site_url
     env.filters['to_json'] = deployutils_extratags.to_json
 

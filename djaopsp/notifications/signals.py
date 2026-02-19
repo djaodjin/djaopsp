@@ -109,12 +109,13 @@ def portfolios_request_initiated_notice(sender, portfolios, recipients,
         portfolio.account,)))
 
     broker = request.session.get('site', {})
+    deadline = None
     context = {
         'back_url': back_url,
         'broker': broker,
         'account': portfolio.account,
         'campaign': portfolio.campaign,
-        'deadline': portfolio.ends_at,
+        'last_completed_at': portfolio.ends_at,
         'grantee': portfolio.grantee,
         'originated_by': request.user,
         'message': message,

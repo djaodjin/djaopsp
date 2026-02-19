@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -11,24 +11,25 @@ from pages.docs import extend_schema
 from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
 from rest_framework.exceptions import ValidationError
+from survey import signals as survey_signals
 from survey.api.base import QuestionListAPIView
 from survey.api.matrix import (
     SampleBenchmarksAPIView as SampleBenchmarksBaseAPIView)
 from survey.api.sample import (attach_answers,
     SampleCandidatesMixin, SampleAnswersMixin, SampleFreezeAPIView,
     SampleRecentCreateAPIView as SampleRecentCreateBaseAPIView)
-from survey.api.serializers import UnitDetailSerializer
+from survey.api.serializers import (PortfolioRequestCreateSerializer,
+    UnitDetailSerializer)
 from survey.filters import OrderingFilter, SearchFilter
 from survey.helpers import datetime_or_now
 from survey.mixins import SampleMixin, TimersMixin
-from survey.models import Sample
+from survey.models import PortfolioDoubleOptIn, Sample
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model
 
 from ..compat import gettext_lazy as _, reverse, six
 from ..mixins import AccountMixin, SectionReportMixin
 from ..models import VerifiedSample
-from ..notifications.serializers import UserDetailSerializer
 from ..pagination import BenchmarksPagination
 from ..queries import get_scored_assessments
 from ..reminders import send_reminders
@@ -1129,7 +1130,8 @@ class SampleRecentCreateAPIView(SampleRecentCreateBaseAPIView):
 
 class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
 
-    serializer_class = UserDetailSerializer
+    account_model = get_account_model()
+    serializer_class = PortfolioRequestCreateSerializer
 
     def post(self, request, *args, **kwargs):
         """
@@ -1165,7 +1167,24 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        send_reminders(self.account,
-            email=serializer.validated_data.get('email'))
-        return http.Response(serializer.data,
+        accounts = serializer.validated_data.get('accounts')
+        campaign = serializer.validated_data.get('campaign')
+        for account in accounts:
+            to_email = account.get('email')
+            if request.user.email == to_email:
+                deadline = datetime_or_now() + relativedelta(months=3)
+                portfolio = PortfolioDoubleOptIn(
+                    account=self.account_model(slug='supplier-1',
+                        email=to_email, full_name="Supplier (Demo)"),
+                    grantee=self.account,
+                    ends_at=deadline,
+                    campaign=campaign,
+                    initiated_by=request.user)
+                survey_signals.portfolios_request_initiated.send(
+                    sender=__name__,
+                    portfolios=[portfolio], recipients=[request.user],
+                    message=None, request=request)
+            else:
+                send_reminders(self.account, campaign=campaign, email=to_email)
+        return http.Response({'detail': _("E-mail sent")},
             status=http_status.HTTP_201_CREATED)
