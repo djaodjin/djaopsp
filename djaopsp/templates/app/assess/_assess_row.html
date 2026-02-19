@@ -544,7 +544,7 @@
            data-bs-toggle="tooltip" data-bs-placement="bottom"
            data-toggle="tooltip" data-placement="bottom"
            :title="getPrimaryCandidate(practice).measured === choice.text ? (getPrimaryCandidate(practice).collected_by + ', ' + humanizeTimeDelta(getPrimaryCandidate(practice).created_at)) : ''">
-          [[choice.descr ? choice.descr : ""]]
+          [[choice.descr ? choice.descr : choice.text]]
         </label>
       </div>
     </div>
@@ -559,7 +559,7 @@
             :disabled="practice.frozen">
       <option :value="null" disabled>{% trans %}Select ...{% endtrans %}</option>
       <option :value="choice.text"
-              v-for="(choice, idx) in getChoices(practice, icon)">[[choice.descr]]</option>
+              v-for="(choice, idx) in getChoices(practice, icon)">[[choice.descr ? choice.descr : choice.text]]</option>
     </select>
   </div>
 
@@ -710,7 +710,7 @@
           <i class="fa fa-sticky-note-o"></i>
         </button>
       </div>
-      <div class="col-md-6 text-end">
+      <div class="col-md-6 text-end" v-if="!practice.frozen">
         {% if not UPDATE_ACTIONS_DISABLED %}
         <!-- XXX waiting for more testing before enabling -->
         <button class="btn candidate-answer"
@@ -725,7 +725,7 @@
                 v-if="getPrimaryCandidate(practice).measured != null">
           <i class="fa fa-bullseye"></i>
         </button>
-        <button class="btn btn-link text-danger"
+        <button class="btn candidate-answer"
                 title="{% trans %}Clear answer{% endtrans %}"
                 @click.prevent="resetAssessmentAnswer(practice)"
                 v-if="getPrimaryAnswer(practice).measured != null">
