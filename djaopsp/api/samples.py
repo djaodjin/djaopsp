@@ -1186,5 +1186,6 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
                     message=None, request=request)
             else:
                 send_reminders(self.account, campaign=campaign, email=to_email)
-        return http.Response({'detail': _("E-mail sent")},
+        return http.Response({'detail': _("An example invite should be"\
+            " in your e-mail inbox within a few minutes at most.")},
             status=http_status.HTTP_201_CREATED)
