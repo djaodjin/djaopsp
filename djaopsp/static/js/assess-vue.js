@@ -230,6 +230,10 @@ Vue.component('campaign-questions-list', {
             }
             if( !self.isUnitEquivalent(
                 practice.candidates[0].unit, practice.default_unit.slug) ) {
+                // This test will potentially insert a text string in the
+                // placeholder of the input[type="number"] field.
+                // We thus rely on `getMeasurementPlaceholder` to set
+                // the placholder value for those input fields.
                 return {
                     unit: practice.default_unit.slug,
                     measured: null
@@ -624,10 +628,14 @@ Vue.component('campaign-questions-list', {
             if( primary.unit === 'relevance' ) return primary.measured;
             return "relevant-and-calculated";
         },
+        getMeasurementPlaceholder: function(practice) {
+            var vm = this;
+            const primary = vm.getPrimaryCandidate(practice);
+            return !isNaN(primary.measured) ? primary.measured : '';
+        },
         updateRelevance: function(practice, event) {
             var vm = this;
             const relevance = event.target.value;
-            console.log('XXX Value changed to:', relevance)
             var primary = vm.getPrimaryAnswer(practice);
             if( relevance === "relevant-and-calculated" ) {
                 primary.unit = practice.default_unit.slug;
@@ -639,9 +647,17 @@ Vue.component('campaign-questions-list', {
             }
         },
         updateMeasurement: function(practice) {
-            const primary = this.getPrimaryAnswer(practice);
+            var vm = this;
+            const primary = vm.getPrimaryAnswer(practice);
             if( primary.unit === 'relevance' ) {
                 primary.unit = practice.default_unit.slug;
+            }
+        },
+        updateMeasurementUnit: function(practice, event) {
+            var vm = this;
+            var primary = this.getPrimaryAnswer(practice);
+            if( isNaN(primary.measured) ) {
+                primary.measured = null;
             }
         },
         // for `enum-choices-typeahead` callback
@@ -710,11 +726,12 @@ Vue.component('campaign-questions-list', {
         },
         // specific to data ranges
         changeCreatedAt: function(practice, newVal) {
+            var vm = this;
             if( typeof newVal === 'undefined' ) {
                 newVal = vm.getAnswerEndsAt(practice).measured
             }
-            this.$set(vm.getPrimaryAnswer(practice), 'created_at',
-                this.asDateISOString(newVal));
+            vm.$set(vm.getPrimaryAnswer(practice), 'created_at',
+                vm.asDateISOString(newVal));
         },
         updateStartsAt: function(practice, newValue) {
             var vm = this;
@@ -723,7 +740,7 @@ Vue.component('campaign-questions-list', {
                 newValue = vm.getAnswerStartsAt(practice)
             }
             vm.updateAssessmentAnswer(practice, newValue);
-            this.$nextTick(function() {
+            vm.$nextTick(function() {
                 if( !jQuery('#syncEndsAt').is(':visible') ) {
                     jQuery('#syncBaselineAt').modal("show");
                 }
@@ -736,7 +753,7 @@ Vue.component('campaign-questions-list', {
                 newValue = vm.getAnswerEndsAt(practice)
             }
             vm.updateAssessmentAnswer(practice, newValue);
-            this.$nextTick(function() {
+            vm.$nextTick(function() {
                 if( !jQuery('#syncBaselineAt').is(':visible') ) {
                     jQuery('#syncEndsAt').modal("show");
                 }
@@ -768,7 +785,7 @@ Vue.component('campaign-questions-list', {
                 if( vm.isDataForPeriod(row) ) {
                     vm.getAnswerEndsAt(row).measured = atTime;
                     vm.getPrimaryAnswer(row, tag).created_at = atTime;
-                    vm._callUpdateAnswer(row, atTime, tag);
+                    vm._callUpdateAnswer(row, row.answers, tag);
                 }
             }
         },
