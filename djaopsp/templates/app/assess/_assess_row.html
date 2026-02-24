@@ -545,7 +545,8 @@
         </div>
       </div>
       <div class="col-11 col-md-12">
-        <label :class="isEnumHeaderShown(icon) ? 'radio-label d-md-none' : 'radio-label'"
+        <label
+           :class="isLabelShown(practice, icon) ? 'radio-label' : 'radio-label d-md-none'"
            :for="slugify(choice.text, practice.rank)"
            data-bs-toggle="tooltip" data-bs-placement="bottom"
            data-toggle="tooltip" data-placement="bottom"

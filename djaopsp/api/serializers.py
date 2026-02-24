@@ -1,4 +1,4 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 from django.contrib.auth import get_user_model
@@ -7,9 +7,10 @@ from pages.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementDetailSerializer as BasePageElementDetailSerializer,
     UserNewsSerializer as UserNewsBaseSerializer)
-from survey.models import PortfolioDoubleOptIn, Sample
+from survey.models import PortfolioDoubleOptIn, Sample, Unit
 from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
-    AnswerSerializer, SampleSerializer, TableSerializer, UnitSerializer)
+    AnswerSerializer, SampleSerializer, TableSerializer, UnitSerializer,
+    UnitDetailSerializer)
 from survey.utils import get_account_model
 
 from .. import humanize
@@ -202,8 +203,11 @@ class AssessmentNodeSerializer(ContentNodeSerializer):
             except (TypeError, KeyError):
                 pass
         if default_unit:
-            return UnitSerializer(context=self._context).to_representation(
-                default_unit)
+            if isinstance(default_unit, Unit):
+                return UnitSerializer(
+                    context=self._context).to_representation(default_unit)
+            return UnitDetailSerializer(
+                context=self._context).to_representation(default_unit)
         return None
 
     @staticmethod

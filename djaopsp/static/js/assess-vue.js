@@ -302,6 +302,11 @@ Vue.component('campaign-questions-list', {
             }
             return icon.choices_headers && icon.choices_headers.length > 0;
         },
+        isLabelShown: function(practice, icon) {
+            var vm = this;
+            return !vm.isEnumHeaderShown(icon) ||
+                practice.default_unit.choices;
+        },
         isActiveCommentsShown: function(practice) {
             var vm = this;
             return vm.isOpenComments && (vm.activeElement &&
@@ -631,7 +636,7 @@ Vue.component('campaign-questions-list', {
         getMeasurementPlaceholder: function(practice) {
             var vm = this;
             const primary = vm.getPrimaryCandidate(practice);
-            return !isNaN(primary.measured) ? primary.measured : '';
+            return !isNaN(primary.measured) ? primary.measured : null;
         },
         updateRelevance: function(practice, event) {
             var vm = this;
