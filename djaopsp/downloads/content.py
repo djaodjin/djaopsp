@@ -123,8 +123,12 @@ class PracticesSpreadsheetView(TimersMixin, ListView):
                 except AttributeError:
                     default_unit_choices = default_unit.get('choices', [])
                 for choice in default_unit_choices:
-                    text = choice.get('text', "").strip()
-                    descr = choice.get('descr', "").strip()
+                    try:
+                        text = choice.text.strip() if choice.text else ""
+                        descr = choice.descr.strip() if choice.descr else ""
+                    except AttributeError as err:
+                        text = choice.get('text', "").strip()
+                        descr = choice.get('descr', "").strip()
                     if text != descr:
                         subtitle += "\n%s - %s" % (text, descr)
                 if subtitle:
