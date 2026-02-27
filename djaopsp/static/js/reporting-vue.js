@@ -166,7 +166,8 @@ Vue.component('engage-profiles', {
                 full_name: "",
                 type: "organization",
                 printable_name: "",
-                created_at: null
+                created_at: null,
+                ends_at: null
             },
             showContacts: -1,
             showRespondents: -1,
@@ -208,7 +209,7 @@ Vue.component('engage-profiles', {
         },
         populateInvite: function(newAccount) {
             var vm = this;
-            vm.newItem = {};
+            vm.newItem = {ends_at: null};
             if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
                 vm.newItem.slug = newAccount.slug;
             }
@@ -247,6 +248,9 @@ Vue.component('engage-profiles', {
                 && newAccount.created_at ) {
                 vm.newItem.created_at = newAccount.created_at;
             }
+            if( newAccount.hasOwnProperty('expires_at') ) {
+                vm.newItem.ends_at = newAccount.expires_at;
+            }
             vm.params.q = "";
         },
         hideModal: function($event) {
@@ -259,6 +263,7 @@ Vue.component('engage-profiles', {
             var data = {
                 accounts: [{}],
                 message: vm.message,
+                ends_at: vm.newItem.ends_at
             }
             // We remove the blank fields such that the backend serializer
             // does not complain that "the field is not required but when
@@ -293,6 +298,8 @@ Vue.component('engage-profiles', {
                 vm.reqPost(vm.$urls.api_accessibles, data,
                 function success(resp, textStatus, jqXHR) {
                     if( jqXHR.status == 201 ) {
+                        // Check for 201 so we don't reload the page
+                        // when re-sending the request.
                         const now = new Date(Date.now());
                         const endsAt = new Date(vm.params.ends_at);
                         if( isNaN(endsAt) || endsAt < now ) {
@@ -374,8 +381,8 @@ Vue.component('engage-profiles', {
             var entry = vm.items.results[toggledIdx];
             vm.showContacts = vm.showContacts === toggledIdx ? -1 : toggledIdx;
             if( vm.showContacts >= 0 ) {
-                const api_roles_url = vm._safeUrl(vm.api_profiles_base_url,
-                    [entry.slug, 'roles']);
+                const api_roles_url = vm._safeUrl(vm._safeUrl(
+                    vm.api_profiles_base_url, entry.slug), 'roles');
                 vm.reqGet(api_roles_url + "?role_status=active", function(resp) {
                     entry.contacts = resp.results;
                     entry.contacts.sort(function(a, b) {
@@ -432,8 +439,8 @@ Vue.component('engage-profiles', {
             var entry = vm.items.results[toggledIdx];
             vm.showRespondents = vm.showRespondents === toggledIdx ? -1 : toggledIdx;
             if( vm.showRespondents >= 0 ) {
-                const api_roles_url = vm._safeUrl(vm.$urls.api_sample_base_url,
-                    [entry.sample, 'respondents']);
+                const api_roles_url = vm._safeUrl(vm._safeUrl(
+                    vm.$urls.api_sample_base_url, entry.sample), 'respondents');
                 vm.reqGet(api_roles_url, function(resp) {
                     entry.respondents = resp.results;
                     entry.respondents.sort(function(a, b) {
@@ -467,8 +474,8 @@ Vue.component('engage-profiles', {
             var entry = vm.items.results[toggledIdx];
             vm.showRecipients = vm.showRecipients === toggledIdx ? -1 : toggledIdx;
             if( vm.showRecipients >= 0 ) {
-                const api_roles_url = vm._safeUrl(vm.$urls.api_activities_base,
-                    [entry.slug, 'recipients']);
+                const api_roles_url = vm._safeUrl(vm._safeUrl(
+                    vm.$urls.api_activities_base, entry.slug), 'recipients');
                 vm.reqGet(api_roles_url, function(resp) {
                     entry.recipients = resp.results;
                     entry.recipients.sort(function(a, b) {
@@ -495,6 +502,26 @@ Vue.component('engage-profiles', {
                     });
                     vm.$forceUpdate();
                 });
+            }
+        },
+    },
+    computed: {
+        _expires_at: {
+            get: function() {
+                if( this.newItem.ends_at ) {
+                    return this.asDateInputField(this.newItem.ends_at);
+                }
+                return null;
+            },
+            set: function(newVal) {
+                if( newVal ) {
+                    // The setter might be call with `newVal === null`
+                    // when the date is incorrect (ex: 09/31/2022).
+                    this.$set(this.newItem, 'ends_at',
+                        this.asDateISOString(newVal));
+                } else {
+                    this.$set(this.newItem, 'ends_at', null);
+                }
             }
         },
     },
