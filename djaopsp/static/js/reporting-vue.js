@@ -1164,8 +1164,8 @@ Vue.component('reporting-organizations', {
             var entry = vm.items.results[toggledIdx];
             vm.showContacts = vm.showContacts === toggledIdx ? -1 : toggledIdx;
             if( vm.showContacts >= 0 ) {
-                const api_roles_url = vm._safeUrl(vm.api_profiles_base_url,
-                    [entry.slug, 'roles']);
+                const api_roles_url = vm._safeUrl(vm._safeUrl(
+                    vm.api_profiles_base_url, entry.slug), 'roles');
                 vm.reqGet(api_roles_url, function(resp) {
                     entry.contacts = resp.results;
                     entry.contacts.sort(function(a, b) {
