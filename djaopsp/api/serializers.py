@@ -473,6 +473,8 @@ class EngagementSerializer(AccountSerializer):
         help_text=_("Most recent time a reminder was sent"))
     requested_at = serializers.DateTimeField(required=False, allow_null=True,
         help_text=_("Datetime at which the scorecard was requested"))
+    expires_at = serializers.DateTimeField(required=False, allow_null=True,
+        help_text=_("Datetime at which the request expires"))
     normalized_score = serializers.IntegerField(required=False)
     api_remove = serializers.SerializerMethodField()
 
@@ -480,6 +482,7 @@ class EngagementSerializer(AccountSerializer):
         fields = AccountSerializer.Meta.fields + (
             'extra', 'sample', 'reporting_status',
             'last_activity_at', 'last_reminder_at', 'requested_at',
+            'expires_at',
             'normalized_score', 'score_url', 'api_remove')
 
     def get_api_remove(self, obj):

@@ -53,6 +53,14 @@
               {% endif %}
             </div>
           </div>
+          {% if FEATURES_DEBUG %}
+          <div>
+            <label>
+            {% trans %}Expect a response before:{% endtrans %}
+            </label>
+            <input class="form-control" type="date" v-model="_expires_at" v-cloak>
+          </div>
+          {% endif %}
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline-primary"

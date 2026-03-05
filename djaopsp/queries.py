@@ -421,7 +421,8 @@ SELECT
   engaged.campaign_id,
   engaged.grantee_id,
   engaged.initiated_by_id,
-  engaged.extra
+  engaged.extra,
+  engaged.ends_at AS expires_at
 FROM engaged
 INNER JOIN %(accounts_table)s
 ON engaged.account_id = %(accounts_table)s.id
