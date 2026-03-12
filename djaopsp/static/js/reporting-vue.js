@@ -552,6 +552,7 @@ Vue.component('djaopsp-compare-samples', {
             visualize: 'chart', //'table',
             percentToggle: true,
 
+            samplesBySlug: {},
             // when clicking on Chart
             selectedDatapoint: "",
             selectedAccounts: []
@@ -578,9 +579,11 @@ Vue.component('djaopsp-compare-samples', {
         },
         getBenchmarks: function(dataset, practice) {
             var vm = this;
+            const path = ( typeof practice.path !== 'undefined' ) ?
+                  practice.path : practice;
             if( dataset.results && dataset.results.length > 0 ) {
                 for( let idx = 0; idx < dataset.results.length; ++idx ) {
-                    if( dataset.results[idx].path === practice.path ) {
+                    if( dataset.results[idx].path === path ) {
                         return dataset.results[idx].benchmarks || [];
                     }
                 }
@@ -624,6 +627,38 @@ Vue.component('djaopsp-compare-samples', {
                 }
             }
         },
+        getSampleField: function(sample, fieldName) {
+            var vm = this;
+            if( sample ) {
+                let fieldValue = sample.hasOwnProperty(fieldName) ?
+                    sample[fieldName] : null;
+                if( fieldValue ) {
+                    return fieldValue;
+                }
+                const sampleSlug = sample.slug ? sample.slug : sample;
+                const cached = vm.samplesBySlug[sampleSlug];
+                if( cached && cached.hasOwnProperty(fieldName) ) {
+                    return cached[fieldName];
+                }
+                // XXX disable loading individually. we need to give
+                // `populateSamples` a chance to run and complete.
+                if( false && vm.api_samples_url ) {
+                    vm.samplesBySlug[sampleSlug] = {
+                        picture: null,
+                        printable_name: sampleSlug
+                    };
+                    vm.reqGet(vm._safeUrl(vm.$urls.api_responses, sampleSlug),
+                    function(resp) {
+                        vm.samplesBySlug[resp.slug] = resp;
+                    }, function() {
+                        // discard errors (ex: "not found").
+                    });
+                }
+            }
+            // If we don't return `undefined` here, we might inadvertently
+            // post initialized fields (null, or "") in HTTP requests.
+            return undefined;
+        },
         humanizePeriods: function(labels) {
             var vm = this;
             var results = [];
@@ -641,11 +676,38 @@ Vue.component('djaopsp-compare-samples', {
             }
             return results;
         },
-        onDatasetSelected: function() {
+        onDatasetSelected: function(bench) {
             // This method is called when the component needs to show
             // the list of accounts participating to a specific dataset.
             var vm = this;
-            vm.populateAccounts(vm.selectedAccounts);
+            vm.populateSamples(bench);
+        },
+        getSampleAccountPrintableName: function(sampleSlug) {
+            return this.getAccountPrintableName(
+                this.getSampleField(sampleSlug, 'account'));
+        },
+        populateSamples: function(bench) {
+            var vm = this;
+            const samples = new Set();
+            for( let jdx = 0; jdx < bench.values.length; ++jdx ) {
+                const vals = bench.values[jdx];
+                samples.add(vals[2]);
+            }
+            if( samples.size ) {
+                let queryParams = "?q_f==slug&q=";
+                let sep = "";
+                for( const sample of samples ) {
+                    queryParams += sep + sample;
+                    sep = ",";
+                }
+                vm.reqGet(vm.$urls.api_responses + queryParams, function(resp) {
+                    for( let idx = 0; idx < resp.results.length; ++idx ) {
+                        vm.$set(vm.samplesBySlug, resp.results[idx].slug,
+                            resp.results[idx]);
+                    }
+                    vm.populateAccounts(resp.results, 'account');
+                })
+            }
         },
         // display with active links
         textAsHtml: function(text, required) {
@@ -902,6 +964,19 @@ Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.ext
         }
     },
     methods: {
+        getAffinityGroupDataset: function(groupSlug) {
+            var vm = this;
+            vm.params.start_at = vm.startAt ? vm.startAt : null;
+            vm.params.ends_at = vm.endsAt ? vm.endsAt : null;
+            vm.params.period_type = vm.period ? vm.period : null;
+            vm.params.campaign = vm.campaign ? vm.campaign : null;
+            const title = vm.$el.querySelector(
+                '[value="' + groupSlug + '"]').textContent;
+            const url = vm._safeUrl(vm._safeUrl(
+                vm.$urls.api_account_groups, groupSlug),
+                vm.prefix) + vm.getQueryString();
+            return {title: title, url: url};
+        },
         validate: function() {
             var vm = this;
             if( vm.affinityType === 'engaged' ||
@@ -910,8 +985,7 @@ Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.ext
                 const dataset = vm._getAffinityBaseDataset();
                 vm.$emit('updatedataset', dataset);
             } else {
-                console.log("XXX use affinityType=", vm.affinityType);
-                const dataset = vm._getAffinityBaseDataset('all'); // XXX use plan
+                const dataset = vm.getAffinityGroupDataset(vm.affinityType);
                 vm.$emit('updatedataset', dataset);
             }
         },

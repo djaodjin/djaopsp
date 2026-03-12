@@ -19,7 +19,7 @@ from rest_framework.request import Request
 from survey.api.matrix import (AccessiblesAccountsMixin, BenchmarkMixin,
     EngagedAccountsMixin)
 from survey.compat import force_str, six
-from survey.filters import DateRangeFilter
+from survey.filters import DateRangeFilter, SearchFilter
 from survey.helpers import datetime_or_now, get_extra, extra_as_internal
 from survey.mixins import TimersMixin
 from survey.models import (Answer, Campaign, Choice, Portfolio, Sample, Unit,
@@ -758,14 +758,16 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
         if not hasattr(self, '_latest_assessments'):
             #pylint:disable=attribute-defined-outside-init
             if self.engaged_accounts:
+                # See `survey.api.matrix.BenchmarkMixin.get_questions_by_key`
                 self._latest_assessments = \
                     Sample.objects.get_latest_frozen_by_accounts(
                         campaign=self.verified_campaign,
-                        segment_prefix=self.db_path, ends_at=self.ends_at,
+                        start_at=self.start_at, ends_at=self.ends_at,
+                        segment_prefix=self.db_path,
                     # create a list to prevent RawQuerySet if-condition later on
-                        grantees=[self.account],
                         accounts=[account.pk for account
                             in self.engaged_accounts],
+                        grantees=[self.account],
                         tags=[])
             else:
                 self._latest_assessments = Sample.objects.none()
@@ -1201,10 +1203,16 @@ class AccessiblesAnswersPivotableCSVView(AccessiblesAccountsMixin,
                                          AnswersPivotableView):
     """
     Download answers and scores in format suitable for OLAP Software
+
+    GET /accessibles/download/raw/long/
     """
     basename = 'track-answers-pivotable'
     renderer_classes = [CSVDownloadRenderer]
     serializer_class = LongFormatSerializer
+
+    search_fields = (
+        'full_name',
+    )
 
     def get_accounts(self):
         """
@@ -1215,11 +1223,17 @@ class AccessiblesAnswersPivotableCSVView(AccessiblesAccountsMixin,
         # and set `aggregate_set` to `False` instead of `True`.
         # Furthermore, we use the same [start_at, ends_at[ range
         # to filter accounts and samples.
-        results = get_accessible_accounts([self.account],
+        queryset = get_accessible_accounts([self.account],
             campaign=self.verified_campaign,
             start_at=self.start_at, ends_at=self.ends_at,
-            aggregate_set=False).order_by('pk')
-        return results
+            aggregate_set=False)
+        if False:
+            # XXX skip using the search filter, and always download
+            # all accessible data.
+            search_fillter = SearchFilter()
+            queryset = search_fillter.filter_queryset(
+                self.request, queryset, self)
+        return queryset.order_by('pk')
 
 
 class EngagedAnswersPivotableCSVView(EngagedAccountsMixin,
@@ -1262,13 +1276,55 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
 
     def get_title(self):
         ends_at = self.ends_at.date()
-        source = "Source: %s" % self.request.build_absolute_uri(location='/')
-        if not self.start_at:
-            return ["Organization/profiles engaged to %s (%s)" % (
-                ends_at.isoformat(), source)]
-        start_at = self.start_at.date()
-        return ["Organization/profiles engaged from %s to %s (%s)" %
-            (start_at.isoformat(), ends_at.isoformat(), source)]
+        if self.accounts_ends_at:
+            accounts_ends_at = self.accounts_ends_at.date()
+        else:
+            accounts_ends_at = ends_at
+        source = self.request.build_absolute_uri(location='/')
+        start_at = self.start_at
+        accounts_start_at = self.accounts_start_at
+        if not start_at:
+            if not accounts_start_at:
+                # ends_at and accounts_ends_at
+                return [_("Responses to %(ends_at)s "\
+                    "for suppliers/profiles %(accounts_set_title)s "\
+                    "to %(accounts_ends_at)s (Source: %(source)s)") % {
+                    'ends_at': ends_at.isoformat(),
+                    'accounts_set_title': self.accounts_set_title,
+                    'accounts_ends_at': accounts_ends_at.isoformat(),
+                    'source': source}]
+            # ends_at and accounts_start_at/accounts_ends_at
+            return [_("Responses to %(ends_at)s "\
+                "for suppliers/profiles %(accounts_set_title)s "\
+"from %(accounts_ends_at)s to %(accounts_ends_at)s (Source: %(source)s)") % {
+                'ends_at': ends_at.isoformat(),
+                'accounts_set_title': self.accounts_set_title,
+                'accounts_start_at': accounts_start_at.date().isoformat(),
+                'accounts_ends_at': accounts_ends_at.isoformat(),
+                'source': source}]
+
+        if not accounts_start_at:
+            # start_at/ends_at and accounts_ends_at
+            return [_("Responses from %(start_at)s to %(ends_at)s "\
+"for suppliers/profiles %(accounts_set_title)s "\
+"to %(accounts_ends_at)s (Source: %(source)s)") % {
+                'start_at': start_at.date().isoformat(),
+                'ends_at': ends_at.isoformat(),
+                'accounts_set_title': self.accounts_set_title,
+                'accounts_ends_at': accounts_ends_at.isoformat(),
+                'source': source}]
+
+        # start_at/ends_at and accounts_start_at/accounts_ends_at
+        return [_("Responses from %(start_at)s to %(ends_at)s "\
+"for suppliers/profiles %(accounts_set_title)s "\
+"from %(accounts_ends_at)s to %(accounts_ends_at)s (Source: %(source)s)") % {
+                'start_at': start_at.date().isoformat(),
+                'ends_at': ends_at.isoformat(),
+                'accounts_set_title': self.accounts_set_title,
+                'accounts_start_at': accounts_start_at.date().isoformat(),
+                'accounts_ends_at': accounts_ends_at.isoformat(),
+                'source': source}]
+
 
     def add_error(self, msg):
         self.errors += [msg]
@@ -1522,8 +1578,14 @@ class AccessiblesAnswersXLSXView(AccessiblesAccountsMixin,
     """
     Download a spreadsheet of answers/comments with questions as rows
     and accessible accounts as columns.
+
+    GET /app/<slug:profile>/reporting/<slug:campaign>/accessibles/download/raw/
     """
     basename = 'track-answers'
+
+    search_fields = (
+        'full_name',
+    )
 
     def get_accounts(self):
         """
@@ -1534,11 +1596,17 @@ class AccessiblesAnswersXLSXView(AccessiblesAccountsMixin,
         # and set `aggregate_set` to `False` instead of `True`.
         # Furthermore, we use the same [start_at, ends_at[ range
         # to filter accounts and samples.
-        results = get_accessible_accounts([self.account],
+        queryset = get_accessible_accounts([self.account],
             campaign=self.verified_campaign,
             start_at=self.start_at, ends_at=self.ends_at,
-            aggregate_set=False).order_by('pk')
-        return results
+            aggregate_set=False)
+        if False:
+            # XXX skip using the search filter, and always download
+            # all accessible data.
+            search_fillter = SearchFilter()
+            queryset = search_fillter.filter_queryset(
+                self.request, queryset, self)
+        return queryset.order_by('pk')
 
 
 class EngagedAnswersXLSXView(EngagedAccountsMixin,

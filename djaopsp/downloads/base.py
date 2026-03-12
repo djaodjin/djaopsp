@@ -55,7 +55,7 @@ class CSVDownloadRenderer(BaseRenderer):
         if six.PY2:
             content = io.BytesIO()
         else:
-            content = io.StringIO()
+            content = io.StringIO(newline='')
         csv_writer = csv.writer(content)
         headings = self.get_headings(renderer_context=renderer_context)
         csv_writer.writerow([self.encode(head) for head in headings])

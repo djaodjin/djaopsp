@@ -61,20 +61,21 @@
                           ref="input"></input>
                         <button  class="input-group-text"
                           role="button" href="#"
-                          aria-haspopup="true" aria-expanded="false"
-                          @click.prevent="reload">
+                          @click.prevent="resetAndReload"
+                          aria-haspopup="true"
+                          aria-expanded="false">
                           <i class="fa fa-caret-down"></i>
                         </button>
                     {# Implementation note: If we use `d-block` instead of    #}
                     {# `style="display: block;"` the dropdown shows even when #}
                     {# `hasItems` is `False`.                                 #}
-                        <ul class="dropdown-menu nav-pills p-1 top-100"
-                          style="display: block;" role="menu"
-                          v-show="hasItems">
+                        <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+                            style="max-height: 250px;" role="menu">
                           <li v-for="(item, idx) in items" class="nav-item"
                               @mousedown="hit"
                               @mousemove="setActive(idx)">
-                            <a :class="'nav-link px-3 py-2' + activeClass(item)">[[item.title]]</a>
+                            <a :class="'nav-link px-3 py-2' + activeClass(idx)"
+                               v-html="highlightQuery(item.title)"></a>
                           </li>
                         </ul>
                       </div>
@@ -101,23 +102,24 @@
                         ref="input"></input>
                       <button  class="input-group-text"
                         role="button" href="#"
-                        aria-haspopup="true" aria-expanded="false"
-                        @click.prevent="reload">
+                        @click.prevent="resetAndReload"
+                        aria-haspopup="true"
+                        aria-expanded="false">
                         <i class="fa fa-caret-down"></i>
                       </button>
                     {# Implementation note: If we use `d-block` instead of    #}
                     {# `style="display: block;"` the dropdown shows even when #}
                     {# `hasItems` is `False`.                                 #}
-                      <ul class="dropdown-menu nav-pills p-1 top-100"
-                        style="display: block;" role="menu"
-                        v-show="hasItems">
+                      <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+                        style="max-height: 250px;" role="menu">
                         <li v-for="(item, idx) in items" class="nav-item"
                           @mousedown="hit"
                           @mousemove="setActive(idx)">
                           <div :class="indentHeader(item)"
                                v-if="!isPractice(item)">[[item.title]]</div>
-                          <a :class="'nav-link px-3 py-2' + activeClass(item)"
-                             v-if="isPractice(item)">[[item.title]]</a>
+                          <a :class="'nav-link px-3 py-2' + activeClass(idx)"
+                             v-html="highlightQuery(item.title)"
+                             v-if="isPractice(item)"></a>
                         </li>
                       </ul>
                     </div>
@@ -173,6 +175,11 @@
             <!-- individual accounts -->
             <query-individual-account inline-template
               v-bind:disabled="datasetLoading"
+              v-bind:campaign="displayMetric.campaign"
+              v-bind:prefix="displayMetric.path"
+              v-bind:start-at="_start_at"
+              v-bind:ends-at="_ends_at"
+              v-bind:period="periodType"
               v-on:updatedataset="addDataset"
               v-show="queryType == 'individual-account'">
               <div>
@@ -241,6 +248,11 @@
             <!-- group of accounts -->
             <query-group-accounts inline-template
                 v-bind:disabled="datasetLoading"
+                v-bind:campaign="displayMetric.campaign"
+                v-bind:prefix="displayMetric.path"
+                v-bind:start-at="_start_at"
+                v-bind:ends-at="_ends_at"
+                v-bind:period="periodType"
                 v-on:updatedataset="addDataset"
                 v-show="queryType == 'group-accounts'">
               <div>
@@ -280,7 +292,7 @@
                         <div class="row"
                              v-for="(account, idx) in getAccounts(items.results[selectedItem])"
                              v-show="!accountsEmpty()">
-                          <div class="col-10">[[account.printable_name]]</div>
+                          <div class="col-10"><img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(account) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(account)]]</div>
                           <div class="col-2">
                             <button class="btn btn-danger btn-sm"
                                     @click="removeAccount(idx)">
@@ -392,9 +404,12 @@
 
             <!-- select accounts by answers -->
             <query-accounts-by-answers inline-template
-                v-bind:period="periodType"
-                v-bind:prefix="displayMetric.path"
                 v-bind:disabled="datasetLoading"
+                v-bind:campaign="displayMetric.campaign"
+                v-bind:prefix="displayMetric.path"
+                v-bind:start-at="_start_at"
+                v-bind:ends-at="_ends_at"
+                v-bind:period="periodType"
                 v-on:updatedataset="addDataset"
                 v-show="queryType == 'accounts-by-answers'">
               <div>
@@ -691,27 +706,53 @@
         </div>{# /datasets.length > 0 #}
 
         <!-- items in query set -->
-        <div>
+        <div v-for="dataset in datasets" v-show="datasets.length > 0">
+          <ul class="nav nav-tabs justify-content-start">
+            <li class="nav-item" v-for="bench in getBenchmarks(dataset, displayMetric.path)">
+              <a class="nav-link" :href="'#'+bench.slug"
+                 @click="onDatasetSelected(bench)"
+                 data-bs-toggle="tab">[[bench.title]]</a>
+            </li>
+          </ul>
+          <!-- filter by answer
           <p>
               [[selectedDatapoint]]
           </p>
-          <table class="table table-striped">
-            <tr>
-              <th class="col-1">{% trans %}Supplier ID{% endtrans %}</th>
-              <th class="col-11">{% trans %}Profile name{% endtrans %}</th>
-            </tr>
-            <tr v-for="(entry, index) in selectedAccounts">
-              <td class="col-1">
-                <span>[[index + 1 + (params.page ? (params.page - 1) * itemsPerPage : 0)]]</span><br />
-              </td>
-              <td class="col-11">
-                <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(entry) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(entry) || entry.slug]]
-              </td>
-            </tr>
-          </table>
+          -->
+          <div class="tab-content">
+            <div :id="bench.slug" class="tab-pane" role="tabpanel" v-for="bench in getBenchmarks(dataset, displayMetric.path)">
+              <table class="table table-striped">
+                <tr>
+                  <th class="col-2">{% trans %}Supplier ID{% endtrans %}</th>
+                  <th class="col-8">{% trans %}Profile name{% endtrans %}</th>
+                  <th class="col-2">{% trans %}Answer{% endtrans %}</th>
+               </tr>
+               <tbody v-for="by_answers in bench.values">
+                 <tr v-for="(entry, index) in by_answers[2]">
+                   <td class="col-2">
+                     <span>[[index + 1 + (params.page ? (params.page - 1) * itemsPerPage : 0)]]</span><br />
+                   </td>
+                   <td class="col-8">
+                     {# XXX <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(entry) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(entry) || entry.slug]] #}
+                     [[getSampleAccountPrintableName(entry)]]
+                   </td>
+                   <td class="col-2">
+                       <a :href="'{{urls.scorecard_base}}' + entry + '/'" target="_blank">[[by_answers[0] ]]</a>
+                   </td>
+                 </tr>
+               </tbody>
+              </table>
+            </div>
+          </div>{# /.tab-content #}
         </div>
       </div>{# /.col-md-9 #}
     </div>{# /.row #}
   </div>
 </djaopsp-compare-samples>
+{% endblock %}
+
+{% block reporting_scripts %}
+<script type="text/javascript">
+Vue.prototype.$viewName = 'analyze';
+</script>
 {% endblock %}
