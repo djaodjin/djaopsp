@@ -2417,6 +2417,17 @@ pre.code{
 }
 
 
+.vault-upload {
+  background-color: #ccc;
+  border: 2px solid #111;
+  border-radius: 25px;
+}
+
+.dj-gallery-active-item > img {
+  border: 2px solid #111;
+  border-radius: 25px;
+}
+
 @include media-breakpoint-up(md) {
 
   .sidebar-toggle.sidebar-toggle-default[data-target="#app-toolbar-left"] {

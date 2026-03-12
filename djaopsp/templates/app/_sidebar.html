@@ -23,6 +23,16 @@
       {% endif %}
     </a>
   </li>
+  {% if FEATURES_DEBUG %}
+  <li class="nav-item">
+    <a id="documents-vault" class="nav-link{% if request.path == urls.documents_vault %} active{% endif %}" {% if urls.documents_vault %}href="{{urls.documents_vault}}"{% endif %}>
+      <span class="ps-1">{% trans %}Vault{% endtrans %}</span>
+      {% if not urls.documents_vault %}
+      <i class="fa fa-lock"></i>
+      {% endif %}
+    </a>
+  </li>
+  {% endif %}
   <li class="nav-item">
     <a id="track-energy-ghg-emissions" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'energy-ghg-emissions/')  %} active {% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}energy-ghg-emissions/"{% endif %}>
       <span class="ps-1">{% trans %}Energy &amp; GHG Emissions{% endtrans %}</span>

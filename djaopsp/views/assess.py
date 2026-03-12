@@ -84,8 +84,6 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
                 'track_metrics_index', args=(self.account,)),
             'api_profiles': site_url("/api/accounts/users"),
             'api_units': reverse('survey_api_units'),
-            'api_asset_upload_complete': self.request.build_absolute_uri(
-                reverse('pages_api_upload_asset', args=(self.account,))),
             'api_aggregate_metric_base': reverse(
                 'survey_api_aggregate_metric_base', args=(self.account,)),
             # These URLs can't be accessed by profiles the sample was shared
@@ -126,17 +124,7 @@ class AssessPracticesView(SectionReportMixin, TemplateView):
                         '/profile/%s/roles/contributor/' % str(self.account))
                 })
         # Upload supporting documents
-        storage_class = get_storage_class()
-        if 's3boto' in storage_class.__name__.lower():
-            update_context_urls(context, {
-                'api_asset_upload_start': site_url(
-                    "api/auth/tokens/realms/%s" % self.account),
-            })
-        else:
-            update_context_urls(context, {
-            'api_asset_upload_start': self.request.build_absolute_uri(
-                reverse('pages_api_upload_asset', args=(self.account,))),
-            })
+        self.update_vault_context_urls(context)
         return context
 
 
@@ -734,3 +722,13 @@ class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
     def get_filename(self):
         return datetime_or_now().strftime("%s-%s-%%Y%%m%%d.pptx" % (
             self.sample.account.slug, self.campaign.slug))
+
+
+class DocumentsVaultView(AccountMixin, TemplateView):
+
+    template_name = 'app/vault/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DocumentsVaultView, self).get_context_data(**kwargs)
+        context = self.update_vault_context_urls(context)
+        return context

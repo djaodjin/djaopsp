@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 from deployutils.apps.django_deployutils import mixins as deployutils_mixins
 from deployutils.helpers import update_context_urls
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db import transaction
 from django.db.models import Q, F
 from django.http import Http404
@@ -140,6 +141,8 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
                 args=(self.account,)),
             'scorecard_history': reverse('scorecard_history',
                 args=(self.account,)),
+            'documents_vault': reverse('documents_vault',
+                args=(self.account,)),
             'profile_getstarted': reverse('profile_getstarted',
                 args=(self.account,)),
         })
@@ -166,6 +169,26 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
                     'pages_editables_index', args=(self.account,)),
                 'survey_campaign_list': reverse(
                     'survey_campaign_list', args=(self.account,)),
+            })
+        return context
+
+
+    def update_vault_context_urls(self, context):
+        # Upload supporting documents
+        update_context_urls(context, {
+            'api_asset_upload_complete': self.request.build_absolute_uri(
+                reverse('pages_api_upload_asset', args=(self.account,))),
+        })
+        storage_class = get_storage_class()
+        if 's3boto' in storage_class.__name__.lower():
+            update_context_urls(context, {
+                'api_asset_upload_start': site_url(
+                    "api/auth/tokens/realms/%s" % self.account),
+            })
+        else:
+            update_context_urls(context, {
+            'api_asset_upload_start': self.request.build_absolute_uri(
+                reverse('pages_api_upload_asset', args=(self.account,))),
             })
         return context
 

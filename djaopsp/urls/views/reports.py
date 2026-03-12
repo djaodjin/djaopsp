@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -7,9 +7,9 @@ Views URLs
 from django.urls import path
 
 from ...downloads.assess import AssessPracticesXLSXView
-from ...views.assess import (AssessPracticesView,
-    AssessRedirectView, ImprovePracticesView, ImproveRedirectView,
-    TrackMetricsView, AssessPracticesPPTXView)
+from ...views.assess import (AssessPracticesView, AssessPracticesPPTXView,
+    AssessRedirectView, DocumentsVaultView,
+    ImprovePracticesView, ImproveRedirectView, TrackMetricsView)
 from ...views.downloads import ImproveContentPDFView
 from ...views.scorecard import (ScorecardIndexView, ScorecardHistoryView,
     ScorecardRedirectView, DataValuesView)
@@ -56,4 +56,6 @@ urlpatterns = [
         ShareView.as_view(), name='share'),
     path('share/',
          ShareRedirectView.as_view(), name='share_redirect'),
+    path('vault/',
+         DocumentsVaultView.as_view(), name='documents_vault'),
 ]
