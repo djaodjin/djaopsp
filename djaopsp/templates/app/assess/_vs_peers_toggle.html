@@ -2,6 +2,7 @@
     <span>{% trans %}self{% endtrans %}</span>
     <input style="width:auto;vertical-align:middle;"
            type="range" min="0" max="1" v-model="vsPeersToggle"
-           @click="appToolbarLinkClicked">
+           @click="appToolbarLinkClicked"
+           aria-label="Toggle between answers and benchmarks">
     <span>{% if peers %}vs. {{peers}}{% else %}{% trans %}vs. peers{% endtrans %}{% endif %}</span>
 </div>

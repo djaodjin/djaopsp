@@ -32,7 +32,7 @@
           <div class="col-md-6 pt-4">
             <div class="row">
               <div class="col-sm-4 text-center text-sm-end">
-                <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+                <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" alt="Profile logo">
               </div>
               <div class="col-sm-8 text-center text-sm-start">
                 <h1 class="mt-4 text-body">{{sample.account.printable_name}}</h1>
@@ -161,16 +161,18 @@
                           {% if segment.picture %}
                           <img class="icon-inner"
                                style="padding:5px; border: 1px #eee solid;"
-                               src="{{segment.picture}}">
+                               src="{{segment.picture}}"
+                               alt="Section logo">
                           {% else %}
                           <img class="icon-inner"
                                style="padding:5px; border: 1px #eee solid;"
-                               src="{{'/static/img/design.png'|asset}}">
+                               src="{{'/static/img/design.png'|asset}}"
+                               alt="Section logo">
                           {% endif %}
                         </div>
                       </div>
                       <div class="col-8 text-start">
-                        <h4>{{segment.title}}</h4>
+                        <h3>{{segment.title}}</h3>
                         {% if segment.text %}
                         <p>{{segment.text|md}}</p>
                         {% endif %}

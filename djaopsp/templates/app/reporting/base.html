@@ -6,7 +6,7 @@
     <div class="col-md-5">
     </div>
     <div class="col-md-7">
-      <nav class="d-print-none">
+      <nav class="d-print-none" aria-label="Reporting Dashboard Navigation">
         <ul class="nav nav-tabs justify-content-end">
           {% block help_menus %}
 
@@ -63,12 +63,9 @@
           <div class="row">
             <div class="col-sm-7">
               <div>
-                <img class="img-fluid" style="max-height:100px;vertical-align:top;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+                <img class="img-fluid" style="max-height:100px;vertical-align:top;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" alt="Profile logo">
                 <div class="d-inline-block ps-2">
-                  <h1 class="d-inline pb-0 my-0 text-body">{% block reporting_title %}{% endblock %}</h1>
-                  {% if campaign %}
-                  <h3 class="d-inline pb-0 my-0">/ {{campaign.title}}</h3>
-                  {% endif %}
+                  <h1 class="d-inline pb-0 my-0 text-body">{% block reporting_title %}{% endblock %}{% if campaign %}<span> / {{campaign.title}}</span>{% endif %}</h1>
                   <div class="d-inline">
                     {% if urls.help %}
                     <sup role="button">

@@ -4,7 +4,8 @@
       <span :class="isCascadeVisible(practice) ? 'dropdown' : 'dropend'"
            v-if="practice.isCascade">
         <button class="btn btn-link dropdown-toggle"
-              @click.prevent="toggleCascadeVisible(practice)">
+              @click.prevent="toggleCascadeVisible(practice)"
+              aria-label="Reveal additional connected questions">
         </button>
       </span>
       <div class="title" v-if="!isPractice(practice) && !isPagebreak(practice)">
@@ -19,7 +20,7 @@
             v-if="isPractice(practice)">
         [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
         <a :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
-           target="_blank"><i class="fa fa-question-circle"></i></a>
+           target="_blank" aria-label="Help information"><i class="fa fa-question-circle"></i></a>
       </span>
     </div>
   </div>
@@ -64,7 +65,8 @@
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
             @blur="updateStartsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="Start date of the period"></input>
         </div>
       </div>
       <div class="col-md-6">
@@ -77,7 +79,8 @@
             {% if not sample.is_frozen %}
             @change="changeCreatedAt(practice, $event.target.value)"
             @blur="updateEndsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="End date of the period"></input>
         </div>
       </div>
     </div>
@@ -92,11 +95,13 @@
              :placeholder="getPrimaryCandidate(practice).measured"
              style="direction:rtl;"
              @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-             :disabled="practice.frozen"></input>
+             :disabled="practice.frozen"
+             aria-label="Measured in the period"></input>
       <select class="form-control form-select input-group-suffix"
               v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
               @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-              :disabled="practice.frozen">
+              :disabled="practice.frozen"
+              aria-label="Unit of currency">
         <option value="usd">US Dollars ($)</option>
         <option value="million-usd">Millions US Dollars ($M)</option>
         <option value="eur">Euros</option>
@@ -104,17 +109,20 @@
       </select>
     </div>
     <div class="text-start mt-1">
-      <input class="form-check-input"
-             type="checkbox"
-             :checked="isNotDisclosedPublicly(practice)"
-             @change="toggleNotDisclosedPublicly(practice)">
-        <label class="form-check-label">not publicly disclosed</label>
+      <label class="form-check-label">
+        <input class="form-check-input"
+               type="checkbox"
+               :checked="isNotDisclosedPublicly(practice)"
+               @change="toggleNotDisclosedPublicly(practice)">
+        {% trans %}not publicly disclosed{% endtrans %}
+      </label>
     </div>
     <div class="input-group" v-show="isNotDisclosedPublicly(practice)">
       <select class="form-control form-select"
               v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
               @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-              :disabled="practice.frozen">
+              :disabled="practice.frozen"
+              aria-label="Range of revenue">
         <option v-bind:value="null" disabled selected hidden>Please select a range ...</option>
         <option value="0">&lt; 25 million USD</option>
         <option value="25">25-50 million USD</option>
@@ -137,7 +145,8 @@
       <select class="form-control form-select"
               v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
               @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-              :disabled="practice.frozen">
+              :disabled="practice.frozen"
+              aria-label="Range of number of employees">
         <option :value="null" disabled>{% trans %}Select ...{% endtrans %}</option>
         <option value="0">0-10 employees</option>
         <option value="11">11-50 employees</option>
@@ -165,7 +174,8 @@
              {% if not sample.is_frozen %}
              @change="changeCreatedAt(practice, $event.target.value)"
              @blur="updateAssessmentAnswer(practice, getAnswerEndsAt(practice, '{{assess_type}}'), '{{assess_type}}')"
-             {% endif %}></input>
+             {% endif %}
+             aria-label="At time"></input>
     </div>
   </div>
   <div class="col-md-3 text-center"
@@ -184,7 +194,8 @@
              :disabled="practice.frozen"
              {% if not sample.is_frozen %}
              @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-             {% endif %}></input>
+             {% endif %}
+             aria-label="Value"></input>
       <label class="font-monospace input-group-text">
         %
       </label>
@@ -205,7 +216,8 @@
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
             @blur="updateStartsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="Start date of the period"></input>
         </div>
       </div>
       <div class="col-md-6">
@@ -218,7 +230,8 @@
             {% if not sample.is_frozen %}
             @change="changeCreatedAt(practice, $event.target.value)"
             @blur="updateEndsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="End date of the period"></input>
         </div>
       </div>
     </div>
@@ -228,11 +241,13 @@
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
              :placeholder="getPrimaryCandidate(practice).measured"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-             :disabled="practice.frozen"></input>
+             :disabled="practice.frozen"
+             aria-label="Measured in the period"></input>
       <select class="form-control form-select input-group-suffix"
               v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
               @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-              :disabled="practice.frozen">
+              :disabled="practice.frozen"
+              aria-label="Unit of energy">
         <option value="btu-year">Btu</option>
         <option value="mmbtu-year">mmBtu</option>
         <option value="kWh-year">Kilowatt-hour (kWh)</option>
@@ -255,7 +270,8 @@
           <select class="form-control form-select"
                   :value="getRelevance(practice)"
                   @change="updateRelevance(practice, $event)"
-                  :disabled="practice.frozen">
+                  :disabled="practice.frozen"
+                  aria-label="Relevancy">
             <option :value="null" disabled>{% trans %}Select relevance ...{% endtrans %}</option>
             <option value="relevant-and-calculated">{% trans %}Relevant, calculated{% endtrans %}</option>
             <option value="relevant-not-yet-calculated">{% trans %}Relevant, not yet calculated{% endtrans %}</option>
@@ -275,7 +291,8 @@
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
             @blur="updateStartsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="Start date of the period"></input>
         </div>
       </div>
       <div class="col-md-6">
@@ -288,7 +305,8 @@
             {% if not sample.is_frozen %}
             @change="changeCreatedAt(practice, $event.target.value)"
             @blur="updateEndsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="End date of the period"></input>
         </div>
       </div>
     </div>
@@ -303,12 +321,14 @@
              @mousedown="updateMeasurement(practice)"
              onmousedown="focus()"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-             :disabled="practice.frozen"></input>
+             :disabled="practice.frozen"
+             aria-label="Measured for the period"></input>
           <select class="form-control form-select"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
              @change="updateMeasurementUnit(practice, $event)"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-             :disabled="practice.frozen">
+             :disabled="practice.frozen"
+             aria-label="Measure of volume">
             <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
             <option value="kiloliters-year">Kilo liters</option>
             <option value="ft3-year">Cubic feet (ft.<sup>3</sup>)</option>
@@ -330,7 +350,8 @@
           <select class="form-control form-select"
                   :value="getRelevance(practice)"
                   @change="updateRelevance(practice, $event)"
-                  :disabled="practice.frozen">
+                  :disabled="practice.frozen"
+                  aria-label="Relevancy">
             <option :value="null" disabled>{% trans %}Select relevance ...{% endtrans %}</option>
             <option value="relevant-and-calculated">{% trans %}Relevant, calculated{% endtrans %}</option>
             <option value="relevant-not-yet-calculated">{% trans %}Relevant, not yet calculated{% endtrans %}</option>
@@ -350,7 +371,8 @@
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
             @blur="updateStartsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="Start date of the period"></input>
         </div>
       </div>
       <div class="col-md-6">
@@ -363,7 +385,8 @@
             {% if not sample.is_frozen %}
             @change="changeCreatedAt(practice, $event.target.value)"
             @blur="updateEndsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="End date of the period"></input>
         </div>
       </div>
     </div>
@@ -378,12 +401,14 @@
              @mousedown="updateMeasurement(practice)"
              onmousedown="focus()"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-             :disabled="practice.frozen"></input>
+             :disabled="practice.frozen"
+             aria-label="Measured in the period"></input>
           <select class="form-control form-select input-group-suffix"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
              @change="updateMeasurementUnit(practice, $event)"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-             :disabled="practice.frozen">
+             :disabled="practice.frozen"
+             aria-label="Measure of weight or volume">
             <option value="t-year">Metric tons</option>
             <option value="lbs-year">Pounds</option>
             <option value="m3-year">Cubic meters (m<sup>3</sup>)</option>
@@ -405,7 +430,8 @@
           <select class="form-control form-select"
                   :value="getRelevance(practice)"
                   @change="updateRelevance(practice, $event)"
-                  :disabled="practice.frozen">
+                  :disabled="practice.frozen"
+                  aria-label="Relevancy">
             <option :value="null" disabled>{% trans %}Select relevance ...{% endtrans %}</option>
             <option value="relevant-and-calculated">{% trans %}Relevant, calculated{% endtrans %}</option>
             <option value="relevant-not-yet-calculated">{% trans %}Relevant, not yet calculated{% endtrans %}</option>
@@ -425,7 +451,8 @@
             :disabled="practice.frozen"
             {% if not sample.is_frozen %}
             @blur="updateStartsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="Start date of the period"></input>
         </div>
       </div>
       <div class="col-md-6">
@@ -438,7 +465,8 @@
             {% if not sample.is_frozen %}
             @change="changeCreatedAt(practice, $event.target.value)"
             @blur="updateEndsAt(practice)"
-            {% endif %}></input>
+            {% endif %}
+            aria-label="End date of the period"></input>
         </div>
       </div>
     </div>
@@ -453,12 +481,14 @@
              @mousedown="updateMeasurement(practice)"
              onmousedown="focus()"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-             :disabled="practice.frozen"></input>
+             :disabled="practice.frozen"
+             aria-label="Measured in the period"></input>
           <select class="form-control form-select"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').unit"
              @change="updateMeasurementUnit(practice, $event)"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
-             :disabled="practice.frozen">
+             :disabled="practice.frozen"
+             aria-label="Unit of weight">
             <option value="t-year">Metric Tons CO2e</option>
           </select>
         </div>
@@ -485,7 +515,8 @@
       <select class="form-control form-select"
               v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
               @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-              :disabled="practice.frozen">
+              :disabled="practice.frozen"
+              aria-label="Verifiability">
         <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select verifiability ...{% endtrans %}</option>
         {% for option in units.verifiability %}
         <option value="{{option.text}}">{{option.descr}}</option>
@@ -499,7 +530,8 @@
       <select class="form-control form-select"
               v-model="getAnswerByUnit(practice, 'completeness').measured"
               @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'), '{{assess_type}}')"
-              :disabled="practice.frozen">
+              :disabled="practice.frozen"
+              aria-label="Completeness">
         <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select completeness ...{% endtrans %}</option>
         {% for option in units.completeness %}
         <option value="{{option.text}}">{{option.descr}}</option>
@@ -516,7 +548,8 @@
               v-model="getAnswerByUnit(practice, 'supporting-document').measured"
               value=""
               @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'), '{{assess_type}}')"
-              :disabled="practice.frozen">
+              :disabled="practice.frozen"
+              aria-label="Type of supporting documents">
         <option v-if="getAnswerByUnit(practice, 'supporting-document').measured == null" disabled :value="null">{% trans %}Select supporting document ...{% endtrans %}</option>
         {% for option in units.supporting_document %}
         <option value="{{option.text}}">{{option.descr}}</option>
@@ -563,7 +596,8 @@
     <select class="form-select"
             v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
             @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-            :disabled="practice.frozen">
+            :disabled="practice.frozen"
+            aria-label="Choices">
       <option :value="null" disabled>{% trans %}Select ...{% endtrans %}</option>
       <option :value="choice.text"
               v-for="(choice, idx) in getChoices(practice, icon)">[[choice.descr ? choice.descr : choice.text]]</option>
@@ -640,7 +674,8 @@
              :disabled="practice.frozen"
              {% if not sample.is_frozen %}
              @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-             {% endif %}></input>
+             {% endif %}
+             aria-label="At time"></input>
     </div>
   </div>
 
@@ -653,10 +688,10 @@
               :disabled="practice.frozen"
               {% if not sample.is_frozen %}
               @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-              {% endif %}>
+              {% endif %}
+              aria-label="Year">
       <option :value="null" disabled>{% trans %}Select a year or 'No target' ...{% endtrans %}</option>
         <option value="no-target">No target</option>
-        <option value="2025">2025</option>
         <option value="2026">2026</option>
         <option value="2027">2027</option>
         <option value="2028">2028</option>

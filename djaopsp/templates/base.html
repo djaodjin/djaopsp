@@ -36,16 +36,17 @@
       <div class="dashboard-container">
         <div class="{% block dashboard_inner_container_classes %}{% endblock %}">
           {% block dashboard_nav %}
-          <div id="dashboard-navbar"
+          <aside id="dashboard-navbar"
                class="d-print-none dashboard-nav nav-main-frnt">
             <div class="dashboard-nav-inner-container">
               <div class="dashboard-nav-main">
-                <header>
-                  <nav{% block navbar_sidebar_extra %} class="navbar navbar-expand-md bg-primary"{% endblock %}>
+                <div>
+                  <div{% block navbar_sidebar_extra %} class="navbar navbar-expand-md bg-primary"{% endblock %}>
                     <div class="d-flex align-items-center ps-3">
                       <div class="d-flex">
                         <button class="me-2 sidebar-toggle btn btn-secondary"
-                                data-target="#dashboard-navbar">
+                                data-target="#dashboard-navbar"
+                                aria-label="Toggle sidebar on/off">
                           <div class="bar1 opened"></div>
                           <div class="bar2 opened"></div>
                           <div class="bar3 opened"></div>
@@ -55,20 +56,21 @@
                       </div>
                       <div class="narbar-brand-container">
                         <a class="navbar-brand" href="{{request|site_url}}">
-                          <img class="d-inline-block" src="{{'/static/img/logo-djaodjin-darkmode-320.png'|asset}}" />
+                          <img class="d-inline-block" src="{{'/static/img/logo-djaodjin-darkmode-320.png'|asset}}" alt="Brand logo" />
                           <span class="d-none d-sm-inline-block"
                                 >&nbsp;&nbsp;TSP</span>
                         </a>
                       </div>
                     </div>
-                  </nav>
-                </header>
+                  </div>
+                </div>
                 <div class="sidebar-animate dashboard-nav-color-theme">
                   <div>
                     <div class="sidebar-content dashboard-nav-menu">
                       <div class="text-end">
                         <button class="sidebar-pin-toggle btn btn-link text-white"
-                                data-target="#dashboard-navbar">
+                                data-target="#dashboard-navbar"
+                                aria-label="Pin/Unpin sidebar">
                           <i class="fa"></i>
                         </button>
                       </div>
@@ -85,8 +87,8 @@
                     {% block dashboard_footer %}
                     <div class="text-center dashboard-nav-footer dashboard-nav-color-theme">
                       <div class="footer-links">
-                        <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pe-2"></i></a>
-                        <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm"></i></a>
+                        <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa fa-github fa-sm pe-2"></i></a>
+                        <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa fa-linkedin fa-sm"></i></a>
                       </div>
                       <div>
 {% trans %}Powered by &copy; 2026 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
@@ -126,7 +128,7 @@
               </div>{# /.dashboard-nav-main #}
 
             </div>{# /.dashboard-nav-inner-container #}
-          </div>{# /.dashboard-nav #}
+          </aside>{# /.dashboard-nav #}
           {% endblock %}
 
           <div class="dashboard-content">
@@ -149,7 +151,7 @@
                   {% block content_navbarbrand %}
                   <div class="navbar-brand-container">
                     <a class="navbar-brand" href="{{request|site_url}}">
-                      <img class="d-inline-block" src="{{'/static/img/logo-djaodjin-darkmode-320.png'|asset}}" />
+                      <img class="d-inline-block" src="{{'/static/img/logo-djaodjin-darkmode-320.png'|asset}}" alt="Brand logo" />
                       <span class="d-none d-md-inline-block" style="vertical-align:middle">&nbsp;&nbsp;TSP</span>
                     </a>
                   </div>
@@ -182,7 +184,7 @@
               {% block fullviewport %}
               {% endblock %}
             </div><!-- /.fullviewport -->
-            <div{% block content_area_classes %} class="content-area-container"{% endblock %}>
+            <main{% block content_area_classes %} class="content-area-container"{% endblock %}>
               <div id="messages">
                 <div id="messages-content">
                   {% if request %}
@@ -215,7 +217,7 @@
               </div>
               {% block content %}
               {% endblock %}
-            </div>
+            </main>
           </div><!-- /.dashboard-content -->
         </div><!-- /block dashboard_inner_container_classes -->
       </div><!-- /.dashboard-container -->
@@ -235,8 +237,8 @@
           | <a href="{{'/contact/'|site_url}}" target="_blank">{% trans %}Contact{% endtrans %}</a>
         </div>
         <div class="my-2">
-          <a href="https://github.com/djaodjin/" target="_blank"><i class="fa fa-github fa-sm pe-1"></i></a>
-          <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher"><i class="fa fa-linkedin fa-sm ps-1"></i></a>
+          <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa fa-github fa-sm pe-1"></i></a>
+          <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa fa-linkedin fa-sm ps-1"></i></a>
         </div>
         <div class="my-2">
           {% trans %}Powered by DjaoDjin. &copy; 2026 All rights reserved.{% endtrans %}

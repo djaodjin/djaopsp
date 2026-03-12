@@ -6,13 +6,17 @@
         <div class="col-sm-4">
           <div class="input-group input-group-sm">
             <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-            <input class="form-control" type="date" v-model="_start_at" v-cloak>
+            <input class="form-control" type="date" v-model="_start_at"
+                aria-label="Start date of the period"
+                v-cloak>
           </div>
         </div>
         <div class="col-sm-4">
           <div class="input-group input-group-sm">
             <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+            <input class="form-control" type="date" v-model="_ends_at"
+                aria-label="End date of the period"
+                v-cloak>
           </div>
         </div>
         <div class="col-sm-4 d-print-none">
@@ -36,7 +40,7 @@
       <reporting-completion-rate inline-template
                                  ref="completionRate" :params="params">
         <div>
-          <h2 class="text-center mt-2">Responses week-by-week ([[params.unit == 'percentage' ? '%' : 'Nb']])&nbsp;<a id="download-competion-rate" class="d-print-none btn btn-link" :href="'{{urls.download_completion_rate}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h2>
+          <h2 class="text-center mt-2">Responses week-by-week ([[params.unit == 'percentage' ? '%' : 'Nb']])&nbsp;<a id="download-competion-rate" class="d-print-none btn btn-link" :href="'{{urls.download_completion_rate}}' + getQueryString()" target="_blank" aria-label="Download chart"><i class="fa fa-download"></i></a></h2>
           <div>
             <div class="card-body" v-if="!itemLoaded">
               <p>
@@ -53,7 +57,7 @@
     <div class="col-md-4">
       <reporting-completion-total ref="completionTotal" :params="params" inline-template>
         <div>
-          <h2 class="text-center mt-2">{% trans %}Engagement Status{% endtrans %}<span v-cloak>([[params.unit == 'percentage' ? '%' : 'Nb']])</span>&nbsp;<a id="download-completion-total" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download_engagement_stats}}' + getQueryString()" target="_blank"><i class="fa fa-download"></i></a></h2>
+          <h2 class="text-center mt-2">{% trans %}Engagement Status{% endtrans %}<span v-cloak>([[params.unit == 'percentage' ? '%' : 'Nb']])</span>&nbsp;<a id="download-completion-total" class="d-print-none btn btn-link btn-sm" :href="'{{urls.download_engagement_stats}}' + getQueryString()" target="_blank" aria-label="Download chart"><i class="fa fa-download"></i></a></h2>
           <h3 class="text-center" v-if="itemLoaded">{% trans %}outer to inner{% endtrans %}: {{profile.printable_name}}[[circleLabels]]</h3>
           <div>
             <div class="card-body" v-if="!itemLoaded">

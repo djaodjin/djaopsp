@@ -1,7 +1,7 @@
 {% extends "app/base.html" %}
 
 {% block app_content %}
-<div class="container">
+<div id="newsfeed" class="container">
   <h1 class="text-center py-4">{% trans %}LEARN. ASSESS. IMPROVE.{% endtrans %}</h1>
   <div class="offset-sm-1 offset-md-2 offset-lg-3 col-sm-10 col-md-8 col-lg-6">
   <newsfeed inline-template>
@@ -22,11 +22,11 @@
           <div class="card-header">
             <div class="row align-items-center">
               <div class="col-2">
-                <img class="img-fluid" style="max-height:64px;" src="{{'/static/img/default-organization.png'|asset}}">
+                <img class="img-fluid" style="max-height:64px;" src="{{'/static/img/default-organization.png'|asset}}" alt="Profile logo">
               </div>
               <div class="col-5">
-                <h5>{% trans %}Assess{% endtrans %}</h5>
-                <h6>{% trans %}Pick a questionnaire{% endtrans %}</h6>
+                <h2 class="card-title">{% trans %}Assess{% endtrans %}</h2>
+                <h3 class="card-subtitle">{% trans %}Pick a questionnaire{% endtrans %}</h3>
               </div>
             </div>
           </div>
@@ -47,18 +47,18 @@
           <div class="card-header">
             <div class="row align-items-center">
               <div class="col-2">
-                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) ? getAccountPicture(assessment.account) : '{{'/static/img/default-organization.png'|asset}}'" >
+                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) ? getAccountPicture(assessment.account) : '{{'/static/img/default-organization.png'|asset}}'" alt="Profile logo">
               </div>
               <div class="col-10">
-                <h5>[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h5>
-                <h6>[[assessment.title]]</h6>
+                <h2 class="card-title">[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h2>
+                <h3  class="card-subtitle">[[assessment.title]]</h3>
               </div>
             </div>
           </div>
           <div class="card-body">
             <div class="row" v-if="assessment.picture">
               <div class="col-4">
-                <img class="img-fluid" :src="assessment.picture" />
+                <img class="img-fluid" :src="assessment.picture" alt="Profile logo" />
               </div>
               <div class="col-8"
                    v-html="assessment.descr ? $globals.md(assessment.descr) : ''">
@@ -89,7 +89,7 @@ by one of your following co-worker(s):
                   <div v-for="request in elements">
                     <div class="row align-items-center">
                       <div class="col-2">
-                        <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(request.grantee) ? getAccountPicture(request.grantee) : '{{'/static/img/default-organization.png'|asset}}'" >
+                        <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(request.grantee) ? getAccountPicture(request.grantee) : '{{'/static/img/default-organization.png'|asset}}'" alt="Profile logo">
                       </div>
                       <div class="col-5">
                         [[getAccountPrintableName(request.grantee) ? getAccountPrintableName(request.grantee) : request.grantee]]
@@ -121,7 +121,6 @@ by one of your following co-worker(s):
                           type="submit"
                           name="campaign"
                           :value="assessment.slug"
-                          role="menuitem"
                           tabindex="-1">
                     <span v-if="assessment.share_url">{% trans %}Update response{% endtrans %}</span>
                     <span v-if="!assessment.share_url && assessment.update_url && assessment.update_url.indexOf('/getstarted/') < 0">{% trans %}Continue{% endtrans %}</span>
