@@ -275,7 +275,9 @@ class GHGEmissionsAmountMixin(DashboardAggregateMixin):
             return super(GHGEmissionsAmountMixin, self).get_labels(aggregate)
         last_date = datetime_or_now(self.ends_at)
         first_date = last_date - relativedelta(years=4)
-        return construct_yearly_periods(first_date, last_date)
+        return construct_yearly_periods(first_date, last_date)[:-1] # we
+                # don't want the last period (duplicate) when it comes
+                # to column labels.
 
 
     @staticmethod

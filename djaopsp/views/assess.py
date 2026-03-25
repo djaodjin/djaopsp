@@ -12,7 +12,6 @@ from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags imp
 from deployutils.helpers import update_context_urls
 from django import forms
 from django.contrib.auth import get_user_model
-from django.core.files.storage import get_storage_class
 from django.db import models, transaction
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404

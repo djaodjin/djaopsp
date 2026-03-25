@@ -539,6 +539,7 @@
     "slug" : "sustainability",
     "title" : "ESG/Environmental practices",
     "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z",
     "description" : "Assess your organization's environmental, social and governance policies against best practices.",
     "account": 2,
     "is_active": true,
@@ -551,6 +552,7 @@
     "slug" : "framework",
     "title" : "Cybersecurity framework",
     "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z",
     "description" : "Assessment of practices around cybersecurity",
     "account" : 3,
     "is_active": true,
@@ -563,6 +565,7 @@
     "slug" : "sustainability-verified",
     "title" : "Verification of ESG/Environmental practices",
     "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z",
     "account": 2,
     "extra": ""
   },

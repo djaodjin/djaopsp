@@ -187,7 +187,8 @@
                       @submit.prevent="validate()">
                   <fieldset :disabled="disabled">
                   <account-typeahead inline-template ref="account"
-                                     v-on:selectitem="selectAccount">
+                      v-on:selectitem="selectAccount"
+                      data-url="{{urls.api_account_candidates}}">
                     <div class="input-group mb-3">
                       <span class="input-group-text">
                         <i class="fa fa-spinner fa-spin" v-if="loading"></i>
@@ -267,7 +268,9 @@
                     <div v-show="selectedItem < 0">
                       <label class="form-label mt-2">{% trans %}Group name{% endtrans %}</label>
                       <div class="input-group">
-                        <input class="form-control" v-model="newItem.title"></input>
+                        <input class="form-control"
+                               v-model="newItem.title"
+                               @keydown.enter.prevent="addItem"></input>
                         <button class="btn btn-primary"
                             type="button"
                             @click.prevent="addItem"
@@ -295,7 +298,7 @@
                           <div class="col-10"><img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(account) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(account)]]</div>
                           <div class="col-2">
                             <button class="btn btn-danger btn-sm"
-                                    @click="removeAccount(idx)">
+                                    @click.prevent="removeAccount(idx)">
                               <i class="fa fa-times"></i>
                             </button>
                           </div>
@@ -307,41 +310,58 @@
                                v-show="!addAccountEnabled">
                                 {% trans %}Add profile in group ...{% endtrans %}
                             </a>
-                            <account-typeahead inline-template ref="account"
-                                               v-on:selectitem="addAccount"
-                                               v-show="addAccountEnabled">
-                              <div class="input-group mb-3">
-                                <span class="input-group-text">
-                                  <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                                  <template v-else>
-                                    <i class="fa fa-search" v-show="isEmpty"></i>
-                                    <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                                  </template>
-                                </span>
-                                <input class="form-control"
-                                   type="text"
-                                   placeholder="{% trans %}Enter profile name{% endtrans %}"
-                                   autocomplete="off"
-                                   v-model="query"
-                                   @keydown.down="down"
-                                   @keydown.up="up"
-                                   @keydown.enter.prevent="hit"
-                                   @blur="clear"
-                                   @input="update"></input>
+
+              <account-typeahead inline-template ref="account"
+                            v-on:selectitem="addAccount"
+                            data-url="{{urls.api_account_candidates}}"
+                            v-show="addAccountEnabled">
+                <div>
+                  <div class="input-group mb-3">
+                    <span class="input-group-text">
+                      <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                      <template v-else>
+                        <i class="fa fa-search" v-show="isEmpty"></i>
+                        <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                      </template>
+                    </span>
+                    <input class="form-control"
+                           type="text"
+                           name="profile"
+                           placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
+                           autocomplete="off"
+                           v-model="query"
+                           @keydown.down="down"
+                           @keydown.up="up"
+                           @keydown.enter.prevent="hit"
+                           @blur="clearAndForget"
+                           @input="update"
+                           ref="input"/>
+                    <button  class="input-group-text"
+                             role="button" href="#"
+                             @click.prevent="resetAndReload"
+                             aria-haspopup="true"
+                             aria-expanded="false">
+                        <i class="fa fa-caret-down"></i>
+                    </button>
                     {# Implementation note: If we use `d-block` instead of    #}
                     {# `style="display: block;"` the dropdown shows even when #}
                     {# `hasItems` is `False`.                                 #}
-                                <ul class="dropdown-menu nav-pills p-1 top-100"
-                                    style="display: block;"
-                                    v-show="hasItems">
-                                  <li v-for="(item, $item) in items" class="nav-item"
-                                    @mousedown="hit"
-                                    @mousemove="setActive($item)">
-                                    <a :class="'nav-link px-3 py-2' + activeClass($item)" v-text="item.printable_name"></a>
-                                  </li>
-                                </ul>
-                              </div>
-                            </account-typeahead>
+                    <ul id="candidateList" :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+                        style="max-height: 250px;">
+                      <li v-for="(item, $item) in items" class="nav-item"
+                          @mousedown="hit"
+                          @mousemove="setActive($item)" v-if="item.printable_name">
+                        <a :class="'nav-link px-3 py-2' + activeClass($item)">
+                          <dl>
+                            <dd v-html="highlightQuery(item.printable_name)"></dd>
+                          </dl>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </account-typeahead>
+
                           </div>
                         </div>{# /.row #}
                         <div class="form-actions mt-2"
@@ -382,6 +402,7 @@
                       <option :value="'subscribed-' + plan.slug" v-for="plan in plans">{% trans plan='[[plan.title]]' %}{{plan}}{% endtrans %}</option>
                       <option :value="'federated-' + alliance.slug"  v-for="alliance in alliances">{% trans alliance='[[alliance.title]]' %}Federated through {{alliance}}{% endtrans %}</option>
                     </select>
+
                     <div>
                       <div class="input-group mt-2">
                         <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
@@ -425,7 +446,9 @@
                     <div v-show="selectedItem < 0">
                       <label class="form-label mt-2">{% trans %}Name of dataset{% endtrans %}</label>
                       <div class="input-group">
-                        <input class="form-control" v-model="newItem.title"></input>
+                        <input class="form-control"
+                               v-model="newItem.title"
+                               @keydown.enter.prevent="addItem"></input>
                         <button class="btn btn-primary"
                                 type="button"
                                 @click.prevent="addItem"
@@ -435,6 +458,15 @@
                       </div>
                     </div>
                     <div v-show="selectedItem >= 0">
+                      <div>
+                        <label class="control-label mt-2">{% trans %}Base set of profiles{% endtrans %}</label>
+                        <select class="form-select" v-model="affinityType"
+                                @change="updateAffinity">
+                            <option value="all">{% trans %}All{% endtrans %}</option>
+                            <option value="engaged">{% trans %}Engaged{% endtrans %}</option>
+                            <option value="accessibles">{% trans %}Tracked{% endtrans %}</option>
+                        </select>
+                      </div>
                       <label class="control-label mt-2">{% trans %}Question/answers to select profiles{% endtrans %}</label>
                       <div class="row" v-show="!predicatesLoaded()">
                         <div class="col-12">
@@ -452,11 +484,11 @@
                              v-for="(predicate, idx) in getPredicates(items.results[selectedItem])"
                              v-show="!predicatesEmpty()">
                           <div class="col-10">
-                            [[predicate.question.title]] - [[predicate.measured]]
+                            [[predicate.question.title]] - [[predicate.measured ? predicate.measured : "Present" ]]
                           </div>
                           <div class="col-2 text-end">
                             <button class="btn btn-danger btn-sm"
-                                    @click="removeAccount(idx)">
+                                    @click.prevent="removePredicate(idx)">
                               <i class="fa fa-times"></i>
                             </button>
                           </div>
@@ -470,54 +502,101 @@
                         <div class="row" v-show="addPredicateEnabled">
                           <div class="col-12">
                         {# list the questions that can be used for predicate #}
-                            <practice-typeahead inline-template ref="question"
+                <practice-typeahead inline-template ref="question"
                                 v-on:selectitem="selectQuestion">
-                              <div class="input-group mb-3">
-                                <span class="input-group-text">
-                                  <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                                  <template v-else>
-                                    <i class="fa fa-search" v-show="isEmpty"></i>
-                                    <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                                  </template>
-                                </span>
-                                <input class="form-control"
-                                   type="text"
-                                   placeholder="{% trans %}Enter question{% endtrans %}"
-                                   autocomplete="off"
-                                   v-model="query"
-                                   @keydown.down="down"
-                                   @keydown.up="up"
-                                   @keydown.enter.prevent="hit"
-                                   @blur="clear"
-                                   @input="update"></input>
-                                <button class="input-group-text"
-                                        role="button" href="#"
-                                        aria-haspopup="true"
-                                        aria-expanded="false"
-                                        @click.prevent="reload">
-                                  <i class="fa fa-caret-down"></i>
-                                </button>
+                  <div>
+                    <label class="form-label mt-2">{% trans %}Questionnaire{% endtrans %} ...</label>
+                    <campaign-typeahead inline-template
+                                    v-on:selectitem="selectCampaign">
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">
+                        <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                        <template v-else>
+                          <i class="fa fa-search" v-show="isEmpty"></i>
+                          <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                        </template>
+                        </span>
+                        <input class="form-control"
+                          type="text"
+                          placeholder="{% trans %}Enter campaign{% endtrans %}"
+                          autocomplete="off"
+                          v-model="query"
+                          @keydown.down="down"
+                          @keydown.up="up"
+                          @keydown.enter.prevent="hit"
+                          @blur="clear"
+                          @input="update"
+                          ref="input"></input>
+                        <button  class="input-group-text"
+                          role="button" href="#"
+                          @click.prevent="resetAndReload"
+                          aria-haspopup="true"
+                          aria-expanded="false">
+                          <i class="fa fa-caret-down"></i>
+                        </button>
                     {# Implementation note: If we use `d-block` instead of    #}
                     {# `style="display: block;"` the dropdown shows even when #}
                     {# `hasItems` is `False`.                                 #}
-                                <ul class="dropdown-menu nav-pills p-1 top-100"
-                                    style="display: block;" role="menu"
-                                    v-show="hasItems">
-                                  <li v-for="(item, idx) in items" class="nav-item"
-                                      @mousedown="hit"
-                                      @mousemove="setActive(idx)">
-                                    <div :class="indentHeader(item)"
-                                         v-if="!isPractice(item)">[[item.title]]</div>
-                                    <a :class="'nav-link px-3 py-2' + activeClass(item)"
-                                       v-if="isPractice(item)">[[item.title]]</a>
-                                  </li>
-                                </ul>
-                              </div>
-                            </practice-typeahead>
+                        <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+                            style="max-height: 250px;" role="menu">
+                          <li v-for="(item, idx) in items" class="nav-item"
+                              @mousedown="hit"
+                              @mousemove="setActive(idx)">
+                            <a :class="'nav-link px-3 py-2' + activeClass(idx)"
+                               v-html="highlightQuery(item.title)"></a>
+                          </li>
+                        </ul>
+                      </div>
+                    </campaign-typeahead>
+                    <label class="form-label mt-2">{% trans %}Which question are you interested in?{% endtrans %} ...</label>
+                    <div class="input-group mb-3">
+                      <span class="input-group-text">
+                        <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                        <template v-else>
+                          <i class="fa fa-search" v-show="isEmpty"></i>
+                          <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                        </template>
+                      </span>
+                      <input class="form-control"
+                        type="text"
+                        placeholder="{% trans %}Enter question{% endtrans %}"
+                        autocomplete="off"
+                        v-model="query"
+                        @keydown.down="down"
+                        @keydown.up="up"
+                        @keydown.enter.prevent="hit"
+                        @blur="clear"
+                        @input="update"
+                        ref="input"></input>
+                      <button  class="input-group-text"
+                        role="button" href="#"
+                        @click.prevent="resetAndReload"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                        <i class="fa fa-caret-down"></i>
+                      </button>
+                    {# Implementation note: If we use `d-block` instead of    #}
+                    {# `style="display: block;"` the dropdown shows even when #}
+                    {# `hasItems` is `False`.                                 #}
+                      <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+                        style="max-height: 250px;" role="menu">
+                        <li v-for="(item, idx) in items" class="nav-item"
+                          @mousedown="hit"
+                          @mousemove="setActive(idx)">
+                          <div :class="indentHeader(item)"
+                               v-if="!isPractice(item)">[[item.title]]</div>
+                          <a :class="'nav-link px-3 py-2' + activeClass(idx)"
+                             v-html="highlightQuery(item.title)"
+                             v-if="isPractice(item)"></a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </practice-typeahead>
                             <div v-show="addPredicateEnabled && hasQuestion">
-                              <div>
-                              [[newPredicate.question ? newPredicate.question.title : ""]]
-                              </div>
+                              <label>
+                              {% trans %}Pick answer you are looking for to{% endtrans %} &quot;[[newPredicate.question ? newPredicate.question.title : ""]]&quot; ...
+                              </label>
                               <div v-show="!unitDetailsLoaded(newPredicate.question)">
                                 <i class="fa fa-spinner fa-spin"></i>
                               </div>
@@ -535,11 +614,11 @@
                            v-show="!predicatesEmpty() && !addPredicateEnabled">
                           <div class="input-group mt-2">
                             <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-                            <input class="form-control" type="date" v-model="_start_at"></input>
+                            <input class="form-control" type="date" v-model="_accounts_start_at"></input>
                           </div>
                           <div class="input-group mt-2">
                             <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                            <input class="form-control" type="date" v-model="_ends_at"></input>
+                            <input class="form-control" type="date" v-model="_accounts_ends_at"></input>
                           </div>
                           <button class="btn btn-primary w-100 mt-2"
                                   type="submit">
@@ -753,6 +832,7 @@
 
 {% block reporting_scripts %}
 <script type="text/javascript">
-Vue.prototype.$viewName = 'analyze';
+Vue.prototype.$groupAccountsView = 'analyze-accounts';
+Vue.prototype.$accountsByAnswersView = 'analyze-answers';
 </script>
 {% endblock %}

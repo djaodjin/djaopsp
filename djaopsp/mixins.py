@@ -4,6 +4,8 @@ import json
 
 from dateutil.relativedelta import relativedelta
 from deployutils.apps.django_deployutils import mixins as deployutils_mixins
+from deployutils.apps.django_deployutils.templatetags import (
+    deployutils_prefixtags)
 from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.core.files.storage import get_storage_class
@@ -182,7 +184,7 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
         storage_class = get_storage_class()
         if 's3boto' in storage_class.__name__.lower():
             update_context_urls(context, {
-                'api_asset_upload_start': site_url(
+                'api_asset_upload_start': deployutils_prefixtags.site_url(
                     "api/auth/tokens/realms/%s" % self.account),
             })
         else:

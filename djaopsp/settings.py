@@ -512,6 +512,23 @@ DEPLOYUTILS = {
                 'email': '%s@localhost.localdomain' % APP_NAME
             }
         },
+        'alice200': {
+            'username': 'alice200', # Profile manager for alliance tier1 member
+            'roles': {
+                'manager': [{
+                    'slug': 'procurement-200',
+                    'printable_name': 'Procurement 200 (Demo)',
+                    "subscriptions": [{
+                        "plan": "tier1-members",
+                        "ends_at": "2026-12-31T23:59:59Z"
+                    }],
+                }]},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
         'janice': {
             'username': 'janice',  # Profile manager for alliance tier2 member
             'roles': {

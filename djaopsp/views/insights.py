@@ -62,9 +62,9 @@ class AnalyzeInsightsView(InsightsView):
             'pages_index': reverse('pages_index'),
             'api_benchmarks_index': reverse(
                 'survey_api_benchmarks_index', args=(self.account,)),
-            # XXX requires djaodjin-survey>0.18.2
-            #'api_responses': reverse(
-            #    'survey_api_accessible_samples', args=(self.account,)),
+            #  XXX requires djaodjin-survey>0.18.2
+            'api_responses': reverse(
+                'survey_api_accessible_samples', args=(self.account,)),
             'api_benchmarks_export': reverse('api_benchmarks_export',
                 args=(self.account,)),
             'scorecard_base': reverse('scorecard_redirect',

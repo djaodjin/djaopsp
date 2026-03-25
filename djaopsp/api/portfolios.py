@@ -483,8 +483,10 @@ class TotalScoreBySubsectorAPIView(RollupMixin, GraphMixin, SupplierListMixin,
         with ``account``.
         """
         # overrides `MatrixDetailAPIView.get_accounts()`
-        return get_accessible_accounts([self.account],
+        show_individual_profiles = True
+        accounts_queryset = get_accessible_accounts([self.account],
             start_at=self.accounts_start_at, ends_at=self.accounts_ends_at)
+        return accounts_queryset, show_individual_profiles
 
     @staticmethod
     def as_metric_candidate(cohort_slug):
@@ -1208,7 +1210,9 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
             periods = construct_monthly_periods(first_year, last_year)
             self.labels = [val.strftime("%b %Y") for val in periods]
         else:
-            periods = construct_yearly_periods(first_year, last_year)
+            periods = construct_yearly_periods(first_year, last_year)[:-1] # we
+                # don't want the last period (duplicate) when it comes
+                # to columns in the accessibles dashboard.
             self.labels = [val.year for val in periods]
 
         requested_by_accounts = {}

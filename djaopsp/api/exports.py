@@ -43,8 +43,8 @@ class BenchmarksExportAPIView(generics.CreateAPIView):
                 "labels": null,
                 "results": [
                     {
-            "path": "/sustainability/esg-strategy-heading/formalized-esg-strategy",
-                        "title": "1.1 Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
+        "path": "/sustainability/esg-strategy-heading/formalized-esg-strategy",
+        "title": "Does your company have a formalized ESG strategy?",
                         "default_unit": {
                             "slug": "yes-no",
                             "title": "Yes/No",

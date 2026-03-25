@@ -747,7 +747,8 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
         """
         if not hasattr(self, '_engaged_accounts'):
             #pylint:disable=attribute-defined-outside-init
-            self._engaged_accounts = list(self.get_accounts())
+            accounts_queryset, show_individual_profiles = self.get_accounts()
+            self._engaged_accounts = list(accounts_queryset)
         return self._engaged_accounts
 
     @property
@@ -1223,17 +1224,17 @@ class AccessiblesAnswersPivotableCSVView(AccessiblesAccountsMixin,
         # and set `aggregate_set` to `False` instead of `True`.
         # Furthermore, we use the same [start_at, ends_at[ range
         # to filter accounts and samples.
+        show_individual_profiles = True
         queryset = get_accessible_accounts([self.account],
             campaign=self.verified_campaign,
-            start_at=self.start_at, ends_at=self.ends_at,
-            aggregate_set=False)
+            start_at=self.start_at, ends_at=self.ends_at)
         if False:
             # XXX skip using the search filter, and always download
             # all accessible data.
             search_fillter = SearchFilter()
             queryset = search_fillter.filter_queryset(
                 self.request, queryset, self)
-        return queryset.order_by('pk')
+        return queryset.order_by('pk'), show_individual_profiles
 
 
 class EngagedAnswersPivotableCSVView(EngagedAccountsMixin,
@@ -1254,11 +1255,12 @@ class EngagedAnswersPivotableCSVView(EngagedAccountsMixin,
         # and set `aggregate_set` to `False` instead of `True`.
         # Furthermore, we use the same [start_at, ends_at[ range
         # to filter accounts and samples.
-        return get_engaged_accounts([self.account],
+        show_individual_profiles = True
+        accounts_queryset = get_engaged_accounts([self.account],
             campaign=self.verified_campaign,
             start_at=self.start_at, ends_at=self.ends_at,
-            aggregate_set=False,
             search_terms=self.search_terms).order_by('pk')
+        return accounts_queryset, show_individual_profiles
 
 
 class TabularizedAnswersXLSXView(AnswersDownloadMixin,
@@ -1596,17 +1598,17 @@ class AccessiblesAnswersXLSXView(AccessiblesAccountsMixin,
         # and set `aggregate_set` to `False` instead of `True`.
         # Furthermore, we use the same [start_at, ends_at[ range
         # to filter accounts and samples.
+        show_individual_profiles = True
         queryset = get_accessible_accounts([self.account],
             campaign=self.verified_campaign,
-            start_at=self.start_at, ends_at=self.ends_at,
-            aggregate_set=False)
+            start_at=self.start_at, ends_at=self.ends_at)
         if False:
             # XXX skip using the search filter, and always download
             # all accessible data.
             search_fillter = SearchFilter()
             queryset = search_fillter.filter_queryset(
                 self.request, queryset, self)
-        return queryset.order_by('pk')
+        return queryset.order_by('pk'), show_individual_profiles
 
 
 class EngagedAnswersXLSXView(EngagedAccountsMixin,
@@ -1626,9 +1628,9 @@ class EngagedAnswersXLSXView(EngagedAccountsMixin,
         # and set `aggregate_set` to `False` instead of `True`.
         # Furthermore, we use the same [start_at, ends_at[ range
         # to filter accounts and samples.
-        results = get_engaged_accounts([self.account],
+        show_individual_profiles = True
+        accounts_queryset = get_engaged_accounts([self.account],
             campaign=self.verified_campaign,
             start_at=self.start_at, ends_at=self.ends_at,
-            aggregate_set=False,
             search_terms=self.search_terms).order_by('pk')
-        return results
+        return accounts_queryset, show_individual_profiles

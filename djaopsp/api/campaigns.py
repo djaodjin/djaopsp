@@ -195,9 +195,12 @@ class CampaignContentMixin(CampaignDecorateMixin):
         """
         Returns all questions in a campaign
         """
+        question_kwargs = {}
+        if self.campaign:
+            question_kwargs.update({
+                'enumeratedquestions__campaign': self.campaign})
         queryset = get_question_model().objects.filter(
-            path__startswith=prefix,
-            enumeratedquestions__campaign=self.campaign)
+            path__startswith=prefix, **question_kwargs)
         search_filter = SearchFilter()
         queryset = search_filter.filter_queryset(self.request, queryset, self)
 

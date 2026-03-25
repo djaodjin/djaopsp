@@ -1,12 +1,10 @@
 # Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
-from dateutil import rrule
 from django.db.models import Min
-from survey.helpers import datetime_or_now
 from survey.models import PortfolioDoubleOptIn
 
-from .utils import get_account_model, send_notification
+from .utils import send_notification
 
 
 def send_reminders(organization, email=None, campaign=None, dry_run=False):
