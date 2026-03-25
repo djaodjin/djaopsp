@@ -1,4 +1,4 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 """
 Django settings for djaopsp project.
 """
@@ -14,7 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Default values that can be overriden by `update_settings` later on.
 APP_NAME = os.path.basename(BASE_DIR)
-APP_VERSION = "2025-10-21"
+APP_VERSION = "2026-07-01-dev"
 
 FEATURES_REVERT_ASSETS_CDN = False  # 2025-10-21 temporary reverts cached js/css
 

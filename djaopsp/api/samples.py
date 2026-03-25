@@ -1169,21 +1169,22 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         accounts = serializer.validated_data.get('accounts')
         campaign = serializer.validated_data.get('campaign')
+        ends_at = serializer.validated_data.get('ends_at')
+        message = serializer.validated_data.get('message')
         for account in accounts:
             to_email = account.get('email')
             if request.user.email == to_email:
-                deadline = datetime_or_now() + relativedelta(months=3)
                 portfolio = PortfolioDoubleOptIn(
                     account=self.account_model(slug='supplier-1',
                         email=to_email, full_name="Supplier (Demo)"),
                     grantee=self.account,
-                    ends_at=deadline,
+                    ends_at=ends_at,
                     campaign=campaign,
                     initiated_by=request.user)
                 survey_signals.portfolios_request_initiated.send(
                     sender=__name__,
                     portfolios=[portfolio], recipients=[request.user],
-                    message=None, request=request)
+                    message=message, request=request)
             else:
                 send_reminders(self.account, campaign=campaign, email=to_email)
         return http.Response({'detail': _("An example invite should be"\

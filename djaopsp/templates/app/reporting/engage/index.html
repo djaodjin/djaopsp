@@ -202,13 +202,15 @@
                         :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
               </div>
             </form>{# /#invite-search #}
-            <form id="send-invite-example" class="d-inline-block ms-4"
-                  @submit.prevent="requestAssessmentExample('{{request.user.email}}', '{{campaign}}')">
-              <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-              <button class="btn btn-outline-primary btn-sm">
-                  {% trans %}Send me an invite example{% endtrans %}
-              </button>
-            </form>{# /#send-invite-example #}
+            <button id="send-invite-example-open"
+                    class="btn btn-outline-primary btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#invite-reporting-entity"
+                    data-toggle="modal"
+                    data-target="#invite-reporting-entity"
+                    @click="populateInviteExample('{{request.user.email}}')">
+                {% trans %}Send me an invite example{% endtrans %}
+            </button>
           </td>
           <td colspan="4" class="text-end">
             <a href="{{'/respondents/'|site_url}}" target="_blank">{% trans %}Find if a company already responded{% endtrans %}&raquo;</a>

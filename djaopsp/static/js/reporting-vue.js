@@ -253,6 +253,15 @@ Vue.component('engage-profiles', {
             }
             vm.params.q = "";
         },
+        populateInviteExample: function(email) {
+            var vm = this;
+            vm.newItem = {
+                isExample: true,
+                slug: 'supplier-1',
+                ends_at: null,
+                email: email
+            };
+        },
         hideModal: function($event) {
             var form = jQuery($event.target);
             var modalDialog = form.parents('.modal');
@@ -276,56 +285,63 @@ Vue.component('engage-profiles', {
             if( typeof campaign !== 'undefined' ) {
                 data['campaign'] = campaign;
             }
-            if( !vm.newItem.slug ) {
-                vm.reqPost(vm.$urls.api_account_candidates, vm.newItem,
-                function(resp) {
-                    vm.newItem = resp;
-                    data.accounts = [vm.newItem];
-                    vm.reqPost(vm.$urls.api_accessibles, data,
-                    function success(resp) {
-                        const now = new Date(Date.now());
-                        const endsAt = new Date(vm.params.ends_at);
-                        if( isNaN(endsAt) || endsAt < now ) {
-                            vm.params.ends_at = now.toISOString();
-                        }
-                        if( vm.params.page ) vm.params.page = 1;
-                        vm.params.q = vm.newItem.full_name;
-                        vm.get();
-                        vm.hideModal($event);
-                    });
-                });
-            } else {
-                vm.reqPost(vm.$urls.api_accessibles, data,
+            if( vm.newItem.isExample ) {
+                vm.reqPost(vm._safeUrl(vm.$urls.api_accessibles, 'send'), data,
                 function success(resp, textStatus, jqXHR) {
-                    if( jqXHR.status == 201 ) {
-                        // Check for 201 so we don't reload the page
-                        // when re-sending the request.
-                        const now = new Date(Date.now());
-                        const endsAt = new Date(vm.params.ends_at);
-                        if( isNaN(endsAt) || endsAt < now ) {
-                            vm.params.ends_at = now.toISOString();
-                        }
-                        if( vm.params.page ) vm.params.page = 1;
-                        vm.params.q = vm.newItem.full_name;
-                        vm.get();
-                    }
+                    showMessages(resp.detail, 'info');
                     vm.hideModal($event);
                 });
+            } else {
+                if( !vm.newItem.slug ) {
+                    vm.reqPost(vm.$urls.api_account_candidates, vm.newItem,
+                    function(resp) {
+                        vm.newItem = resp;
+                        data.accounts = [vm.newItem];
+                        vm.reqPost(vm.$urls.api_accessibles, data,
+                        function success(resp) {
+                            const now = new Date(Date.now());
+                            const endsAt = new Date(vm.params.ends_at);
+                            if( isNaN(endsAt) || endsAt < now ) {
+                                vm.params.ends_at = now.toISOString();
+                            }
+                            if( vm.params.page ) vm.params.page = 1;
+                            vm.params.q = vm.newItem.full_name;
+                            vm.get();
+                            vm.hideModal($event);
+                        });
+                    });
+                } else {
+                    vm.reqPost(vm.$urls.api_accessibles, data,
+                    function success(resp, textStatus, jqXHR) {
+                        if( jqXHR.status == 201 ) {
+                            // Check for 201 so we don't reload the page
+                            // when re-sending the request.
+                            const now = new Date(Date.now());
+                            const endsAt = new Date(vm.params.ends_at);
+                            if( isNaN(endsAt) || endsAt < now ) {
+                                vm.params.ends_at = now.toISOString();
+                            }
+                            if( vm.params.page ) vm.params.page = 1;
+                            vm.params.q = vm.newItem.full_name;
+                            vm.get();
+                        } else {
+                            // Since we do not reload the items, we need
+                            // to update the deadline for response.
+                            for( let idx = 0; idx < vm.items.results.length;
+                                 ++idx ) {
+                                if( vm.items.results[idx].slug
+                                    == vm.newItem.slug ) {
+                                    vm.items.results[idx].expires_at =
+                                        vm.newItem.ends_at;
+                                    break;
+                                }
+                            }
+                        }
+                        vm.hideModal($event);
+                    });
+                }
             }
             return false;
-        },
-        requestAssessmentExample: function(email, campaign) {
-            var vm = this;
-            var data = {
-                accounts: [{slug: 'supplier-1', email: email}],
-            };
-            if( typeof campaign !== 'undefined' ) {
-                data['campaign'] = campaign;
-            }
-            vm.reqPost(vm._safeUrl(vm.$urls.api_accessibles, 'send'), data,
-            function success(resp, textStatus, jqXHR) {
-                showMessages(resp.detail, 'info');
-            });
         },
         remove: function ($event, idx) {
             var vm = this;
