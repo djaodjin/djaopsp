@@ -1382,10 +1382,11 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
                 unit_equiv.update({default_unit_id: equiv})
                 if unit_id not in self.equivs:
                     self.equivs.update({unit_id: unit_equiv})
-            try:
-                account.update({'measured': equiv.as_target_unit(measured)})
-            except NotImplementedError:
-                account.update({'measured': text})
+            if equiv != self.no_equiv:
+                try:
+                    account.update({'measured': equiv.as_target_unit(measured)})
+                except NotImplementedError:
+                    account.update({'measured': text})
 
 
     def as_account(self, key):
