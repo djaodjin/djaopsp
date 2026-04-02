@@ -248,6 +248,15 @@ var practicesListMixin = {
             return [];
         },
 
+        getPracticeId: function(practice, prefix) {
+            const vm = this;
+            const longId = practice.path.substr(1).replaceAll('/', '-');
+            if( prefix ) {
+                return prefix + longId;
+            }
+            return longId;
+        },
+
         // Rendering helpers
         _getValForActiveAccount: function(practice, fieldName) {
             if( typeof practice.accounts !== 'undefined' ) {
@@ -302,27 +311,37 @@ var practicesListMixin = {
             return practice.answers[practice.answers.length - 1];
         },
         getAnswerStartsAt: function(practice) {
+            var vm = this;
+            // If the sample is frozen, the default date is the end of
+            // the previous year at the time the sample was frozen.
+            const defaultDate = new Date((vm.items && vm.items.is_frozen &&
+                vm.items.updated_at) ? vm.items.updated_at :
+                Date.now());
+            const lastYear = defaultDate.getFullYear() - 1;
             // We need to get the dates in a "YYY-MM-DD" format
             // for the <input> tag to behave properly.
-            const lastYear = new Date(Date.now()).getFullYear() - 1;
+            // Javascript expects 0 to mean January.
             const startsAt = (
                 new Date(lastYear, 0)).toISOString().substr(0, 10);
             if( !practice ) return startsAt;
-            return this.getAnswerByUnit(practice, 'starts-at', startsAt);
+            return vm.getAnswerByUnit(practice, 'starts-at', startsAt);
         },
         // Returns a `Datetime` instead of an `Answer`.
         getAnswerEndsAt: function(practice) {
+            var vm = this;
+            // If the sample is frozen, the default date is the end of
+            // the previous year at the time the sample was frozen.
+            const defaultDate = new Date((vm.items && vm.items.is_frozen &&
+                vm.items.updated_at) ? vm.items.updated_at :
+                Date.now());
+            const lastYear = defaultDate.getFullYear() - 1;
             // We need to get the dates in a "YYY-MM-DD" format
             // for the <input> tag to behave properly.
-            var vm = this;
-            const lastYear = new Date(Date.now()).getFullYear() - 1;
+            // Javascript expects 11 to mean December.
             const endsAt = (
                 new Date(lastYear, 11, 31)).toISOString().substr(0, 10);
             if( !practice ) return endsAt;
-            //const answerEndsAt = vm.asDateInputField(
-            //    vm.getPrimaryAnswer(practice).created_at);
-            //return answerEndsAt ? answerEndsAt : endsAt;
-            return this.getAnswerByUnit(practice, 'ends-at', endsAt);
+            return vm.getAnswerByUnit(practice, 'ends-at', endsAt);
         },
         getCommentsAnswer: function(practice) {
             return this.getAnswerByUnit(practice, 'freetext', "");
@@ -358,22 +377,34 @@ var practicesListMixin = {
             }
             return practice.answers[0];
         },
-        getSecondaryAnswers: function(practice) {
+        getSecondaryAnswers: function(practice, filteredOut) {
             let vm = this;
             if( !practice ) return {};
             if( typeof practice.answers === 'undefined' ||
               practice.answers.length < 1 ) {
                 return [];
             }
-            if( vm.isUnitEquivalent(
+            if( typeof filteredOut == 'undefined' ) {
+                filteredOut = [];
+            }
+            if( filteredOut.length == 0 && vm.isUnitEquivalent(
                 practice.answers[0].unit, practice.default_unit.slug) ) {
                 return practice.answers.slice(1);
             }
-            let results = []
+            let results = [];
             for( let idx = 0; idx < practice.answers.length; ++idx ) {
                 if( !vm.isUnitEquivalent(
                     practice.answers[idx].unit, practice.default_unit.slug) ) {
-                    results.push(practice.answers[idx]);
+                    let found = false;
+                    for( jdx = 0; jdx < filteredOut.length; ++jdx ) {
+                        if( practice.answers[idx].unit == filteredOut[jdx] ) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if( !found ) {
+                        results.push(practice.answers[idx]);
+                    }
                 }
             }
             return results;
@@ -541,7 +572,7 @@ var practicesListMixin = {
         },
         isNumberUnit: function(row) {
             var vm = this;
-            return vm.isPractice(row) &&
+            return vm.isPractice(row) && row.default_unit &&
                 (row.default_unit.system === 'standard' ||
                 row.default_unit.system === 'imperial' ||
                 row.default_unit.system === 'rank');
@@ -590,6 +621,22 @@ var practicesListMixin = {
         isGHGEmissionsScope3: function(row) {
             var vm = this;
             return vm.isPractice(row) && (row.ui_hint === 'ghg-emissions-scope3');
+        },
+        isPeriodUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && (
+                row.ui_hint === 'revenue' ||
+                row.ui_hint === 'ghg-emissions' ||
+                row.ui_hint === 'ghg-emissions-scope3' ||
+                row.ui_hint === 'energy' ||
+                row.ui_hint === 'water' ||
+                row.ui_hint === 'waste');
+        },
+        isRevenueUIHint: function(row) {
+            var vm = this;
+            return vm.isPractice(row) && row.ui_hint === 'revenue'
+                && (row.default_unit && (row.default_unit.slug === 'usd' ||
+                    row.default_unit.slug === 'million-usd'));
         },
         isVerifiabilityUIHint: function(row) {
             var vm = this;

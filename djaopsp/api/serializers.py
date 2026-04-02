@@ -286,21 +286,27 @@ class CompareNodeSerializer(PRACTICE_SERIALIZER):
         return None
 
 
-class AssessmentContentSerializer(serializers.ListSerializer):
+class AssessmentContentSerializer(SampleSerializer):
 
     count = serializers.IntegerField()
-    labels = serializers.ListField(child=serializers.CharField(),
-        required=False)
-    units = serializers.DictField(child=UnitSerializer(), required=False)
+    path = serializers.CharField(
+        help_text=_("path from the root of content tree"))
+    normalized_score = serializers.IntegerField(required=False,
+        help_text=_("score"))
+    verified_status = EnumField(choices=VerifiedSample.STATUSES,
+        help_text=_("verification status"), required=False)
+    units = serializers.DictField(child=UnitDetailSerializer(), required=False)
     results = serializers.ListField(child=AssessmentNodeSerializer())
 
     class Meta(object):
-        model = BasePageElementDetailSerializer.Meta.model
-        fields = BasePageElementDetailSerializer.Meta.fields + (
-            'labels', 'units',)
+        model = SampleSerializer.Meta.model
+        fields = SampleSerializer.Meta.fields + (
+            'count', 'path', 'normalized_score', 'verified_status',
+            'units', 'results')
         read_only_fields = \
-            BasePageElementDetailSerializer.Meta.read_only_fields + (
-            'labels', 'units',)
+            SampleSerializer.Meta.read_only_fields + (
+            'count', 'path', 'normalized_score', 'verified_status',
+            'units', 'results')
 
 
 class ReportingSerializer(NoModelSerializer):

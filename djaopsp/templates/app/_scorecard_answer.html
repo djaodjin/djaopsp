@@ -1,0 +1,79 @@
+<div>
+  <div v-if="isEnumUnit(practice)">
+    <div class="'bestpractice mt-3">
+      <div class="row">
+        <div class="col-6">
+          <div>
+            <strong>[[getMeasured(getPrimaryAnswer(practice)) ? getMeasured(getPrimaryAnswer(practice)) : "-"]]</strong>
+          </div>
+        </div>
+        <div class="col-6" v-if="getPrimaryAnswer(practice, 'planned') && getMeasured(getPrimaryAnswer(practice, 'planned'))">
+            <div>
+                ({% trans %}planned{% endtrans %}: <strong>[[getMeasured(getPrimaryAnswer(practice, 'planned'))]]</strong>)
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="isFreetextUnit(practice)">
+    <div class="row">
+      <div class="col-12" style="border-left:solid 2px lightgrey;">
+        <div>
+          <p class="mt-2"
+             @click.prevent="openLink($event)"
+             v-html="textAsHtml(getPrimaryAnswer(practice).measured, practice.required)">
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="isNumberUnit(practice)">
+    <div class="bestpractice mt-3">
+      <div v-if="getPrimaryAnswer(practice).measured === null">
+        <strong>&dash;</strong>
+      </div>
+      <div v-if="getPrimaryAnswer(practice).measured !== null">
+        <div v-if="isEmployeeCountUIHint(practice)">
+          <strong v-if="getPrimaryAnswer(practice).measured === '0'">{% trans %}0-10 employees{% endtrans %}</strong>
+          <strong v-else-if="getPrimaryAnswer(practice).measured === '11'">{% trans %}11-50 employees{% endtrans %}</strong>
+          <strong v-else-if="getPrimaryAnswer(practice).measured === '51'">{% trans %}51-200 employees{% endtrans %}</strong>
+          <strong v-else-if="getPrimaryAnswer(practice).measured === '201'">{% trans %}201-500 employees{% endtrans %}</strong>
+          <strong v-else-if="getPrimaryAnswer(practice).measured === '501'">{% trans %}501-1,000 employees{% endtrans %}</strong>
+          <strong v-else-if="getPrimaryAnswer(practice).measured === '1001'">{% trans %}1,001-5,000 employees{% endtrans %}</strong>
+          <strong v-else-if="getPrimaryAnswer(practice).measured === '5001'">{% trans %}5,001-10,000 employees{% endtrans %}</strong>
+          <strong v-else-if="getPrimaryAnswer(practice).measured === '10001'">{% trans %}10,001+ employees{% endtrans %}</strong>
+          <strong v-else>{% trans nb_employees='[[getPrimaryAnswer(practice).measured]]' %}{{nb_employees}} employees{% endtrans %}</strong>
+        </div>
+        <div v-else>
+          <strong v-if="isPercentageUIHint(practice)">[[getPrimaryAnswer(practice).measured]]%</strong>
+          <strong v-else>[[getPrimaryAnswer(practice).measured]] [[getPrimaryUnit(practice).title]]</strong>
+        </div>
+        <div v-if="getAnswerByUnit(practice, 'ends-at').measured">
+          <div v-if="getAnswerByUnit(practice, 'starts-at').measured">
+              From [[getAnswerByUnit(practice, 'starts-at').measured]]
+              to [[getAnswerByUnit(practice, 'ends-at').measured]]
+          </div>
+          <div v-else>
+              At [[getAnswerByUnit(practice, 'ends-at').measured]]
+          </div>
+        </div>
+        <div v-if="isRevenueUIHint(practice) && getAnswerByUnit(practice, 'yes-no').measured == 'Yes'">
+            ({% trans %}not publicly disclosed{% endtrans %})
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="isDatetimeUnit(practice)">
+    <div class="bestpractice mt-3">
+      <div v-if="getPrimaryAnswer(practice).measured === null">
+        <strong>&dash;</strong>
+      </div>
+      <span v-if="getPrimaryAnswer(practice).measured !== null">
+        <strong>[[getPrimaryAnswer(practice).measured]]</strong>
+      </span>
+    </div>
+  </div>
+</div>

@@ -43,6 +43,54 @@ class CampaignDecorateMixin(CampaignMixin):
     strip_segment_prefix = False
     content_extra_fields = {'title', 'picture', 'extra', 'text'}
 
+
+    @staticmethod
+    def _as_extra_dict(extra, additional_extra=None):
+        try:
+            extra = json.loads(extra)
+        except (TypeError, ValueError):
+            extra = {}
+        if additional_extra:
+            try:
+                additional_extra = json.loads(extra)
+            except (TypeError, ValueError):
+                additional_extra = {}
+            for key, val in additional_extra.items():
+                if key not in extra:
+                    extra.update({key: val})
+                else:
+                    orig_val = extra.get(key)
+                    if not isinstance(orig_val, list):
+                        orig_val = [orig_val]
+                    if not isinstance(val, list):
+                        val = [val]
+                    extra.update({key: orig_val + val})
+        return extra
+
+
+    def decorate_questions(self, queryset):
+        return [{
+            'path': question.get('path'),
+            'rank': question.get('enumeratedquestions__rank'),
+            'required': question.get('enumeratedquestions__required'),
+            'ref_num': question.get('enumeratedquestions__ref_num'),
+            'default_unit': {
+                'slug': question.get('default_unit__slug'),
+                'title': question.get('default_unit__title'),
+                'system': question.get('default_unit__system'),
+            },
+            'title': question.get('content__title'),
+            'picture': question.get('content__picture'),
+            'extra': self._as_extra_dict(question.get('extra'),
+                additional_extra=question.get('content__extra')),
+        } for question in queryset.values('path', 'extra',
+            'enumeratedquestions__rank', 'enumeratedquestions__required',
+            'enumeratedquestions__ref_num',
+            'default_unit__slug', 'default_unit__title', 'default_unit__system',
+            'content__title', 'content__picture', 'content__extra').order_by(
+            'enumeratedquestions__rank')]
+
+
     def get_queryset(self):
         #pylint:disable=too-many-locals,too-many-statements
         segments = self.sections_available
@@ -131,15 +179,29 @@ class CampaignDecorateMixin(CampaignMixin):
                 by_tiles[key][0].update({'text': text})
 
         elements = flatten_content_tree(by_tiles, sort_by_key=False)
+
+        # When we have a frozen sample with a cascading question
+        # that has no answer, yet a child question has an answer,
+        # we would mistakenly turn the cascading question into a heading
+        # if we do not execute the following check.
+        heading_candiates = [element['path'] for element in elements
+            if 'title' not in element]
+        headings_queryset = self.decorate_questions(
+            get_question_model().objects.filter(path__in=heading_candiates))
+        headings_by_slug = {element['path'].split(DB_PATH_SEP)[-1]:
+            element for element in headings_queryset}
+
+        # Let's load content information for actual headings now.
         headings = [element['slug'] for element in elements
             if 'title' not in element]
-
         headings_queryset = PageElement.objects.filter(
             slug__in=headings).values(
             'slug', *self.content_extra_fields).annotate(
             rank=Max('to_element__rank'))
-        headings_by_slug = {
-            element['slug']: element for element in headings_queryset}
+        for element in headings_queryset:
+            if element['slug'] not in headings_by_slug:
+                headings_by_slug.update({element['slug']: element})
+
         for element in headings_by_slug.values():
             element['extra'] = extra_as_internal(element)
         for element in elements:
@@ -168,29 +230,6 @@ class CampaignContentMixin(CampaignDecorateMixin):
         'content__title',
     )
 
-    @staticmethod
-    def _as_extra_dict(extra, additional_extra=None):
-        try:
-            extra = json.loads(extra)
-        except (TypeError, ValueError):
-            extra = {}
-        if additional_extra:
-            try:
-                additional_extra = json.loads(extra)
-            except (TypeError, ValueError):
-                additional_extra = {}
-            for key, val in additional_extra.items():
-                if key not in extra:
-                    extra.update({key: val})
-                else:
-                    orig_val = extra.get(key)
-                    if not isinstance(orig_val, list):
-                        orig_val = [orig_val]
-                    if not isinstance(val, list):
-                        val = [val]
-                    extra.update({key: orig_val + val})
-        return extra
-
     def get_decorated_questions(self, prefix=None):
         """
         Returns all questions in a campaign
@@ -203,27 +242,7 @@ class CampaignContentMixin(CampaignDecorateMixin):
             path__startswith=prefix, **question_kwargs)
         search_filter = SearchFilter()
         queryset = search_filter.filter_queryset(self.request, queryset, self)
-
-        return [{
-            'path': question.get('path'),
-            'rank': question.get('enumeratedquestions__rank'),
-            'required': question.get('enumeratedquestions__required'),
-            'ref_num': question.get('enumeratedquestions__ref_num'),
-            'default_unit': {
-                'slug': question.get('default_unit__slug'),
-                'title': question.get('default_unit__title'),
-                'system': question.get('default_unit__system'),
-            },
-            'title': question.get('content__title'),
-            'picture': question.get('content__picture'),
-            'extra': self._as_extra_dict(question.get('extra'),
-                additional_extra=question.get('content__extra')),
-        } for question in queryset.values('path', 'extra',
-            'enumeratedquestions__rank', 'enumeratedquestions__required',
-            'enumeratedquestions__ref_num',
-            'default_unit__slug', 'default_unit__title', 'default_unit__system',
-            'content__title', 'content__picture', 'content__extra').order_by(
-            'enumeratedquestions__rank')]
+        return self.decorate_questions(queryset)
 
 
 class CampaignEditableSegmentsAPIView(CampaignContentMixin,

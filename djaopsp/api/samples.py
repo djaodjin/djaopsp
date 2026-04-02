@@ -39,8 +39,9 @@ from ..signals import sample_frozen
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignDecorateMixin
 from .rollups import GraphMixin, RollupMixin
-from .serializers import (AssessmentNodeSerializer, RespondentAccountSerializer,
-    ExtendedSampleSerializer, ExtendedSampleBenchmarksSerializer)
+from .serializers import (AssessmentNodeSerializer, AssessmentContentSerializer,
+    RespondentAccountSerializer, ExtendedSampleSerializer,
+    ExtendedSampleBenchmarksSerializer)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -555,7 +556,7 @@ class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
         }
     """
     exclude_param = 'e'
-    serializer_class = AssessmentNodeSerializer
+    serializer_class = AssessmentContentSerializer
 
     @property
     def exclude_questions(self):
@@ -575,12 +576,7 @@ class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
     def list(self, request, *args, **kwargs):
         self._start_time()
         queryset = self.filter_queryset(self.get_queryset())
-
-        # Ready to serialize
-        serializer = self.get_serializer_class()(
-            queryset, many=True, context=self.get_serializer_context())
-
-        resp = self.get_paginated_response(serializer.data)
+        resp = self.get_paginated_response(queryset)
         self._report_queries("AssessmentContentAPIView.list done")
         return resp
 
@@ -601,17 +597,16 @@ class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
         verified_sample = VerifiedSample.objects.filter(
             sample=self.sample).first()
 
-        return http.Response(OrderedDict([
-            ('count', len(data)),
-            ('path', self.path),
-            ('normalized_score', top_normalized_score),
-            ('verified_status', VerifiedSample.STATUSES[
-                verified_sample.verified_status if verified_sample
-                else VerifiedSample.STATUS_NO_REVIEW][1]),
-            ('results', data),
-            ('units', {key: UnitDetailSerializer().to_representation(val)
-                    for key, val in six.iteritems(self.units)})
-        ]))
+        self.sample.count = len(data)
+        self.sample.path = self.path
+        self.sample.normalized_score = top_normalized_score
+        self.sample.verified_status = (verified_sample.verified_status
+            if verified_sample else VerifiedSample.STATUS_NO_REVIEW)
+        self.sample.results = data
+        self.sample.units = self.units
+        return http.Response(self.serializer_class(
+            context=self.get_serializer_context()).to_representation(
+            self.sample))
 
 
 class AssessmentContentIndexAPIView(AssessmentContentAPIView):

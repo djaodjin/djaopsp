@@ -10,7 +10,7 @@
 
 {% block scorecard_content %}
 <scorecard inline-template>
-  <div class="dashboard-pane dashboard-pane-default">
+  <div class="dashboard-pane dashboard-pane-sidebar">
 
     {# left sidebar #}
     {% block app_left_sidebar %}
@@ -184,6 +184,7 @@
         <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
           <div :id="getPracticeId(practice)"
                v-for="(practice, practiceIdx) in getEntries()">
+
             <div class="mt-4" v-if="isChartHeading(practice)">
               <hr v-if="practice.picture" />
 
@@ -433,20 +434,7 @@
                   </div> {# /v-if="!isAssessmentUnit(practice)" #}
                 </div> {# /practice-related information #}
                 <div class="col-sm-4">
-                  <div class="'bestpractice mt-3">
-                    <div class="row">
-                      <div class="col-6">
-                        <div>
-                          <strong>[[getMeasured(getPrimaryAnswer(practice)) ? getMeasured(getPrimaryAnswer(practice)) : "-"]]</strong>
-                        </div>
-                      </div>
-                      <div class="col-6" v-if="getPrimaryAnswer(practice, 'planned') && getMeasured(getPrimaryAnswer(practice, 'planned'))">
-                        <div>
-                          ({% trans %}planned{% endtrans %}: <strong>[[getMeasured(getPrimaryAnswer(practice, 'planned'))]]</strong>)
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  {% include "app/_scorecard_answer.html" %}
                 </div>
               </div>{# /.row assessment answer #}
               {% include "app/scorecard/_secondary_answers.html" %}
@@ -466,49 +454,11 @@
                   </div>
                 </div>
               </div>{# /.row assessment answer #}
-              <div class="row">
-                <div class="col-12" style="border-left:solid 2px lightgrey;">
-                  <div>
-                    <p class="mt-2"
-                       @click.prevent="openLink($event)"
-                       v-html="textAsHtml(getPrimaryAnswer(practice).measured, practice.required)">
-                    </p>
-                  </div>
-                </div>
-              </div>
+              {% include "app/_scorecard_answer.html" %}
               {% include "app/scorecard/_secondary_answers.html" %}
             </div>{# /isFreetextUnit(practice) #}
 
-            <div v-if="isEmployeeCountUIHint(practice)"
-                 :class="practiceStyle(practice) + (isRequiredShown(practice) ? ' practice-required' : '')">
-              <div class="row">
-                <div class="col-sm-8">
-                  <div :class="indentHeader(practice) + ' mt-3'">
-                    [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
-                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
-                  </div>
-                </div>
-                <div class="col-sm-4">
-                  <div class="bestpractice mt-3">
-                    <div v-if="practice.answers && practice.answers.length === 0">
-                      <strong>&dash;</strong>
-                    </div>
-                    <div v-if="practice.answers && practice.answers.length > 0">
-                      <strong v-if="getPrimaryAnswer(practice).measured === '0'">0-10 employees</strong>
-                      <strong v-if="getPrimaryAnswer(practice).measured === '11'">11-50 employees</strong>
-                      <strong v-if="getPrimaryAnswer(practice).measured === '51'">51-200 employees</strong>
-                      <strong v-if="getPrimaryAnswer(practice).measured === '201'">201-500 employees</strong>
-                      <strong v-if="getPrimaryAnswer(practice).measured === '501'">501-1,000 employees</strong>
-                      <strong v-if="getPrimaryAnswer(practice).measured === '1001'">1,001-5,000 employees</strong>
-                      <strong v-if="getPrimaryAnswer(practice).measured === '5001'">5,001-10,000 employees</strong>
-                      <strong v-if="getPrimaryAnswer(practice).measured === '10001'">10,001+ employees</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>{# /.row #}
-            </div>{# /isEmployeeCountUIHint(practice) #}
-
-            <div v-if="isNumberUnit(practice)"
+            <div v-if="isNumberUnit(practice) && !(isEnergyUIHint(practice) || isGHGEmissions(practice) || isWaterUIHint(practice) || isWasteUIHint(practice))"
                  :class="practiceStyle(practice) + (isRequiredShown(practice) ? ' practice-required' : '')">
               <div class="row">
                 <div class="col-sm-8">
@@ -520,14 +470,7 @@
                   </div>
                 </div>
                 <div class="col-sm-4">
-                  <div class="bestpractice mt-3">
-                    <div v-if="getPrimaryAnswer(practice).measured === null">
-                      <strong>&dash;</strong>
-                    </div>
-                    <div v-if="getPrimaryAnswer(practice).measured !== null">
-                      <strong>[[getPrimaryAnswer(practice).measured]] [[getPrimaryUnit(practice).title]]</strong>
-                    </div>
-                  </div>
+                  {% include "app/_scorecard_answer.html" %}
                 </div>
               </div>{# /.row #}
               {% include "app/scorecard/_secondary_answers.html" %}
@@ -543,14 +486,7 @@
                   </div>
                 </div>
                 <div class="col-sm-4">
-                  <div class="bestpractice mt-3">
-                    <div v-if="getPrimaryAnswer(practice).measured === null">
-                      <strong>&dash;</strong>
-                    </div>
-                    <span v-if="getPrimaryAnswer(practice).measured !== null">
-                      <strong>[[getPrimaryAnswer(practice).measured]]</strong>
-                    </span>
-                  </div>
+                  {% include "app/_scorecard_answer.html" %}
                 </div>
               </div>{# /.row #}
               {% include "app/scorecard/_secondary_answers.html" %}

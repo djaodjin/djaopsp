@@ -547,6 +547,9 @@ Vue.component('engage-profiles', {
 });
 
 
+/** The 'djaopsp-compare-samples' component is used for both,
+    the compare.html and analyze.html views.
+ */
 Vue.component('djaopsp-compare-samples', {
     mixins: [
         practicesListMixin, // defines `_start_at` and `_ends_at`
@@ -581,7 +584,49 @@ Vue.component('djaopsp-compare-samples', {
             vm.reqGet(dataset.url, function(resp) {
                 dataset.results = resp.results;
                 if( vm.datasets.length == 0 ) {
-                    vm.items = resp;
+                    // If we don't make a copy, adding missing practices
+                    // from another dataset will also add answers from that
+                    // additional dataset to the initial dataset loaded.
+                    vm.items = JSON.parse(JSON.stringify(resp));
+                } else {
+                    for( let unit in resp.units ) {
+                        if( resp.units.hasOwnProperty(unit) ) {
+                            if( !vm.items.units[unit] ) {
+                                vm.items.units[unit] = resp.units[unit];
+                            }
+                        }
+                    }
+                    // We might have practices in the additional dataset which
+                    // are not in previous datasets. We thus extend the set
+                    // of practices.
+                    let newIdx = 0;
+                    let curIdx = 0;
+                    while( newIdx < resp.results.length &&
+                         curIdx < vm.items.results.length ) {
+                        if( resp.results[newIdx].slug ==
+                            vm.items.results[curIdx].slug ) {
+                            ++curIdx;
+                        } else {
+                            let found = false;
+                            for( let idx = curIdx;
+                                 idx < vm.items.results.length; ++idx ) {
+                                if( resp.results[newIdx].slug ==
+                                    vm.items.results[idx].slug ) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if( !found ) {
+                                vm.items.results.splice(
+                                    curIdx, 0, resp.results[newIdx]);
+                                ++curIdx;
+                            }
+                        }
+                        ++newIdx;
+                    }
+                    if( newIdx < resp.results.length ) {
+                        vm.items.results.push(...resp.results.slice(newIdx));
+                    }
                 }
                 vm.datasets.push(dataset);
                 vm.itemsLoaded = true;
@@ -965,7 +1010,9 @@ Vue.component('djaopsp-compare-samples', {
         }
     },
     mounted: function(){
-        // XXX Does not override `practicesListMixin.mounted`
+        // XXX Does not override `practicesListMixin.mounted
+        var vm = this;
+        vm.$refs.query.$refs.account.$refs.input.focus();
     }
 });
 

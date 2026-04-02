@@ -7,17 +7,18 @@
 <meta name="description" property="og:description" content="Compare reporting profiles" />
 {% endblock %}
 
-{% block reporting_title %}{% trans %}Compare responses side-by-side{% endtrans %}{% endblock %}
+{% block reporting_title %}{% trans %}Compare side-by-side{% endtrans %}{% endblock %}
 
 {% block reporting_content %}
 <djaopsp-compare-samples id="compare-dashboard" inline-template>
   <div>
-    <div>
+
       <!-- individual accounts -->
       <query-individual-account inline-template
         data-humanize-date="humanizeDate"
         v-bind:disabled="datasetLoading"
-        v-on:updatedataset="addDataset">
+        v-on:updatedataset="addDataset"
+        ref="query">
         <div>
           <form id="individual-account-search" class="mt-4"
                 @submit.prevent="validate()">
@@ -35,7 +36,8 @@
                         <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
                       </template>
                     </span>
-                    <input class="form-control"
+                    <input autofocus
+                           class="form-control"
                            type="text"
                            name="profile"
                            placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
@@ -97,44 +99,54 @@
           </form>{# /#individual-account-search #}
         </div>
       </query-individual-account>
-    </div>
 
-    <table class="table table-bordered mt-4">
-      <thead>
-        <tr>
-          <th class="sticky-cell sticky-cell-top">
-            <div class="sticky-cell-content-container">
-              <div class="sticky-cell-content">
-                {% trans %}Responses{% endtrans %}
-              </div>
+    <div id="responses" class="mt-4" v-show="itemsLoaded && items.results.length > 0" v-cloak>
+      <div class="row">
+        <div class="col sticky-cell sticky-cell-top">
+          <div class="sticky-cell-content-container">
+            <div class="sticky-cell-content">
             </div>
-          </th>
-          <th class="sticky-cell sticky-cell-top"
-              v-for="dataset in datasets"
-              v-show="itemsLoaded && items.results.length > 0" v-cloak>
-            <div class="sticky-cell-content-container">
-              <div class="sticky-cell-content">
-                  <a :href="'{{urls.scorecard_base}}' + dataset.slug + '/'" target="_blank">[[dataset.title]]</a>
-              </div>
+          </div>
+        </div>
+        <div class="col sticky-cell sticky-cell-top"
+             v-for="dataset in datasets"
+             v-show="itemsLoaded && items.results.length > 0" v-cloak>
+          <div class="sticky-cell-content-container">
+            <div class="sticky-cell-content">
+              <a :href="'{{urls.scorecard_base}}' + dataset.slug + '/'" target="_blank">[[dataset.title]]</a>
             </div>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-show="!itemsLoaded">
-          <td colspan="7">
-            <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
-          </td>
-        </tr>
-        <tr v-show="itemsLoaded && items.results.length == 0" v-cloak>
-          <td colspan="7">{% trans %}No response to compare{% endtrans %}</td>
-        </tr>
-        <tr v-for="row in getEntries(displayMetric.path)"
-            v-show="itemsLoaded && items.results.length > 0" v-cloak>
-            {% include "survey/matrix/_compare_row.html" %}
-        </tr>
-      </tbody>
-    </table>
+          </div>
+        </div>
+      </div>{# /.row #}
+
+      <div :id="getPracticeId(row)" class="row"
+           v-for="row in getEntries(displayMetric.path)"
+           v-show="itemsLoaded && items.results.length > 0" v-cloak>
+        <div class="col">
+          <div :class="indentHeader(row)">
+            <div class="title" v-if="!isPractice(row)">
+              <div>[[row.title]]</div>
+            </div>
+            <span class="title"
+                  v-if="isPractice(row)">
+                [[row.ref_num ? (row.ref_num + " ") : ""]][[row.title]]
+                <a :href="isPractice(row) ? '{{urls.pages_index}}' + row.slug + '/' : ''"
+                   target="_blank" aria-label="Help information"><i class="fa fa-question-circle"></i></a>
+            </span>
+          </div>
+        </div> {# /.col (title) #}
+
+        <div class="col"
+             v-for="dataset in datasets"
+             v-if="isPractice(row)">
+          <div v-for="practice in [getCompareAnswers(dataset, row)]">
+              {% include "app/_scorecard_answer.html" %}
+              {% include "app/scorecard/_secondary_answers.html" %}
+          </div>
+        </div>
+      </div>{# /.row #}
+
+    </div>{# /#responses #}
   </div>
 </djaopsp-compare-samples>
 {% endblock %}

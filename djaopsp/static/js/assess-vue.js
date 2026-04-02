@@ -126,16 +126,6 @@ Vue.component('campaign-questions-list', {
                 });
             });
         },
-        getPracticeId: function(practice, prefix) {
-            // We define this method almost identically
-            // in `'campaign-questions-list'` and `'scorecard'`.
-            const vm = this;
-            const longId = practice.path.substr(1).replaceAll('/', '-');
-            if( vm.showVsPeers && prefix ) {
-                return prefix + longId;
-            }
-            return longId;
-        },
         humanizeScoreWeight: function (value, percentage) {
             if( !value || value === 0 ) {
                 return "0.00";
@@ -331,12 +321,6 @@ Vue.component('campaign-questions-list', {
             return vm.isPractice(row) && row.ui_hint === 'typeahead';
         },
 
-        isRevenueUIHint: function(row) {
-            var vm = this;
-            return vm.isPractice(row) && row.ui_hint === 'revenue'
-                && (row.default_unit && (row.default_unit.slug === 'usd' ||
-                    row.default_unit.slug === 'million-usd'));
-        },
         isTargetBaselineUIHint: function(row) {
             var vm = this;
             return vm.isPractice(row) && row.ui_hint === 'target-baseline';
@@ -1021,7 +1005,8 @@ Vue.component('scorecard', {
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
             freezeAssessmentDisabled: false,
             verificationStatus: "",
-            getCompleteCb: 'scorecardLoaded'
+            getCompleteCb: 'scorecardLoaded',
+            showVsPeers: false
         }
     },
     methods: {
@@ -1150,12 +1135,6 @@ Vue.component('scorecard', {
             }
             return "?";
         },
-        getPracticeId: function(practice, prefix) {
-            // We define this method almost identically
-            // in `'campaign-questions-list'` and `'scorecard'`.
-            const longId = practice.path.substr(1).replaceAll('/', '-');
-            return longId;
-        },
         indentHeader: function(practice) {
             var vm = this;
             if( vm.isPractice(practice) ) {
@@ -1177,17 +1156,6 @@ Vue.component('scorecard', {
         isAssessmentUnit: function(row) {
             return this.isEnumUnit(row) && row.default_unit.slug === 'assessment';
         },
-        isNumberUnit: function(row) {
-            var vm = this;
-            return !(vm.isEnergyUIHint(row) || vm.isGHGEmissions(row) ||
-                    vm.isWaterUIHint(row) || vm.isWasteUIHint(row) ||
-                    vm.isEmployeeCountUIHint(row)) &&
-                vm.isPractice(row) &&
-                (row.default_unit.system === 'standard' ||
-                row.default_unit.system === 'imperial' ||
-                row.default_unit.system === 'rank');
-        },
-
         freezeAssessment: function($event) {
             var vm = this;
             vm.freezeAssessmentDisabled = true;

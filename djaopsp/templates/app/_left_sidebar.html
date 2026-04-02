@@ -24,12 +24,12 @@
     <ul class="nav flex-column py-1" v-show="itemsLoaded && items.results.length > 0" v-cloak>
       <li class="nav-item"
           v-for="tile in getEntries('', 1)">
-        <a class="nav-link" :href="'#' + getPracticeId(tile, 'results-')"
+        <a class="nav-link" :href="'#' + getPracticeId(tile, showVsPeers ? 'results-' : '')"
            @click="appToolbarLinkClicked">[[tile.title]]</a>
         <ul style="list-style:none;">
           <li class="nav-item"
               v-for="practice in getEntries(tile.slug, 1)">
-            <a class="nav-link" :href="'#' + getPracticeId(practice, 'results-')"
+            <a class="nav-link" :href="'#' + getPracticeId(practice, showVsPeers ? 'results-' : '')"
                @click="appToolbarLinkClicked">[[practice.title]]</a>
           </li>
         </ul>
