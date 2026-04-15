@@ -5,19 +5,19 @@
             style="float:right;"
             title="Add a comment? Click here."
             @click.prevent="openComments(item)">
-      <i class="fa fa-sticky-note-o"></i>
+      <i class="fa-solid fa-sticky-note-o"></i>
     </button>
   </div>
   <div class="input-group" v-if="isActiveItem(item)">
     <button class="btn btn-lnk btn-sm text-danger"
             @click.prevent="remove(item)">
-      <i class="fa fa-times"></i>
+      <i class="fa-solid fa-times"></i>
     </button>
     <input class="form-control" name="full_name"
            type="text" v-model="item.full_name" />
     <button class="btn btn-primary"
             @click.prevent="update(item)">
-      <i class="fa fa-save"></i>
+      <i class="fa-solid fa-save"></i>
     </button>
   </div>
 </div>

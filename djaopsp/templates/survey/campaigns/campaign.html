@@ -18,7 +18,7 @@
           <li class="divider-vertical"></li>
           <li class="nav-item">
             <a class="btn btn-primary{% if request.path == urls.download %} active{% endif %}" id="xlsx-download-btn" href="{{urls.download}}">
-              <i class="fa fa-file-text"></i> Download (xlsx)
+              <i class="fa-solid fa-file-text"></i> Download (xlsx)
             </a>
           </li>
           {% endif %}
@@ -30,7 +30,7 @@
                  data-complete-url="{{urls.api_upload}}"
                  djupload-success >
               <div class="previewsContainer">
-                <button class="btn btn-secondary dz-default dz-message"><i class="fa fa-cloud"></i> {% trans %}Upload (.xlsx){% endtrans %}</button>
+                <button class="btn btn-secondary dz-default dz-message"><i class="fa-solid fa-cloud"></i> {% trans %}Upload (.xlsx){% endtrans %}</button>
               </div>
             </div>
           </li>
@@ -48,7 +48,7 @@
           <div class="d-inline">
             <sup class="d-none" role="button">
               <small>
-                <i id="help-request" class="fa fa-question-circle"></i>
+                <i id="help-request" class="fa-solid fa-question-circle"></i>
               </small>
             </sup>
           </div>
@@ -112,7 +112,7 @@
                         <tbody v-if="!itemsLoaded">
                           <tr>
                             <td :colspan="segments.length + 2">
-                              <h3 class="text-center"><i class="fa fa-refresh fa-spin"></i></h3>
+                              <h3 class="text-center"><i class="fa-solid fa-refresh fa-spin"></i></h3>
                             </td>
                           </tr>
                         </tbody>
@@ -126,16 +126,16 @@
                             <td style="white-space: nowrap">
                               <div v-if="entry.indent > 0">
                                 <button class="btn btn-primary btn-sm" @click="moveTreeUp(entry, index)">
-                                  <i class="fa fa-angle-up"></i>
+                                  <i class="fa-solid fa-angle-up"></i>
                                 </button>
                                 <button class="btn btn-primary btn-sm" @click="moveTreeDown(entry, index)">
-                                  <i class="fa fa-angle-down"></i>
+                                  <i class="fa-solid fa-angle-down"></i>
                                 </button>
                                 <button class="btn btn-primary btn-sm" @click="moveTreeLeft(entry, index)">
-                                  <i class="fa fa-angle-left"></i>
+                                  <i class="fa-solid fa-angle-left"></i>
                                 </button>
                                 <button class="btn btn-primary btn-sm" @click="moveTreeRightCandidates(entry, index)">
-                                  <i class="fa fa-angle-right"></i>
+                                  <i class="fa-solid fa-angle-right"></i>
                                 </button>
                               </div>
                             </td>
@@ -159,10 +159,10 @@
                                       <div class="input-group mb-3">
                                         <!-- optional indicators -->
                                         <span class="input-group-text">
-                                          <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                                          <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
                                           <template v-else>
-                                            <i class="fa fa-search" v-show="isEmpty"></i>
-                                            <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                                            <i class="fa-solid fa-search" v-show="isEmpty"></i>
+                                            <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
                                           </template>
                                         </span>
                                         <!-- the input field -->
@@ -181,7 +181,7 @@
                                                  aria-haspopup="true"
                                                  aria-expanded="false"
                                                  @click.prevent="reload">
-                                          <i class="fa fa-caret-down"></i>
+                                          <i class="fa-solid fa-caret-down"></i>
                                         </button>
                                         <!-- the list -->
                                         {# Implementation note: If we use `d-block` instead of    #}
@@ -223,17 +223,17 @@
                                 <div role="toolbar">
                                   <button class="btn btn-link edit" href=""
                                           @click.prevent="setActive(entry, index)">
-                                    <i class="fa fa-edit"></i>
+                                    <i class="fa-solid fa-edit"></i>
                                   </button>
                                   <button :id="'header-' + entry.slug" class="btn btn-link" @click.prevent="toggleAddBelow(entry, index)" v-if="!isPractice(entry)">
-                                    <i class="fa fa-plus"></i> Add
+                                    <i class="fa-solid fa-plus"></i> Add
                                   </button>
                                   <button class="btn btn-link text-danger delete"
                                           href=""
                                           @click="setActive(entry, index)"
                                           data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                           data-toggle="modal" data-target="#confirm-delete">
-                                    <i class="fa fa-trash-o"></i>
+                                    <i class="fa-solid fa-trash-o"></i>
                                   </button>
                                 </div>
 
@@ -241,7 +241,7 @@
                                      v-if="addBelowIndex >= 0 && addBelowIndex == index">
                                   <input class="form-control" type="text" v-model="activeEntry.title" />
                                   <div class="input-group-btn">
-                                    <button class="btn btn-primary" type="submit" value="submit" @click="addElementBelow(entry, index)"><i class="fa fa-plus"></i> Add</button>
+                                    <button class="btn btn-primary" type="submit" value="submit" @click="addElementBelow(entry, index)"><i class="fa-solid fa-plus"></i> Add</button>
                                   </div>
                                 </div>
 
@@ -279,14 +279,14 @@
                                     data-toggle="modal" data-target="#confirm-delete"
                                     @click="setActive(entry, index)"
                                     v-if="entry.indent == 0">
-                                    <i class="fa fa-trash-o"></i>
+                                    <i class="fa-solid fa-trash-o"></i>
                                   </button>
                                 </div>
                               </div>
                               <div v-if="!includes(entry, segment) && !isPractice(entry) && entry.indent == 0"
                                    :class="indentHeader(entry)">
                                 <button class="btn btn-primary" @click.prevent="aliasTree(entry, index, segment)">
-                                  <i class="fa fa-plus"></i> Add [[entry.title]]
+                                  <i class="fa-solid fa-plus"></i> Add [[entry.title]]
                                 </button>
                               </div>
                             </td>
@@ -311,10 +311,10 @@
                                       <div id="practice-search" class="input-group mb-3">
                                         <!-- optional indicators -->
                                         <span class="input-group-text">
-                                          <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                                          <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
                                         <template v-else>
-                                          <i class="fa fa-search" v-show="isEmpty"></i>
-                                          <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                                          <i class="fa-solid fa-search" v-show="isEmpty"></i>
+                                          <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
                                         </template>
                                         </span>
                                         <!-- the input field -->
@@ -355,7 +355,7 @@
                                   </div>
                                 </div>
                                 <div class="form-actions text-end me-3">
-                                  <button class="btn btn-primary" type="submit" value="submit"><i class="fa fa-plus"></i> Add</button>
+                                  <button class="btn btn-primary" type="submit" value="submit"><i class="fa-solid fa-plus"></i> Add</button>
                                 </div>
                               </form>
                             </td>
@@ -395,7 +395,7 @@
                       <div class="input-group-btn">
                         <button class="btn btn-primary" type="submit" value="submit"
                                 @click="moveTreeRight()">
-                          <i class="fa fa-plus"></i> Add
+                          <i class="fa-solid fa-plus"></i> Add
                         </button>
                       </div>
                     </div>

@@ -1,5 +1,4 @@
-// CSS specific to layout the djaoapp dashboard pages
-// Colors are setup in djaoapp-dashboard-theme.scss
+// CSS specific to layout the djaoapp@2026-02-23.2 templates
 
 $dashboard-sidebar-width:      220px;
 $dashboard-sidebar-toggle:      20px;
@@ -16,11 +15,129 @@ $code-bg:                       var(--bs-body-bg);
 $code-color:                    #a3acb9;
 $box-shadow-color:              rgba(0, 0, 0, 0.05);
 
+// `$navbar-height` used to be defined in Bootstrap3 (it is not in Bootstrap4).
+// We redefine it here use it stick the footer at the bottom of the screen
+// when a page is less that screen height.
+$navbar-height: max($nav-link-height, $navbar-brand-height) + $navbar-padding-y * 2;
+$footer-height: 150px;
+$plan-footer-height: 70px;
 
-// Somewhat generic classes
-.btn-block {
-  display: block;
+// variables specific to djaoapp used for code examples
+$example-bg: rgb(247, 250, 252);
+$example-color: rgb(105, 115, 134);
+$example-title-color: rgb(105, 115, 134);
+$example-title-bg: rgb(227, 232, 238);
+
+$jumbotron-shadow-start-color: #000;
+$jumbotron-shadow-end-color: #eee;
+
+// variables specific to djaoapp used for code examples in dark mode
+$example-bg-dark: rgb(18, 20, 28);
+$example-color-dark: rgb(193, 193, 193);
+$example-title-bg-dark: rgb(79, 86, 107);
+$example-title-color-dark: rgb(147, 156, 171);
+
+$jumbotron-shadow-start-color-dark: $jumbotron-shadow-end-color;
+$jumbotron-shadow-end-color-dark: $jumbotron-shadow-start-color;
+
+:root,
+[data-bs-theme="light"] {
+    --example-bg: #{$example-bg};
+    --example-color: #{$example-color};
+    --example-title-bg: #{$example-title-bg};
+    --example-title-color: #{$example-title-color};
+
+    --jumbotron-shadow-start-color: #{$jumbotron-shadow-start-color};
+    --jumbotron-shadow-end-color: #{$jumbotron-shadow-end-color};
+}
+
+@if $enable-dark-mode {
+  @include color-mode(dark, true) {
+    color-scheme: dark;
+
+    --example-bg: #{$example-bg-dark};
+    --example-color: #{$example-color-dark};
+    --example-title-bg: #{$example-title-bg-dark};
+    --example-title-color: #{$example-title-color-dark};
+
+    --jumbotron-shadow-start-color: #{$jumbotron-shadow-start-color-dark};
+    --jumbotron-shadow-end-color: #{$jumbotron-shadow-end-color-dark};
+  }
+}
+
+/* used only in templates/base.html */
+html, body {
+  height: 100%;
+}
+
+body{
+  min-width:100%;
+}
+
+
+#wrap{
   width: 100%;
+  min-height: 100%;
+}
+
+/*
+  Unless the font-size for #main and .footer match, using ``em`` metrics will
+  create bottom and overlap margins that have different heights, hence
+  sticking the footer to the bottom while introducing a "border" above it.
+*/
+#main {
+  min-height: 100%;
+  padding-bottom: $footer-height; /* must be in pixel (see comment abolve) */
+}
+
+// top menubar (requires `bg-primary` as background)
+.navbar.bg-primary .navbar-brand,
+.navbar.bg-primary .nav-link {
+  color: $white;
+}
+
+.navbar.bg-primary .navbar-brand:hover,
+.navbar.bg-primary .navbar-brand:focus,
+.navbar.bg-primary .nav-link:hover,
+.navbar.bg-primary .nav-link:focus {
+  color: map-get($theme-colors, "primary");
+  background-color: $white;
+}
+
+.footer {
+  position: relative;
+  height: $footer-height;         /* must be in pixel (see comment abolve) */
+  bottom: 0;
+  margin: -$footer-height 0 0 0;
+  padding: 20px 0;
+  clear:both;
+  text-align:center;
+  font-size: 12px;
+  flex-shrink: 0;
+  color: #FFF;
+  background-color: map-get($theme-colors, "primary");
+  width: 100%;
+}
+
+.footer a {
+  color: #FFFFFF;
+}
+
+.footer a i {
+  font-size: 24px;
+}
+
+.footer-links {
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  margin: 0 5px;
+  font-size: 14px;
+}
+
+.footer-links a i {
+  font-size: 24px;
 }
 
 .navbar .divider-vertical {
@@ -29,108 +146,10 @@ $box-shadow-color:              rgba(0, 0, 0, 0.05);
   margin-right: 0.5rem;
 }
 
-// Profile and user pictures
-// -------------------------
-.croppa-container {
-   background-color: transparent;
-   margin-bottom: 25px;
-}
-
-.croppa--has-target {
-  background-color: white;
-}
-
-.imageSlider {
-  width: 25rem;
-  position: absolute;
-  bottom: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: block;
-}
-
-
-// Code snipset in theme and rules pages
-// -------------------------------------
-.code {
-  background-color: $code-bg;
-  color: $code-color;
-}
-
-pre.code{
-  background-color:inherit;
-  color:inherit;
-  margin:0;
-  font-size: $font-size-sm;
-  white-space: pre-wrap;       /* css-3 */
-  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-  white-space: -pre-wrap;      /* Opera 4-6 */
-  white-space: -o-pre-wrap;    /* Opera 7 */
-  word-wrap: break-word;       /* Internet Explorer 5.5+ */
-  text-align: left;
-  word-spacing: normal;
-  -moz-tab-size: 4;
-  -o-tab-size: 4;
-  tab-size: 4;
-  -webkit-hyphens: none;
-  -moz-hyphens: none;
-  -ms-hyphens: none;
-  hyphens: none;
-}
-
-
-// Icons to show credit card provider
-// ----------------------------------
-.card-icons {
-  min-height: 32px;
-  padding: 9px;
-  margin-top: 10px;
-  margin-bottom: 0px;
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 4px;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-
-  background-color: #f5f5f5;
-  border-color: #e3e3e3;
-  -webkit-box-shadow: inset 0 1px 1px $box-shadow-color;
-  box-shadow: inset 0 1px 1px $box-shadow-color;
-}
-
-.card-icons > img {
-  opacity: 0.1;
-}
-
-#card-exp-month {
-  width: 50px;
-  margin-right: 10px;
-}
-
-#card-exp-year {
-  width: 65px;
-}
-
-@include media-breakpoint-up(sm) {
-  #card-cvc {
-    width: 100px;
-  }
-}
-
-// Workaround: Bootstrap4 has make it a lot more complicated than necessary
-// when doing server-side validation.
-.has-error .invalid-feedback {
-  display: block;
-}
 
 // Manager dashboards (templates/saas/*.html)
 // --------
 
-/* subscriber pipeline */
-.date-chooser {
-  padding-top: 5px;
-  font-size: 0.8em;
-}
 
 .dashboard-container {
     clear: left;
@@ -144,9 +163,9 @@ pre.code{
   left: -1;
 }
 
-.sidebar-pin-toggle > .fa:before {
-  content: "\f08d"; // fa-pin
-  font-family: FontAwesome;
+.sidebar-pin-toggle > .fa-solid:before {
+  content: "\f08d"; // fa-thumbtack
+  font-family: "Font Awesome 7 Free";
 }
 
 .dashboard-pane-pinned {
@@ -158,20 +177,16 @@ pre.code{
   left: 0;
 }
 
-.dashboard-pane-pinned .sidebar-pin-toggle > .fa:before {
-  content: "\f127"; // fa-unlink
-  font-family: FontAwesome;
+.dashboard-pane-pinned .sidebar-pin-toggle > .fa-solid:before {
+  content: "\e68f"; // fa-thumtack-slash
+  font-family: "Font Awesome 7 Free";
 }
 
 .dashboard-nav {
   display: none;
+
   width: $dashboard-sidebar-width; // col-md-2 width: 16.66666667%;
   overflow: visible; // so we can see the shadow
-  -webkit-transition: right 0.25s ease-in-out;
-  -moz-transition: right 0.25s ease-in-out;
-  -ms-transition: right 0.25s ease-in-out;
-  -o-transition: right 0.25s ease-in-out;
-  transition: right 0.25s ease-in-out;
   flex-grow: 1;
   user-select: none;
   -webkit-box-flex: 1;
@@ -181,14 +196,35 @@ pre.code{
   bottom: 0;
   z-index: 3000; // #app-toolbar-left is 2000
   height: 100%;
+
+  transition: display 0.25s allow-discrete;
+}
+
+.dashboard-pane-sidebar .dashboard-nav.sidebar-opened {
+    display: block;
+}
+
+.dashboard-pane-sidebar .dashboard-nav.sidebar-hidden {
+    display: none;
 }
 
 .dashboard-nav .sidebar-animate {
-    overflow: hidden;
-    position: relative;
-    height: calc(100vh - #{$dashboard-sidebar-logo-height});
-    border-right: 1px solid #ccc;
-    box-shadow: 0.3em 0.5em 1em rgb(0 0 0 / 60%);
+  overflow: hidden;
+  position: relative;
+  height: calc(100vh - #{$dashboard-sidebar-logo-height});
+  border-right: 1px solid #ccc;
+  box-shadow: 0.3em 0.5em 1em rgb(0 0 0 / 60%);
+
+  left: 0;
+  -webkit-transition: left 0.25s ease-in-out;
+  -moz-transition: left 0.25s ease-in-out;
+  -ms-transition: left 0.25s ease-in-out;
+  -o-transition: left 0.25s ease-in-out;
+  transition: left 0.25s ease-in-out;
+}
+
+.dashboard-pane-sidebar .dashboard-nav.sidebar-hidden .sidebar-animate {
+    left: -$dashboard-sidebar-width;
 }
 
 .dashboard-nav-main {
@@ -202,15 +238,6 @@ pre.code{
     height: $dashboard-sidebar-logo-height;
 }
 
-// height 38px instead of 42px now
-.dashboard-nav-main .navbar-header {
-    // no padding top/bottom so menubar align with sidebar top corner.
-    height: 42px;
-    margin-left: 12px;
-}
-.dashboard-nav-main .navbar-header>*{
-   margin-top: 2px;
-}
 
 .dashboard-nav-menu {
   height: calc(100vh - (#{$dashboard-nav-footer-height} + #{$dashboard-sidebar-logo-height}));
@@ -293,10 +320,6 @@ pre.code{
    text-align:center;
 }
 
-.dashboard-pane-default .dashboard-nav {
-    display: none;
-}
-
 .dashboard-pane-pinned .dashboard-nav {
     // sidebar is visible on dashboard on desktops
     display: block;
@@ -312,24 +335,7 @@ pre.code{
 }
 
 .content-area-container {
-  background: map-get($theme-colors, "primary");
-  background: -webkit-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
-  background:    -moz-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
-  background:      -o-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
-  background:         linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
   min-height: 300px;
-}
-
-.content-area-container h1 {
-  color: white;
-}
-
-
-.no-results {
-    text-align: center;
-    padding: 20px 10px;
-    margin: 0;
-    font-size: 14px;
 }
 
 
@@ -404,57 +410,6 @@ pre.code{
 .dashboard-pane-pinned .dashboard-nav-main .sidebar-toggle {
     border-width: 1px;
     border-style: solid;
-}
-
-#subscriptions table td {
-    vertical-align: middle !important;
-}
-
-.pending-users-container {
-    padding: 10px 20px;
-    border-radius: 3px;
-}
-
-.user-password-modal .invalid-feedback {
-    display: block;
-}
-
-.card-organization .card-img-top {
-    width: 50%;
-    margin: 20px auto 0;
-}
-
-.card-organization .organization-buttons {
-    min-height: 110px;
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-#recent-activity-container .item-name {
-    /* TODO need to divide into three columns (a grid or smth similar) */
-    width: 200px;
-}
-
-#recent-activity-container a:hover {
-    text-decoration: none;
-}
-
-#recent-activity-container a:hover .item-name {
-    text-decoration: underline;
-}
-
-.coupon-title {
-    display: flex;
-    justify-content: space-between;
-}
-
-.coupon-title .card-title {
-    word-break: break-word;
-}
-
-.coupon-title .remove {
-    align-self: flex-start;
 }
 
 // Dashboard Sidebar Icons
@@ -555,47 +510,10 @@ pre.code{
     mask-size: cover;
 }
 
-// Charts
-// ------
-.nvtooltip {
-  z-index: 3;
-}
-
-.chart-area {
-    height: 400px !important;
-    width: 100%;
-}
-
-.graph-legend-dot {
-    height: 12px;
-    width: 12px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
-.saas-metrics-chart .nv-legendWrap {
-    display: none;
-}
-
-/* upload themes */
-.dropzone-previews {
-  min-height: 150px;
-  padding: 54px 54px;
-  border-width: 2px;
-  border-style: dashed;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
 .navbar-brand > img {
     max-height: 30px;
 }
 
-// https://github.com/twbs/bootstrap/pull/37350
-input::-webkit-datetime-edit {
-    display: block;
-    padding: 0;
-}
 
 @include media-breakpoint-down(md) {
 
@@ -640,11 +558,12 @@ input::-webkit-datetime-edit {
 
 @include media-breakpoint-up(md) {
 
-    .dashboard-content .sidebar-toggle {
+    // When we remove this, we have a toggle always visible.
+    .sidebar-toggle {
         display: none;
     }
 
-    .dashboard-pane-default {
+    .dashboard-pane-sidebar {
         position: inherit;
         width: inherit;
         left: 0;
@@ -653,43 +572,75 @@ input::-webkit-datetime-edit {
         flex-wrap: nowrap;
     }
 
-    .dashboard-pane-default .sidebar-toggle > .bar1.default  {
+    .dashboard-pane-sidebar .sidebar-toggle > .bar1.default  {
     }
 
-    .dashboard-pane-default .sidebar-toggle > .bar2.default  {
+    .dashboard-pane-sidebar .sidebar-toggle > .bar2.default  {
         -webkit-transform: translate(5px, 0);
         transform: translate(5px, 0);
     }
 
-    .dashboard-pane-default .sidebar-toggle > .bar3.default  {
+    .dashboard-pane-sidebar .sidebar-toggle > .bar3.default  {
         -webkit-transform: translate(10px, 0);
         transform: translate(10px, 0);
     }
 
-    .dashboard-pane-default .dashboard-nav {
+    // When we remove '.dashboard-pane-sidebar', the sidebar is always
+    // visible.
+    .dashboard-pane-sidebar .dashboard-nav {
         // sidebar is visible on dashboard on desktops
         display: block;
     }
 
-    .dashboard-pane-default .dashboard-nav .sidebar-animate {
+    .dashboard-pane-sidebar .dashboard-nav .sidebar-animate {
         box-shadow: none;
     }
 
-    .dashboard-pane-default .sidebar-pin-toggle > .fa:before {
-        content: "\f127"; // fa-unlink
-        font-family: FontAwesome;
+    // must be before definition of
+    //`.dashboard-pane.dashboard-pane-sidebar .sidebar-pin-toggle > .fa-solid:before`
+    // otherwise the second sidebar pin toggle is not showing correctly.
+    .dashboard-pane-sidebar.dashboard-pane-unpinned .sidebar-pin-toggle > .fa-solid:before,
+    .dashboard-pane.dashboard-pane-sidebar.dashboard-pane-unpinned .sidebar-pin-toggle > .fa-solid:before {
+        content: "\f08d"; // fa-thumbtack
+        font-family: "Font Awesome 7 Free";
     }
 
-    .dashboard-pane-default .dashboard-content {
+    .dashboard-pane-sidebar .sidebar-pin-toggle > .fa-solid:before,
+    .dashboard-pane.dashboard-pane-sidebar .sidebar-pin-toggle > .fa-solid:before {
+        content: "\e68f"; // fa-thumbtack-slash
+        font-family: "Font Awesome 7 Free";
+    }
+
+    .dashboard-pane-sidebar .dashboard-content {
         margin-left: $dashboard-sidebar-width;
         width: calc(100vw - #{$dashboard-sidebar-width});
     }
 
-    .dashboard-pane-default .sidebar-toggle,
-    .dashboard-pane-default .navbar-brand-container,
+    .dashboard-pane-sidebar.dashboard-pane-unpinned {
+        left: auto;
+    }
+
+    .dashboard-pane-sidebar.dashboard-pane-unpinned .dashboard-nav .sidebar-animate {
+        box-shadow: 0.3em 0.5em 1em rgb(0 0 0 / 60%);
+    }
+
+    .dashboard-pane-sidebar.dashboard-pane-unpinned .dashboard-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .dashboard-pane-sidebar.dashboard-pane-unpinned .sidebar-toggle {
+        display: block;
+    }
+
+    .dashboard-pane-sidebar .navbar-brand-container,
     .dashboard-pane-pinned .navbar-brand-container {
         display: none;
         margin-left: 0;
+    }
+
+    .dashboard-pane-sidebar.dashboard-pane-unpinned .navbar-brand-container {
+        display: block;
     }
 
 }
@@ -761,7 +712,7 @@ input::-webkit-datetime-edit {
     color: $dashboard-sidebar-color;
 }
 
-.dashboard-pane-default .dashboard-nav-color-theme .sidebar-toggle:hover,
+.dashboard-pane-sidebar .dashboard-nav-color-theme .sidebar-toggle:hover,
 .dashboard-pane-pinned .dashboard-nav-color-theme .sidebar-toggle:hover {
     border-color: $dashboard-sidebar-color;
 }
@@ -791,14 +742,602 @@ input::-webkit-datetime-edit {
     background: $dashboard-icon-color-active;
 }
 
-// Charts
-// ------
+
+/* -- end of css found only in templates/base.html */
+
+// Somewhat generic classes
+input[readonly] {
+  pointer-events: none;
+  background-color: #bbb;
+}
+
+// https://github.com/twbs/bootstrap/pull/37350
+input::-webkit-datetime-edit {
+    display: block;
+    padding: 0;
+}
+
+// Workaround: Bootstrap4 has make it a lot more complicated than necessary
+// when doing server-side validation.
+.has-error .invalid-feedback {
+  display: block;
+}
+
+.no-results {
+    text-align: center;
+    padding: 20px 10px;
+    margin: 0;
+    font-size: 14px;
+}
+
+// Charts layout
+// -------------
+.nvtooltip {
+  z-index: 3;
+}
+
+.chart-area {
+    height: 400px !important;
+    width: 100%;
+}
+
+.graph-legend-dot {
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.saas-metrics-chart .nv-legendWrap {
+    display: none;
+}
+
+// Charts colors
+// -------------
 .graph-legend-dot {
     background: #ccc;
 }
 
-/* upload themes */
+// users/_require_password.html
+.user-password-modal .invalid-feedback {
+    display: block;
+}
+
+// saas/_organization_card.html
+.card-organization .card-img-top {
+    width: 50%;
+    margin: 20px auto 0;
+}
+
+.card-organization .organization-buttons {
+    min-height: 110px;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+// saas/profile/subscriptions.html
+#subscriptions table td {
+    vertical-align: middle !important;
+}
+
+// saas/metrics/dashboard.html
+#recent-activity-container .item-name {
+    /* TODO need to divide into three columns (a grid or smth similar) */
+    width: 200px;
+}
+
+#recent-activity-container a:hover {
+    text-decoration: none;
+}
+
+#recent-activity-container a:hover .item-name {
+    text-decoration: underline;
+}
+
+// saas/billing/coupons.html
+.coupon-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.coupon-title .card-title {
+    word-break: break-word;
+}
+
+.coupon-title .remove {
+    align-self: flex-start;
+}
+
+// in saas/metrics/balances.html
+.date-chooser {
+  padding-top: 5px;
+  font-size: 0.8em;
+}
+
+// Themes layout
+// -------------
+// extended_templates/theme.html
+.dropzone-previews {
+  min-height: 150px;
+  padding: 54px 54px;
+  border-width: 2px;
+  border-style: dashed;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+// Themes colors
+// -------------
 .dropzone-previews {
   border-color: map-get($theme-colors, "primary");
 }
 
+
+// Profile and user pictures
+// in vendor/vue-croppa.min.js used in saas/profile/index.html
+// -------------------------
+.croppa-container {
+   background-color: transparent;
+   margin-bottom: 25px;
+}
+
+.croppa--has-target {
+  background-color: white;
+}
+
+.imageSlider {
+  width: 25rem;
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: block;
+}
+
+// Icons to show credit card provider
+// found in jinja2/saas/_card_use.html
+// ----------------------------------
+.card-icons {
+  min-height: 32px;
+  padding: 9px;
+  margin-top: 10px;
+  margin-bottom: 0px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+
+  background-color: #f5f5f5;
+  border-color: #e3e3e3;
+  -webkit-box-shadow: inset 0 1px 1px $box-shadow-color;
+  box-shadow: inset 0 1px 1px $box-shadow-color;
+}
+
+.card-icons > img {
+  opacity: 0.1;
+}
+
+#card-exp-month {
+  width: 50px;
+  margin-right: 10px;
+}
+
+#card-exp-year {
+  width: 65px;
+}
+
+@include media-breakpoint-up(sm) {
+  #card-cvc {
+    width: 100px;
+  }
+}
+
+// Help blocks about DjaoDjih
+// found in app_proxy_help.html, rules/forward_error_manager_help.html
+// --------------------------
+.about-us
+{
+  background: #c6dcef;
+  color: $black;
+  padding: 30px 20px;
+  border-radius: 3px;
+  text-align: left;
+}
+
+.about-us a {
+  color: $link-color;
+}
+
+.about-us>div
+{
+  margin-bottom: 0;
+}
+
+.about-us p
+{
+  padding-top: 10px;
+  line-height: 1.6em;
+}
+
+.about-us header
+{
+  font-size: 18px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+}
+
+.about-us dt
+{
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.about-us dl
+{
+    margin: 0;
+}
+
+.about-us dd
+{
+    font-style: normal;
+}
+
+.about-us dd a
+{
+    display: block;
+    margin-top: 10px;
+}
+
+
+// Somewhat generic classes
+// app.html, saas/redeem.html, saas/billing/withdraw.html
+.center { /* XXX better to use bootstrap .center-block instead? */
+  float: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// saas/billing/cart.html
+.collapsible {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+}
+
+// contact.html, saas/redeem.html, saas/_plan_short.html,
+// saas/billing/checkout.html, saas/billing/cart.html, login/base.html
+// notification/base.eml
+.page-header {
+  text-align: center;
+}
+
+.page-header:after {
+  background: map-get($theme-colors, "primary");
+  content: "";
+  position: relative;
+  height: 3px;
+  width: 100px;
+  display: block;
+  text-align: center;
+  margin: 13px auto;
+  -webkit-border-radius: 5em;
+  -moz-border-radius: 5em;
+  -ms-border-radius: 5em;
+  -o-border-radius: 5em;
+  border-radius: 5em;
+}
+
+// contact.html, login/disabled.html, login/base.html
+.flex-vertical-middle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - (#{$navbar-height} + #{$footer-height}));
+}
+
+
+// Pricing plans
+// -------------
+
+// saas/plan_short.html
+.plan {
+}
+
+// saas/plan_short.html
+.plan-short {
+  min-height:100%;
+  padding-left: 5px;
+  padding-right: 5px;
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid #eee;
+  box-shadow: 0px 0px 20px #eee;
+  border-radius: 7px;
+}
+
+.plan-short:hover {
+  cursor: pointer;
+  background-color: tint-color(map-get($theme-colors, "primary"), 75%);
+}
+
+// saas/plan_short.html
+.plan-footer {
+  text-align: center;
+}
+
+// saas/plan_short.html
+.plan-pricing {
+  color: map-get($theme-colors, "primary");
+  text-align: center !important;
+}
+
+.plan-pricing h2 {
+  font-size: 36px;
+}
+
+// saas/plan_short.html
+.plan-desc ul {
+  list-style: none;
+}
+
+.plan-desc li:before {
+  font-family: "Font Awesome 7 Free";
+  content: "\f058";
+  margin: 0 18px 0 -15px;
+  color: steelblue;
+}
+
+// Code samples and API documentation
+// ----------------------------------
+
+// api_docs/index.html
+.faq-list li
+{
+    margin: 10px 0;
+    font-size: 15px;
+}
+
+.faq-list > li
+{
+    margin: 20px 0;
+}
+
+.faq-list
+{
+    box-shadow: 3px 3px var(--jumbotron-shadow-start-color) 0.5em 0.5em var(--jumbotron-shadow-end-color);
+    border-radius: 3px;
+}
+
+.faq-list,
+.faq-list ul
+{
+    padding: 0;
+    text-align: left !important;
+    margin-top: 30px;
+}
+
+.faq-list-container h3
+{
+    text-align: center;
+    margin-bottom: 40px !important;
+}
+
+.faq-list li
+{
+    margin: 10px 0;
+    font-size: 15px;
+    list-style: none;
+}
+
+.faq-list > li
+{
+    margin: 20px 0;
+    font-size: 20px;
+    padding: 25px 30px 10px;
+}
+
+.faq-list > li:last-child
+{
+    padding-left: 30px;
+}
+
+.faq-list ul li
+{
+    margin: 15px 0 !important;
+}
+
+// api_docs/index.html, api_docs/notifications.html
+a.header-anchor {
+  opacity: 0;
+}
+a.header-anchor:hover{
+  opacity: 1.0;
+}
+
+// extended_templates/theme.html
+// api_docs/index.html, api_docs/notifications.html
+.example {
+    color: var(--example-color);
+    background-color: var(--example-bg);
+    border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.07) 0px 0px 0px 1px;
+    margin-bottom: 12px;
+}
+
+@include media-breakpoint-up(md) {
+
+  // api_docs/index.html, api_docs/notifications.html
+  .col-example {
+      color: var(--example-color);
+      background-color: var(--example-bg);
+  }
+
+  .col-example > .example {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+}
+
+// extended_templates/theme.html
+// api_docs/index.html, api_docs/notifications.html
+.example-title {
+  color: var(--example-title-color);
+  background-color: var(--example-title-bg);
+  text-transform: uppercase;
+  padding: 10px 12px;
+  font-size: $badge-font-size;
+  font-weight: 500;
+}
+
+// extended_templates/theme.html
+// api_docs/index.html, api_docs/notifications.html
+.example-body {
+  padding: 12px 20px;
+}
+
+// Code snipset in theme and rules pages
+// -------------------------------------
+
+// extended_templates/theme.html
+// app_proxy_help.html
+// rules/forward_error_manager_help.html
+// rules/app_dashboard.html
+// api_docs/index.html
+pre.code{
+  background-color:inherit;
+  color:inherit;
+  margin:0;
+  font-size: $font-size-sm;
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  text-align: left;
+  word-spacing: normal;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+.code {
+  background-color: $code-bg;
+  color: $code-color;
+}
+
+.code.json .name {
+  color: #c1ef65;
+}
+
+.code.json .literal.string {
+  color: #d0d0d0;
+}
+
+.code.json .literal.number {
+  color: #77bcd7;
+}
+
+.code.json .keyword {
+  color: #ebde68;
+}
+
+// api_docs/index.html, api_docs/notifications.html
+.param-indent-1 {
+  border-left: 1px solid #ddd;
+  padding-left: 5px;
+}
+
+.param-indent-2 {
+  border-left: 3px solid #ddd;
+  padding-left: 5px;
+}
+
+.param-indent-3 {
+  border-left: 6px solid #ddd;
+  padding-left: 5px;
+}
+
+.param-indent-4 {
+  border-left: 9px solid #ddd;
+  padding-left: 5px;
+}
+
+.param-list-header {
+    color: var(--bs-body-secondary-color);
+    border-bottom: 1px solid rgba(38, 50, 56, 0.3);
+    margin: 3em 0 1em 0;
+    font-weight: normal;
+    text-transform: uppercase;
+}
+
+.param-name {
+    display: table-cell;
+    width: 25%;
+    vertical-align: top;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.param-type {
+    margin: 25px 0 5px 0;
+    text-transform: capitalize;
+}
+
+.param-required {
+  display: inline-block;
+  padding: $badge-padding-y $badge-padding-x;
+  padding-right: .6em;
+  padding-left: .6em;
+  font-size: $badge-font-size;
+  font-weight: $badge-font-weight;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  color: red;
+  border: 1px solid red;
+  background-color: transparent;
+  @include border-radius(10rem);
+
+  // Empty badges collapse automatically
+  &:empty {
+    display: none;
+  }
+
+}
+
+.params-wrap {
+    display: table;
+    width: 100%;
+}
+
+.param {
+    display: table-row;
+}
+
+.param-info {
+    display: table-cell;
+    width: 75%;
+    padding-top: 10px;
+    padding-left: 5px;
+    box-sizing: border-box;
+}
+
+.param-builtin {
+    border-bottom: 1px solid #9fb4be;
+    padding-bottom: 10px;
+}
+
+
+// Fix for FOUC
+html {
+  visibility: visible !important;
+  opacity: 1 !important;
+}

@@ -4,7 +4,7 @@
 <button id="pdf-print-btn" class="btn btn-outline-primary w-100 mt-2"
         onClick="window.print()"
         :disabled="!itemsLoaded">
-    <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
+    <i class="fa-solid fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
 </button>
 {% if urls.api_assessment_freeze %}
 <form method="post" action="." @submit.prevent="freezeAssessment"

@@ -14,6 +14,9 @@
     <meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
     {% endblock %}
     <link rel="stylesheet" media="screen, print" href="{{'/static/cache/app.css'|asset}}" />
+    <link rel="stylesheet" media="screen" href="{{'/static/vendor/fontawesome.min.css'|asset}}" />
+    <link rel="stylesheet" media="screen" href="{{'/static/vendor/solid.min.css'|asset}}" />
+    <link rel="stylesheet" media="screen" href="{{'/static/vendor/brands.min.css'|asset}}" />
     <link rel="stylesheet" media="print" href="{{'/static/vendor/bootstrap-print.css'|asset}}" />
     <style media="screen">
       [v\:cloak], [v-cloak], [data-v-cloak], [x-v-cloak], .v-cloak, .x-v-cloak {
@@ -37,7 +40,7 @@
         <div class="{% block dashboard_inner_container_classes %}{% endblock %}">
           {% block dashboard_nav %}
           <aside id="dashboard-navbar"
-               class="d-print-none dashboard-nav nav-main-frnt">
+               class="d-print-none dashboard-nav">
             <div class="dashboard-nav-inner-container">
               <div class="dashboard-nav-main">
                 <div>
@@ -71,7 +74,7 @@
                         <button class="sidebar-pin-toggle btn btn-link text-white"
                                 data-target="#dashboard-navbar"
                                 aria-label="Pin/Unpin sidebar">
-                          <i class="fa"></i>
+                          <i class="fa-solid"></i>
                         </button>
                       </div>
 
@@ -87,8 +90,8 @@
                     {% block dashboard_footer %}
                     <div class="text-center dashboard-nav-footer dashboard-nav-color-theme">
                       <div class="footer-links">
-                        <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa fa-github fa-sm pe-2"></i></a>
-                        <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa fa-linkedin fa-sm"></i></a>
+                        <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa-brands fa-github fa-sm pe-2"></i></a>
+                        <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa-brands fa-linkedin fa-sm"></i></a>
                       </div>
                       <div>
 {% trans %}Powered by &copy; 2026 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.
@@ -97,7 +100,7 @@
                       <ul class="nav flex-column py-1" data-intro="Color mode" data-position="right">
                         <li class="nav-item dropup">
                           <a id="color-mode" class="nav-link dropdown-toggle" href="#" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
-                            <span class="fa fa-paint-brush align-middle"></span>
+                            <span class="fa-solid fa-paint-brush align-middle"></span>
                             {% trans %}Color mode{% endtrans %}
                             <span class="caret"></span>
                           </a>
@@ -237,8 +240,8 @@
           | <a href="{{'/contact/'|site_url}}" target="_blank">{% trans %}Contact{% endtrans %}</a>
         </div>
         <div class="my-2">
-          <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa fa-github fa-sm pe-1"></i></a>
-          <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa fa-linkedin fa-sm ps-1"></i></a>
+          <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa-brands fa-github fa-sm pe-1"></i></a>
+          <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa-brands fa-linkedin fa-sm ps-1"></i></a>
         </div>
         <div class="my-2">
           {% trans %}Powered by DjaoDjin. &copy; 2026 All rights reserved.{% endtrans %}
@@ -249,21 +252,46 @@
   <!-- End Main Footer -->
 
 {% block _bodyscripts %}
-<script type="text/javascript" src="{{'/static/vendor/jquery.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/popper.min.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/bootstrap.min.js'|asset}}"></script>
-
-<script type="text/javascript" src="{{'/static/js/djaodjin-resources.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/djaodjin-menubar.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/djaodjin-dashboard.js'|asset}}"></script>
-<script type="text/javascript" src="{{'/static/vendor/djaoapp-theme-color-mode.js'|asset}}"></script>
 <script type="text/javascript">
-jQuery(document).ready(function($) {
+const DJAOAPP_API_BASE_URL = "{{'/api'|site_url}}";
+
+function injectAnalyticsScripts() {
+    // inject analytics scripts...
+}
+
+function injectSocialMediaScripts() {
+    // inject social media scripts...
+}
+
+function injectAdvertisingScripts() {
+    // inject advertising scripts...
+}
+
+const PRIVACY_COOKIES_ENABLED = {
+    analytics: injectAnalyticsScripts,
+    social_media: injectSocialMediaScripts,
+    advertising: injectAdvertisingScripts
+};
+</script>
+<script type="text/javascript" src="{{'/static/vendor/jquery.js'|asset}}" defer></script>
+<script type="text/javascript" src="{{'/static/vendor/popper.min.js'|asset}}" defer></script>
+<script type="text/javascript" src="{{'/static/vendor/bootstrap.min.js'|asset}}" defer></script>
+<script type="text/javascript" src="{{'/static/vendor/djaoapp-base.js'|asset}}" defer></script>
+<script type="text/javascript">
+function onLoadBase() {
   if( typeof djApi !== 'undefined' ) {
     djApi.apiBase = "{{''|site_url}}"; // djaodjin-saas et al.
     djApi.defaultCSRFToken = "{{csrf_token}}";
   }
-});
+}
+
+if (document.readyState === "loading") {
+    // The document is still loading, wait for the event
+    document.addEventListener("DOMContentLoaded", onLoadBase);
+} else {
+    // The DOM is already ready (interactive or complete state)
+    onLoadBase();
+}
 </script>
 {% block bodyscripts %}
 {% endblock %}

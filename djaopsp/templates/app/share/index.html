@@ -33,7 +33,7 @@
             <div>
               <!-- loading -->
               <div class="text-center mt-4" v-show="!itemsLoaded">
-                <i class="fa fa-refresh fa-spin fa-2x"></i>
+                <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
               </div>
               <!-- loaded, no data -->
               <div v-show="itemsLoaded && !hasPendingRequests" v-cloak>
@@ -95,7 +95,7 @@
                   <div>
                     <div class="mb-2">
                       <div class="text-center mt-4" v-show="!itemsLoaded">
-                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                        <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                       </div>
                       <div v-if="itemsLoaded && items.results.length > 0" v-cloak>
                         <div class="card mt-1"
@@ -157,10 +157,10 @@
                                 <div id="grantee-search" class="input-group w-100">
                                   <!-- optional indicators -->
                                   <span class="input-group-text">
-                                    <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                                    <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
                                     <template v-else>
-                                      <i class="fa fa-search" v-show="isEmpty"></i>
-                                      <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                                      <i class="fa-solid fa-search" v-show="isEmpty"></i>
+                                      <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
                                     </template>
                                   </span>
                                   <!-- the input field -->
@@ -270,10 +270,10 @@ Thank you.
                               <div id="team-accounts-search" class="input-group w-100">
                                 <div class="input-group-text">
                                   <!-- optional indicators -->
-                                  <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                                  <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
                                   <template v-else>
-                                    <i class="fa fa-search" v-show="isEmpty"></i>
-                                    <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                                    <i class="fa-solid fa-search" v-show="isEmpty"></i>
+                                    <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
                                   </template>
                                 </div>
                                 <!-- the input field -->

@@ -30,10 +30,10 @@
                 <div>
                   <div class="input-group mb-3">
                     <span class="input-group-text">
-                      <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                      <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
                       <template v-else>
-                        <i class="fa fa-search" v-show="isEmpty"></i>
-                        <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                        <i class="fa-solid fa-search" v-show="isEmpty"></i>
+                        <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
                       </template>
                     </span>
                     <input autofocus
@@ -54,7 +54,7 @@
                              @click.prevent="resetAndReload"
                              aria-haspopup="true"
                              aria-expanded="false">
-                        <i class="fa fa-caret-down"></i>
+                        <i class="fa-solid fa-caret-down"></i>
                     </button>
                     {# Implementation note: If we use `d-block` instead of    #}
                     {# `style="display: block;"` the dropdown shows even when #}
@@ -90,7 +90,7 @@
                        v-show="selectedSample >= 0">
                       <button class="btn btn-primary w-100"
                               type="submit">
-                          <i class="fa fa-spinner fa-spin" v-show="disabled"></i>
+                          <i class="fa-solid fa-spinner fa-spin" v-show="disabled"></i>
                           {% trans %}Add{% endtrans %}
                       </button>
                   </div>
@@ -131,7 +131,7 @@
                   v-if="isPractice(row)">
                 [[row.ref_num ? (row.ref_num + " ") : ""]][[row.title]]
                 <a :href="isPractice(row) ? '{{urls.pages_index}}' + row.slug + '/' : ''"
-                   target="_blank" aria-label="Help information"><i class="fa fa-question-circle"></i></a>
+                   target="_blank" aria-label="Help information"><i class="fa-solid fa-question-circle"></i></a>
             </span>
           </div>
         </div> {# /.col (title) #}

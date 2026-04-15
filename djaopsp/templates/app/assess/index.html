@@ -4,7 +4,7 @@
 
 {% block assess_content %}
 <campaign-questions-list inline-template id="panel-icons">
-  <div class="dashboard-pane dashboard-pane-default">
+  <div class="dashboard-pane dashboard-pane-sidebar">
 
     {# left sidebar #}
     {% block app_left_sidebar %}
@@ -16,7 +16,7 @@
       <div class="text-center mt-4"
            v-show="!itemsLoaded">
         <p>
-          <i class="fa fa-spinner fa-spin fa-2x"></i>
+          <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
         </p>
         <p>
 {% trans %}Please wait...{% endtrans %}

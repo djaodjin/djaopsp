@@ -20,7 +20,7 @@
             v-if="isPractice(practice)">
         [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
         <a :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
-           target="_blank" aria-label="Help information"><i class="fa fa-question-circle"></i></a>
+           target="_blank" aria-label="Help information"><i class="fa-solid fa-question-circle"></i></a>
       </span>
     </div>
   </div>
@@ -33,7 +33,7 @@
     <button class="btn btn-select-all" href=""
             :disabled="practice.frozen"
             @click.prevent="updateMultipleAssessmentAnswers(practice, choice.text, '{{assess_type}}')">
-      <i class="fa fa-circle"></i>
+      <i class="fa-solid fa-circle"></i>
     </button>
   </div>
 
@@ -86,7 +86,7 @@
     </div>
     <div class="input-group" v-show="!isNotDisclosedPublicly(practice)">
       <span class="input-group-text">
-        <i class="fa fa-times"
+        <i class="fa-solid fa-times"
            @click="resetAssessmentAnswer(practice)"></i>
       </span>
       <input class="form-control"
@@ -182,7 +182,7 @@
        v-if="isPercentageUIHint(practice)">
     <div class="input-group">
       <span class="input-group-text">
-        <i class="fa fa-times"
+        <i class="fa-solid fa-times"
            @click="resetAssessmentAnswer(practice)"></i>
       </span>
       <input class="form-control text-end"
@@ -525,7 +525,7 @@
       <a class="p-2"
          href="{{'/docs/guides/verification/#verifiability'|site_url}}"
          target="_blank">
-        <i class="fa fa-question-circle"></i>
+        <i class="fa-solid fa-question-circle"></i>
       </a>
       <select class="form-control form-select"
               v-model="getAnswerByUnit(practice, 'completeness').measured"
@@ -540,7 +540,7 @@
       <a class="p-2"
          href="{{'/docs/guides/verification/#completeness'|site_url}}"
          target="_blank">
-        <i class="fa fa-question-circle"></i>
+        <i class="fa-solid fa-question-circle"></i>
       </a>
     </div>
     <div class="input-group">
@@ -615,10 +615,10 @@
       <div>
         <div class="input-group mb-3">
           <span class="input-group-text">
-            <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+            <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
             <template v-else>
-              <i class="fa fa-search" v-show="isEmpty"></i>
-              <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+              <i class="fa-solid fa-search" v-show="isEmpty"></i>
+              <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
             </template>
           </span>
           <input class="form-control"
@@ -638,7 +638,7 @@
                    @click.prevent="resetAndReload"
                    aria-haspopup="true"
                    aria-expanded="false">
-            <i class="fa fa-caret-down"></i>
+            <i class="fa-solid fa-caret-down"></i>
           </button>
           {# Implementation note: If we use `d-block` instead of    #}
           {# `style="display: block;"` the dropdown shows even when #}
@@ -749,7 +749,7 @@
         <button class="btn btn-link ps-0"
            title="{% trans %}Got a comment? Click here.{% endtrans %}"
            @click.prevent="openComments(practice)">
-          <i class="fa fa-sticky-note-o"></i>
+          <i class="fa-solid fa-sticky-note-o"></i>
         </button>
       </div>
       <div class="col-md-6 text-end" v-if="!practice.frozen">
@@ -759,19 +759,19 @@
                 title="{% trans %}Use calculator result{% endtrans %}"
           @click.prevent="importFromTrackingTool(practice)"
           v-if="isEnergyUIHint(practice) || (isGHGEmissions(practice) & !isGHGEmissionsScope3(practice)) || isWaterUIHint(practice) || isWasteUIHint(practice)">
-          <i class="fa fa-cogs"></i>
+          <i class="fa-solid fa-cogs"></i>
         </button>
         <button class="btn candidate-answer"
                 title="{% trans %}Use suggested answer{% endtrans %}"
                 @click.prevent="useCandidateAnswer(practice)"
                 v-if="getPrimaryCandidate(practice).measured != null">
-          <i class="fa fa-bullseye"></i>
+          <i class="fa-solid fa-bullseye"></i>
         </button>
         <button class="btn candidate-answer"
                 title="{% trans %}Clear answer{% endtrans %}"
                 @click.prevent="resetAssessmentAnswer(practice)"
                 v-if="getPrimaryAnswer(practice).measured != null">
-          <i class="fa fa-times"></i>
+          <i class="fa-solid fa-times"></i>
         </button>
         {% endif %}
       </div>

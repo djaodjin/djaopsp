@@ -18,7 +18,7 @@
                   <form id="search" @submit.prevent="reload()">
                     <div class="input-group input-group-sm">
                       <div class="input-group-prepend">
-                        <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
+                        <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
                       </div>
                       <input class="form-control"
                              type="text"
@@ -78,7 +78,7 @@
               <!-- end modal to create a new page -->
               {# show loading spinner #}
               <div class="text-center mt-4" v-show="!itemsLoaded">
-                <i class="fa fa-refresh fa-spin fa-2x"></i>
+                <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
               </div>
               {# show empty #}
               <div v-show="itemsLoaded && items.results.length == 0" v-cloak>

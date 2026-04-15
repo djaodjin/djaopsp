@@ -6,7 +6,7 @@
     <a id="browse-practices" class="nav-link{% if urls.practices_index and request.path.startswith(urls.practices_index) %} active{% endif %}" href="{% if urls.practices_index %}{{urls.practices_index}}{% endif %}">
       <span class="ps-1">{% trans %}Browse Practices{% endtrans %}</span>
       {% if not urls.practices_index %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>
@@ -19,7 +19,7 @@
     <a id="scorecard-history" class="nav-link{% if request.path == urls.scorecard_history %} active{% endif %}" {% if urls.scorecard_history %}href="{{urls.scorecard_history}}"{% endif %}>
       <span class="ps-1">{% trans %}History{% endtrans %}</span>
       {% if not urls.scorecard_history %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>
@@ -28,7 +28,7 @@
     <a id="documents-vault" class="nav-link{% if request.path == urls.documents_vault %} active{% endif %}" {% if urls.documents_vault %}href="{{urls.documents_vault}}"{% endif %}>
       <span class="ps-1">{% trans %}Vault{% endtrans %}</span>
       {% if not urls.documents_vault %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>
@@ -37,7 +37,7 @@
     <a id="track-energy-ghg-emissions" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'energy-ghg-emissions/')  %} active {% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}energy-ghg-emissions/"{% endif %}>
       <span class="ps-1">{% trans %}Energy &amp; GHG Emissions{% endtrans %}</span>
       {% if not urls.track_metrics %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
 
@@ -46,7 +46,7 @@
     <a id="track-water" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'water/') %} active{% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}water/"{% endif %}>
       <span class="ps-1">{% trans %}Water{% endtrans %}</span>
       {% if not urls.track_metrics %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>
@@ -54,7 +54,7 @@
     <a id="track-waste" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'waste/') %} active{% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}waste/"{% endif %}>
       <span class="ps-1">{% trans %}Waste{% endtrans %}</span>
       {% if not urls.track_metrics %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>
@@ -67,25 +67,25 @@
     <a id="suppliers-engage" class="nav-link{% if request.path == urls.portfolio_engage %} active{% endif %}{% if not urls.portfolio_engage %} disabled{% endif %}" {% if urls.portfolio_engage %}href="{{urls.portfolio_engage}}"{% endif %}>
       <span class="ps-1">{% trans %}Engage Suppliers{% endtrans %}</span>
       {% if not urls.portfolio_engage %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>
 
   <li class="nav-item">
     <a id="suppliers-compare" class="nav-link{% if request.path == urls.compare %}  active{% endif %}{% if not urls.compare %} disabled{% endif %}" {% if urls.compare %}href="{{urls.compare}}"{% endif %}>
-      <span class="ps-1">{% trans %}Compare{% endtrans %} <small class="text-warning border border-warning">&nbsp;beta&nbsp;</small></span>
+      <span class="ps-1">{% trans %}Compare{% endtrans %}</span>
       {% if not urls.compare %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>
 
   <li class="nav-item">
     <a id="suppliers-analyze" class="nav-link{% if request.path == urls.analyze %} active{% endif %}{% if not urls.analyze %} disabled{% endif %}" {% if urls.analyze %}href="{{urls.analyze}}"{% endif %}>
-      <span class="ps-1">{% trans %}Analyze{% endtrans %} <small class="text-warning border border-warning">&nbsp;beta&nbsp;</small></span>
+      <span class="ps-1">{% trans %}Analyze{% endtrans %}</span>
       {% if not urls.analyze %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>
@@ -98,7 +98,7 @@
     <a id="edit-campaigns" class="nav-link{% if urls.survey_campaign_list and request.path.startswith(urls.survey_campaign_list) %} active{% endif %}{% if not urls.survey_campaign_list %} disabled{% endif %}" {% if urls.survey_campaign_list %}href="{{urls.survey_campaign_list}}"{% endif %}>
       <span class="ps-1">{% trans %}Questionnaires{% endtrans %}</span>
       {% if not urls.survey_campaign_list %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>
@@ -106,7 +106,7 @@
     <a id="edit-practices" class="nav-link{% if urls.pages_editables_index and request.path.startswith(urls.pages_editables_index) %} active{% endif %}{% if not urls.pages_editables_index %} disabled{% endif %}" {% if urls.pages_editables_index %}href="{{urls.pages_editables_index}}"{% endif %}>
       <span class="ps-1">{% trans %}Content Editors{% endtrans %}</span>
       {% if not urls.pages_editables_index %}
-      <i class="fa fa-lock"></i>
+      <i class="fa-solid fa-lock"></i>
       {% endif %}
     </a>
   </li>

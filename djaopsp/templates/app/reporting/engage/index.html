@@ -24,7 +24,7 @@
 
         <div class="btn-group" role="group">
           <a class="btn btn-primary" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
-            <i class="fa fa-download"></i> {% trans %}Download (xlsx){% endtrans %}
+            <i class="fa-solid fa-download"></i> {% trans %}Download (xlsx){% endtrans %}
           </a>
           <button type="button"
                   class="btn btn-primary dropdown-toggle dropdown-toggle-split"
@@ -192,7 +192,7 @@
                   @submit.prevent="reload()">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <div class="input-group input-group-sm">
-                <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
+                <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
                 <input class="form-control"
                        type="text"
                        placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
@@ -220,7 +220,7 @@
       <tbody v-show="!itemsLoaded">
         <tr>
           <td colspan="8">
-            <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
+            <h3  class="text-center"><i class="fa-solid fa-refresh fa-spin fa-2x"></i></h3>
           </td>
         </tr>
       </tbody>
@@ -320,7 +320,7 @@
             <div v-if="entry.last_activity_at">
               [[$globals.humanizeDate(entry.last_activity_at)]]<br />
               <small>([[$globals.humanizeTimeDelta(entry.last_activity_at)]])</small><br />
-              <small v-if="entry.reporting_status === 'completed' || entry.reporting_status === 'verified'"><a class="btn-link" href="" @click.prevent="toggleRespondents(index)"><i class="fa fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
+              <small v-if="entry.reporting_status === 'completed' || entry.reporting_status === 'verified'"><a class="btn-link" href="" @click.prevent="toggleRespondents(index)"><i class="fa-solid fa-envelope"></i> {% trans %}respondents{% endtrans %}</a></small>
 
               <div class="text-start" v-for="contact in entry.respondents" v-show="index === showRespondents">
                   <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.full_name]] &lt;[[contact.email]]&gt;<br />
@@ -344,7 +344,7 @@
               [[$globals.humanizeDate(entry.last_reminder_at)]]<br />
               <small>([[$globals.humanizeTimeDelta(entry.last_reminder_at)]])</small><br />
 <!--
-              <small><a href="" @click.prevent="toggleRecipients(index)"><i class="fa fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
+              <small><a href="" @click.prevent="toggleRecipients(index)"><i class="fa-solid fa-envelope"></i> {% trans %}sent to{% endtrans %}</a></small>
               <div class="text-start" v-for="contact in entry.recipients" v-show="index === showRecipients">
                   <img class="img-fluid" style="max-height: 1rem;" :src="contact.picture || '{{'/static/img/default-user.png'|asset}}'"> [[contact.printable_name]] &lt;[[contact.email]]&gt;<br />
                   <small>
@@ -374,7 +374,7 @@
             <button class="btn btn-sm btn-danger"
                     v-if="entry.api_remove"
                     @click.prevent="remove($event, index)">
-              <i class="fa fa-times"></i> remove
+              <i class="fa-solid fa-times"></i> remove
             </button>
           </td>
         </tr>

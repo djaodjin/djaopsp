@@ -63,7 +63,7 @@
           <td colspan="2">
             <form @submit.prevent="reload()">
               <div class="input-group input-group-sm">
-                <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
+                <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
                 <input class="form-control"
                        type="text"
                        placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
@@ -81,7 +81,7 @@
       <tbody v-show="!itemsLoaded">
         <tr>
           <td colspan="3">
-            <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
+            <h3  class="text-center"><i class="fa-solid fa-refresh fa-spin fa-2x"></i></h3>
           </td>
         </tr>
       </tbody>
@@ -108,15 +108,15 @@
         </td>
         <td class="text-center"
             v-for="val in entry.values.slice()">
-          <i class="fa fa-certificate" style="color: green;"
+          <i class="fa-solid fa-certificate" style="color: green;"
              v-if="val.state === 'verified'"></i>
-          <i class="fa fa-circle" style="color: green;"
+          <i class="fa-solid fa-circle" style="color: green;"
              v-if="val.state === 'completed'"></i>
-          <i class="fa fa-circle" style="color: yellow;"
+          <i class="fa-solid fa-circle" style="color: yellow;"
              v-if="val.state === 'responded'"></i>
-          <i class="fa fa-circle" style="color: red;"
+          <i class="fa-solid fa-circle" style="color: red;"
              v-if="val.state === 'no-response'"></i>
-          <i class="fa fa-circle" style="color: grey;"
+          <i class="fa-solid fa-circle" style="color: grey;"
              v-if="val.state === 'no-data'"></i>
           <br />
           <a :href="val.url" v-if="val.url" class="btn-link">
@@ -128,7 +128,7 @@
         </td>
         <td>
           <button class="btn btn-danger btn-sm" @click.prevent="remove($event, index)" data-trip data-trip-index="3" data-trip-content="<p>Click here to cancel access request.</p>" data-trip-position="s">
-            <i class="fa fa-trash-o"></i>
+            <i class="fa-solid fa-trash-o"></i>
           </button>
         </td>
         </tr>

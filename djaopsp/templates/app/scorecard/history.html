@@ -24,7 +24,7 @@
       <div>
         <!-- loading -->
         <div class="text-center mt-4" v-show="!itemsLoaded">
-          <i class="fa fa-refresh fa-spin fa-2x"></i>
+          <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
         </div>
         <!-- loaded, no data -->
         <div v-show="itemsLoaded && items.results.length == 0" v-cloak>
@@ -36,7 +36,7 @@
             <div class="col-2 text-end">
               <a :href="item.location ? item.location : (_safeUrl('{{urls.scorecard_base}}', item.slug) + '/')">[[ $globals.humanizeDate(item.created_at) ]]</a>
               {% if verification_enabled %}
-              <i class="fa fa-certificate" style="color: green;" v-if="item.verified_status != 'no-review' && item.verified_status != 'under-review'"></i>
+              <i class="fa-solid fa-certificate" style="color: green;" v-if="item.verified_status != 'no-review' && item.verified_status != 'under-review'"></i>
               {% endif %}
             </div>
             <div class="col-4 text-start">

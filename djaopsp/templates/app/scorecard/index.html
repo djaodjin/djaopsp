@@ -105,7 +105,7 @@
                   <div class="d-inline-block" v-if="practice.picture">
                     <img class="icon-heading" :src="practice.picture" />
                   </div>
-                  <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
+                  <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                 </div>
 
                 {# scorecard for segment #}
@@ -118,7 +118,7 @@
                            style="height:150px;max-width:300px;"
                            v-if="!chartsAvailable && !isChartAvailable('/summary' + practice.path)">
                         <div class="box">
-                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                          <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
                       <div class="text-center d-flex align-items-center"
@@ -151,7 +151,7 @@
                            style="height:150px;max-width:300px;"
                            v-if="!chartsAvailable && !isChartAvailable('/summary/sub' + subheading.path)">
                         <div class="box">
-                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                          <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
                       <div class="text-center d-flex align-items-center"
@@ -179,7 +179,7 @@
 
       <section id="details">
         <div class="text-center mt-4" v-show="!itemsLoaded">
-          <i class="fa fa-refresh fa-spin fa-2x"></i>
+          <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
         </div>
         <div v-show="itemsLoaded && items.results.length > 0" v-cloak>
           <div :id="getPracticeId(practice)"
@@ -195,7 +195,7 @@
                   <div class="d-inline-block" v-if="practice.picture">
                     <img class="icon-heading" :src="practice.picture" />
                   </div>
-                  <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
+                  <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                 </div>
                 {% if not sample.is_frozen %}
                 <div class="row">
@@ -222,7 +222,7 @@
                            style="height:150px;max-width:300px;"
                            v-if="!chartsAvailable && !isChartAvailable('/details' + practice.path)">
                         <div class="box">
-                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                          <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
                       <div class="text-center d-flex align-items-center"
@@ -255,7 +255,7 @@
                            style="height:150px;max-width:300px;"
                            v-if="!chartsAvailable && !isChartAvailable('/summary/sub' + subheading.path)">
                         <div class="box">
-                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                          <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
                       <div class="text-center d-flex align-items-center"
@@ -283,7 +283,7 @@
                   <div class="d-inline-block" v-if="practice.picture">
                     <img class="icon-heading" :src="practice.picture" />
                   </div>
-                  <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
+                  <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                 </div>
 
                 {# summary when no tile sections #}
@@ -296,7 +296,7 @@
                            style="height:150px;max-width:300px;"
                            v-if="!chartsAvailable && !isChartAvailable(practice.path)">
                         <div class="box">
-                          <i class="fa fa-refresh fa-spin fa-2x"></i>
+                          <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
                       <div class="text-center d-flex align-items-center"
@@ -329,7 +329,7 @@
                       <img class="icon-heading"
                            :src="practice.picture" />
                     </div>
-                    <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
+                    <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                   </div>
                 </div>
               </div>{# /.row #}
@@ -363,14 +363,14 @@
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
                     [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
-                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
+                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                   </div>
                   <div class="row" v-if="isAssessmentUnit(practice)">
                     <div class="col-6 col-sm-4"
                          v-if="isAssessmentUnit(practice)">
                       {% trans %}Implementation rate{% endtrans %}
                       <div v-show="!chartsAvailable">
-                        <i class="fa fa-refresh fa-spin"></i>
+                        <i class="fa-solid fa-refresh fa-spin"></i>
                       </div>
                       <div v-show="chartsAvailable" v-cloak>
                         [[practice.nb_respondents]] {% trans %}respondents{% endtrans %}
@@ -396,7 +396,7 @@
                     <div class="col-6 col-sm-4">
                       {% trans %}Implementation rate{% endtrans %}
                       <div v-show="!chartsAvailable">
-                        <i class="fa fa-refresh fa-spin"></i>
+                        <i class="fa-solid fa-refresh fa-spin"></i>
                       </div>
                       <div v-show="chartsAvailable">
 {# XXX should get `nb_respondents` from benchmarks API call [[practice.nb_respondents]] {% trans %}respondents{% endtrans %} #}
@@ -446,7 +446,7 @@
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
                     [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
-                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
+                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                   </div>
                 </div>
                 <div class="col-sm-4">
@@ -466,7 +466,7 @@
                     <a class="title"
                        :href="'{{urls.pages_index}}' + practice.slug + '/'">
                       [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
-                    </a><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
+                    </a><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                   </div>
                 </div>
                 <div class="col-sm-4">
@@ -482,7 +482,7 @@
                 <div class="col-sm-8">
                   <div :class="indentHeader(practice) + ' mt-3'">
                     [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
-                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa fa-link"></i></a>
+                    <a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                   </div>
                 </div>
                 <div class="col-sm-4">

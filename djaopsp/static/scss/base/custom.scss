@@ -11,53 +11,7 @@ $footer-height: 150px;
 $plan-footer-height: 70px;
 $app-toolbar-left-footer-height: 296px;
 
-// variables specific to djaoapp used for code examples
-//$example-title-bg: rgb(62, 68, 88);
-//$example-title-color: rgb(105, 115, 134);
-//$example-bg: #222527;
-//$example-color: rgb(105, 115, 134);
-$example-bg: rgb(247, 250, 252);
-$example-color: rgb(105, 115, 134);
-$example-title-color: rgb(105, 115, 134);
-$example-title-bg: rgb(227, 232, 238);
-$jumbotron-shadow-start-color: #000;
-$jumbotron-shadow-end-color: #eee;
-
-// variables specific to djaoapp used for code examples
-$example-title-bg-dark: rgb(79, 86, 107);
-$example-title-color-dark: rgb(147, 156, 171);
-//$example-bg-dark: rgb(143, 153, 166);
-//$example-color-dark: rgb(45, 49, 68);
-$example-bg-dark: rgb(18, 20, 28);
-$example-color-dark: rgb(193, 193, 193);
-$jumbotron-shadow-start-color-dark: $jumbotron-shadow-end-color;
-$jumbotron-shadow-end-color-dark: $jumbotron-shadow-start-color;
-
 $candidate-bg: color.scale(#0275ff, $lightness: 50%);
-
-:root,
-[data-bs-theme="light"] {
-    --example-title-bg: #{$example-title-bg};
-    --example-title-color: #{$example-title-color};
-    --example-bg: #{$example-bg};
-    --example-color: #{$example-color};
-    --jumbotron-shadow-start-color: #{$jumbotron-shadow-start-color};
-    --jumbotron-shadow-end-color: #{$jumbotron-shadow-end-color};
-}
-
-@if $enable-dark-mode {
-  @include color-mode(dark, true) {
-    color-scheme: dark;
-
-    --example-title-bg: #{$example-title-bg-dark};
-    --example-title-color: #{$example-title-color-dark};
-    --example-bg: #{$example-bg-dark};
-    --example-color: #{$example-color-dark};
-    --jumbotron-shadow-start-color: #{$jumbotron-shadow-start-color-dark};
-    --jumbotron-shadow-end-color: #{$jumbotron-shadow-end-color-dark};
-  }
-}
-// --
 
 $score-card-width: 300px;
 $green-level-4-color: #FFD700;
@@ -88,6 +42,10 @@ $green-level-4-color: #FFD700;
 .navbar.bg-primary .navbar-brand:hover,
 .navbar.bg-primary .navbar-brand:focus {
 
+}
+
+.agreement>h1 {
+  color: rgba(var(--bs-body-color-rgb), var(--bs-text-opacity)) !important;
 }
 
 .password-toggle {
@@ -367,17 +325,8 @@ h2.icon-row-title {
   src: url('../fonts/MyriadPro-Semibold.woff') format('woff');
 }
 
-html, body {
-  height: 100% !important;
-}
-
 b, strong{
     font-family: 'myriad-semibold';
-}
-
-#wrap {
-  width: 100%;
-  min-height: 100%;
 }
 
 /* Unless the font-size for #main and .footer match, using ``em`` metrics will
@@ -417,6 +366,20 @@ b, strong{
 #scroll-page .inner a:visited {
   color: #adc4b4;
 }
+
+.content-area-container {
+  background: map-get($theme-colors, "primary");
+  background: -webkit-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  background:    -moz-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  background:      -o-linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+  background:         linear-gradient(map-get($theme-colors, "primary") 0, var(--bs-body-bg) 300px);
+}
+
+
+.content-area-container h1 {
+  color: white;
+}
+
 
 .content-sponsors {
   margin-top: 75px;
@@ -2367,26 +2330,19 @@ pre.code{
 // App Toolbar (Left)
 
 #app-toolbar-left {
-  display: none;     // If we don't default to `display: none`, the animation
   width: 350px;      // in djaodjin-dashboard.js will never hide the sidebar.
-  overflow: visible; // so we can see the shadow
-  -webkit-transition: right 0.25s ease-in-out;
-  -moz-transition: right 0.25s ease-in-out;
-  -ms-transition: right 0.25s ease-in-out;
-  -o-transition: right 0.25s ease-in-out;
-  transition: right 0.25s ease-in-out;
-  position: fixed;
+//  position: fixed;
   top: #{$navbar-height};
   height: calc(100vh - #{$navbar-height});
   z-index: 2000; // sticky-top[z-index] == 1020
 }
 
 #app-toolbar-left .sidebar-animate {
-  overflow: hidden;
-  position: relative;
+//  overflow: hidden;
+//  position: relative;
   height: calc(100vh - #{$navbar-height});
   border-right: 1px solid #ccc;
-  box-shadow: 0.3em 0.5em 1em rgb(0 0 0 / 60%);
+//  box-shadow: 0.3em 0.5em 1em rgb(0 0 0 / 60%);
 }
 
 #app-toolbar-left .toolbar-content {
@@ -2403,12 +2359,12 @@ pre.code{
 }
 
 .dashboard-pane.dashboard-pane-pinned #app-toolbar-left {
-    display: block;
+//    display: block;
     position: sticky;
 }
 
 .dashboard-pane.dashboard-pane-pinned #app-toolbar-left .sidebar-animate {
-    box-shadow: none;
+//    box-shadow: none;
 }
 
 .dashboard-pane-pinned .sidebar-toggle[data-target="#app-toolbar-left"],
@@ -2455,14 +2411,22 @@ pre.code{
       transform: translate(10px, 0);
   }
 
-  .dashboard-pane.dashboard-pane-default #app-toolbar-left {
+  .dashboard-pane.dashboard-pane-sidebar #app-toolbar-left {
     // sidebar is visible on dashboard on desktops
-    display: block;
+//    display: block;
     position: sticky;
   }
 
-  .dashboard-pane.dashboard-pane-default #app-toolbar-left .sidebar-animate {
+  .dashboard-pane.dashboard-pane-sidebar.dashboard-pane-unpinned #app-toolbar-left {
+    position: fixed;
+  }
+
+  .dashboard-pane.dashboard-pane-sidebar #app-toolbar-left .sidebar-animate {
     box-shadow: none;
+  }
+
+  .dashboard-pane.dashboard-pane-sidebar.dashboard-pane-unpinned #app-toolbar-left .sidebar-animate {
+    box-shadow: 0.3em 0.5em 1em rgb(0 0 0 / 60%);
   }
 
 }

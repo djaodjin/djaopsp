@@ -1,11 +1,11 @@
-<div id="app-toolbar-left" class="d-print-none">
+<div id="app-toolbar-left" class="d-print-none dashboard-nav">
   <div class="sidebar-animate bg-body text-body">
   <div class="sidebar-content toolbar-content">
     <div class="text-end">
       <button class="sidebar-pin-toggle btn btn-link"
               data-target="#app-toolbar-left"
               aria-label="Pin/Unpin sidebar">
-        <i class="fa"></i>
+        <i class="fa-solid"></i>
       </button>
     </div>
     {% include "app/_progress_bar.html" %}
@@ -17,7 +17,7 @@
     {% if breadcrumbs|length > 1 %}
     <ul class="nav flex-column py-1">
       <li class="nav-item">
-        <a class="nav-link" href="{{breadcrumbs.0.2}}">{% trans %}Top{% endtrans %} <i class="fa fa-arrow-up"></i></a>
+        <a class="nav-link" href="{{breadcrumbs.0.2}}">{% trans %}Top{% endtrans %} <i class="fa-solid fa-arrow-up"></i></a>
       </li>
     </ul>
     {% endif %}
@@ -53,13 +53,13 @@
       <a id="download" class="btn btn-outline-primary w-100 mt-2"
          href="{{urls.download}}"
          target="_blank">
-        <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Download (xlsx){% endtrans %}
+        <i class="fa-solid fa-file-text"></i>&nbsp;&nbsp;{% trans %}Download (xlsx){% endtrans %}
       </a>
       {% block left_sidebar_actions %}
       <button id="pdf-print-btn" class="btn btn-outline-primary w-100 mt-2"
               onClick="window.print()"
               :disabled="!itemsLoaded">
-        <i class="fa fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
+        <i class="fa-solid fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
       </button>
       {% if sample.is_frozen %}
       {# actions only available when a scorecard is frozen #}
@@ -90,8 +90,8 @@
     </section>
     <div>
       <div class="footer-links pt-2">
-        <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa fa-github fa-sm pe-2"></i></a>
-        <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa fa-linkedin fa-sm"></i></a>
+        <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa-brands fa-github fa-sm pe-2"></i></a>
+        <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa-brands fa-linkedin fa-sm"></i></a>
       </div>
       <div>
         {% trans %}Powered by &copy; 2026 DjaoDjin. All rights reserved.{% endtrans %} <a href="/legal/" target="_blank">{% trans %}Legal{% endtrans %}</a>.

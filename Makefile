@@ -81,8 +81,7 @@ build-assets: $(ASSETS_DIR)/cache/app.css \
 	$(installFiles) $(ASSETS_DIR)/cache/reporting.js $(ASSETS_DIR)/cache/reporting$(APP_VERSION_SUFFIX).js
 	cd $(srcDir) && DEBUG=0 $(MANAGE) collectstatic --noinput
 	rm -rf $(ASSETS_DIR)/rest_framework $(ASSETS_DIR)/scss $(ASSETS_DIR)/css
-	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-dashboard.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaodjin-menubar.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-base.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-i18n.js $(ASSETS_DIR)/vendor
 	rm -rf $(srcDir)/htdocs/static/vendor/chart.js $(srcDir)/htdocs/static/vendor/chartjs-plugin-annotation.js
 	cd $(srcDir) && $(ESCHECK) htdocs/static/cache/*.js htdocs/static/vendor/*.js -v
@@ -168,8 +167,28 @@ run-coverage: initdb
 
 # Download prerequisites specified in package.json and install relevant files
 # in the directory assets are served from.
-vendor-assets-prerequisites: $(libDir)/.npm/$(APP_NAME)-packages
-
+vendor-assets-prerequisites: $(libDir)/.npm/$(APP_NAME)-packages \
+                             $(installTop)/.npm/fontawesome-free-7.0.0-web
+	$(installDirs) $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.min.js $(ASSETS_DIR)/vendor
+	cp -rf $(libDir)/node_modules/chart.js $(srcDir)/djaopsp/static/vendor
+	$(installFiles) $(libDir)/node_modules/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.js $(srcDir)/djaopsp/static/vendor
+	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/easymde/dist/easymde.min.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/jquery/dist/jquery.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/marked/marked.min.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/moment/moment.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/moment-timezone/builds/moment-timezone-with-data.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/@popperjs/core/dist/umd/popper.min.js* $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/vue/dist/vue.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/lodash/lodash.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/@yaireo/tagify/dist/tagify.js $(libDir)/node_modules/@yaireo/tagify/dist/tagify.js.map $(ASSETS_DIR)/vendor
+	$(installFiles) $(installTop)/.npm/fontawesome-free-7.0.0-web/webfonts/* $(ASSETS_DIR)/fonts
+	$(installFiles) $(installTop)/.npm/fontawesome-free-7.0.0-web/css/fontawesome.min.css $(ASSETS_DIR)/vendor
+	sed -e 's,../webfonts,../fonts,g' $(installTop)/.npm/fontawesome-free-7.0.0-web/css/solid.min.css > $(ASSETS_DIR)/vendor/solid.min.css
+	sed -e 's,../webfonts,../fonts,g' $(installTop)/.npm/fontawesome-free-7.0.0-web/css/brands.min.css > $(ASSETS_DIR)/vendor/brands.min.css
+	sed -e 's,../webfonts,../fonts,g' $(installTop)/.npm/fontawesome-free-7.0.0-web/css/regular.min.css > $(ASSETS_DIR)/vendor/regular.min.css
 
 # --------- intermediate targets
 
@@ -183,23 +202,6 @@ $(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installDirs) $(libDir)/tmp
 	$(installFiles) $^ $(libDir)/tmp
 	$(NPM) install --cache $(libDir)/.npm --tmp $(libDir)/tmp --prefix $(libDir)
-	$(installDirs) $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.min.js $(ASSETS_DIR)/vendor
-	cp -rf $(libDir)/node_modules/chart.js $(srcDir)/djaopsp/static/vendor
-	$(installFiles) $(libDir)/node_modules/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.js $(srcDir)/djaopsp/static/vendor
-	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/easymde/dist/easymde.min.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/font-awesome/css/font-awesome.css $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/font-awesome/fonts/* $(ASSETS_DIR)/fonts
-	$(installFiles) $(libDir)/node_modules/jquery/dist/jquery.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/marked/marked.min.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/moment/moment.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/moment-timezone/builds/moment-timezone-with-data.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/@popperjs/core/dist/umd/popper.min.js* $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/vue/dist/vue.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/lodash/lodash.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/@yaireo/tagify/dist/tagify.js $(libDir)/node_modules/@yaireo/tagify/dist/tagify.js.map $(ASSETS_DIR)/vendor
 	[ -e $(binDir)/eslint ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/eslint eslint)
 	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/sass sassc)
 	[ -f $(binDir)/swagger-cli ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/swagger-cli swagger-cli)
@@ -222,6 +224,12 @@ $(ASSETS_DIR)/cache/assess.js: $(srcDir)/webpack.config.js \
 
 webpack-conf-paths.json: $(srcDir)/djaopsp/settings.py
 	cd $(srcDir) && $(MANAGE) generate_webpack_paths -o $@
+
+
+$(installTop)/.npm/fontawesome-free-7.0.0-web:
+	$(installDirs) $(dir $@)
+	wget -q -O $(dir $@)/fontawesome-free-7.0.0-web.zip https://use.fontawesome.com/releases/v7.0.0/fontawesome-free-7.0.0-web.zip
+	cd $(dir $@) && unzip -qu fontawesome-free-7.0.0-web.zip
 
 
 $(ASSETS_DIR)/cache/app.css: $(srcDir)/djaopsp/static/scss/base/base.scss \

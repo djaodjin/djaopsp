@@ -15,7 +15,7 @@
            v-if="isPractice(practice)">
           [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
           <a :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
-             target="_blank"><i class="fa fa-question-circle"></i></a>
+             target="_blank"><i class="fa-solid fa-question-circle"></i></a>
         </span>
       </div>
     </div>

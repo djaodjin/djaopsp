@@ -7,12 +7,12 @@
   <button id="rate_bp" type="submit"
           class="btn btn-primary btn-sm dj-answers-upvote"
           @click="submitVote()">
-    <i class="fa fa-thumbs-o-up" v-if="!isUpVote"></i>
-    <i class="fa fa-thumbs-up" v-if="isUpVote"></i>
+    <i class="fa-solid fa-thumbs-o-up" v-if="!isUpVote"></i>
+    <i class="fa-solid fa-thumbs-up" v-if="isUpVote"></i>
   </button>
   <div class="d-inline info_follow_vote">
-    <a id="nb-followers" class="btn btn-primary btn-sm disabled">[[nbFollowers]] <i class="fa fa-users fa-lg"></i></a>
-    <a id="nb-votes" class="btn btn-primary btn-sm disabled">[[nbUpVotes]] <i class="fa fa-thumbs-o-up fa-lg"></i></a>
+    <a id="nb-followers" class="btn btn-primary btn-sm disabled">[[nbFollowers]] <i class="fa-solid fa-users fa-lg"></i></a>
+    <a id="nb-votes" class="btn btn-primary btn-sm disabled">[[nbUpVotes]] <i class="fa-solid fa-thumbs-o-up fa-lg"></i></a>
   </div>
 </div>
 {% endblock %}

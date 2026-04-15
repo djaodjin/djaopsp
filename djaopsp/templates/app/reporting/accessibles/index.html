@@ -16,25 +16,25 @@
   <div class="row">
     <div class="col-sm-6">
       <dl>
-        <dt><i class="fa fa-certificate" style="color: green;"></i> verified</dt>
+        <dt><i class="fa-solid fa-certificate" style="color: green;"></i> verified</dt>
         <dd>A subject matter expert has read through the response and rated the accuracy of the response.</dd>
       </dl>
       <dl>
-        <dt><i class="fa fa-circle" style="color: green;"></i> completed</dt>
+        <dt><i class="fa-solid fa-circle" style="color: green;"></i> completed</dt>
         <dd>The reporting profile has completed the questionnaire and shared it with your account.</dd>
       </dl>
       <dl>
-        <dt><i class="fa fa-circle" style="color: yellow;"></i> responded</dt>
+        <dt><i class="fa-solid fa-circle" style="color: yellow;"></i> responded</dt>
         <dd>The reporting profile has completed the questionnaire but hasn't shared the response with your account yet.</dd>
       </dl>
       </div>
       <div class="col-sm-6">
       <dl>
-        <dt><i class="fa fa-circle" style="color: red;"></i> no-response</dt>
+        <dt><i class="fa-solid fa-circle" style="color: red;"></i> no-response</dt>
         <dd>The reporting profile was invited but did not complete the questionnaire. It could either means they abandoned in the middle of responding or they have never started.</dd>
       </dl>
       <dl>
-        <dt><i class="fa fa-circle" style="color: grey;"></i> no-data</dt>
+        <dt><i class="fa-solid fa-circle" style="color: grey;"></i> no-data</dt>
         <dd>The reporting profile has not completed the questionnaire nor had been invited to do so.</dd>
       </dl>
       {% if urls.help %}
@@ -99,7 +99,7 @@
       <div class="col-sm-6 text-end">
         <div class="btn-group mt-4 mb-1">
           <a class="btn btn-primary" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
-            <i class="fa fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
+            <i class="fa-solid fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
           </a>
           <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="visually-hidden">Toggle Dropdown</span>
@@ -188,11 +188,11 @@
                           v-model="params.status"
                           @change="reload()">
                       <option value="">{% trans %}All{% endtrans %}</option>
-                      <option value="verified"><i class="fa fa-certificate" style="color: green;"></i> verified</option>
-                      <option value="completed"><i class="fa fa-circle" style="color: green;"></i> completed</option>
-                      <option value="responded"><i class="fa fa-circle" style="color: yellow;"></i> responded</option>
-                      <option value="no-response"><i class="fa fa-circle" style="color: red;"></i> no-response</option>
-                      <option value="no-data"><i class="fa fa-circle" style="color: red;"></i> no-data</option>
+                      <option value="verified"><i class="fa-solid fa-certificate" style="color: green;"></i> verified</option>
+                      <option value="completed"><i class="fa-solid fa-circle" style="color: green;"></i> completed</option>
+                      <option value="responded"><i class="fa-solid fa-circle" style="color: yellow;"></i> responded</option>
+                      <option value="no-response"><i class="fa-solid fa-circle" style="color: red;"></i> no-response</option>
+                      <option value="no-data"><i class="fa-solid fa-circle" style="color: red;"></i> no-data</option>
                   </select>
                   -->
               </div>
@@ -211,7 +211,7 @@
           <td colspan="2">
             <form @submit.prevent="reload()">
               <div class="input-group input-group-sm">
-                <span class="input-group-text" id="from-inp"><i class="fa fa-search"></i></span>
+                <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
                 <input class="form-control"
                        type="text"
                        placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
@@ -229,7 +229,7 @@
       <tbody v-show="!itemsLoaded">
         <tr>
           <td colspan="3">
-            <h3  class="text-center"><i class="fa fa-refresh fa-spin fa-2x"></i></h3>
+            <h3  class="text-center"><i class="fa-solid fa-refresh fa-spin fa-2x"></i></h3>
           </td>
         </tr>
       </tbody>
@@ -274,15 +274,15 @@
         </td>
         <td class="text-center"
             v-for="val in entry.values.slice().reverse()">
-          <i class="fa fa-certificate" style="color: green;"
+          <i class="fa-solid fa-certificate" style="color: green;"
              v-if="val.state === 'verified'"></i>
-          <i class="fa fa-circle" style="color: green;"
+          <i class="fa-solid fa-circle" style="color: green;"
              v-if="val.state === 'completed'"></i>
-          <i class="fa fa-circle" style="color: yellow;"
+          <i class="fa-solid fa-circle" style="color: yellow;"
              v-if="val.state === 'responded'"></i>
-          <i class="fa fa-circle" style="color: red;"
+          <i class="fa-solid fa-circle" style="color: red;"
              v-if="val.state === 'no-response'"></i>
-          <i class="fa fa-circle" style="color: grey;"
+          <i class="fa-solid fa-circle" style="color: grey;"
              v-if="val.state === 'no-data'"></i>
           <br />
           <a :href="val.url" v-if="val.url" class="btn-link">
@@ -294,7 +294,7 @@
         </td>
         <td>
           <button class="btn btn-danger btn-sm" @click.prevent="remove($event, index)" data-trip data-trip-index="3" data-trip-content="<p>Click here to cancel access request.</p>" data-trip-position="s">
-            <i class="fa fa-trash-o"></i>
+            <i class="fa-solid fa-trash-o"></i>
           </button>
         </td>
         </tr>
