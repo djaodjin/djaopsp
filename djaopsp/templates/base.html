@@ -18,7 +18,6 @@
     <link rel="stylesheet" media="screen" href="{{'/static/vendor/solid.min.css'|asset}}" />
     <link rel="stylesheet" media="screen" href="{{'/static/vendor/brands.min.css'|asset}}" />
     <link rel="stylesheet" media="print" href="{{'/static/vendor/bootstrap-print.css'|asset}}" />
-    <link rel="stylesheet" media="screen" href="{{'/static/cache/djaodjin-menubar.css'|asset}}" />
     <style media="screen">
 [v\:cloak], [v-cloak], [data-v-cloak], [x-v-cloak], .v-cloak, .x-v-cloak {
     display: none !important;
@@ -274,7 +273,7 @@ const PRIVACY_COOKIES_ENABLED = {
     advertising: injectAdvertisingScripts
 };
 </script>
-<script type="text/javascript" src="{{'/static/vendor/djaoapp-base.js'|asset}}" defer></script>
+<script type="text/javascript" src="{{'/static/vendor/djaoapp-base.js'|asset}}"></script>
 <script type="text/javascript">
 function onLoadBase() {
   if( typeof djApi !== 'undefined' ) {

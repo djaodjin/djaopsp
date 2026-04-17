@@ -1012,7 +1012,9 @@ Vue.component('djaopsp-compare-samples', {
     mounted: function(){
         // XXX Does not override `practicesListMixin.mounted
         var vm = this;
-        vm.$refs.query.$refs.account.$refs.input.focus();
+        if( vm.$refs.query && vm.$refs.query.$refs.account ) {
+            vm.$refs.query.$refs.account.$refs.input.focus();
+        }
     }
 });
 
