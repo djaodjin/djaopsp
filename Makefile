@@ -176,7 +176,7 @@ vendor-assets-prerequisites: $(libDir)/.npm/$(APP_NAME)-packages \
 	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/easymde/dist/easymde.min.js $(ASSETS_DIR)/vendor
-	$(installFiles) $(libDir)/node_modules/jquery/dist/jquery.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/jquery/dist/jquery.min.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/marked/marked.min.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/moment/moment.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/moment-timezone/builds/moment-timezone-with-data.js $(ASSETS_DIR)/vendor

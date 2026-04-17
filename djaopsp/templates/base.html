@@ -7,28 +7,29 @@
     <meta name="author" content="DjaoDjin inc.">
     <meta name="copyright" content="Copyright (c) 2026 DjaoDjin inc.">
     <link rel="icon" href="{{'/favicon.ico'|site_url}}" type="image/x-icon">
-    <meta property="og:site_name" content="{% if request and request.site %}{{request.site.printable_name}}{% else %}Practices Sharing Platform{% endif %}" />
-    <meta property="og:type" content="website" />
     {% block localheadermeta %}
     <title>{% if request and request.site %}{{request.site.printable_name}}{% else %}{% trans %}Practices Sharing Platform{% endtrans %}{% endif %}</title>
     <meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
     {% endblock %}
+    <meta property="og:site_name" content="{% if request and request.site %}{{request.site.printable_name}}{% else %}Practices Sharing Platform{% endif %}" />
+    <meta property="og:type" content="website" />
     <link rel="stylesheet" media="screen, print" href="{{'/static/cache/app.css'|asset}}" />
     <link rel="stylesheet" media="screen" href="{{'/static/vendor/fontawesome.min.css'|asset}}" />
     <link rel="stylesheet" media="screen" href="{{'/static/vendor/solid.min.css'|asset}}" />
     <link rel="stylesheet" media="screen" href="{{'/static/vendor/brands.min.css'|asset}}" />
     <link rel="stylesheet" media="print" href="{{'/static/vendor/bootstrap-print.css'|asset}}" />
+    <link rel="stylesheet" media="screen" href="{{'/static/cache/djaodjin-menubar.css'|asset}}" />
     <style media="screen">
-      [v\:cloak], [v-cloak], [data-v-cloak], [x-v-cloak], .v-cloak, .x-v-cloak {
-        display: none !important;
-      }
-      /* Override Bootstrap 4 styling on Django Debug Toolbar */
-      #djDebug[hidden], #djDebug [hidden] {
-        display: block !important;
-      }
-      #djDebug [hidden][style='display: none;'] {
-        display: none !important;
-      }
+[v\:cloak], [v-cloak], [data-v-cloak], [x-v-cloak], .v-cloak, .x-v-cloak {
+    display: none !important;
+}
+/* Override Bootstrap 4 styling on Django Debug Toolbar */
+#djDebug[hidden], #djDebug [hidden] {
+    display: block !important;
+}
+#djDebug [hidden][style='display: none;'] {
+    display: none !important;
+}
     </style>
     <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
     {% block localheader %}{% endblock %}
@@ -100,7 +101,7 @@
                       <ul class="nav flex-column py-1" data-intro="Color mode" data-position="right">
                         <li class="nav-item dropup">
                           <a id="color-mode" class="nav-link dropdown-toggle" href="#" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
-                            <span class="fa-solid fa-paint-brush align-middle"></span>
+                            <span class="fa-solid fa-paintbrush align-middle"></span>
                             {% trans %}Color mode{% endtrans %}
                             <span class="caret"></span>
                           </a>
@@ -141,7 +142,7 @@
                 <div class="container-fluid">
 
                   <div class="d-flex">
-                    <button class="me-2 btn btn-secondary sidebar-toggle sidebar-toggle-default"
+                    <button class="btn btn-secondary me-2 sidebar-toggle sidebar-toggle-default"
                             data-target="#dashboard-navbar">
                       <div class="bar1 default"></div>
                       <div class="bar2 default"></div>
@@ -229,31 +230,31 @@
 
   <!-- Start Main Footer -->
   {% block footer %}
-    <footer class="d-print-none footer text-center w-100 d-flex align-items-center justify-content-center">
+  <footer class="d-print-none footer text-center w-100 d-flex align-items-center justify-content-center">
 
-      {% block localfooter %}
-      {% endblock %}
+    {% block localfooter %}
+    {% endblock %}
 
-      <div class="copyr">
-        <div class="my-2">
-          <a href="{{'/legal/'|site_url}}" target="_blank">{% trans %}Legal{% endtrans %}</a>
-          | <a href="{{'/contact/'|site_url}}" target="_blank">{% trans %}Contact{% endtrans %}</a>
-        </div>
-        <div class="my-2">
-          <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa-brands fa-github fa-sm pe-1"></i></a>
-          <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa-brands fa-linkedin fa-sm ps-1"></i></a>
-        </div>
-        <div class="my-2">
-          {% trans %}Powered by DjaoDjin. &copy; 2026 All rights reserved.{% endtrans %}
-        </div>
+    <div class="copyr">
+      <div class="my-2">
+        <a href="{{'/legal/'|site_url}}" target="_blank">{% trans %}Legal{% endtrans %}</a>
+      | <a href="{{'/contact/'|site_url}}" target="_blank">{% trans %}Contact{% endtrans %}</a>
       </div>
-    </footer>
+      <div class="py-2">
+        <a href="https://github.com/djaodjin/djaopsp/" target="_blank" aria-label="Browse the code on GitHub"><i class="fa-brands fa-github fa-sm pe-1"></i></a>
+        <a href="https://www.linkedin.com/company/djaodjin/" target="_blank" rel="publisher" aria-label="Connect with us on Linkedin"><i class="fa-brands fa-linkedin fa-sm ps-1"></i></a>
+      </div>
+      <div class="my-2">
+        {% trans %}Powered by DjaoDjin. &copy; 2026 All rights reserved.{% endtrans %}
+      </div>
+    </div>
+  </footer>
   {% endblock footer %}
   <!-- End Main Footer -->
 
 {% block _bodyscripts %}
 <script type="text/javascript">
-const DJAOAPP_API_BASE_URL = "{{'/api'|site_url}}";
+const DJAOAPP_API_BASE_URL = "{{''|site_url}}"; // djaodjin-menubar.js
 
 function injectAnalyticsScripts() {
     // inject analytics scripts...
@@ -273,9 +274,6 @@ const PRIVACY_COOKIES_ENABLED = {
     advertising: injectAdvertisingScripts
 };
 </script>
-<script type="text/javascript" src="{{'/static/vendor/jquery.js'|asset}}" defer></script>
-<script type="text/javascript" src="{{'/static/vendor/popper.min.js'|asset}}" defer></script>
-<script type="text/javascript" src="{{'/static/vendor/bootstrap.min.js'|asset}}" defer></script>
 <script type="text/javascript" src="{{'/static/vendor/djaoapp-base.js'|asset}}" defer></script>
 <script type="text/javascript">
 function onLoadBase() {
@@ -293,6 +291,13 @@ if (document.readyState === "loading") {
     onLoadBase();
 }
 </script>
+<script type="text/javascript" src="{{'/static/vendor/popper.min.js'|asset}}" defer></script>
+<script type="text/javascript" src="{{'/static/vendor/bootstrap.min.js'|asset}}" defer></script>
+{# If we donnot load jquery.js here, we have to load it in saas/base.html    #}
+{# and extended_templates/_body_bottom.html. By loading it twice, the loaded #}
+{# UI components (`templateCodeEditors`) are not attached to the correct     #}
+{# jQuery instance, leading to an error. #}
+<script type="text/javascript" src="{{'/static/vendor/jquery.min.js'|asset}}"></script>
 {% block bodyscripts %}
 {% endblock %}
 {% endblock %}
