@@ -96,6 +96,13 @@ Vue.component('campaign-questions-list', {
         }
     },
     methods: {
+        _isArray: function(obj) {
+            return obj instanceof Object && obj.constructor === Array;
+        },
+        _isObject: function (obj) {
+            // https://stackoverflow.com/a/46663081/1491475
+            return obj instanceof Object && obj.constructor === Object;
+        },
         addSegment: function(segment) {
             var vm = this;
             vm.reqGet(vm._safeUrl(vm.url, segment.path),
@@ -548,9 +555,9 @@ Vue.component('campaign-questions-list', {
                   vm._safeUrl(vm.api_assessment_sample, '/answers');
             var data = null;
             if( typeof measured === 'undefined' || measured === null ) return;
-            if( djApi._isArray(measured) ) {
+            if( vm._isArray(measured) ) {
                 data = measured;
-            } else if( djApi._isObject(measured) ) {
+            } else if( vm._isObject(measured) ) {
                 if( typeof measured.measured === 'undefined' ||
                     measured.measured === null ) return;
                 data = [measured];

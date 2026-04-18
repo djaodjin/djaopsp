@@ -1550,11 +1550,14 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
         }
     },
     methods: {
+        _isArray: function(obj) {
+            return obj instanceof Object && obj.constructor === Array;
+        },
         getRates: function(benchmark) {
             var vm = this;
             var results = [];
             if( typeof benchmark.values !== 'undefined' ) {
-                if( djApi._isArray(benchmark.values[0][1]) ) {
+                if( vm._isArray(benchmark.values[0][1]) ) {
                     return benchmark.values[0][1];
                 }
                 return benchmark.values;
