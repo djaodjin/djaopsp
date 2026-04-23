@@ -173,7 +173,11 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                         'grantee': optin.grantee.slug
                     }]
 
-            candidates = get_latest_active_assessments(account).exclude(
+            # We asume it is a work-in-progress worthy to show in the newsfeed
+            # when `updated_at > created_at`. Otherwise the user will have
+            # to go through the "History" page to update the response.
+            candidates = get_latest_active_assessments(account).filter(
+                updated_at__gt=models.F('created_at')).exclude(
                 campaign__slug__endswith='-verified') # XXX Ad-hoc exclude
                                                # of verification campaigns.
             for sample in candidates:

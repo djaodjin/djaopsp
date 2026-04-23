@@ -232,10 +232,12 @@ def freeze_scores(sample, excludes=None, collected_by=None, created_at=None,
         Answer.objects.bulk_create(score_answers)
 
     # Update date of active sample to be later than all frozen ones.
+    # the newsfeed (`NewsfeedAPIView`) relies on `updated_at > created_at`
+    # to show active questionnaires.
     at_time = datetime_or_now()
     sample.created_at = at_time
     sample.updated_at = at_time
-    sample.save()
+    sample.save(update_fields=['created_at', 'updated_at'])
 
     return score_sample
 
