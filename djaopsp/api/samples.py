@@ -5,6 +5,7 @@ import logging
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
+from django.conf import settings as django_settings
 from django.db import transaction
 from django.db.models import Q
 from pages.docs import extend_schema
@@ -147,7 +148,9 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                 campaign=self.sample.campaign,
                 extra=self.sample.extra).order_by('created_at').first()
             if latest_completed:
-                if self.sample.has_identical_answers(latest_completed):
+                if (django_settings.FEATURES_DEBUG and
+                    self.sample.has_identical_answers(latest_completed)):
+                    # XXX This creates confusion for users
                     raise ValidationError({'detail': _("This sample contains"\
                     " the same answers has the previously frozen sample.")})
 
