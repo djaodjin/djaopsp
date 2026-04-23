@@ -511,7 +511,11 @@ var practicesListMixin = {
         getRates: function(benchmark) {
             var results = [];
             if( typeof benchmark.values !== 'undefined' ) {
-                return benchmark.values;
+                for( let idx = 0; idx < benchmark.values.length; ++idx ) {
+                    if( benchmark.values[idx][0] !== "No response" ) {
+                        results.push(benchmark.values[idx]);
+                    }
+                }
             }
             return results;
         },

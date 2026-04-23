@@ -19,9 +19,6 @@ module.exports = {
     "parserOptions": {
         "ecmaVersion": "latest"
     },
-    "plugins": [
-        "unicorn"
-    ],
     "rules": {
     }
 }
