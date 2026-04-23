@@ -238,6 +238,8 @@ class ScorecardHistoryView(AccountMixin, TemplateView):
                     args=(self.account,)),
             'get_started': reverse('profile_getstarted',
                     args=(self.account,)),
+            'getstarted_base': reverse('profile_getstarted',
+                    args=(self.account,)),
             'scorecard_base': reverse('scorecard_redirect',
                     args=(self.account,)),
             'share_base': reverse('share_redirect',

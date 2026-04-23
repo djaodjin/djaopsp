@@ -39,22 +39,34 @@
               <i class="fa-solid fa-certificate" style="color: green;" v-if="item.verified_status != 'no-review' && item.verified_status != 'under-review'"></i>
               {% endif %}
             </div>
-            <div class="col-4 text-start">
+            <div class="col-5 text-start">
               [[item.campaign.title]]
             </div>
-            <div class="col-4 text-start" v-if="item.latest || item.grantees.length > 0">
+            <div class="col-5 text-start" v-if="item.latest || item.grantees.length > 0">
               <div v-if="item.latest">
-                  <a :href="_safeUrl('{{urls.share_base}}', item.slug) + '/'">share with customers, investors, etc. &raquo;</a>
+                <a :href="_safeUrl('{{urls.getstarted_base}}', item.campaign.slug) + '/'">{% trans %}Update response{% endtrans %}</a> |
+                <a :href="_safeUrl('{{urls.share_base}}', item.slug) + '/'">{% trans %}Share with customers &raquo;{% endtrans %}</a>
               </div>
               <div v-if="item.grantees.length > 0">
-                <span>This assessment and older assessments for [[item.campaign.title]] have been shared with:</span>
-                <div v-for="grantee in item.grantees">
-                  <img class="img-fluid" style="max-height: 1rem;" :src="grantee.picture || '{{'/static/img/default-organization.png'|asset}}'"> [[grantee.printable_name ? grantee.printable_name : grantee]]
+                <span>{% trans %}This assessment and older assessments for [[item.campaign.title]] have been shared with:{% endtrans %}</span>
+                <div>
+                  <span v-for="grantee in item.grantees">
+                    <img class="img-fluid" style="max-height: 1rem;" :src="grantee.picture || '{{'/static/img/default-organization.png'|asset}}'" :title="grantee.printable_name ? grantee.printable_name : grantee">
+                  </span>
+                  <button class="d-inline btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#grantees" aria-expanded="true" aria-controls="grantees">&raquo;</button>
+                  <div id="grantees" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                      <div v-for="grantee in item.grantees">
+                        <img class="img-fluid" style="max-height: 1rem;" :src="grantee.picture || '{{'/static/img/default-organization.png'|asset}}'"> [[grantee.printable_name ? grantee.printable_name : grantee]]
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+          {% include "_pagination.html" %}
+        </div>{# /#historical-responses #}
       </div>
     </scorecard-history>
 
