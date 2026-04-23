@@ -140,7 +140,6 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
             })
         return initial_data
 
-
     def get_pending_requests(self, at_time=None):
         if not at_time:
             at_time = datetime_or_now()
@@ -191,9 +190,11 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                 if latest_completed:
                     by_campaigns[sample.campaign]['last_completed_at'] = \
                         latest_completed.created_at
-                    #if relativedelta(
-                    #        at_time, latest_completed.created_at).months < 6:
-                    by_campaigns[sample.campaign]['share_url'] = reverse(
+                    if latest_completed.created_at > sample.campaign.updated_at:
+                        # The profile is forced to update the response when
+                        # the questionnaire was last completed before the
+                        # questionnaire was updated.
+                        by_campaigns[sample.campaign]['share_url'] = reverse(
                             'share', args=(account, latest_completed))
                     by_campaigns[sample.campaign]['respondents'] = \
                         get_user_model().objects.filter(

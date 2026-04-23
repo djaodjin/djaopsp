@@ -122,9 +122,9 @@ by one of your following co-worker(s):
                           name="campaign"
                           :value="assessment.slug"
                           tabindex="-1">
-                    <span v-if="assessment.share_url">{% trans %}Update response{% endtrans %}</span>
-                    <span v-if="!assessment.share_url && assessment.update_url && assessment.update_url.indexOf('/getstarted/') < 0">{% trans %}Continue{% endtrans %}</span>
-                    <span v-if="!assessment.share_url && assessment.update_url && assessment.update_url.indexOf('/getstarted/') >= 0">{% trans %}Get started{% endtrans %} &raquo;</span>
+                    <span v-if="assessment.last_completed_at">{% trans %}Update response{% endtrans %}</span>
+                    <span v-if="!assessment.last_completed_at && assessment.update_url && assessment.update_url.indexOf('/getstarted/') < 0">{% trans %}Continue{% endtrans %}</span>
+                    <span v-if="!assessment.last_completed_at && assessment.update_url && assessment.update_url.indexOf('/getstarted/') >= 0">{% trans %}Get started{% endtrans %} &raquo;</span>
                   </button>
                 </form>
                 <a class="btn btn-outline-primary" href="" @click.prevent="redirectToExternalUrl(assessment.external_url)" v-if="assessment.external_url">{% trans %}Learn about this product{% endtrans %}</a>

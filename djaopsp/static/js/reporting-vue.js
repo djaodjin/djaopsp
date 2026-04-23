@@ -199,7 +199,7 @@ Vue.component('engage-profiles', {
             },{
                 method: 'GET', url: vm.typeaheadUrl + typeaheadQueryString,
             }], function(resp, typeaheadResp) {
-                vm.loadComplete(resp[0], typeaheadResp[0]);
+                vm.loadComplete(resp, typeaheadResp);
             });
             if( !vm.autoreload ) {
                 for( let key in vm.$refs ) {
@@ -1120,7 +1120,7 @@ Vue.component('reporting-organizations', {
                     method: 'GET', url: vm.portfolios_received_url +
                         "?state=grant-initiated",
                 }], function(resp, typeaheadResp) {
-                    vm.loadComplete(resp[0], typeaheadResp[0]);
+                    vm.loadComplete(resp, typeaheadResp);
                 });
             } else {
                 vm.reqGet(vm.url, vm.lastGetParams, cb);
