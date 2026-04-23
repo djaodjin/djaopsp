@@ -725,6 +725,9 @@ UNLOCK_BROKERS = set([APP_NAME])
 
 # pages app
 # ---------
+# XXX disabled until we figure `Manager isn't available; 'pages.MediaTag' has been swapped for 'extended_templates.MediaTag'`
+# XXX PAGES_MEDIATAG_MODEL = 'extended_templates.MediaTag'
+
 PAGES = {
     'ACCOUNT_LOOKUP_FIELD': 'slug',
     'ACCOUNT_MODEL': ACCOUNT_MODEL,

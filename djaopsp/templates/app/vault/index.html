@@ -43,6 +43,60 @@
       </div>
     </div>
   </div>
+  <hr />
+  <div class="dj-gallery-info-item">
+    <div class="dj-gallery-info-item-empty">
+      <em>{% trans %}Click on an item to view its metadata{% endtrans %}</em>
+    </div>
+    <div class="dj-gallery-info-item-selected" style="display: none;">
+      <div class="input-group">
+        <input class="dj-gallery-location-input form-control" type="text" readonly />
+        <button class="dj-gallery-copy-location btn btn-secondary" type="button">
+          <i class="fa-solid fa-copy"></i>
+        </button>
+      </div>
+      <div class="input-group mt-2">
+        <input class="dj-gallery-tag-input form-control" type="text" placeholder="{% trans %}tags{% endtrans %} ..." />
+      </div>
+      <div class="dj-help-block form-text help-block">
+        <small class="text-muted">{% trans %}Tags must be separated by a comma. ex: video, title{% endtrans %}</small>
+      </div>
+      <div class="d-grid gap-2">
+        <button class="dj-gallery-preview-item btn btn-primary" type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#modal-preview-media">
+          <i class="fa-solid fa-eye fa-lg"></i> {% trans %}Preview{% endtrans %}
+        </button>
+        <hr />
+        <button class="dj-gallery-delete-item btn btn-danger">
+          <i class="fa-solid fa-trash-o fa-lg"></i> {% trans %}Delete{% endtrans %}
+        </button>
+      </div>
+    </div>
+  </div>{# /#dj-gallery-info-item #}
+
+  <div class="modal fade" id="modal-preview-media" tabindex="-1" role="dialog"
+       aria-labelledby="modal-preview-media" style="">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4>{% trans %}Preview{% endtrans %}</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans %}Close{% endtrans %}"></button>
+        </div>
+        <div class="dj-gallery-info-preview modal-body">
+        </div>
+        <div class="modal-footer">
+          <div class="input-group">
+            <input class="dj-gallery-location-input form-control" type="text" readonly />
+            <button class="dj-gallery-copy-location btn btn-secondary" type="button">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>{# /#media-gallery #}
 
   </div>
@@ -68,7 +122,7 @@ $(document).ready(function(){
         {% endif %}
         csrfToken: "{{csrf_token}}",
 
-        itemTemplateUnknown: '<div id="image_${index}" class="dj-gallery-item-container thumbnail-gallery" draggable="true"><img class="image dj-gallery-item image_media img-thumbnail" style="background-color:#000;" src="{{'/static/img/generic-document.png'|asset}}" data-location="${location}"><div>${tags}</div></div>',
+        itemTemplateUnknown: '<div id="${id}" class="dj-gallery-item-container thumbnail-gallery" draggable="true"><img class="image dj-gallery-item image_media" src="{{'/static/img/generic-document.png'|asset}}" data-location="${location}" data-tags="${tags}"><div class="text-center editable">${tags}</div></div>',
 
         // internationalization messages
         uploadCompleteLabel: "{% trans %}Upload completed{% endtrans %}",
@@ -90,11 +144,6 @@ $(document).ready(function(){
     });
     var $djgallery = $("#media-gallery").data("djgallery");
     $djgallery.showGallery();
-
-    $("#media-gallery").on("djgallery.select", function(gallery, location) {
-        window.open(location, '_blank');
-    });
-
 });
 </script>
 {% endblock %}

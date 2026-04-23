@@ -879,14 +879,15 @@ li.active .system-menus {
 }
 
 .thumbnail-gallery{
-  margin-right:4px;
-  background: #DDD;
-  min-height: 50px;
-  overflow: hidden;
-  margin-bottom: 7px;
   display: inline-block;
-  width:75px;
-  max-height: 70px;
+  vertical-align: top;
+  width:85px;
+  min-height: 60px;
+  padding: 5px;
+  margin-right: 5px;
+  margin-bottom: 10px;
+  background: #DDD;
+  overflow: hidden;
 }
 
 .thumbnail-gallery *{
@@ -2387,9 +2388,8 @@ pre.code{
   border-radius: 25px;
 }
 
-.dj-gallery-active-item > img {
-  border: 2px solid #111;
-  border-radius: 25px;
+.dj-gallery-active-item {
+  border: 1px solid #111;
 }
 
 @include media-breakpoint-up(md) {
