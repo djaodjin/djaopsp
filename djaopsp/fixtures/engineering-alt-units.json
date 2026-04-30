@@ -4,208 +4,208 @@
     "title": "inch",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 100
+  "model": "survey.unit", "pk": 100
 },
 { "fields": {
     "slug": "ft",
     "title": "feet",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 101
+  "model": "survey.unit", "pk": 101
 },
 { "fields": {
     "slug": "mi",
     "title": "mile",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 102
+  "model": "survey.unit", "pk": 102
 },
 { "fields": {
     "slug": "nmi",
     "title": "nautical mile",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 103
+  "model": "survey.unit", "pk": 103
 },
 { "fields": {
-    "source": 1,
+    "source": 16,
     "target": 100,
     "content": "* 39.3701",
     "factor": 39.3701,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 200
+  "model": "survey.unitequivalences", "pk": 200
 },
 { "fields": {
-    "source": 1,
+    "source": 16,
     "target": 101,
     "content": "* 3.28084",
     "factor": 3.28084,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 201
+  "model": "survey.unitequivalences", "pk": 201
 },
 { "fields": {
-    "source": 1,
+    "source": 16,
     "target": 102,
     "content": "* 0.621371 * 1e-3",
     "factor": 0.621371,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 202
+  "model": "survey.unitequivalences", "pk": 202
 },
 { "fields": {
-    "source": 1,
+    "source": 16,
     "target": 103,
     "content": "* 0.539957 * 1e-3",
     "factor": 0.539957,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 203
+  "model": "survey.unitequivalences", "pk": 203
 },
 { "fields": {
-    "source": 33,
+    "source": 48,
     "target": 100,
     "content": "* 39.3701 * 1e3",
     "factor": 39.3701,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 204
+  "model": "survey.unitequivalences", "pk": 204
 },
 { "fields": {
-    "source": 33,
+    "source": 48,
     "target": 101,
     "content": "* 3.28084 * 1e3",
     "factor": 3.28084,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 205
+  "model": "survey.unitequivalences", "pk": 205
 },
 { "fields": {
-    "source": 33,
+    "source": 48,
     "target": 102,
     "content": "* 0.621371",
     "factor": 0.621371,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 206
+  "model": "survey.unitequivalences", "pk": 206
 },
 { "fields": {
-    "source": 33,
+    "source": 48,
     "target": 103,
     "content": "* 0.539957",
     "factor": 0.539957,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 207
+  "model": "survey.unitequivalences", "pk": 207
 },
 { "fields": {
-    "source": 34,
+    "source": 49,
     "target": 100,
     "content": "/ 2.54",
     "factor": 39.3701,
     "scale": 1e-2
   },
-  "model" : "survey.unitequivalences", "pk": 208
+  "model": "survey.unitequivalences", "pk": 208
 },
 { "fields": {
-    "source": 34,
+    "source": 49,
     "target": 101,
     "content": "/ 30.48",
     "factor": 3.28084,
     "scale": 1e-2
   },
-  "model" : "survey.unitequivalences", "pk": 209
+  "model": "survey.unitequivalences", "pk": 209
 },
 { "fields": {
-    "source": 34,
+    "source": 49,
     "target": 102,
     "content": "* 0.621371 * 1e-5",
     "factor": 0.621371,
     "scale": 1e-5
   },
-  "model" : "survey.unitequivalences", "pk": 210
+  "model": "survey.unitequivalences", "pk": 210
 },
 { "fields": {
-    "source": 34,
+    "source": 49,
     "target": 103,
     "content": "* 0.539957 * 1e-5",
     "factor": 0.539957,
     "scale": 1e-5
   },
-  "model" : "survey.unitequivalences", "pk": 211
+  "model": "survey.unitequivalences", "pk": 211
 },
 { "fields": {
-    "source": 35,
+    "source": 50,
     "target": 100,
     "content": "* 39.3701 * 1e-3",
     "factor": 39.3701,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 212
+  "model": "survey.unitequivalences", "pk": 212
 },
 { "fields": {
-    "source": 35,
+    "source": 50,
     "target": 101,
     "content": "* 3.28084 * 1e-3",
     "factor": 3.28084,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 213
+  "model": "survey.unitequivalences", "pk": 213
 },
 { "fields": {
-    "source": 35,
+    "source": 50,
     "target": 102,
     "content": "* 0.621371 * 1e-6",
     "factor": 0.621371,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 214
+  "model": "survey.unitequivalences", "pk": 214
 },
 { "fields": {
-    "source": 35,
+    "source": 50,
     "target": 103,
     "content": "* 0.539957 * 1e-6",
     "factor": 0.539957,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 215
+  "model": "survey.unitequivalences", "pk": 215
 },
 { "fields": {
     "source": 100,
-    "target": 1,
+    "target": 16,
     "content": "* 0.0254",
     "factor": 0.0254,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 216
+  "model": "survey.unitequivalences", "pk": 216
 },
 { "fields": {
     "source": 100,
-    "target": 33,
+    "target": 48,
     "content": "",
     "factor": 0.0254,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 217
+  "model": "survey.unitequivalences", "pk": 217
 },
 { "fields": {
     "source": 100,
-    "target": 34,
+    "target": 49,
     "content": "",
     "factor": 0.0254,
     "scale": 1e2
   },
-  "model" : "survey.unitequivalences", "pk": 218
+  "model": "survey.unitequivalences", "pk": 218
 },
 { "fields": {
     "source": 100,
-    "target": 35,
+    "target": 50,
     "content": "",
     "factor": 0.0254,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 219
+  "model": "survey.unitequivalences", "pk": 219
 },
 { "fields": {
     "source": 100,
@@ -214,61 +214,61 @@
     "factor": 0.0833333,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 220
+  "model": "survey.unitequivalences", "pk": 220
 },
 { "fields": {
     "source": 100,
     "target": 102,
     "content": "* 0.0000157828",
-    "factor": 0.0000157828,
+    "factor": 1.57828e-05,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 221
+  "model": "survey.unitequivalences", "pk": 221
 },
 { "fields": {
     "source": 100,
     "target": 103,
     "content": "* 0.0000137149",
-    "factor": 0.0000137149,
+    "factor": 1.37149e-05,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 222
+  "model": "survey.unitequivalences", "pk": 222
 },
 { "fields": {
     "source": 101,
-    "target": 1,
+    "target": 16,
     "content": "* 0.3048",
     "factor": 0.3048,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 223
+  "model": "survey.unitequivalences", "pk": 223
 },
 { "fields": {
     "source": 101,
-    "target": 33,
+    "target": 48,
     "content": "* 0.3048",
     "factor": 0.3048,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 224
+  "model": "survey.unitequivalences", "pk": 224
 },
 { "fields": {
     "source": 101,
-    "target": 34,
+    "target": 49,
     "content": "* 0.3048",
     "factor": 0.3048,
     "scale": 1e2
   },
-  "model" : "survey.unitequivalences", "pk": 225
+  "model": "survey.unitequivalences", "pk": 225
 },
 { "fields": {
     "source": 101,
-    "target": 35,
+    "target": 50,
     "content": "* 0.3048",
     "factor": 0.3048,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 226
+  "model": "survey.unitequivalences", "pk": 226
 },
 { "fields": {
     "source": 101,
@@ -277,7 +277,7 @@
     "factor": 12,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 227
+  "model": "survey.unitequivalences", "pk": 227
 },
 { "fields": {
     "source": 101,
@@ -286,7 +286,7 @@
     "factor": 0.000189394,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 228
+  "model": "survey.unitequivalences", "pk": 228
 },
 { "fields": {
     "source": 101,
@@ -295,43 +295,43 @@
     "factor": 0.000164579,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 229
+  "model": "survey.unitequivalences", "pk": 229
 },
 { "fields": {
     "source": 102,
-    "target": 1,
+    "target": 16,
     "content": "* 1609.34",
     "factor": 1609.34,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 230
+  "model": "survey.unitequivalences", "pk": 230
 },
 { "fields": {
     "source": 102,
-    "target": 33,
+    "target": 48,
     "content": "* 1609.34",
     "factor": 1609.34,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 231
+  "model": "survey.unitequivalences", "pk": 231
 },
 { "fields": {
     "source": 102,
-    "target": 34,
+    "target": 49,
     "content": "* 1609.34",
     "factor": 1609.34,
     "scale": 1e2
   },
-  "model" : "survey.unitequivalences", "pk": 232
+  "model": "survey.unitequivalences", "pk": 232
 },
 { "fields": {
     "source": 102,
-    "target": 35,
+    "target": 50,
     "content": "* 1609.34",
     "factor": 1609.34,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 233
+  "model": "survey.unitequivalences", "pk": 233
 },
 { "fields": {
     "source": 102,
@@ -340,7 +340,7 @@
     "factor": 63360,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 234
+  "model": "survey.unitequivalences", "pk": 234
 },
 { "fields": {
     "source": 102,
@@ -349,7 +349,7 @@
     "factor": 5280,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 235
+  "model": "survey.unitequivalences", "pk": 235
 },
 
 { "fields": {
@@ -359,43 +359,43 @@
     "factor": 0.868976,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 236
+  "model": "survey.unitequivalences", "pk": 236
 },
 { "fields": {
     "source": 103,
-    "target": 1,
+    "target": 16,
     "content": "* 1852",
     "factor": 1852,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 237
+  "model": "survey.unitequivalences", "pk": 237
 },
 { "fields": {
     "source": 103,
-    "target": 33,
+    "target": 48,
     "content": "* 1852",
     "factor": 1852,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 238
+  "model": "survey.unitequivalences", "pk": 238
 },
 { "fields": {
     "source": 103,
-    "target": 34,
+    "target": 49,
     "content": "* 1852",
     "factor": 1852,
     "scale": 1e2
   },
-  "model" : "survey.unitequivalences", "pk": 239
+  "model": "survey.unitequivalences", "pk": 239
 },
 { "fields": {
     "source": 103,
-    "target": 35,
+    "target": 50,
     "content": "* 1852",
     "factor": 1852,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 240
+  "model": "survey.unitequivalences", "pk": 240
 },
 { "fields": {
     "source": 103,
@@ -404,7 +404,7 @@
     "factor": 72913.4,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 241
+  "model": "survey.unitequivalences", "pk": 241
 },
 { "fields": {
     "source": 103,
@@ -413,7 +413,7 @@
     "factor": 6076.12,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 242
+  "model": "survey.unitequivalences", "pk": 242
 },
 { "fields": {
     "source": 103,
@@ -422,7 +422,7 @@
     "factor": 1.15078,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 243
+  "model": "survey.unitequivalences", "pk": 243
 },
 
 
@@ -431,208 +431,208 @@
     "title": "pound",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 113
+  "model": "survey.unit", "pk": 113
 },
 { "fields": {
     "slug": "oz",
     "title": "ounce",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 114
+  "model": "survey.unit", "pk": 114
 },
 { "fields": {
     "slug": "slug",
     "title": "slug",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 115
+  "model": "survey.unit", "pk": 115
 },
 { "fields": {
     "slug": "tn",
     "title": "short ton",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 116
+  "model": "survey.unit", "pk": 116
 },
 { "fields": {
-    "source": 2,
+    "source": 17,
     "target": 113,
     "content": "* 2.20462",
     "factor": 2.20462,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 244
+  "model": "survey.unitequivalences", "pk": 244
 },
 { "fields": {
-    "source": 2,
+    "source": 17,
     "target": 114,
     "content": "* 35.274",
     "factor": 35.274,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 245
+  "model": "survey.unitequivalences", "pk": 245
 },
 { "fields": {
-    "source": 2,
+    "source": 17,
     "target": 115,
     "content": "* 0.068521779647661",
     "factor": 0.068521779647661,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 246
+  "model": "survey.unitequivalences", "pk": 246
 },
 { "fields": {
-    "source": 2,
+    "source": 17,
     "target": 116,
     "content": "* 0.001102311359528",
     "factor": 0.001102311359528,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 247
+  "model": "survey.unitequivalences", "pk": 247
 },
 { "fields": {
-    "source": 36,
+    "source": 51,
     "target": 113,
     "content": "* 2.20462 * 1e3",
     "factor": 2.20462,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 248
+  "model": "survey.unitequivalences", "pk": 248
 },
 { "fields": {
-    "source": 36,
+    "source": 51,
     "target": 114,
     "content": "* 35.274 * 1e3",
     "factor": 35.274,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 249
+  "model": "survey.unitequivalences", "pk": 249
 },
 { "fields": {
-    "source": 36,
+    "source": 51,
     "target": 115,
     "content": "* 0.068521779647661 * 1e3",
     "factor": 0.068521779647661,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 250
+  "model": "survey.unitequivalences", "pk": 250
 },
 { "fields": {
-    "source": 36,
+    "source": 51,
     "target": 116,
     "content": "* 0.001102311359528 * 1e3",
     "factor": 0.001102311359528,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 251
+  "model": "survey.unitequivalences", "pk": 251
 },
 { "fields": {
-    "source": 37,
+    "source": 52,
     "target": 113,
     "content": "* 2.20462 * 1e-3",
     "factor": 2.20462,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 252
+  "model": "survey.unitequivalences", "pk": 252
 },
 { "fields": {
-    "source": 37,
+    "source": 52,
     "target": 114,
     "content": "* 35.274 * 1e-3",
     "factor": 35.274,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 253
+  "model": "survey.unitequivalences", "pk": 253
 },
 { "fields": {
-    "source": 37,
+    "source": 52,
     "target": 115,
     "content": "* 0.068521779647661 * 1e-3",
     "factor": 0.068521779647661,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 254
+  "model": "survey.unitequivalences", "pk": 254
 },
 { "fields": {
-    "source": 37,
+    "source": 52,
     "target": 116,
     "content": "* 0.001102311359528 * 1e-3",
     "factor": 0.001102311359528,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 255
+  "model": "survey.unitequivalences", "pk": 255
 },
 { "fields": {
-    "source": 38,
+    "source": 53,
     "target": 113,
     "content": "* 2.20462 * 1e-6",
     "factor": 2.20462,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 256
+  "model": "survey.unitequivalences", "pk": 256
 },
 { "fields": {
-    "source": 38,
+    "source": 53,
     "target": 114,
     "content": "* 35.274 * 1e-6",
     "factor": 35.274,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 257
+  "model": "survey.unitequivalences", "pk": 257
 },
 { "fields": {
-    "source": 38,
+    "source": 53,
     "target": 115,
     "content": "* 0.068521779647661 * 1e-6",
     "factor": 0.068521779647661,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 258
+  "model": "survey.unitequivalences", "pk": 258
 },
 { "fields": {
-    "source": 38,
+    "source": 53,
     "target": 116,
     "content": "* 0.001102311359528 * 1e-6",
     "factor": 0.001102311359528,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 259
+  "model": "survey.unitequivalences", "pk": 259
 },
 { "fields": {
     "source": 113,
-    "target": 2,
+    "target": 17,
     "content": "* 0.453592 * 1",
     "factor": 0.453592,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 260
+  "model": "survey.unitequivalences", "pk": 260
 },
 { "fields": {
     "source": 113,
-    "target": 36,
+    "target": 51,
     "content": "* 0.453592 * 1e-3",
     "factor": 0.453592,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 261
+  "model": "survey.unitequivalences", "pk": 261
 },
 { "fields": {
     "source": 113,
-    "target": 37,
+    "target": 52,
     "content": "* 0.453592 * 1e3",
     "factor": 0.453592,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 262
+  "model": "survey.unitequivalences", "pk": 262
 },
 { "fields": {
     "source": 113,
-    "target": 38,
+    "target": 53,
     "content": "* 0.453592 * 1e6",
     "factor": 0.453592,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 263
+  "model": "survey.unitequivalences", "pk": 263
 },
 { "fields": {
     "source": 113,
@@ -641,7 +641,7 @@
     "factor": 16,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 264
+  "model": "survey.unitequivalences", "pk": 264
 },
 { "fields": {
     "source": 113,
@@ -650,7 +650,7 @@
     "factor": 0.031081,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 265
+  "model": "survey.unitequivalences", "pk": 265
 },
 { "fields": {
     "source": 113,
@@ -659,43 +659,43 @@
     "factor": 0.0005,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 266
+  "model": "survey.unitequivalences", "pk": 266
 },
 { "fields": {
     "source": 114,
-    "target": 2,
+    "target": 17,
     "content": "",
     "factor": 0.0283495,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 267
+  "model": "survey.unitequivalences", "pk": 267
 },
 { "fields": {
     "source": 114,
-    "target": 36,
+    "target": 51,
     "content": "",
     "factor": 0.0283495,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 268
+  "model": "survey.unitequivalences", "pk": 268
 },
 { "fields": {
     "source": 114,
-    "target": 37,
+    "target": 52,
     "content": "",
     "factor": 0.0283495,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 269
+  "model": "survey.unitequivalences", "pk": 269
 },
 { "fields": {
     "source": 114,
-    "target": 38,
+    "target": 53,
     "content": "",
     "factor": 0.0283495,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 270
+  "model": "survey.unitequivalences", "pk": 270
 },
 { "fields": {
     "source": 114,
@@ -704,7 +704,7 @@
     "factor": 0.0625,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 271
+  "model": "survey.unitequivalences", "pk": 271
 },
 { "fields": {
     "source": 114,
@@ -713,7 +713,7 @@
     "factor": 0.00194256,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 272
+  "model": "survey.unitequivalences", "pk": 272
 },
 { "fields": {
     "source": 114,
@@ -722,43 +722,43 @@
     "factor": 3.125e-5,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 273
+  "model": "survey.unitequivalences", "pk": 273
 },
 { "fields": {
     "source": 115,
-    "target": 2,
+    "target": 17,
     "content": "",
     "factor": 14.5939,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 274
+  "model": "survey.unitequivalences", "pk": 274
 },
 { "fields": {
     "source": 115,
-    "target": 36,
+    "target": 51,
     "content": "",
     "factor": 14.5939,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 275
+  "model": "survey.unitequivalences", "pk": 275
 },
 { "fields": {
     "source": 115,
-    "target": 37,
+    "target": 52,
     "content": "",
     "factor": 14.5939,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 276
+  "model": "survey.unitequivalences", "pk": 276
 },
 { "fields": {
     "source": 115,
-    "target": 38,
+    "target": 53,
     "content": "",
     "factor": 14.5939,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 277
+  "model": "survey.unitequivalences", "pk": 277
 },
 { "fields": {
     "source": 115,
@@ -767,7 +767,7 @@
     "factor": 32.174,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 278
+  "model": "survey.unitequivalences", "pk": 278
 },
 { "fields": {
     "source": 115,
@@ -776,7 +776,7 @@
     "factor": 514.785,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 279
+  "model": "survey.unitequivalences", "pk": 279
 },
 { "fields": {
     "source": 115,
@@ -785,43 +785,43 @@
     "factor": 0.016087,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 280
+  "model": "survey.unitequivalences", "pk": 280
 },
 { "fields": {
     "source": 116,
-    "target": 2,
+    "target": 17,
     "content": "",
     "factor": 907.185,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 281
+  "model": "survey.unitequivalences", "pk": 281
 },
 { "fields": {
     "source": 116,
-    "target": 36,
+    "target": 51,
     "content": "",
     "factor": 907.185,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 282
+  "model": "survey.unitequivalences", "pk": 282
 },
 { "fields": {
     "source": 116,
-    "target": 37,
+    "target": 52,
     "content": "",
     "factor": 907.185,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 283
+  "model": "survey.unitequivalences", "pk": 283
 },
 { "fields": {
     "source": 116,
-    "target": 38,
+    "target": 53,
     "content": "",
     "factor": 907.185,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 284
+  "model": "survey.unitequivalences", "pk": 284
 },
 { "fields": {
     "source": 116,
@@ -830,7 +830,7 @@
     "factor": 2000,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 285
+  "model": "survey.unitequivalences", "pk": 285
 },
 { "fields": {
     "source": 116,
@@ -839,7 +839,7 @@
     "factor": 32000,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 286
+  "model": "survey.unitequivalences", "pk": 286
 },
 { "fields": {
     "source": 116,
@@ -848,7 +848,7 @@
     "factor": 62.1619,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 287
+  "model": "survey.unitequivalences", "pk": 287
 },
 
 { "fields": {
@@ -856,197 +856,197 @@
     "title": "square inch",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 104
+  "model": "survey.unit", "pk": 104
 },
 { "fields": {
     "slug": "ft2",
     "title": "square feet",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 105
+  "model": "survey.unit", "pk": 105
 },
 { "fields": {
     "slug": "mi2",
     "title": "square mile",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 106
+  "model": "survey.unit", "pk": 106
 },
 { "fields": {
     "slug": "nmi2",
     "title": "square nautical mile",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 107
+  "model": "survey.unit", "pk": 107
 },
 { "fields": {
     "slug": "acre",
     "title": "acre",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 108
+  "model": "survey.unit", "pk": 108
 },
 { "fields": {
-    "source": 8,
+    "source": 23,
     "target": 104,
     "content": "* 1550",
     "factor": 1550,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 288
+  "model": "survey.unitequivalences", "pk": 288
 },
 { "fields": {
-    "source": 8,
+    "source": 23,
     "target": 105,
     "content": "* 10.764",
     "factor": 10.764,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 289
+  "model": "survey.unitequivalences", "pk": 289
 },
 { "fields": {
-    "source": 8,
+    "source": 23,
     "target": 106,
     "content": "* 0.386102 * 1e-6",
     "factor": 0.386102,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 290
+  "model": "survey.unitequivalences", "pk": 290
 },
 { "fields": {
-    "source": 8,
+    "source": 23,
     "target": 107,
     "content": "",
     "factor": 0.291553,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 291
+  "model": "survey.unitequivalences", "pk": 291
 },
 { "fields": {
-    "source": 8,
+    "source": 23,
     "target": 108,
     "content": "",
     "factor": 0.000247105,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 292
+  "model": "survey.unitequivalences", "pk": 292
 },
 { "fields": {
-    "source": 45,
+    "source": 60,
     "target": 104,
     "content": "",
     "factor": 1550,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 293
+  "model": "survey.unitequivalences", "pk": 293
 },
 { "fields": {
-    "source": 45,
+    "source": 60,
     "target": 105,
     "content": "* 10.764",
     "factor": 10.764,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 294
+  "model": "survey.unitequivalences", "pk": 294
 },
 { "fields": {
-    "source": 45,
+    "source": 60,
     "target": 106,
     "content": "* 0.386102",
     "factor": 0.386102,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 295
+  "model": "survey.unitequivalences", "pk": 295
 },
 { "fields": {
-    "source": 45,
+    "source": 60,
     "target": 107,
     "content": "",
     "factor": 0.291553,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 296
+  "model": "survey.unitequivalences", "pk": 296
 },
 { "fields": {
-    "source": 45,
+    "source": 60,
     "target": 108,
     "content": "",
     "factor": 0.000247105,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 297
+  "model": "survey.unitequivalences", "pk": 297
 },
 { "fields": {
-    "source": 46,
+    "source": 61,
     "target": 104,
     "content": "",
     "factor": 1550,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 298
+  "model": "survey.unitequivalences", "pk": 298
 },
 { "fields": {
-    "source": 46,
+    "source": 61,
     "target": 105,
     "content": "* 10.764",
     "factor": 10.764,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 299
+  "model": "survey.unitequivalences", "pk": 299
 },
 { "fields": {
-    "source": 46,
+    "source": 61,
     "target": 106,
     "content": "* 0.386102",
     "factor": 0.386102,
     "scale": 1e-12
   },
-  "model" : "survey.unitequivalences", "pk": 300
+  "model": "survey.unitequivalences", "pk": 300
 },
 { "fields": {
-    "source": 46,
+    "source": 61,
     "target": 107,
     "content": "",
     "factor": 0.291553,
     "scale": 1e-12
   },
-  "model" : "survey.unitequivalences", "pk": 301
+  "model": "survey.unitequivalences", "pk": 301
 },
 { "fields": {
-    "source": 46,
+    "source": 61,
     "target": 108,
     "content": "",
     "factor": 0.000247105,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 302
+  "model": "survey.unitequivalences", "pk": 302
 },
 { "fields": {
     "source": 104,
-    "target": 8,
+    "target": 23,
     "content": "/ 1550",
     "factor": 0.00064516,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 303
+  "model": "survey.unitequivalences", "pk": 303
 },
 { "fields": {
     "source": 104,
-    "target": 45,
+    "target": 60,
     "content": "/ 1550",
     "factor": 0.00064516,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 304
+  "model": "survey.unitequivalences", "pk": 304
 },
 { "fields": {
     "source": 104,
-    "target": 46,
+    "target": 61,
     "content": "/ 1550",
     "factor": 0.00064516,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 305
+  "model": "survey.unitequivalences", "pk": 305
 },
 { "fields": {
     "source": 104,
@@ -1055,7 +1055,7 @@
     "factor": 0.00694444,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 306
+  "model": "survey.unitequivalences", "pk": 306
 },
 { "fields": {
     "source": 104,
@@ -1064,7 +1064,7 @@
     "factor": 2.49098,
     "scale": 1e-10
   },
-  "model" : "survey.unitequivalences", "pk": 307
+  "model": "survey.unitequivalences", "pk": 307
 },
 { "fields": {
     "source": 104,
@@ -1073,7 +1073,7 @@
     "factor": 1.88099,
     "scale": 1e-10
   },
-  "model" : "survey.unitequivalences", "pk": 308
+  "model": "survey.unitequivalences", "pk": 308
 },
 { "fields": {
     "source": 104,
@@ -1082,34 +1082,34 @@
     "factor": 1.59423,
     "scale": 1e-7
   },
-  "model" : "survey.unitequivalences", "pk": 309
+  "model": "survey.unitequivalences", "pk": 309
 },
 { "fields": {
     "source": 105,
-    "target": 8,
+    "target": 23,
     "content": "",
     "factor": 0.092903,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 310
+  "model": "survey.unitequivalences", "pk": 310
 },
 { "fields": {
     "source": 105,
-    "target": 45,
+    "target": 60,
     "content": "",
     "factor": 0.092903,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 311
+  "model": "survey.unitequivalences", "pk": 311
 },
 { "fields": {
     "source": 105,
-    "target": 46,
+    "target": 61,
     "content": "",
     "factor": 0.092903,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 312
+  "model": "survey.unitequivalences", "pk": 312
 },
 { "fields": {
     "source": 105,
@@ -1118,7 +1118,7 @@
     "factor": 144,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 313
+  "model": "survey.unitequivalences", "pk": 313
 },
 { "fields": {
     "source": 105,
@@ -1127,7 +1127,7 @@
     "factor": 3.58701,
     "scale": 1e-8
   },
-  "model" : "survey.unitequivalences", "pk": 314
+  "model": "survey.unitequivalences", "pk": 314
 },
 { "fields": {
     "source": 105,
@@ -1136,7 +1136,7 @@
     "factor": 2.70862,
     "scale": 1e-8
   },
-  "model" : "survey.unitequivalences", "pk": 315
+  "model": "survey.unitequivalences", "pk": 315
 },
 { "fields": {
     "source": 105,
@@ -1145,34 +1145,34 @@
     "factor": 2.29568,
     "scale": 1e-5
   },
-  "model" : "survey.unitequivalences", "pk": 316
+  "model": "survey.unitequivalences", "pk": 316
 },
 { "fields": {
     "source": 106,
-    "target": 8,
+    "target": 23,
     "content": "",
     "factor": 2.59,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 317
+  "model": "survey.unitequivalences", "pk": 317
 },
 { "fields": {
     "source": 106,
-    "target": 45,
+    "target": 60,
     "content": "",
     "factor": 2.59,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 318
+  "model": "survey.unitequivalences", "pk": 318
 },
 { "fields": {
     "source": 106,
-    "target": 46,
+    "target": 61,
     "content": "",
     "factor": 2.59,
     "scale": 1e12
   },
-  "model" : "survey.unitequivalences", "pk": 319
+  "model": "survey.unitequivalences", "pk": 319
 },
 { "fields": {
     "source": 106,
@@ -1181,7 +1181,7 @@
     "factor": 4.014,
     "scale": 1e9
   },
-  "model" : "survey.unitequivalences", "pk": 320
+  "model": "survey.unitequivalences", "pk": 320
 },
 { "fields": {
     "source": 106,
@@ -1190,7 +1190,7 @@
     "factor": 2.788,
     "scale": 1e7
   },
-  "model" : "survey.unitequivalences", "pk": 321
+  "model": "survey.unitequivalences", "pk": 321
 },
 { "fields": {
     "source": 106,
@@ -1199,7 +1199,7 @@
     "factor": 0.75512,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 322
+  "model": "survey.unitequivalences", "pk": 322
 },
 { "fields": {
     "source": 106,
@@ -1208,34 +1208,34 @@
     "factor": 640,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 323
+  "model": "survey.unitequivalences", "pk": 323
 },
 { "fields": {
     "source": 107,
-    "target": 8,
+    "target": 23,
     "content": "",
     "factor": 3.43,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 324
+  "model": "survey.unitequivalences", "pk": 324
 },
 { "fields": {
     "source": 107,
-    "target": 45,
+    "target": 60,
     "content": "",
     "factor": 3.43,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 325
+  "model": "survey.unitequivalences", "pk": 325
 },
 { "fields": {
     "source": 107,
-    "target": 46,
+    "target": 61,
     "content": "",
     "factor": 3.43,
     "scale": 1e12
   },
-  "model" : "survey.unitequivalences", "pk": 326
+  "model": "survey.unitequivalences", "pk": 326
 },
 { "fields": {
     "source": 107,
@@ -1244,7 +1244,7 @@
     "factor": 5.316,
     "scale": 1e9
   },
-  "model" : "survey.unitequivalences", "pk": 327
+  "model": "survey.unitequivalences", "pk": 327
 },
 { "fields": {
     "source": 107,
@@ -1253,7 +1253,7 @@
     "factor": 3.692,
     "scale": 1e7
   },
-  "model" : "survey.unitequivalences", "pk": 328
+  "model": "survey.unitequivalences", "pk": 328
 },
 { "fields": {
     "source": 107,
@@ -1262,7 +1262,7 @@
     "factor": 1.32429,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 329
+  "model": "survey.unitequivalences", "pk": 329
 },
 { "fields": {
     "source": 107,
@@ -1271,34 +1271,34 @@
     "factor": 847.548,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 330
+  "model": "survey.unitequivalences", "pk": 330
 },
 { "fields": {
     "source": 108,
-    "target": 8,
+    "target": 23,
     "content": "",
     "factor": 4046.86,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 331
+  "model": "survey.unitequivalences", "pk": 331
 },
 { "fields": {
     "source": 108,
-    "target": 45,
+    "target": 60,
     "content": "",
     "factor": 4046.86,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 332
+  "model": "survey.unitequivalences", "pk": 332
 },
 { "fields": {
     "source": 108,
-    "target": 46,
+    "target": 61,
     "content": "",
     "factor": 4046.86,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 333
+  "model": "survey.unitequivalences", "pk": 333
 },
 { "fields": {
     "source": 108,
@@ -1307,7 +1307,7 @@
     "factor": 6.273,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 334
+  "model": "survey.unitequivalences", "pk": 334
 },
 { "fields": {
     "source": 108,
@@ -1316,7 +1316,7 @@
     "factor": 43560,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 335
+  "model": "survey.unitequivalences", "pk": 335
 },
 { "fields": {
     "source": 108,
@@ -1325,7 +1325,7 @@
     "factor": 0.0015625,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 336
+  "model": "survey.unitequivalences", "pk": 336
 },
 { "fields": {
     "source": 108,
@@ -1334,7 +1334,7 @@
     "factor": 0.00117987,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 337
+  "model": "survey.unitequivalences", "pk": 337
 },
 
 { "fields": {
@@ -1342,163 +1342,163 @@
     "title": "cubic inch",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 109
+  "model": "survey.unit", "pk": 109
 },
 { "fields": {
     "slug": "ft3",
     "title": "cubic feet",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 110
+  "model": "survey.unit", "pk": 110
 },
 { "fields": {
     "slug": "gal",
     "title": "gallon (US)",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 111
+  "model": "survey.unit", "pk": 111
 },
 { "fields": {
     "slug": "gal-uk",
     "title": "gallon (UK)",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 112
+  "model": "survey.unit", "pk": 112
 },
 { "fields": {
-    "source": 9,
+    "source": 24,
     "target": 109,
     "content": "",
     "factor": 61023.7,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 338
+  "model": "survey.unitequivalences", "pk": 338
 },
 { "fields": {
-    "source": 9,
+    "source": 24,
     "target": 110,
     "content": "",
     "factor": 35.3147,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 339
+  "model": "survey.unitequivalences", "pk": 339
 },
 { "fields": {
-    "source": 9,
+    "source": 24,
     "target": 111,
     "content": "",
     "factor": 264.172,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 340
+  "model": "survey.unitequivalences", "pk": 340
 },
 { "fields": {
-    "source": 9,
+    "source": 24,
     "target": 112,
     "content": "",
     "factor": 219.969,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 341
+  "model": "survey.unitequivalences", "pk": 341
 },
 { "fields": {
-    "source": 47,
+    "source": 62,
     "target": 109,
     "content": "",
     "factor": 61023.7,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 342
+  "model": "survey.unitequivalences", "pk": 342
 },
 { "fields": {
-    "source": 47,
+    "source": 62,
     "target": 110,
     "content": "",
     "factor": 35.3147,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 343
+  "model": "survey.unitequivalences", "pk": 343
 },
 { "fields": {
-    "source": 47,
+    "source": 62,
     "target": 111,
     "content": "",
     "factor": 264.172,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 344
+  "model": "survey.unitequivalences", "pk": 344
 },
 { "fields": {
-    "source": 47,
+    "source": 62,
     "target": 112,
     "content": "",
     "factor": 219.969,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 345
+  "model": "survey.unitequivalences", "pk": 345
 },
 { "fields": {
-    "source": 48,
+    "source": 63,
     "target": 109,
     "content": "",
     "factor": 61023.7,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 346
+  "model": "survey.unitequivalences", "pk": 346
 },
 { "fields": {
-    "source": 48,
+    "source": 63,
     "target": 110,
     "content": "",
     "factor": 35.3147,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 347
+  "model": "survey.unitequivalences", "pk": 347
 },
 { "fields": {
-    "source": 48,
+    "source": 63,
     "target": 111,
     "content": "",
     "factor": 264.172,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 348
+  "model": "survey.unitequivalences", "pk": 348
 },
 { "fields": {
-    "source": 48,
+    "source": 63,
     "target": 112,
     "content": "",
     "factor": 219.969,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 349
+  "model": "survey.unitequivalences", "pk": 349
 },
 { "fields": {
     "source": 109,
-    "target": 9,
+    "target": 24,
     "content": "",
-    "factor": 0.0000163871,
+    "factor": 1.63871e-05,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 350
+  "model": "survey.unitequivalences", "pk": 350
 },
 { "fields": {
     "source": 109,
-    "target": 47,
+    "target": 62,
     "content": "",
-    "factor": 0.0000163871,
+    "factor": 1.63871e-05,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 351
+  "model": "survey.unitequivalences", "pk": 351
 },
 { "fields": {
     "source": 109,
-    "target": 48,
+    "target": 63,
     "content": "",
-    "factor": 0.0000163871,
+    "factor": 1.63871e-05,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 352
+  "model": "survey.unitequivalences", "pk": 352
 },
 { "fields": {
     "source": 109,
@@ -1507,7 +1507,7 @@
     "factor": 0.000578704,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 353
+  "model": "survey.unitequivalences", "pk": 353
 },
 { "fields": {
     "source": 109,
@@ -1516,7 +1516,7 @@
     "factor": 0.004329,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 354
+  "model": "survey.unitequivalences", "pk": 354
 },
 { "fields": {
     "source": 109,
@@ -1525,34 +1525,34 @@
     "factor": 0.00360465,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 355
+  "model": "survey.unitequivalences", "pk": 355
 },
 { "fields": {
     "source": 110,
-    "target": 9,
+    "target": 24,
     "content": "",
     "factor": 0.0283168,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 356
+  "model": "survey.unitequivalences", "pk": 356
 },
 { "fields": {
     "source": 110,
-    "target": 47,
+    "target": 62,
     "content": "",
     "factor": 0.0283168,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 357
+  "model": "survey.unitequivalences", "pk": 357
 },
 { "fields": {
     "source": 110,
-    "target": 48,
+    "target": 63,
     "content": "",
     "factor": 0.0283168,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 358
+  "model": "survey.unitequivalences", "pk": 358
 },
 { "fields": {
     "source": 110,
@@ -1561,7 +1561,7 @@
     "factor": 1728,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 359
+  "model": "survey.unitequivalences", "pk": 359
 },
 { "fields": {
     "source": 110,
@@ -1570,7 +1570,7 @@
     "factor": 7.48052,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 360
+  "model": "survey.unitequivalences", "pk": 360
 },
 { "fields": {
     "source": 110,
@@ -1579,34 +1579,34 @@
     "factor": 6.22884,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 361
+  "model": "survey.unitequivalences", "pk": 361
 },
 { "fields": {
     "source": 111,
-    "target": 9,
+    "target": 24,
     "content": "",
     "factor": 0.00378541,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 362
+  "model": "survey.unitequivalences", "pk": 362
 },
 { "fields": {
     "source": 111,
-    "target": 47,
+    "target": 62,
     "content": "",
     "factor": 0.00378541,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 363
+  "model": "survey.unitequivalences", "pk": 363
 },
 { "fields": {
     "source": 111,
-    "target": 48,
+    "target": 63,
     "content": "",
     "factor": 0.00378541,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 364
+  "model": "survey.unitequivalences", "pk": 364
 },
 { "fields": {
     "source": 111,
@@ -1615,7 +1615,7 @@
     "factor": 231,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 365
+  "model": "survey.unitequivalences", "pk": 365
 },
 { "fields": {
     "source": 111,
@@ -1624,7 +1624,7 @@
     "factor": 0.133681,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 366
+  "model": "survey.unitequivalences", "pk": 366
 },
 { "fields": {
     "source": 111,
@@ -1633,34 +1633,34 @@
     "factor": 0.832674,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 367
+  "model": "survey.unitequivalences", "pk": 367
 },
 { "fields": {
     "source": 112,
-    "target": 9,
+    "target": 24,
     "content": "",
     "factor": 0.00454609,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 368
+  "model": "survey.unitequivalences", "pk": 368
 },
 { "fields": {
     "source": 112,
-    "target": 47,
+    "target": 62,
     "content": "",
     "factor": 0.00454609,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 369
+  "model": "survey.unitequivalences", "pk": 369
 },
 { "fields": {
     "source": 112,
-    "target": 48,
+    "target": 63,
     "content": "",
     "factor": 0.00454609,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 370
+  "model": "survey.unitequivalences", "pk": 370
 },
 { "fields": {
     "source": 112,
@@ -1669,7 +1669,7 @@
     "factor": 277.419,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 371
+  "model": "survey.unitequivalences", "pk": 371
 },
 { "fields": {
     "source": 112,
@@ -1678,7 +1678,7 @@
     "factor": 0.160544,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 372
+  "model": "survey.unitequivalences", "pk": 372
 },
 { "fields": {
     "source": 112,
@@ -1687,7 +1687,7 @@
     "factor": 1.20095,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 373
+  "model": "survey.unitequivalences", "pk": 373
 },
 
 
@@ -1696,95 +1696,95 @@
     "title": "mile per hour",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 117
+  "model": "survey.unit", "pk": 117
 },
 { "fields": {
     "slug": "knots",
     "title": "knots",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 118
+  "model": "survey.unit", "pk": 118
 },
 { "fields": {
-    "source": 11,
+    "source": 26,
     "target": 117,
     "content": "",
     "factor": 2.23694,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 374
+  "model": "survey.unitequivalences", "pk": 374
 },
 { "fields": {
-    "source": 11,
+    "source": 26,
     "target": 118,
     "content": "",
     "factor": 1.94384,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 375
+  "model": "survey.unitequivalences", "pk": 375
 },
 { "fields": {
-    "source": 49,
+    "source": 64,
     "target": 117,
     "content": "",
     "factor": 2.23694,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 376
+  "model": "survey.unitequivalences", "pk": 376
 },
 { "fields": {
-    "source": 49,
+    "source": 64,
     "target": 118,
     "content": "",
     "factor": 1.94384,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 377
+  "model": "survey.unitequivalences", "pk": 377
 },
 { "fields": {
-    "source": 50,
+    "source": 65,
     "target": 117,
     "content": "",
     "factor": 0.621371,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 378
+  "model": "survey.unitequivalences", "pk": 378
 },
 { "fields": {
-    "source": 50,
+    "source": 65,
     "target": 118,
     "content": "",
     "factor": 0.539957,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 379
+  "model": "survey.unitequivalences", "pk": 379
 },
 { "fields": {
     "source": 117,
-    "target": 11,
+    "target": 26,
     "content": "",
     "factor": 0.44704,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 380
+  "model": "survey.unitequivalences", "pk": 380
 },
 { "fields": {
     "source": 117,
-    "target": 49,
+    "target": 64,
     "content": "",
     "factor": 0.44704,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 381
+  "model": "survey.unitequivalences", "pk": 381
 },
 { "fields": {
     "source": 117,
-    "target": 50,
+    "target": 65,
     "content": "",
     "factor": 1.60934,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 382
+  "model": "survey.unitequivalences", "pk": 382
 },
 { "fields": {
     "source": 117,
@@ -1793,34 +1793,34 @@
     "factor": 0.868976,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 383
+  "model": "survey.unitequivalences", "pk": 383
 },
 { "fields": {
     "source": 118,
-    "target": 11,
+    "target": 26,
     "content": "",
     "factor": 0.514444,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 384
+  "model": "survey.unitequivalences", "pk": 384
 },
 { "fields": {
     "source": 118,
-    "target": 49,
+    "target": 64,
     "content": "",
     "factor": 0.514444,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 385
+  "model": "survey.unitequivalences", "pk": 385
 },
 { "fields": {
     "source": 118,
-    "target": 50,
+    "target": 65,
     "content": "",
     "factor": 1.852,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 386
+  "model": "survey.unitequivalences", "pk": 386
 },
 { "fields": {
     "source": 118,
@@ -1829,7 +1829,7 @@
     "factor": 1.15078,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 387
+  "model": "survey.unitequivalences", "pk": 387
 },
 
 
@@ -1838,57 +1838,57 @@
     "title": "kilogram force (kgf)",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 119
+  "model": "survey.unit", "pk": 119
 },
 { "fields": {
     "slug": "lbf",
     "title": "pound force",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 120
+  "model": "survey.unit", "pk": 120
 },
 { "fields": {
     "slug": "dyn",
     "title": "dyne",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 121
+  "model": "survey.unit", "pk": 121
 },
 { "fields": {
-    "source": 13,
+    "source": 28,
     "target": 119,
     "content": "",
     "factor": 0.10197162129779,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 388
+  "model": "survey.unitequivalences", "pk": 388
 },
 { "fields": {
-    "source": 13,
+    "source": 28,
     "target": 120,
     "content": "",
     "factor": 0.224809,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 389
+  "model": "survey.unitequivalences", "pk": 389
 },
 { "fields": {
-    "source": 13,
+    "source": 28,
     "target": 121,
     "content": "",
     "factor": 1,
     "scale": 1e5
   },
-  "model" : "survey.unitequivalences", "pk": 390
+  "model": "survey.unitequivalences", "pk": 390
 },
 { "fields": {
     "source": 119,
-    "target": 13,
+    "target": 28,
     "content": "",
     "factor": 9.80665,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 391
+  "model": "survey.unitequivalences", "pk": 391
 },
 { "fields": {
     "source": 119,
@@ -1897,7 +1897,7 @@
     "factor": 2.20462,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 392
+  "model": "survey.unitequivalences", "pk": 392
 },
 { "fields": {
     "source": 119,
@@ -1906,16 +1906,16 @@
     "factor": 9.80665,
     "scale": 1e5
   },
-  "model" : "survey.unitequivalences", "pk": 393
+  "model": "survey.unitequivalences", "pk": 393
 },
 { "fields": {
     "source": 120,
-    "target": 13,
+    "target": 28,
     "content": "",
     "factor": 4.44822,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 394
+  "model": "survey.unitequivalences", "pk": 394
 },
 { "fields": {
     "source": 120,
@@ -1924,85 +1924,84 @@
     "factor": 0.045359237,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 395
+  "model": "survey.unitequivalences", "pk": 395
 },
 { "fields": {
     "source": 120,
     "target": 121,
     "content": "",
     "factor": 4.44822,
-    "scale": 1e5
+    "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 396
+  "model": "survey.unitequivalences", "pk": 396
 },
 { "fields": {
     "source": 121,
-    "target": 13,
+    "target": 28,
     "content": "",
     "factor": 1,
     "scale": 1e-5
   },
-  "model" : "survey.unitequivalences", "pk": 397
+  "model": "survey.unitequivalences", "pk": 397
 },
 { "fields": {
     "source": 121,
     "target": 119,
     "content": "",
-    "factor": 0.0000010197162129779,
+    "factor": 1.0197162129779e-6,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 398
+  "model": "survey.unitequivalences", "pk": 398
 },
 { "fields": {
     "source": 121,
     "target": 120,
     "content": "",
-    "factor": 2.24809e-6,
+    "factor": 2.24809e-06,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 399
+  "model": "survey.unitequivalences", "pk": 399
 },
-
 { "fields": {
     "slug": "psi",
     "title": "pound-force per square inch",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 122
+  "model": "survey.unit", "pk": 122
 },
 { "fields": {
     "slug": "atm",
     "title": "standard atmosphere",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 123
+  "model": "survey.unit", "pk": 123
 },
 { "fields": {
-    "source": 14,
+    "source": 29,
     "target": 122,
     "content": null,
     "factor": 1,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 400
+  "model": "survey.unitequivalences", "pk": 400
 },
 { "fields": {
-    "source": 14,
+    "source": 29,
     "target": 123,
     "content": null,
     "factor": 1,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 401
+  "model": "survey.unitequivalences", "pk": 401
 },
 { "fields": {
     "source": 122,
-    "target": 14,
+    "target": 29,
     "content": "",
     "factor": 6894.76,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 402
+  "model": "survey.unitequivalences", "pk": 402
 },
 { "fields": {
     "source": 122,
@@ -2011,16 +2010,16 @@
     "factor": 0.068046,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 403
+  "model": "survey.unitequivalences", "pk": 403
 },
 { "fields": {
     "source": 123,
-    "target": 14,
+    "target": 29,
     "content": "",
     "factor": 101325,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 404
+  "model": "survey.unitequivalences", "pk": 404
 },
 { "fields": {
     "source": 123,
@@ -2029,7 +2028,7 @@
     "factor": 14.6959,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 405
+  "model": "survey.unitequivalences", "pk": 405
 },
 
 { "fields": {
@@ -2037,231 +2036,231 @@
     "title": "watt hour",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 124
+  "model": "survey.unit", "pk": 124
 },
 { "fields": {
     "slug": "MWh",
     "title": "megawatt-hour",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 125
+  "model": "survey.unit", "pk": 125
 },
 { "fields": {
     "slug": "kWh",
     "title": "kilowatt-hour",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 126
+  "model": "survey.unit", "pk": 126
 },
 { "fields": {
     "slug": "btu",
     "title": "British thermal units",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 127
+  "model": "survey.unit", "pk": 127
 },
 { "fields": {
     "slug": "therm",
     "title": "natural gas use over time",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 128
+  "model": "survey.unit", "pk": 128
 },
 { "fields": {
     "slug": "cal",
     "title": "calorie",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 129
+  "model": "survey.unit", "pk": 129
 },
 { "fields": {
-    "source": 16,
+    "source": 31,
     "target": 124,
     "content": "/ 3600",
     "factor": 0.000277778,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 406
+  "model": "survey.unitequivalences", "pk": 406
 },
 { "fields": {
-    "source": 16,
+    "source": 31,
     "target": 125,
     "content": "* 10e-6 / 3600",
     "factor": 0.000277778,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 407
+  "model": "survey.unitequivalences", "pk": 407
 },
 { "fields": {
-    "source": 16,
+    "source": 31,
     "target": 126,
     "content": "* 10e-3 / 3600",
     "factor": 0.000277778,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 408
+  "model": "survey.unitequivalences", "pk": 408
 },
 { "fields": {
-    "source": 16,
+    "source": 31,
     "target": 127,
     "content": "/ 1055",
     "factor": 0.000947817,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 409
+  "model": "survey.unitequivalences", "pk": 409
 },
 { "fields": {
-    "source": 16,
+    "source": 31,
     "target": 128,
     "content": "* 1e-5 / 1055",
     "factor": 0.000947817,
     "scale": 1e-5
   },
-  "model" : "survey.unitequivalences", "pk": 410
+  "model": "survey.unitequivalences", "pk": 410
 },
 { "fields": {
-    "source": 16,
+    "source": 31,
     "target": 129,
     "content": "/ 4184",
     "factor": 0.000239006,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 411
+  "model": "survey.unitequivalences", "pk": 411
 },
 { "fields": {
-    "source": 51,
+    "source": 66,
     "target": 124,
     "content": "/ 3600",
     "factor": 0.000277778,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 412
+  "model": "survey.unitequivalences", "pk": 412
 },
 { "fields": {
-    "source": 51,
+    "source": 66,
     "target": 125,
     "content": "* 10e-6 / 3600",
     "factor": 0.000277778,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 413
+  "model": "survey.unitequivalences", "pk": 413
 },
 { "fields": {
-    "source": 51,
+    "source": 66,
     "target": 126,
     "content": "* 10e-3 / 3600",
     "factor": 0.000277778,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 414
+  "model": "survey.unitequivalences", "pk": 414
 },
 { "fields": {
-    "source": 51,
+    "source": 66,
     "target": 127,
     "content": "/ 1055",
     "factor": 0.000947817,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 415
+  "model": "survey.unitequivalences", "pk": 415
 },
 { "fields": {
-    "source": 51,
+    "source": 66,
     "target": 128,
     "content": "* 1e-5 / 1055",
     "factor": 0.000947817,
     "scale": 1e1
   },
-  "model" : "survey.unitequivalences", "pk": 416
+  "model": "survey.unitequivalences", "pk": 416
 },
 { "fields": {
-    "source": 51,
+    "source": 66,
     "target": 129,
     "content": "/ 4184",
     "factor": 0.000239006,
     "scale": 1e9
   },
-  "model" : "survey.unitequivalences", "pk": 417
+  "model": "survey.unitequivalences", "pk": 417
 },
 { "fields": {
-    "source": 52,
+    "source": 67,
     "target": 124,
     "content": "/ 3600",
     "factor": 0.000277778,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 418
+  "model": "survey.unitequivalences", "pk": 418
 },
 { "fields": {
-    "source": 52,
+    "source": 67,
     "target": 125,
     "content": "* 10e-6 / 3600",
     "factor": 0.000277778,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 419
+  "model": "survey.unitequivalences", "pk": 419
 },
 { "fields": {
-    "source": 52,
+    "source": 67,
     "target": 126,
     "content": "* 10e-3 / 3600",
     "factor": 0.000277778,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 420
+  "model": "survey.unitequivalences", "pk": 420
 },
 { "fields": {
-    "source": 52,
+    "source": 67,
     "target": 127,
     "content": "/ 1055",
     "factor": 0.000947817,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 421
+  "model": "survey.unitequivalences", "pk": 421
 },
 { "fields": {
-    "source": 52,
+    "source": 67,
     "target": 128,
     "content": "* 1e-2 / 1055",
     "factor": 0.000947817,
     "scale": 1e-2
   },
-  "model" : "survey.unitequivalences", "pk": 422
+  "model": "survey.unitequivalences", "pk": 422
 },
 { "fields": {
-    "source": 52,
+    "source": 67,
     "target": 129,
     "content": "/ 4184",
     "factor": 0.000239006,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 423
+  "model": "survey.unitequivalences", "pk": 423
 },
 { "fields": {
     "source": 124,
-    "target": 16,
+    "target": 31,
     "content": "",
     "factor": 3600,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 424
+  "model": "survey.unitequivalences", "pk": 424
 },
 { "fields": {
     "source": 124,
-    "target": 51,
+    "target": 66,
     "content": "",
     "factor": 3600,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 425
+  "model": "survey.unitequivalences", "pk": 425
 },
 { "fields": {
     "source": 124,
-    "target": 52,
+    "target": 67,
     "content": "",
     "factor": 3600,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 426
+  "model": "survey.unitequivalences", "pk": 426
 },
 { "fields": {
     "source": 124,
@@ -2270,7 +2269,7 @@
     "factor": 1,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 427
+  "model": "survey.unitequivalences", "pk": 427
 },
 { "fields": {
     "source": 124,
@@ -2279,7 +2278,7 @@
     "factor": 1,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 428
+  "model": "survey.unitequivalences", "pk": 428
 },
 { "fields": {
     "source": 124,
@@ -2288,7 +2287,7 @@
     "factor": 3412.14,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 429
+  "model": "survey.unitequivalences", "pk": 429
 },
 { "fields": {
     "source": 124,
@@ -2297,7 +2296,7 @@
     "factor": 0.0341296,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 430
+  "model": "survey.unitequivalences", "pk": 430
 },
 { "fields": {
     "source": 124,
@@ -2306,34 +2305,34 @@
     "factor": 860.421,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 431
+  "model": "survey.unitequivalences", "pk": 431
 },
 { "fields": {
     "source": 125,
-    "target": 16,
+    "target": 31,
     "content": "",
     "factor": 3600,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 432
+  "model": "survey.unitequivalences", "pk": 432
 },
 { "fields": {
     "source": 125,
-    "target": 51,
+    "target": 66,
     "content": "",
     "factor": 3600,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 433
+  "model": "survey.unitequivalences", "pk": 433
 },
 { "fields": {
     "source": 125,
-    "target": 52,
+    "target": 67,
     "content": "",
     "factor": 3600,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 434
+  "model": "survey.unitequivalences", "pk": 434
 },
 { "fields": {
     "source": 125,
@@ -2342,7 +2341,7 @@
     "factor": 1,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 435
+  "model": "survey.unitequivalences", "pk": 435
 },
 { "fields": {
     "source": 125,
@@ -2351,7 +2350,7 @@
     "factor": 1,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 436
+  "model": "survey.unitequivalences", "pk": 436
 },
 { "fields": {
     "source": 125,
@@ -2360,7 +2359,7 @@
     "factor": 3.41214,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 437
+  "model": "survey.unitequivalences", "pk": 437
 },
 { "fields": {
     "source": 125,
@@ -2369,7 +2368,7 @@
     "factor": 34.1296,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 438
+  "model": "survey.unitequivalences", "pk": 438
 },
 { "fields": {
     "source": 125,
@@ -2378,34 +2377,34 @@
     "factor": 860421000,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 439
+  "model": "survey.unitequivalences", "pk": 439
 },
 { "fields": {
     "source": 126,
-    "target": 16,
+    "target": 31,
     "content": "",
     "factor": 3600,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 440
+  "model": "survey.unitequivalences", "pk": 440
 },
 { "fields": {
     "source": 126,
-    "target": 51,
+    "target": 66,
     "content": "",
     "factor": 3600,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 441
+  "model": "survey.unitequivalences", "pk": 441
 },
 { "fields": {
     "source": 126,
-    "target": 52,
+    "target": 67,
     "content": "",
     "factor": 3600,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 442
+  "model": "survey.unitequivalences", "pk": 442
 },
 { "fields": {
     "source": 126,
@@ -2414,7 +2413,7 @@
     "factor": 1,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 443
+  "model": "survey.unitequivalences", "pk": 443
 },
 { "fields": {
     "source": 126,
@@ -2423,7 +2422,7 @@
     "factor": 1,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 444
+  "model": "survey.unitequivalences", "pk": 444
 },
 { "fields": {
     "source": 126,
@@ -2432,7 +2431,7 @@
     "factor": 3412.14,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 445
+  "model": "survey.unitequivalences", "pk": 445
 },
 { "fields": {
     "source": 126,
@@ -2441,7 +2440,7 @@
     "factor": 0.0341296,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 446
+  "model": "survey.unitequivalences", "pk": 446
 },
 { "fields": {
     "source": 126,
@@ -2450,34 +2449,34 @@
     "factor": 860421,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 447
+  "model": "survey.unitequivalences", "pk": 447
 },
 { "fields": {
     "source": 127,
-    "target": 16,
+    "target": 31,
     "content": "",
     "factor": 1055.06,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 448
+  "model": "survey.unitequivalences", "pk": 448
 },
 { "fields": {
     "source": 127,
-    "target": 51,
+    "target": 66,
     "content": "",
     "factor": 1055.06,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 449
+  "model": "survey.unitequivalences", "pk": 449
 },
 { "fields": {
     "source": 127,
-    "target": 52,
+    "target": 67,
     "content": "",
     "factor": 1055.06,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 450
+  "model": "survey.unitequivalences", "pk": 450
 },
 { "fields": {
     "source": 127,
@@ -2486,7 +2485,7 @@
     "factor": 0.293071,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 451
+  "model": "survey.unitequivalences", "pk": 451
 },
 { "fields": {
     "source": 127,
@@ -2495,7 +2494,7 @@
     "factor": 0.293071,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 452
+  "model": "survey.unitequivalences", "pk": 452
 },
 { "fields": {
     "source": 127,
@@ -2504,7 +2503,7 @@
     "factor": 0.293071,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 453
+  "model": "survey.unitequivalences", "pk": 453
 },
 { "fields": {
     "source": 127,
@@ -2513,7 +2512,7 @@
     "factor": 1.00024,
     "scale": 1e-5
   },
-  "model" : "survey.unitequivalences", "pk": 454
+  "model": "survey.unitequivalences", "pk": 454
 },
 { "fields": {
     "source": 127,
@@ -2522,34 +2521,34 @@
     "factor": 252.164,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 455
+  "model": "survey.unitequivalences", "pk": 455
 },
 { "fields": {
     "source": 128,
-    "target": 16,
+    "target": 31,
     "content": "",
     "factor": 1055.06,
     "scale": 1e5
   },
-  "model" : "survey.unitequivalences", "pk": 456
+  "model": "survey.unitequivalences", "pk": 456
 },
 { "fields": {
     "source": 128,
-    "target": 51,
+    "target": 66,
     "content": "",
     "factor": 1055.06,
     "scale": 1e-1
   },
-  "model" : "survey.unitequivalences", "pk": 457
+  "model": "survey.unitequivalences", "pk": 457
 },
 { "fields": {
     "source": 128,
-    "target": 52,
+    "target": 67,
     "content": null,
     "factor": 1055.06,
     "scale": 1e2
   },
-  "model" : "survey.unitequivalences", "pk": 458
+  "model": "survey.unitequivalences", "pk": 458
 },
 { "fields": {
     "source": 128,
@@ -2558,7 +2557,7 @@
     "factor": 29300.1,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 459
+  "model": "survey.unitequivalences", "pk": 459
 },
 { "fields": {
     "source": 128,
@@ -2567,7 +2566,7 @@
     "factor": 29300.1,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 460
+  "model": "survey.unitequivalences", "pk": 460
 },
 { "fields": {
     "source": 128,
@@ -2576,7 +2575,7 @@
     "factor": 29300.1,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 461
+  "model": "survey.unitequivalences", "pk": 461
 },
 { "fields": {
     "source": 128,
@@ -2585,7 +2584,7 @@
     "factor": 99976.1,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 462
+  "model": "survey.unitequivalences", "pk": 462
 },
 { "fields": {
     "source": 128,
@@ -2594,34 +2593,34 @@
     "factor": 25210.4,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 463
+  "model": "survey.unitequivalences", "pk": 463
 },
 { "fields": {
     "source": 129,
-    "target": 16,
+    "target": 31,
     "content": "",
     "factor": 4.184,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 464
+  "model": "survey.unitequivalences", "pk": 464
 },
 { "fields": {
     "source": 129,
-    "target": 51,
+    "target": 66,
     "content": "",
     "factor": 4.184,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 465
+  "model": "survey.unitequivalences", "pk": 465
 },
 { "fields": {
     "source": 129,
-    "target": 52,
+    "target": 67,
     "content": "",
     "factor": 4.184,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 466
+  "model": "survey.unitequivalences", "pk": 466
 },
 { "fields": {
     "source": 129,
@@ -2630,7 +2629,7 @@
     "factor": 0.00116222,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 467
+  "model": "survey.unitequivalences", "pk": 467
 },
 { "fields": {
     "source": 129,
@@ -2639,7 +2638,7 @@
     "factor": 0.00116222,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 468
+  "model": "survey.unitequivalences", "pk": 468
 },
 { "fields": {
     "source": 129,
@@ -2648,7 +2647,7 @@
     "factor": 0.00116222,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 469
+  "model": "survey.unitequivalences", "pk": 469
 },
 { "fields": {
     "source": 129,
@@ -2657,7 +2656,7 @@
     "factor": 0.00396567,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 470
+  "model": "survey.unitequivalences", "pk": 470
 },
 { "fields": {
     "source": 129,
@@ -2666,104 +2665,102 @@
     "factor": 3.96661,
     "scale": 1e-8
   },
-  "model" : "survey.unitequivalences", "pk": 471
+  "model": "survey.unitequivalences", "pk": 471
 },
-
-
 { "fields": {
     "slug": "hp",
     "title": "horse power (electrical)",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 130
+  "model": "survey.unit", "pk": 130
 },
 { "fields": {
     "slug": "hpm",
     "title": "horse power (mechanical)",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 131
+  "model": "survey.unit", "pk": 131
 },
 { "fields": {
-    "source": 17,
+    "source": 32,
     "target": 130,
     "content": "/ 746",
     "factor": 0.00134048257372654,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 472
+  "model": "survey.unitequivalences", "pk": 472
 },
 { "fields": {
-    "source": 17,
+    "source": 32,
     "target": 131,
     "content": "/ 745.7",
     "factor": 0.0013410218586563,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 473
+  "model": "survey.unitequivalences", "pk": 473
 },
 { "fields": {
-    "source": 53,
+    "source": 68,
     "target": 130,
     "content": "/ 746",
     "factor": 0.00134048257372654,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 474
+  "model": "survey.unitequivalences", "pk": 474
 },
 { "fields": {
-    "source": 53,
+    "source": 68,
     "target": 131,
     "content": "/ 745.7",
     "factor": 0.0013410218586563,
     "scale": 1e6
   },
-  "model" : "survey.unitequivalences", "pk": 475
+  "model": "survey.unitequivalences", "pk": 475
 },
 { "fields": {
-    "source": 54,
+    "source": 69,
     "target": 130,
     "content": "/ 746",
     "factor": 0.00134048257372654,
-    "scale": 1e3
+    "scale": 1000.0
   },
-  "model" : "survey.unitequivalences", "pk": 476
+  "model": "survey.unitequivalences", "pk": 476
 },
 { "fields": {
-    "source": 54,
+    "source": 69,
     "target": 131,
     "content": "/ 745.7",
     "factor": 0.0013410218586563,
     "scale": 1e3
   },
-  "model" : "survey.unitequivalences", "pk": 477
+  "model": "survey.unitequivalences", "pk": 477
 },
 { "fields": {
     "source": 130,
-    "target": 17,
+    "target": 32,
     "content": "",
     "factor": 746,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 478
+  "model": "survey.unitequivalences", "pk": 478
 },
 { "fields": {
     "source": 130,
-    "target": 53,
+    "target": 68,
     "content": "",
     "factor": 746,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 479
+  "model": "survey.unitequivalences", "pk": 479
 },
 { "fields": {
     "source": 130,
-    "target": 54,
+    "target": 69,
     "content": "",
     "factor": 746,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 480
+  "model": "survey.unitequivalences", "pk": 480
 },
 { "fields": {
     "source": 130,
@@ -2772,34 +2769,34 @@
     "factor": 1.0004023065576,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 481
+  "model": "survey.unitequivalences", "pk": 481
 },
 { "fields": {
     "source": 131,
-    "target": 17,
+    "target": 32,
     "content": "",
     "factor": 745.7,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 482
+  "model": "survey.unitequivalences", "pk": 482
 },
 { "fields": {
     "source": 131,
-    "target": 53,
+    "target": 68,
     "content": "",
     "factor": 745.7,
     "scale": 1e-6
   },
-  "model" : "survey.unitequivalences", "pk": 483
+  "model": "survey.unitequivalences", "pk": 483
 },
 { "fields": {
     "source": 131,
-    "target": 54,
+    "target": 69,
     "content": "",
     "factor": 745.7,
     "scale": 1e-3
   },
-  "model" : "survey.unitequivalences", "pk": 484
+  "model": "survey.unitequivalences", "pk": 484
 },
 { "fields": {
     "source": 131,
@@ -2808,76 +2805,74 @@
     "factor": 0.999597855227882,
     "scale": 1
   },
-  "model" : "survey.unitequivalences", "pk": 485
+  "model": "survey.unitequivalences", "pk": 485
 },
-
-
 { "fields": {
-    "slug": "ºC",
+    "slug": "\u00baC",
     "title": "degrees celsius",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 132
+  "model": "survey.unit", "pk": 132
 },
 { "fields": {
-    "slug": "ºF",
+    "slug": "\u00baF",
     "title": "degrees farenheit",
     "system": 1
   },
-  "model" : "survey.unit", "pk": 133
+  "model": "survey.unit", "pk": 133
 },
 { "fields": {
-    "source": 5,
+    "source": 20,
     "target": 132,
     "content": "1K - 273.15",
     "factor": 0,
     "scale": 0
   },
-  "model" : "survey.unitequivalences", "pk": 486
+  "model": "survey.unitequivalences", "pk": 486
 },
 { "fields": {
-    "source": 5,
+    "source": 20,
     "target": 133,
     "content": "(1K - 273.15) * 9/5 + 32",
     "factor": 0,
     "scale": 0
   },
-  "model" : "survey.unitequivalences", "pk": 487
+  "model": "survey.unitequivalences", "pk": 487
 },
 { "fields": {
     "source": 132,
-    "target": 5,
+    "target": 20,
     "content": "1C + 273.15",
     "factor": 0,
     "scale": 0
   },
-  "model" : "survey.unitequivalences", "pk": 488
+  "model": "survey.unitequivalences", "pk": 488
 },
 { "fields": {
     "source": 132,
     "target": 133,
-    "content": "(1°C * 9/5) + 32",
+    "content": "(1\u00b0C * 9/5) + 32",
     "factor": 0,
     "scale": 0
   },
-  "model" : "survey.unitequivalences", "pk": 489
+  "model": "survey.unitequivalences", "pk": 489
 },
 { "fields": {
     "source": 133,
-    "target": 5,
+    "target": 20,
     "content": "(1F - 32) * 5/9 + 273.15",
     "factor": 0,
     "scale": 0
   },
-  "model" : "survey.unitequivalences", "pk": 490
+  "model": "survey.unitequivalences", "pk": 490
 },
 { "fields": {
     "source": 133,
     "target": 132,
-    "content": "(1°F - 32) * 5/9",
+    "content": "(1\u00b0F - 32) * 5/9",
     "factor": 0,
     "scale": 0
   },
-  "model" : "survey.unitequivalences", "pk": 491
+  "model": "survey.unitequivalences", "pk": 491
 }
 ]

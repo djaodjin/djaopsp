@@ -1863,7 +1863,7 @@
   "fields": {
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-measured/hazardous-waste",
     "content": 123,
-    "default_unit": 2,
+    "default_unit": 17,
     "ui_hint": "waste",
     "extra": "{\"tags\":[\"assess-only\"]}"
   },
@@ -1883,7 +1883,7 @@
   "fields": {
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-measured/non-hazardous-waste",
     "content": 124,
-    "default_unit": 2,
+    "default_unit": 17,
     "ui_hint": "waste",
     "extra": "{\"tags\":[\"assess-only\"]}"
   },
@@ -1903,7 +1903,7 @@
   "fields": {
     "path": "/sustainability/environmental-reporting/waste-reporting/waste-measured/waste-recycled",
     "content": 125,
-    "default_unit": 2,
+    "default_unit": 17,
     "ui_hint": "waste",
     "extra": "{\"tags\":[\"assess-only\"]}"
   },

@@ -750,24 +750,38 @@ Vue.component('djaopsp-compare-samples', {
         populateSamples: function(bench) {
             var vm = this;
             const samples = new Set();
-            for( let jdx = 0; jdx < bench.values.length; ++jdx ) {
-                const vals = bench.values[jdx];
-                samples.add(vals[2]);
+            for( let idx = 0; idx < bench.values.length; ++idx ) {
+                const vals = bench.values[idx];
+                vals[2].forEach(item => samples.add(item));
             }
             if( samples.size ) {
+                let httpRequests = [];
                 let queryParams = "?q_f==slug&q=";
                 let sep = "";
+                let idx = 0;
                 for( const sample of samples ) {
                     queryParams += sep + sample;
                     sep = ",";
-                }
-                vm.reqGet(vm.$urls.api_responses + queryParams, function(resp) {
-                    for( let idx = 0; idx < resp.results.length; ++idx ) {
-                        vm.$set(vm.samplesBySlug, resp.results[idx].slug,
-                            resp.results[idx]);
+                    idx += 1;
+                    if( idx >= 25 ) { // XXX PAGE_SIZE
+                        httpRequests.push(vm.$urls.api_responses + queryParams);
+                        queryParams = "?q_f==slug&q=";
+                        sep = "";
+                        idx = 0;
                     }
-                    vm.populateAccounts(resp.results, 'account');
-                })
+                }
+                if( idx > 0 ) {
+                    httpRequests.push(vm.$urls.api_responses + queryParams);
+                }
+                for( idx = 0; idx < httpRequests.length; ++idx ) {
+                    vm.reqGet(httpRequests[idx], function(resp) {
+                        for( let jdx = 0; jdx < resp.results.length; ++jdx ) {
+                            vm.$set(vm.samplesBySlug, resp.results[jdx].slug,
+                                    resp.results[jdx]);
+                        }
+                        vm.populateAccounts(resp.results, 'account');
+                    })
+                }
             }
         },
         // display with active links

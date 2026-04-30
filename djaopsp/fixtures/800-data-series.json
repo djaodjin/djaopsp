@@ -13,7 +13,7 @@
     "path": "/sustainability/data-measured/factory-size",
     "ui_hint" : "number",
     "content": 800,
-    "default_unit": 2
+    "default_unit": 17
   },
   "model" : "survey.Question", "pk" : 800
 },
