@@ -1,4 +1,4 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 import json
 
@@ -179,7 +179,7 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
         # Upload supporting documents
         update_context_urls(context, {
             'api_asset_upload_complete': self.request.build_absolute_uri(
-                reverse('pages_api_upload_asset', args=(self.account,))),
+                reverse('pages_api_assets', args=(self.account,))),
         })
         storage_class = get_storage_class()
         if 's3boto' in storage_class.__name__.lower():
@@ -190,7 +190,7 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
         else:
             update_context_urls(context, {
             'api_asset_upload_start': self.request.build_absolute_uri(
-                reverse('pages_api_upload_asset', args=(self.account,))),
+                reverse('pages_api_assets', args=(self.account,))),
             })
         return context
 

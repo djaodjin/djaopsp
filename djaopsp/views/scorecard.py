@@ -193,7 +193,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             # The Vue component will use the fully resolved URL to show
             # if it is an external link or an uploaded document.
             'api_asset_upload_complete': self.request.build_absolute_uri(
-                reverse('pages_api_upload_asset', args=(self.sample.account,))),
+                reverse('pages_api_assets', args=(self.sample.account,))),
         })
         if self.account == self.sample.account:
             if not self.sample.is_frozen:

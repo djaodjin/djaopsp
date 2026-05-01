@@ -25,13 +25,15 @@
 <div id="media-gallery">
   <div class="px-2">
     <div class="dj-gallery-items-container">
-      <input class="form-control my-4 dj-gallery-filter dj-input" placeholder="{% trans %}Search by tags...{% endtrans %}" type="text" />
-      <div class="dj-gallery-items">
-      </div>
       <div class="row">
-      <div class="col-12 clickable-area text-center my-4 py-4 vault-upload">
-          <em><i class="fa-solid fa-cloud"></i> {% trans %}Drag'n'drop, or click here, to upload a document to the vault.{% endtrans %}</em>
+        <div class="col-sm-10">
+          <input class="form-control my-4 dj-gallery-filter dj-input" placeholder="{% trans %}Search by tags...{% endtrans %}" type="text" />
+        </div>
+        <div class="col-sm-2 clickable-area text-center my-4">
+          <button class="btn btn-primary"><i class="fa-solid fa-cloud"></i> {% trans %}Upload{% endtrans %}</button>
+        </div>
       </div>
+      <div class="dj-gallery-items">
       </div>
       <div class="dj-gallery-upload-progress progress" style="display:none;">
         <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
@@ -44,39 +46,10 @@
     </div>
   </div>
   <hr />
-  <div class="dj-gallery-info-item">
-    <div class="dj-gallery-info-item-empty">
-      <em>{% trans %}Click on an item to view its metadata{% endtrans %}</em>
-    </div>
-    <div class="dj-gallery-info-item-selected" style="display: none;">
-      <div class="input-group">
-        <input class="dj-gallery-location-input form-control" type="text" readonly />
-        <button class="dj-gallery-copy-location btn btn-secondary" type="button">
-          <i class="fa-solid fa-copy"></i>
-        </button>
-      </div>
-      <div class="input-group mt-2">
-        <input class="dj-gallery-tag-input form-control" type="text" placeholder="{% trans %}tags{% endtrans %} ..." />
-      </div>
-      <div class="dj-help-block form-text help-block">
-        <small class="text-muted">{% trans %}Tags must be separated by a comma. ex: video, title{% endtrans %}</small>
-      </div>
-      <div class="d-grid gap-2">
-        <button class="dj-gallery-preview-item btn btn-primary" type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#modal-preview-media">
-          <i class="fa-solid fa-eye fa-lg"></i> {% trans %}Preview{% endtrans %}
-        </button>
-        <hr />
-        <button class="dj-gallery-delete-item btn btn-danger">
-          <i class="fa-solid fa-trash fa-lg"></i> {% trans %}Delete{% endtrans %}
-        </button>
-      </div>
-    </div>
-  </div>{# /#dj-gallery-info-item #}
 
-  <div class="modal fade" id="modal-preview-media" tabindex="-1" role="dialog"
-       aria-labelledby="modal-preview-media" style="">
+  <div class="modal fade"
+       id="modal-preview-media" tabindex="-1" role="dialog"
+       aria-labelledby="modal-preview-media">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -85,13 +58,27 @@
         </div>
         <div class="dj-gallery-info-preview modal-body">
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer text-start">
+          <div class="w-100">
+            <div class="input-group mt-2">
+              <input class="dj-gallery-tag-input form-control" type="text" placeholder="{% trans %}tags{% endtrans %} ..." />
+            </div>
+            <div class="dj-help-block form-text help-block">
+              <small class="text-muted">{% trans %}Tags must be separated by a comma. ex: video, title{% endtrans %}</small>
+            </div>
+          </div>
           <div class="input-group">
             <input class="dj-gallery-location-input form-control" type="text" readonly />
             <button class="dj-gallery-copy-location btn btn-secondary" type="button">
               <i class="fa-solid fa-copy"></i>
             </button>
           </div>
+          <hr />
+          <button class="dj-gallery-delete-item btn btn-danger"
+                  type="button"
+                  data-bs-dismiss="modal">
+              <i class="fa-solid fa-trash fa-lg"></i> {% trans %}Delete{% endtrans %}
+          </button>
         </div>
       </div>
     </div>
@@ -121,8 +108,13 @@ $(document).ready(function(){
         S3DirectUploadUrl: "{{urls.api_asset_upload_start}}",
         {% endif %}
         csrfToken: "{{csrf_token}}",
+        idPrefix: "doc_",
 
-        itemTemplateUnknown: '<div id="${id}" class="dj-gallery-item-container thumbnail-gallery" draggable="true"><img class="image dj-gallery-item image_media" src="{{'/static/img/generic-document.png'|asset}}" data-location="${location}" data-tags="${tags}"><div class="text-center editable">${tags}</div></div>',
+        itemTemplateVideo: '<div id="${id}" class="dj-gallery-item-container"><div class="row dj-gallery-item" data-bs-toggle="modal" data-bs-target="#modal-preview-media" data-location="${location}" data-tags="${tags}"><div class="col"><i class="fa-solid fa-file"></i> ${tags}</div></div></div>',
+
+        itemTemplateImg: '<div id="${id}" class="dj-gallery-item-container"><div class="row dj-gallery-item" data-bs-toggle="modal" data-bs-target="#modal-preview-media" data-location="${location}" data-tags="${tags}"><div class="col"><i class="fa-solid fa-file"></i> ${tags}</div></div></div>',
+
+        itemTemplateUnknown: '<div id="${id}" class="dj-gallery-item-container"><div class="row dj-gallery-item" data-bs-toggle="modal" data-bs-target="#modal-preview-media" data-location="${location}" data-tags="${tags}"><div class="col"><i class="fa-solid fa-file"></i> ${tags}</div></div></div>',
 
         // internationalization messages
         uploadCompleteLabel: "{% trans %}Upload completed{% endtrans %}",

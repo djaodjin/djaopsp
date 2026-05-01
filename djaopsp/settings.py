@@ -385,11 +385,6 @@ else:
         }
     }]
 
-
-EXTENDED_TEMPLATES = {
-    'ASSETS_MAP': ASSETS_MAP,
-}
-
 EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
 EMAILER_BACKEND = 'extended_templates.backends.TemplateEmailBackend'
 MANAGERS = getattr(sys.modules[__name__], 'ADMINS', [])
@@ -722,6 +717,13 @@ UNLOCK_PORTFOLIOS = set(['managed', 'tier1-members', 'verification-partners'])
 UNLOCK_EDITORS = set(['managed'])
 UNLOCK_BROKERS = set([APP_NAME])
 
+
+# extended_templates app
+# ----------------------
+EXTENDED_TEMPLATES = {
+    'ASSETS_MAP': ASSETS_MAP,
+    'MEDIA_PREFIX': APP_NAME, # matches `PAGES['MEDIA_PREFIX']`
+}
 
 # pages app
 # ---------

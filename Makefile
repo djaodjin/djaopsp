@@ -199,9 +199,8 @@ clean-dbs:
 # `es-check es5`. The webpack.config.js file rules loader excludes
 # `node_modules` from babel, so we install chart.js in $srcDir here.
 $(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
-	$(installDirs) $(libDir)/tmp
-	$(installFiles) $^ $(libDir)/tmp
-	$(NPM) install --cache $(libDir)/.npm --tmp $(libDir)/tmp --prefix $(libDir)
+	$(installFiles) $^ $(libDir)
+	$(NPM) install --cache $(libDir)/.npm --prefix $(libDir)
 	[ -e $(binDir)/eslint ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/eslint eslint)
 	[ -f $(binDir)/sassc ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/sass sassc)
 	[ -f $(binDir)/swagger-cli ] || (cd $(binDir) && ln -s ../lib/node_modules/.bin/swagger-cli swagger-cli)

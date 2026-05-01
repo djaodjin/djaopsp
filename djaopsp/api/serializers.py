@@ -3,7 +3,7 @@
 
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from pages.serializers import (
+from pages.api.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementDetailSerializer as BasePageElementDetailSerializer,
     UserNewsSerializer as UserNewsBaseSerializer)

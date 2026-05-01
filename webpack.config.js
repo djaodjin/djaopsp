@@ -55,7 +55,7 @@ module.exports = env => ({
         }
       }
     }, {
-      test: /djaodjin-resources\.js$/,
+      test: /djresources\.js$/,
       loader: 'expose-loader',
       type: "javascript/auto",
       options: {
@@ -105,15 +105,15 @@ module.exports = env => ({
       }),
       new webpack.ProvidePlugin({
           httpRequestMixin: [
-              'js/djaodjin-resources-vue.js', 'httpRequestMixin'],
-          itemMixin: ['js/djaodjin-resources-vue.js', 'itemMixin'],
-          itemListMixin: ['js/djaodjin-resources-vue.js', 'itemListMixin'],
-          paramsMixin: ['js/djaodjin-resources-vue.js', 'paramsMixin'],
-          typeAheadMixin: ['js/djaodjin-resources-vue.js', 'typeAheadMixin'],
+              'js/djresourcesvue.js', 'httpRequestMixin'],
+          itemMixin: ['js/djresourcesvue.js', 'itemMixin'],
+          itemListMixin: ['js/djresourcesvue.js', 'itemListMixin'],
+          paramsMixin: ['js/djresourcesvue.js', 'paramsMixin'],
+          typeAheadMixin: ['js/djresourcesvue.js', 'typeAheadMixin'],
           accountDetailMixin: [
-              'js/djaodjin-resources-vue.js', 'accountDetailMixin'],
+              'js/djresourcesvue.js', 'accountDetailMixin'],
           userDetailMixin: [
-              'js/djaodjin-resources-vue.js', 'userDetailMixin'],
+              'js/djresourcesvue.js', 'userDetailMixin'],
           QueryAccountsByAffinity: [
               'js/djaodjin-survey-vue.js', 'QueryAccountsByAffinity'],
           QueryAccountsByAnswers: [
