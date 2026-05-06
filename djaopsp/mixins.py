@@ -143,11 +143,15 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
                 args=(self.account,)),
             'scorecard_history': reverse('scorecard_history',
                 args=(self.account,)),
-            'documents_vault': reverse('documents_vault',
-                args=(self.account,)),
             'profile_getstarted': reverse('profile_getstarted',
                 args=(self.account,)),
         })
+        if self.manages(settings.BROKER_NAME) or self.unlock_editors:
+            # tempoarily limit who can access the vault.
+            update_context_urls(context, {
+                'documents_vault': reverse('documents_vault',
+                    args=(self.account,)),
+            })
         if 'practices_index' not in context.get('urls', {}):
             update_context_urls(context, {
                 'practices_index': reverse('pages_index'),
