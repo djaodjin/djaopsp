@@ -5,7 +5,7 @@ The basic command to run the Docker container on port 8000 looks like this:
 
     .. code-block:: shell
 
-        $ docker run -d -p 8000:80 -t ghcr.io/djaodjin/djaopsp/djaopsp:main
+        $ docker run -d -p 8000:80 -t ghcr.io/djaodjin/djaopsp/livedemo:main
 
 The container is meant to be run behind
 a `DjaoApp <https://github.com/djaodjin/djaoapp>`_ Web/API Gateway for user
