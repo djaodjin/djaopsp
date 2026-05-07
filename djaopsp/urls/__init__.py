@@ -1,8 +1,9 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 
 from deployutils.apps.django_deployutils.mockup.views import SigninView
 from deployutils.apps.django_deployutils.urlbuilders import url_prefixed
 from django.conf import settings
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as django_static_serve
 from django.urls import path, re_path, include
@@ -24,8 +25,8 @@ if settings.DEBUG: #pylint: disable=no-member
 
         # You need to run `python manage.py --nostatic` to enable hotreload.
         url_prefixed(r'static/(?P<path>.*)', AssetView.as_view()),
-        path(r'%s%s<path:path>' % (
-            settings.APP_NAME, settings.MEDIA_URL), django_static_serve, {
+        path(r'%s%s<path:path>' % (settings.APP_NAME, settings.MEDIA_URL),
+             xframe_options_sameorigin(django_static_serve), {
             'document_root': settings.MEDIA_ROOT}),
         path(r'404/', page_not_found),
         path(r'500/', server_error),
@@ -37,9 +38,11 @@ else:
             {'document_root': settings.HTDOCS}),
         re_path(r'(?P<path>static/.*)', django_static_serve,
             {'document_root': settings.HTDOCS}),
-        path(r'%s<path:path>' % settings.MEDIA_URL, django_static_serve,
+        path(r'%s<path:path>' % settings.MEDIA_URL,
+             xframe_options_sameorigin(django_static_serve),
             {'document_root': settings.MEDIA_ROOT}),
     ]
+
 
 if settings.API_DEBUG:
     from rest_framework.schemas import get_schema_view
