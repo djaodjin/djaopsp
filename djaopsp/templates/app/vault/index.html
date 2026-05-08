@@ -74,11 +74,18 @@
             </button>
           </div>
           <hr />
-          <button class="dj-gallery-delete-item btn btn-danger"
+          <div class="w-100 row">
+            <div class="col-sm-6 ps-0">
+              <a class="dj-gallery-location-link" href="" target="_blank">{% trans %}Download{% endtrans %}</a>
+            </div>
+            <div class="col-sm-6 text-end pe-0">
+              <button class="dj-gallery-delete-item btn btn-danger"
                   type="button"
                   data-bs-dismiss="modal">
-              <i class="fa-solid fa-trash fa-lg"></i> {% trans %}Delete{% endtrans %}
-          </button>
+                  <i class="fa-solid fa-trash fa-lg"></i> {% trans %}Delete{% endtrans %}
+              </button>
+            </div>
+          </div>{# /.row #}
         </div>
       </div>
     </div>
@@ -111,11 +118,11 @@ $(document).ready(function(){
         csrfToken: "{{csrf_token}}",
         idPrefix: "doc_",
 
-        itemTemplateVideo: '<div id="${id}" class="dj-gallery-item-container"><div class="row dj-gallery-item" data-bs-toggle="modal" data-bs-target="#modal-preview-media" data-location="${location}" data-tags="${tags}"><div class="col"><i class="fa-solid fa-file"></i> ${tags}</div></div></div>',
+        itemTemplateVideo: '<div id="${id}" class="dj-gallery-item-container"><div class="row dj-gallery-item" data-location="${location}" data-tags="${tags}"><div class="col-8"><i class="fa-solid fa-file"></i> <a href="${location}" target="_blank">${filename}</a></div><div class="col-3">${tags}</div><div class="col-1" data-bs-toggle="modal" data-bs-target="#modal-preview-media"><i class="fa-solid fa-eye"></i></div></div></div>',
 
-        itemTemplateImg: '<div id="${id}" class="dj-gallery-item-container"><div class="row dj-gallery-item" data-bs-toggle="modal" data-bs-target="#modal-preview-media" data-location="${location}" data-tags="${tags}"><div class="col"><i class="fa-solid fa-file"></i> ${tags}</div></div></div>',
+        itemTemplateImg: '<div id="${id}" class="dj-gallery-item-container"><div class="row dj-gallery-item" data-location="${location}" data-tags="${tags}"><div class="col-8"><i class="fa-solid fa-file"></i> <a href="${location}" target="_blank">${filename}</a></div><div class="col-3">${tags}</div><div class="col-1" data-bs-toggle="modal" data-bs-target="#modal-preview-media"><i class="fa-solid fa-eye"></i></div></div></div>',
 
-        itemTemplateUnknown: '<div id="${id}" class="dj-gallery-item-container"><div class="row dj-gallery-item" data-bs-toggle="modal" data-bs-target="#modal-preview-media" data-location="${location}" data-tags="${tags}"><div class="col"><i class="fa-solid fa-file"></i> ${tags}</div></div></div>',
+        itemTemplateUnknown: '<div id="${id}" class="dj-gallery-item-container"><div class="row dj-gallery-item" data-location="${location}" data-tags="${tags}"><div class="col-8"><i class="fa-solid fa-file"></i> <a href="${location}" target="_blank">${filename}</a></div><div class="col-3">${tags}</div><div class="col-1" data-bs-toggle="modal" data-bs-target="#modal-preview-media"><i class="fa-solid fa-eye"></i></div></div></div>',
 
         // internationalization messages
         uploadCompleteLabel: "{% trans %}Upload completed{% endtrans %}",
