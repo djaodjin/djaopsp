@@ -38,6 +38,6 @@ urlpatterns = [
     path('<slug:profile>/', include('djaopsp.urls.api.reporting')),
     path('<slug:profile>/portfolios/requests/send',
          PortfolioRequestsSend.as_view(), name='api_requests_resend'),
-    path('<slug:profile>/', include('survey.urls.api.portfolios')),
-    path('<slug:profile>/', include('survey.urls.api.benchmarks')),
+    path('<slug:profile>/', include('survey.urls.api.accounts.portfolios')),
+    path('<slug:profile>/', include('survey.urls.api.accounts.benchmarks')),
 ]
