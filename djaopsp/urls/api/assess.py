@@ -34,7 +34,7 @@ urlpatterns = [
     path('sample',
         SampleRecentCreateAPIView.as_view(),
         name='survey_api_sample_list'),
-    path('', include('survey.urls.api.sample')),
+    path('', include('survey.urls.api.samples')),
     path('', include('survey.urls.api.metrics')),
     path('', include('survey.urls.api.filters')),
     path('assets/<path:path>',
