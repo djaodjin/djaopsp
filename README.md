@@ -29,12 +29,28 @@ Tested with
 Install
 -------
 
-First you will need to create a workspace environment, download the 3rd party
+Get a clone of the repository on your local development environment, and change
+the active directory to that source directory.
+
+    $ git clone https://github.com/djaodjin/djaopsp.git
+    $ cd djaopsp
+
+The following commands are executed at the top of source directory.
+
+Please first verify that you have at least Python3.10 and make installed on your
+development environment
+
+    $ python --version
+    Python 3.10.19
+    $ make --version
+    GNU Make 3.81
+
+You will need to create a workspace environment, download the 3rd party
 vendor prerequisite packages and build the static assets.
 
 <pre><code>
-    $ python -m venv <em>installTop</em>
-    $ source <em>installTop</em>/bin/activate
+    $ python -m venv .venv
+    $ source .venv/bin/activate
     $ pip install -r requirements.txt
     $ make vendor-assets-prerequisites
     $ make install-conf

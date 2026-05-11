@@ -281,6 +281,7 @@ $(DESTDIR)$(CONFIG_DIR)/credentials: $(srcDir)/etc/credentials
 	$(installDirs) $(dir $@)
 	[ -e $@ ] || sed \
 		-e "s,\%(SECRET_KEY)s,`$(PYTHON) -c 'import sys ; from random import choice ; sys.stdout.write("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^*-_=+") for i in range(50)]))'`," \
+		-e "s,\%(DJAODJIN_SECRET_KEY)s,$(DJAODJIN_SECRET_KEY)," \
 			$< > $@
 
 $(DESTDIR)$(CONFIG_DIR)/gunicorn.conf: $(srcDir)/etc/gunicorn.conf
