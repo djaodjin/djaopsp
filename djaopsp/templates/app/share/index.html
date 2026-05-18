@@ -10,7 +10,7 @@
     </div>
     <div class="row">
       <div class="col-sm-2 text-center text-sm-end">
-        <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+        <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" alt="Profile picture">
       </div>
       <div class="col-sm-10 text-center text-sm-start">
         <h1 class="text-body">{% trans title=campaign.title %}Share {{title}}{% endtrans %}</h1>
@@ -56,7 +56,7 @@
                     <div class="card-body">
                       <div class="row align-items-center">
                         <div class="col-2">
-<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(received.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
+<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(received.grantee) || '{{'/static/img/default-organization.png'|asset}}'" alt="Profile picture">
                         </div>
                         <div class="col-5">
                           [[getAccountPrintableName(received.grantee)]]
@@ -103,7 +103,7 @@
                           <div class="card-body">
                             <div class="row align-items-center">
                               <div class="col-2">
-<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.account) || '{{'/static/img/default-organization.png'|asset}}'" >
+<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.account) || '{{'/static/img/default-organization.png'|asset}}'" alt="Profile picture">
                               </div>
                               <div class="col-5">
                                 <div>
@@ -111,7 +111,7 @@
                                 </div>
                               </div>
                               <div class="col-2">
-<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
+<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.grantee) || '{{'/static/img/default-organization.png'|asset}}'" alt="Profile picture">
                               </div>
                               <div class="col-3 text-end">
                                 <button class="btn btn-danger"
@@ -243,7 +243,7 @@ Thank you.
                               <div class="card-body">
                                 <div class="row align-items-center">
                                   <div class="col-2">
-                                    <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(account) || '{{'/static/img/default-organization.png'|asset}}'" >
+                                    <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(account) || '{{'/static/img/default-organization.png'|asset}}'" alt="Profile picture">
                                   </div>
                                   <div class="col-5">
                                     <div>
@@ -251,7 +251,7 @@ Thank you.
                                     </div>
                                   </div>
                                   <div class="col-2">
-<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
+<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(grant.grantee) || '{{'/static/img/default-organization.png'|asset}}'" alt="Profile picture">
                                   </div>
                                   {% if urls.api_grant_allowed_candidates %}
                                   <div class="col-2 text-end">

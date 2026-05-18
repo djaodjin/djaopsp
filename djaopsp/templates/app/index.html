@@ -50,7 +50,7 @@
                 <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) ? getAccountPicture(assessment.account) : '{{'/static/img/default-organization.png'|asset}}'" alt="Profile logo">
               </div>
               <div class="col-10">
-                <h2 class="card-title">[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h2>
+                <h2 class="card-title" v-if="getAccountPrintableName(assessment.account) || assessment.account">[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h2>
                 <h3  class="card-subtitle">[[assessment.title]]</h3>
               </div>
             </div>

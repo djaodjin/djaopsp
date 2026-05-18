@@ -31,6 +31,7 @@
        v-for="choice in getChoices(practice, icon)"
        v-if="!isPractice(practice) && isEnumHeaderShown(icon)">
     <button class="btn btn-select-all" href=""
+            :aria-label="'Select all ' + choice.text"
             :disabled="practice.frozen"
             @click.prevent="updateMultipleAssessmentAnswers(practice, choice.text, '{{assess_type}}')">
       <i class="fa-solid fa-circle"></i>
@@ -49,6 +50,7 @@
       v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
       @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
       :disabled="practice.frozen"
+      :aria-label="practice.title"
       v-if="!isFreetextUIHint(practice)"></input>
   </div>
 
@@ -573,7 +575,8 @@
              :checked="getPrimaryAnswer(practice, '{{assess_type}}').measured === choice.text"
              @change="updateAssessmentAnswer(practice, choice.text, '{{assess_type}}')"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
-             :disabled="practice.frozen" />
+             :disabled="practice.frozen"
+             :aria-label="choice.descr ? choice.descr : choice.text" />
           </div>
         </div>
       </div>

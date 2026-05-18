@@ -10,13 +10,13 @@
           <h1 class="editable text-body" data-key="title" v-cloak>[[item.title]]</h1>
           <div class="text-end">
             <div data-key="tags">
-              <input id="tags" class="tags text-start" type="text" placeholder="tags ..." />
+              <input id="tags" class="tags text-start" type="text" placeholder="tags ..." aria-label="Tags" />
             </div>
           </div>
-          <img class="editable edit-media img-fluid border m-2" :src="item.picture" style="width:280px;height:140px" />
+          <img class="editable edit-media img-fluid border m-2" :src="item.picture" :alt="item.title" style="width:280px;height:140px" v-if="item.picture" />
           <editable-markdown-editor inline-template>
             <div>
-              <textarea></textarea>
+              <textarea aria-label="Content editor"></textarea>
             </div>
           </editable-markdown-editor>
 

@@ -41,6 +41,7 @@
     v-for="choice in getChoices(practice, icon)"
     v-if="!isPractice(practice) && isEnumHeaderShown(icon)">
     <button class="btn btn-select-all" href=""
+            :aria-label="'Select all ' + choice.text"
             {% if sample.is_frozen %} disabled{% endif %}
             @click.prevent="updateMultiplePlannedAnswers(practice, choice.text)">
       <i class="fa-solid fa-circle"></i>
@@ -178,6 +179,7 @@
            placeholder=""
            v-model="getPrimaryPlanned(practice).measured"
            @blur="updatePlannedAnswer(practice)"
+           :aria-label="practice.title"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryPlanned(practice).unit"
@@ -225,6 +227,7 @@
            placeholder=""
            v-model="getPrimaryPlanned(practice).measured"
            @blur="updatePlannedAnswer(practice)"
+           :aria-label="practice.title"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryPlanned(practice).unit"

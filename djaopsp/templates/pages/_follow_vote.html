@@ -6,7 +6,8 @@
     @click="submitFollow()" v-if="!isFollowing">{% trans %}Follow{% endtrans %}</button>
   <button id="rate_bp" type="submit"
           class="btn btn-primary btn-sm dj-answers-upvote"
-          @click="submitVote()">
+          @click="submitVote()"
+          :aria-label="isUpVote ? 'Remove upvote' : 'Upvote'">
     <i class="fa-solid fa-thumbs-o-up" v-if="!isUpVote"></i>
     <i class="fa-solid fa-thumbs-up" v-if="isUpVote"></i>
   </button>

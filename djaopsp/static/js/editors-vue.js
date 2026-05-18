@@ -401,6 +401,8 @@ Vue.component('editable-markdown-editor', {
             autofocus: true
         });
         const codeMirrorInstance = vm.editor.codemirror;
+        codeMirrorInstance.setOption(
+            'screenReaderLabel', 'Content editor');
         codeMirrorInstance.on("blur", function() {
             vm.saveContent();
         });

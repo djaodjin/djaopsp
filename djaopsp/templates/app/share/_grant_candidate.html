@@ -3,13 +3,13 @@
   <div class="card-body">
     <div class="row align-items-center">
       <div class="col-2">
-<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(candidate.grantee) || '{{'/static/img/default-organization.png'|asset}}'" >
+<img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(candidate.grantee) || '{{'/static/img/default-organization.png'|asset}}'" alt="Profile picture">
       </div>
       <div class="col-5">
         [[getAccountPrintableName(candidate.grantee)]]
         <div v-if="candidate.members">
           <span class="me-1" v-for="member in candidate.members">
-            <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(member) || '{{'/static/img/default-organization.png'|asset}}'">
+            <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(member) || '{{'/static/img/default-organization.png'|asset}}'" alt="Profile picture">
           </span>
           <small><a :href="candidate.list_members_url" target="_blank">{% trans %}See all...{% endtrans %}</a></small>
         </div>
