@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-3">
           <div>
-            <a :href="'/users/' + item.user.slug + '/'"><img class="card-img-top rounded-circle" v-bind:src="item.user.picture ? item.user.picture : '{{'/static/img/default-user.png'|asset}}'" alt=""></a>
+            <a :href="'/users/' + item.user.slug + '/'"><img class="card-img-top rounded-circle" v-bind:src="item.user.picture ? item.user.picture : '{{'/static/img/default-user.png'|asset}}'" alt="{% trans %}Profile picture{% endtrans %}"></a>
           </div>
       </div>
       <div class="col-9">

@@ -38,7 +38,7 @@ A response from <em>{{profile.printable_name}}</em> to this questionnaire was la
                 <div>
                   <div class="row align-items-center">
                     <div class="col-2">
-                      <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture('{{request.grantee}}') ? getAccountPicture('{{request.grantee}}') : '{{'/static/img/default-organization.png'|asset}}'" alt="Profile picture">
+                      <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture('{{request.grantee}}') ? getAccountPicture('{{request.grantee}}') : '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile picture{% endtrans %}">
                     </div>
                     <div class="col-5">
                       [[getAccountPrintableName('{{request.grantee}}') ? getAccountPrintableName('{{request.grantee}}') : '{{request.grantee}}']]

@@ -40,7 +40,7 @@
         <div class="col-9">
           <div class="mt-2" v-if="!(callbackArg.extra && callbackArg.extra.tags && callbackArg.extra.tags.includes('verify'))">
             <small v-if="collectedByPrintableName">
-              <img class="rounded-circle float-start m-1" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+              <img class="rounded-circle float-start m-1" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32" alt="{% trans %}Profile picture{% endtrans %}">
               {% trans %}updated by{% endtrans %} [[collectedByPrintableName]]
                 [[humanizeDate(collectedAtTime)]]
                 ([[humanizeTimeDelta(collectedAtTime)]])

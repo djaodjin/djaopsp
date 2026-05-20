@@ -44,7 +44,7 @@ display: none;
                 <div class="row chart-title" style="margin-left:15px;margin-right:15px;">
                   <div class="col-4 icon-benchmark orange">
                     {% if chart.picture %}
-                    <img class="icon-equipment" src="{{chart.picture}}">
+                    <img class="icon-equipment" src="{{chart.picture}}" alt="{{chart.title}}">
                     {% else %}
                     <span class="icon-equipment">{{chart.title}}</span>
                     {% endif %}

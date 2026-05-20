@@ -13,7 +13,7 @@
               <input id="tags" class="tags text-start" type="text" placeholder="tags ..." aria-label="Tags" />
             </div>
           </div>
-          <img class="editable edit-media img-fluid border m-2" :src="item.picture" :alt="item.title" style="width:280px;height:140px" v-if="item.picture" />
+          <img class="editable edit-media img-fluid border m-2" :src="item.picture" alt="{% trans %}Practice image{% endtrans %}" style="width:280px;height:140px" />
           <editable-markdown-editor inline-template>
             <div>
               <textarea aria-label="Content editor"></textarea>
@@ -68,9 +68,9 @@
               <a href="{{'/docs/faq/#environmental-practices'|site_url}}">{% trans %}How was this practice identified and selected?{% endtrans %}</a>
             </p>
             <p class="text-center mt-3">
-<img height="32" src="{{'/static/img/cc_icon_black_x2.png'|asset}}" />
-<img height="32" src="{{'/static/img/sa_black_x2.png'|asset}}" />
-<img height="32" src="{{'/static/img/attribution_icon_black_x2.png'|asset}}" />
+<img height="32" src="{{'/static/img/cc_icon_black_x2.png'|asset}}" alt="" />
+<img height="32" src="{{'/static/img/sa_black_x2.png'|asset}}" alt="" />
+<img height="32" src="{{'/static/img/attribution_icon_black_x2.png'|asset}}" alt="" />
             </p>
             <p>
 {% trans %}This material is licensed as Creative Commons{% endtrans %} <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.

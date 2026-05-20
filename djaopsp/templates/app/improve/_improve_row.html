@@ -411,7 +411,7 @@
   <div class="row" v-if="getPrimaryCandidate(practice).measured">
     <div class="col-sm-3">
       <div class="mt-2">
-        <img :src="getPicture(getPrimaryCandidate(practice).collected_by)">
+        <img :src="getPicture(getPrimaryCandidate(practice).collected_by)" alt="{% trans %}Profile picture{% endtrans %}">
         <span>[[getPrintableName(getPrimaryCandidate(practice).collected_by)]]</span>
       </div>
       <small>[[humanizeTimeDelta(getPrimaryCandidate(practice).created_at)]]</small>
@@ -425,7 +425,7 @@
   <div class="row" v-if="getPrimaryPlanned(practice).measured && getPrimaryPlanned(practice).collected_by">
     <div class="col-sm-3">
       <div class="mt-2">
-        <img :src="getPicture(getPrimaryPlanned(practice).collected_by)">
+        <img :src="getPicture(getPrimaryPlanned(practice).collected_by)" alt="{% trans %}Profile picture{% endtrans %}">
         <span>[[getPrintableName(getPrimaryPlanned(practice).collected_by)]]</span>
       </div>
       <small>[[humanizeTimeDelta(getPrimaryPlanned(practice).created_at)]]</small>
