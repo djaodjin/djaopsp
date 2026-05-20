@@ -41,7 +41,7 @@
     v-for="choice in getChoices(practice, icon)"
     v-if="!isPractice(practice) && isEnumHeaderShown(icon)">
     <button class="btn btn-select-all" href=""
-            :aria-label="'Select all ' + choice.text"
+            :aria-label="'{% trans %}Select all{% endtrans %} ' + choice.text"
             {% if sample.is_frozen %} disabled{% endif %}
             @click.prevent="updateMultiplePlannedAnswers(practice, choice.text)">
       <i class="fa-solid fa-circle"></i>
