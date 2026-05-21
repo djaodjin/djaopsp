@@ -1,4 +1,5 @@
-FROM python:3.10-slim-bookworm
+FROM python:3.12-slim-trixie
+#2026-05-21: python:3.12-slim-bookworm - Python 3.12.13, Debian 13.4 (Trixie)
 #2025-04-15: python:3.10-slim-bookworm - Python 3.10.17, Debian 12.10 (Bookworm)
 #2023-04-21: python:3.10-slim-bullseye - Python 3.10.11, Debian 11.0 (Bullseye)
 
@@ -22,8 +23,8 @@ RUN /usr/local/bin/python3 -m venv --upgrade-deps /app --system-site-packages
 #    Installs the preprequisites used for debugging (DEBUG=1, API_DEBUG=1)
 #    so we don't have to rebuild a container to investigate when something
 #    goes wrong.
-RUN /app/bin/pip install cairocffi==1.7.1 coverage==6.3.2 psycopg2-binary==2.9.3 setproctitle==1.2.3
-RUN /app/bin/pip install Django==4.2.30 djangorestframework==3.16.1 djaodjin-deployutils==0.14.5 djaodjin-extended-templates==0.5.1 djaodjin-pages==0.9.1 djaodjin-survey==0.20.0 docutils==0.20.1 drf-spectacular==0.27.2 gunicorn==23.0.0 jinja2==3.1.6 monotonic==1.6 openpyxl==3.1.5 python-pptx==0.6.21 pytz==2026.1 django-debug-toolbar==3.8.1 django-extensions==3.2.3 Faker==2.0.0 sqlparse==0.5.3
+RUN /app/bin/pip install cairocffi==1.7.1 coverage==6.3.2 psycopg2-binary==2.9.12 setproctitle==1.2.3
+RUN /app/bin/pip install Django==5.2.14 djangorestframework==3.16.1 djaodjin-deployutils==0.14.5 djaodjin-extended-templates==0.5.1 djaodjin-pages==0.9.1 djaodjin-survey==0.20.0 docutils==0.22.4 drf-spectacular==0.27.2 gunicorn==23.0.0 jinja2==3.1.6 monotonic==1.6 openpyxl==3.1.5 python-pptx==0.6.21 pytz==2026.1 django-debug-toolbar==3.8.1 django-extensions==3.2.3 Faker==2.0.0 sqlparse==0.5.3
 
 #    Bundle app source
 COPY . /app/reps/djaopsp
