@@ -41,7 +41,7 @@
           {% if urls.accessibles %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="responses-lnk" href="{{urls.accessibles}}">{% trans %}Track{% endtrans %}</a>
+            <a class="nav-link{% if request.path == urls.accessibles %} active{% endif %}" id="accessibles-lnk" href="{{urls.accessibles}}">{% trans %}Track{% endtrans %}</a>
           </li>
           {% endif %}
           {% if urls.insights %}
