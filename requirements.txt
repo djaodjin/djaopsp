@@ -64,7 +64,7 @@ sphinxcontrib-websupport==2.0.0   # 1.2.4 last version that supports Py3.7
 uritemplate==4.1.1
 
 # For ESG AI audit
-tiktoken==0.4.0              # Requires Python>=3.8
+tiktoken==0.13.0             # prebuilt version for py3.12, Requires Python>=3.8
 networkx==3.4.2              # indirectly required by torch 2.0.0a0+gitunknown
 openai==0.27.8
 # XXX install of pikepdf fails with
