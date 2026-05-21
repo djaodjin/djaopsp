@@ -592,13 +592,26 @@ class PortfolioEngagementXLSXView(PortfolioEngagementMixin, TemplateXLSXView):
     def queryrow_to_columns(self, record):
         reporting_statuses = dict(EngagementSerializer.REPORTING_STATUSES)
         supplier_key = get_extra(record, 'supplier_key')
+        try:
+            last_activity_at = (record.last_activity_at.date()
+                if record.last_activity_at else "")
+        except AttributeError:
+            last_activity_at = (record.last_activity_at
+                if record.last_activity_at else "")
+        try:
+            requested_at = (record.requested_at.date()
+                if record.requested_at else "")
+        except AttributeError:
+            requested_at = (record.requested_at
+                if record.requested_at else "")
         row = [
             supplier_key,
             record.printable_name,
             ", ".join(get_extra(record, 'tags', [])),
             reporting_statuses[record.reporting_status],
-            record.last_activity_at.date() if record.last_activity_at else "",
-            record.requested_at.date() if record.requested_at else ""]
+            last_activity_at,
+            requested_at
+        ]
         return row
 
 
