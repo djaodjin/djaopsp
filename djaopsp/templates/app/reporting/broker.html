@@ -111,7 +111,7 @@
           </td>
           <td style="vertical-align:middle;">
             <div v-if="entry.verified_by">
-              <img class="rounded-circle d-inline-block" :src="getUserPicture(entry.verified_by) ? getUserPicture(entry.verified_by) : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+              <img class="rounded-circle d-inline-block" :src="getUserPicture(entry.verified_by) ? getUserPicture(entry.verified_by) : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32" alt="{% trans %}Profile picture{% endtrans %}">
               <a :href="'{{'/users/'|site_url}}' + entry.verified_by + '/'">[[getUserPrintableName(entry.verified_by)]]</a>
             </div>
             <div v-if="!entry.verified_by">

@@ -242,7 +242,7 @@
             v-for="(received, index) in grants.results"
             v-show="itemsLoaded && grants.results.length > 0" v-cloak>
             <td class="text-center" colspan="3">
-              <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(received.account) || '{{'/static/img/default-organization.png'|asset}}'"><em class="ps-1">{% trans profile_name="[[getAccountPrintableName(received.account) || received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}</em>
+              <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(received.account) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile picture{% endtrans %}"><em class="ps-1">{% trans profile_name="[[getAccountPrintableName(received.account) || received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}</em>
             </td>
             <td :colspan="items.labels ? (items.labels.length + 1) : 1">
                 <button class="btn btn-outline-primary"

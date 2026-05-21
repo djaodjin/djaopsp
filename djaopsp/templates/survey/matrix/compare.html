@@ -634,7 +634,7 @@
                 <span>[[index + 1 + (params.page ? (params.page - 1) * itemsPerPage : 0)]]</span><br />
               </td>
               <td class="col-11">
-                <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(entry) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(entry) || entry.slug]]
+                <img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(entry) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile picture{% endtrans %}"> [[getAccountPrintableName(entry) || entry.slug]]
               </td>
             </tr>
           </table>

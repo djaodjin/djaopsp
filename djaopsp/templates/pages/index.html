@@ -96,14 +96,16 @@
                               <div class="d-inline-block">
                                 <img class="icon-inner"
                                      style="padding:5px; border: 1px #eee solid;"
-                                     :src="item.picture" v-if="item.picture">
+                                     :src="item.picture" v-if="item.picture"
+                                     alt="">
                                 <img class="icon-inner"
                                      src="{{'/static/img/design.png'|asset}}"
-                                     v-if="!item.picture">
+                                     v-if="!item.picture"
+                                     alt="">
                               </div>
                             </div>
                             <div class="col-8 text-start">
-                              <h4>[[item.title]]</h4>
+                              <h2 class="h4">[[item.title]]</h2>
                             </div>
                           </div>
                         </div>

@@ -21,7 +21,7 @@
                      :href="'#tab-' + icon.slug" role="{{role}}"
                      data-bs-toggle="{{role}}" data-toggle="{{role}}"
                      @click.prevent="toggleTile($event, icon)">
-                    <img class="icon-equipment" v-if="icon.picture" :src="icon.picture">
+                    <img class="icon-equipment" v-if="icon.picture" :src="icon.picture" alt="">
                     <div class="icon-caption">[[icon.title]]</div>
                   </a>
                 </li>

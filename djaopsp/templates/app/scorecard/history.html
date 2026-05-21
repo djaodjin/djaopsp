@@ -11,7 +11,7 @@
   <div class="bg-body text-body p-4">
     <div class="row">
       <div class="col-sm-2 text-center text-sm-end">
-        <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+        <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" alt="{% trans %}Profile picture{% endtrans %}">
       </div>
       <div class="col-sm-10 text-center text-sm-start">
         <h1 class="pb-0 my-0 text-body">{% trans %}Questionnaires{% endtrans %}</h1>
@@ -51,13 +51,13 @@
                 <span>{% trans %}This assessment and older assessments for [[item.campaign.title]] have been shared with:{% endtrans %}</span>
                 <div>
                   <span v-for="grantee in item.grantees">
-                    <img class="img-fluid" style="max-height: 1rem;" :src="grantee.picture || '{{'/static/img/default-organization.png'|asset}}'" :title="grantee.printable_name ? grantee.printable_name : grantee">
+                    <img class="img-fluid" style="max-height: 1rem;" :src="grantee.picture || '{{'/static/img/default-organization.png'|asset}}'" :title="grantee.printable_name ? grantee.printable_name : grantee" alt="{% trans %}Profile picture{% endtrans %}">
                   </span>
                   <button class="d-inline btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#grantees" aria-expanded="true" aria-controls="grantees">&raquo;</button>
                   <div id="grantees" class="accordion-collapse collapse">
                     <div class="accordion-body">
                       <div v-for="grantee in item.grantees">
-                        <img class="img-fluid" style="max-height: 1rem;" :src="grantee.picture || '{{'/static/img/default-organization.png'|asset}}'"> [[grantee.printable_name ? grantee.printable_name : grantee]]
+                        <img class="img-fluid" style="max-height: 1rem;" :src="grantee.picture || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile picture{% endtrans %}"> [[grantee.printable_name ? grantee.printable_name : grantee]]
                       </div>
                     </div>
                   </div>

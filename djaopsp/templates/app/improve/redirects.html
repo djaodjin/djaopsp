@@ -53,11 +53,13 @@ been completed.{% endtrans %}
                           {% if item.picture %}
                           <img class="icon-inner"
                                style="padding:5px; border: 1px #eee solid;"
-                               src="{{item.picture}}">
+                               src="{{item.picture}}"
+                               alt="">
                           {% else %}
                           <img class="icon-inner"
                                style="padding:5px; border: 1px #eee solid;"
-                               src="{{'/static/img/design.png'|asset}}">
+                               src="{{'/static/img/design.png'|asset}}"
+                               alt="">
                           {% endif %}
                         </div>
                       </div>

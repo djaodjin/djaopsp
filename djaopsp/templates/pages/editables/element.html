@@ -10,13 +10,13 @@
           <h1 class="editable text-body" data-key="title" v-cloak>[[item.title]]</h1>
           <div class="text-end">
             <div data-key="tags">
-              <input id="tags" class="tags text-start" type="text" placeholder="tags ..." />
+              <input id="tags" class="tags text-start" type="text" placeholder="{% trans %}tags ...{% endtrans %}" aria-label="{% trans %}Tags{% endtrans %}" />
             </div>
           </div>
-          <img class="editable edit-media img-fluid border m-2" :src="item.picture" style="width:280px;height:140px" />
+          <img class="editable edit-media img-fluid border m-2" :src="item.picture" alt="{% trans %}Practice image{% endtrans %}" style="width:280px;height:140px" />
           <editable-markdown-editor inline-template>
             <div>
-              <textarea></textarea>
+              <textarea aria-label="{% trans %}Content editor{% endtrans %}"></textarea>
             </div>
           </editable-markdown-editor>
 
@@ -68,9 +68,9 @@
               <a href="{{'/docs/faq/#environmental-practices'|site_url}}">{% trans %}How was this practice identified and selected?{% endtrans %}</a>
             </p>
             <p class="text-center mt-3">
-<img height="32" src="{{'/static/img/cc_icon_black_x2.png'|asset}}" />
-<img height="32" src="{{'/static/img/sa_black_x2.png'|asset}}" />
-<img height="32" src="{{'/static/img/attribution_icon_black_x2.png'|asset}}" />
+<img height="32" src="{{'/static/img/cc_icon_black_x2.png'|asset}}" alt="" />
+<img height="32" src="{{'/static/img/sa_black_x2.png'|asset}}" alt="" />
+<img height="32" src="{{'/static/img/attribution_icon_black_x2.png'|asset}}" alt="" />
             </p>
             <p>
 {% trans %}This material is licensed as Creative Commons{% endtrans %} <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA</a>.

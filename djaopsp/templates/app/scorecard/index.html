@@ -35,7 +35,7 @@
           <div class="col-sm-8">
             <div class="row">
               <div class="col-sm-4 text-center text-sm-end">
-                <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}">
+                <img class="my-4 img-fluid" style="max-height:100px;" src="{% if sample.account.picture %}{{sample.account.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" alt="{% trans %}Profile picture{% endtrans %}">
               </div>
               <div class="col-sm-8 text-center text-sm-start">
                 <h1 class="mt-4 text-body">{{sample.account.printable_name}}</h1>
@@ -50,7 +50,8 @@
                   <div class="col-6 col-sm-3 text-start text-left">
                     <div class="mt-2 icon-inner{% if highlight.reporting %} orange{% else %} grey{% endif %}">
                       <img class="icon-equipment"
-                           src="{{highlight.picture|asset}}">
+                           src="{{highlight.picture|asset}}"
+                           alt="{% trans %}Section image{% endtrans %}">
                       <div class="icon-caption text-white">{{highlight.text}}</div>
                     </div>
                   </div>
@@ -103,7 +104,7 @@
               <div v-if="practice.indent === 0">
                 <div :class="indentHeader(practice)">
                   <div class="d-inline-block" v-if="practice.picture">
-                    <img class="icon-heading" :src="practice.picture" />
+                    <img class="icon-heading" :src="practice.picture" alt="{% trans %}Section image{% endtrans %}" />
                   </div>
                   <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                 </div>
@@ -142,7 +143,7 @@
                     <div class="col-sm-4" v-for="subheading in block">
                       <div>
                         <div class="d-inline-block" v-if="subheading.picture">
-                          <img class="icon-heading" :src="subheading.picture" />
+                          <img class="icon-heading" :src="subheading.picture" alt="{% trans %}Section image{% endtrans %}" />
                         </div>
                         <span class="title">[[subheading.title]]</span>
                         <span>([[asPercent(subheading.normalized_score)]])</span>
@@ -193,7 +194,7 @@
                    v-if="practice.indent === 0">
                 <div :class="indentHeader(practice)">
                   <div class="d-inline-block" v-if="practice.picture">
-                    <img class="icon-heading" :src="practice.picture" />
+                    <img class="icon-heading" :src="practice.picture" alt="{% trans %}Section image{% endtrans %}" />
                   </div>
                   <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                 </div>
@@ -246,7 +247,7 @@
                     <div class="col-sm-4" v-for="subheading in block">
                       <div>
                         <div class="d-inline-block" v-if="subheading.picture">
-                          <img class="icon-heading" :src="subheading.picture" />
+                          <img class="icon-heading" :src="subheading.picture" alt="{% trans %}Section image{% endtrans %}" />
                         </div>
                         <span class="title">[[subheading.title]]</span>
                         <span>([[asPercent(subheading.normalized_score)]])</span>
@@ -281,7 +282,7 @@
                 {# tile title #}
                 <div :class="indentHeader(practice)">
                   <div class="d-inline-block" v-if="practice.picture">
-                    <img class="icon-heading" :src="practice.picture" />
+                    <img class="icon-heading" :src="practice.picture" alt="{% trans %}Section image{% endtrans %}" />
                   </div>
                   <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                 </div>
@@ -327,7 +328,7 @@
                     <div class="d-inline-block"
                          v-if="isTilePicture(practice)">
                       <img class="icon-heading"
-                           :src="practice.picture" />
+                           :src="practice.picture" alt="{% trans %}Section image{% endtrans %}" />
                     </div>
                     <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor"><i class="fa-solid fa-link"></i></a>
                   </div>

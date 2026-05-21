@@ -41,6 +41,7 @@
     v-for="choice in getChoices(practice, icon)"
     v-if="!isPractice(practice) && isEnumHeaderShown(icon)">
     <button class="btn btn-select-all" href=""
+            :aria-label="'{% trans %}Select all{% endtrans %} ' + choice.text"
             {% if sample.is_frozen %} disabled{% endif %}
             @click.prevent="updateMultiplePlannedAnswers(practice, choice.text)">
       <i class="fa-solid fa-circle"></i>
@@ -178,6 +179,7 @@
            placeholder=""
            v-model="getPrimaryPlanned(practice).measured"
            @blur="updatePlannedAnswer(practice)"
+           :aria-label="practice.title"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryPlanned(practice).unit"
@@ -225,6 +227,7 @@
            placeholder=""
            v-model="getPrimaryPlanned(practice).measured"
            @blur="updatePlannedAnswer(practice)"
+           :aria-label="practice.title"
            {% if sample.is_frozen %} disabled{% endif %}></input>
     <select class="form-control form-select input-group-suffix"
             v-model="getPrimaryPlanned(practice).unit"
@@ -408,7 +411,7 @@
   <div class="row" v-if="getPrimaryCandidate(practice).measured">
     <div class="col-sm-3">
       <div class="mt-2">
-        <img :src="getPicture(getPrimaryCandidate(practice).collected_by)">
+        <img :src="getPicture(getPrimaryCandidate(practice).collected_by)" alt="{% trans %}Profile picture{% endtrans %}">
         <span>[[getPrintableName(getPrimaryCandidate(practice).collected_by)]]</span>
       </div>
       <small>[[humanizeTimeDelta(getPrimaryCandidate(practice).created_at)]]</small>
@@ -422,7 +425,7 @@
   <div class="row" v-if="getPrimaryPlanned(practice).measured && getPrimaryPlanned(practice).collected_by">
     <div class="col-sm-3">
       <div class="mt-2">
-        <img :src="getPicture(getPrimaryPlanned(practice).collected_by)">
+        <img :src="getPicture(getPrimaryPlanned(practice).collected_by)" alt="{% trans %}Profile picture{% endtrans %}">
         <span>[[getPrintableName(getPrimaryPlanned(practice).collected_by)]]</span>
       </div>
       <small>[[humanizeTimeDelta(getPrimaryPlanned(practice).created_at)]]</small>

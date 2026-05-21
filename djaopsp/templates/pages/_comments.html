@@ -1,10 +1,10 @@
 {% block comments %}
 <div class="mt-2">
-  <h5>[[comments.count]] {% trans %}Comments{% endtrans %}</h5>
+  <h2 class="h5">[[comments.count]] {% trans %}Comments{% endtrans %}</h2>
   <div :id="'comment_from_'+ comment.user" class="d-flex" v-for="comment in comments.results">
     <div class="col-sm-3">
       <div class="mt-2">
-        <img class="rounded-circle" :src="getAccountPicture(comment.user) ? getAccountPicture(comment.user) : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32">
+        <img class="rounded-circle" :src="getAccountPicture(comment.user) ? getAccountPicture(comment.user) : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32" alt="{% trans %}Profile picture{% endtrans %}">
         <span>[[getAccountPrintableName(comment.user)]]</span>
       </div>
       <small>[[$globals.humanizeDate(comment.created_at)]]</small><br />
@@ -22,7 +22,7 @@
     <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
     <fieldset>
       <div class="form-group">
-        <label class="control-label">
+        <label class="control-label" for="id_comment">
 <strong>{% trans %}Comments/lessons learned to share on this page?{% endtrans %}</strong>
 {% trans %}Submit them via the comment box below.{% endtrans %}
         </label>
@@ -41,7 +41,7 @@
             </label>
           </div>
           <div class="col-md-6 text-end">
-            <img class="img-fluid" style="float:right;" src="{{'/static/img/tutorials/suppliers-4-6c.png'|asset}}"></img>
+            <img class="img-fluid" style="float:right;" src="{{'/static/img/tutorials/suppliers-4-6c.png'|asset}}" alt="{% trans %}Assessment row with the sticky note icon highlighted{% endtrans %}"></img>
           </div>
         </div>
         <button id="id_submit" type="submit"

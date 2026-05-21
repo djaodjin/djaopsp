@@ -295,7 +295,7 @@
                         <div class="row"
                              v-for="(account, idx) in getAccounts(items.results[selectedItem])"
                              v-show="!accountsEmpty()">
-                          <div class="col-10"><img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(account) || '{{'/static/img/default-organization.png'|asset}}'"> [[getAccountPrintableName(account)]]</div>
+                          <div class="col-10"><img class="img-fluid" style="max-height: 1rem;" :src="getAccountPicture(account) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile picture{% endtrans %}"> [[getAccountPrintableName(account)]]</div>
                           <div class="col-2">
                             <button class="btn btn-danger btn-sm"
                                     @click.prevent="removeAccount(idx)">

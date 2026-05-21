@@ -6,7 +6,7 @@
     <div class="col-md-7">
       <ul class="nav nav-tabs surrounded-tabs">
         <li class="nav-item squared-tabs-li text-center first_tab">
-          <img src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" />
+          <img src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" alt="{% trans %}Profile picture{% endtrans %}" />
         </li>
       </ul>
     </div>
@@ -216,7 +216,7 @@
                                      @click.prevent="toggleShowHide(entry, index)"
                                      v-if="index != activeIndex && !isPractice(entry)" >
                                   <div class="d-inline-block">
-                                    <img class="icon-heading" :src="entry.picture" />
+                                    <img class="icon-heading" :src="entry.picture" alt="{% trans %}Section picture{% endtrans %}" />
                                   </div>
                                   <span class="title">[[entry.title]]</span>
                                 </div>
@@ -269,7 +269,7 @@
                                    v-if="isPractice(entry)">[[entry.title]]</a>
                                 <div class="title" v-if="!isPractice(entry)">
                                   <div class="d-inline-block">
-                                    <img class="icon-heading" :src="entry.picture" />
+                                    <img class="icon-heading" :src="entry.picture" alt="{% trans %}Segment picture{% endtrans %}" />
                                   </div>
                                   <span class="title">[[entry.title]]</span>
                                   <button
