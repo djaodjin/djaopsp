@@ -108,15 +108,15 @@
             <a class="dropdown-item" :href="'{{urls.download}}' + getQueryString(['page'])">
               {% trans %}Download (.xlsx){% endtrans %}
             </a>
-            <a class="dropdown-item" :href="'{{urls.download_long}}' + getQueryString(['page'])">
+            <a id="download-pivotable" class="dropdown-item" :href="'{{urls.download_long}}' + getQueryString(['page'])">
               {% trans %}Download (pivotable .xlsx){% endtrans %}
             </a>
-            <a id="download-detailed-answers" class="dropdown-item"
+            <a id="download-answers" class="dropdown-item"
                :href="'{{urls.download_raw}}' + getQueryString(['page'])"
                target="_blank">
                 {% trans %}Answers &amp; scores (.xlsx){% endtrans %}
             </a>
-            <a id="download-detailed-answers-pivotable" class="dropdown-item"
+            <a id="download-answers-pivotable" class="dropdown-item"
                :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
                target="_blank">
                 {% trans %}Answers &amp; scores (pivotable .csv){% endtrans %}
