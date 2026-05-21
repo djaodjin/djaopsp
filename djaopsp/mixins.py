@@ -8,7 +8,6 @@ from deployutils.apps.django_deployutils.templatetags import (
     deployutils_prefixtags)
 from deployutils.helpers import update_context_urls
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.db import transaction
 from django.db.models import Q, F
 from django.http import Http404
@@ -22,7 +21,7 @@ from survey.models import Answer, Campaign, Sample
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import get_question_model, get_engaged_accounts
 
-from .compat import gettext_lazy as _, reverse
+from .compat import get_storage_class, gettext_lazy as _, reverse
 from .models import VerifiedSample, SurveyEvent
 from .utils import (get_account_model, get_campaign_candidates,
     get_segments_available, get_segments_candidates, get_unlocked)
