@@ -795,11 +795,12 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
                 self._improvements = \
                     Sample.objects.get_latest_frozen_by_accounts(
                         campaign=self.verified_campaign,
-                        segment_prefix=self.db_path, ends_at=self.ends_at,
-                        grantees=[self.account],
+                        start_at=self.start_at, ends_at=self.ends_at,
+                        segment_prefix=self.db_path,
                 # create a list to prevent RawQuerySet if-condition later on
                         accounts=[account.pk for account
                             in self.engaged_accounts],
+                        grantees=[self.account],
                         tags=['is_planned'])
             else:
                 self._improvements = Sample.objects.none()
