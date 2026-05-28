@@ -358,7 +358,7 @@
 {% endblock %}
 
 {% block track_scripts %}
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
 Vue.prototype.$water_type = {
     "unspecified": {
         "title": "Unspecified"

@@ -442,7 +442,7 @@
 {% endblock %}
 
 {% block survey_bodyscripts %}
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
 jQuery(document).ready(function($) {
 
     {% if urls.api_upload %}

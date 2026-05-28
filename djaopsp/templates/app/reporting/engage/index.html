@@ -388,7 +388,7 @@
 {% endblock %}
 
 {% block reporting_scripts %}
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
 Vue.prototype.$defaultRequestInitiatedMessage = "Hello,\n\nI would like to invite you to complete and share an assessment for your organization.";
 
 jQuery(document).ready(function($) {
