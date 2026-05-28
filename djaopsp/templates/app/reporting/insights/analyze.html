@@ -845,7 +845,7 @@ You can find tutorials to get started with the analyze dashboard
 {% endblock %}
 
 {% block reporting_scripts %}
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
 Vue.prototype.$groupAccountsView = 'analyze-accounts';
 Vue.prototype.$accountsByAnswersView = 'analyze-answers';
 </script>

@@ -37,7 +37,7 @@
 <script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
 {% endif %}
 {% endblock %}
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
 Vue.prototype.$globals = {
     'humanizeDate': humanizeDate,
     'humanizeMonthDay': humanizeMonthDay,

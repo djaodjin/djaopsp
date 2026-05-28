@@ -41,7 +41,7 @@ Please first verify that you have at least Python3.10 and make installed on your
 development environment
 
     $ python --version
-    Python 3.10.19
+    Python 3.12.13
     $ make --version
     GNU Make 3.81
 

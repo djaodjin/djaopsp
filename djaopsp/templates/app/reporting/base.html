@@ -108,7 +108,7 @@
 <script type="text/javascript" src="{{'/static/cache/reporting.js'|asset}}"></script>
 {% endif %}
 
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
 const UTILITY_COLOR = '#f0ad4e';
 const UTILITY_COLOR_LAST = '#facf6f';
 const EUISSCA_COLOR = '#3ca65b';

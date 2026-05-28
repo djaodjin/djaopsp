@@ -192,7 +192,7 @@
 {% endblock %}
 
 {% block pages_scripts %}
-<script type="text/javascript" charset="utf-8">
+<script type="text/javascript" charset="utf-8" nonce="{{request.csp_nonce}}">
 {% if edit_perm %}
 assetsUploadUrl = "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_url}}{% endif %}";
 

@@ -78,7 +78,7 @@ an industry-specific practices segment.{% endtrans %}
 {% endblock %}
 
 {% block assess_scripts %}
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
 Vue.prototype.$excludeQuestions = "assess-only";
 </script>
 {% endblock %}
