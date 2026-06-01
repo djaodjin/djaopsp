@@ -29,23 +29,18 @@
 <div class="form-group{% if errors %} has-error{% endif %}">
   <div class="input-group input-group-md">
     {% if not hide_labels %}
-    <div class="input-group-prepend">
       <label class="text-monospace input-group-text{% if required %} requiredField{% endif %}">{{label|safe}}</label>
-    </div>
     {% endif %}
     {% if nameOpened %}
     <span class="form-control"
           v-show="!{{nameOpened}} && !{{name}}">{% trans %}Never{% endtrans %}</span>
-    <div class="input-group-append"
-         v-show="!{{nameOpened}} && !{{name}}">
-      <button class="input-group-text"
+      <button class="input-group-text" v-show="!{{nameOpened}} && !{{name}}"
               {% if disabled %}
               disabled
               {% else %}
               @click.prevent="{{toggleNameOpened}}"
               {% endif %}
               ><span class="fa-solid fa-calendar"></span></button>
-    </div>
     {% endif %}
     <input class="form-control{% if errors %} is-invalid{% endif %}"
            type="date"
