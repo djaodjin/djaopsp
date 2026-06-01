@@ -38,6 +38,14 @@ MANAGE        := DJAOPSP_SETTINGS_LOCATION=$(CONFIG_DIR) $(PYTHON) manage.py
 RUNSYNCDB     = $(if $(findstring --run-syncdb,$(shell cd $(srcDir) && $(MANAGE) migrate --help 2>/dev/null)),--run-syncdb,)
 NOIMPORTS     = $(if $(findstring --no-imports,$(shell $(MANAGE) shell --help 2>/dev/null)),--no-imports,)
 
+# `manage.py compilemessages` will go through the whole tree rooted
+# in the current directory. It is a problem when we have installed
+# the virtualenv as a '.venv' directory inside th source tree.
+ifneq ($(subst $(abspath $(srcDir))/,,$(libDir)),$(libDir))
+COMPILEMESSAGES = $(MANAGE) compilemessages --ignore='$(subst $(abspath $(srcDir))/,,$(libDir))'
+else
+COMPILEMESSAGES = $(MANAGE) compilemessages
+endif
 
 ifneq ($(wildcard $(CONFIG_DIR)/site.conf),)
 # `make initdb` will install site.conf but only after `grep` is run
@@ -247,7 +255,7 @@ $(srcDir)/djaopsp/locale/fr/LC_MESSAGES/django.mo: \
 				$(wildcard $(srcDir)/djaopsp/locale/es/LC_MESSAGES/*.po) \
 				$(wildcard $(srcDir)/djaopsp/locale/fr/LC_MESSAGES/*.po) \
 				$(wildcard $(srcDir)/djaopsp/locale/pt/LC_MESSAGES/*.po)
-	cd $(srcDir) && $(MANAGE) compilemessages
+	cd $(srcDir) && $(COMPILEMESSAGES)
 
 
 install-conf:: $(DESTDIR)$(CONFIG_DIR)/credentials \
