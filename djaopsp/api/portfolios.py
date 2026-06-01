@@ -1456,8 +1456,15 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
             # Merge portfolio extra field into account extra field.
             extra = extras.get((account.grantee_id, account.account_id))
             if extra:
-                account.extra = extra_as_internal(account)
-                account.extra.update(extra)
+                second = extra_as_internal(account)
+                for second_key, second_value in second.items():
+                    if second_key in extra:
+                        if isinstance(extra[second_key], list): # 'tags'
+                            extra[second_key] = sorted(list(
+                                set(second_value) | set(extra[second_key])))
+                    else:
+                        extra[second_key] = second_value
+                account.extra = extra
         return queryset
 
     def get_filtering(self):
