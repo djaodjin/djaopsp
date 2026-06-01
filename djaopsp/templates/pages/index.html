@@ -17,17 +17,13 @@
                 <div class="col-md-6">
                   <form id="search" @submit.prevent="reload()">
                     <div class="input-group input-group-sm">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
-                      </div>
+                      <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
                       <input class="form-control"
                              type="text"
                              placeholder="{% trans %}Ex: GHG Emissions ...{% endtrans %}"
                              v-model="params.q" />
-                      <div class="input-group-append">
-                        <button class="btn btn-primary btn-sm"
-                                type="submit">{% trans %}Search{% endtrans %}</button>
-                      </div>
+                      <button class="btn btn-primary btn-sm"
+                              type="submit">{% trans %}Search{% endtrans %}</button>
                     </div>
                   </form>{# /#search #}
                 </div>

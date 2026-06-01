@@ -766,24 +766,22 @@ Electricity and other sources of energy purchased from your local utility (that 
                            <input class="form-control" type="number" min="0"
                                   name="measured"
                                   v-model="item.measured">
-                           <div class="input-group-append">
-                             <select class="form-control form-select"
-                                     name="unit"
-                                     v-model="item.unit"
-                                     v-if="item.extra.calculation_approach == 'purchased-electricity-location-based' || item.extra.calculation_approach == 'purchased-electricity-market-based'">
-                                <option value="kWh">kWh</option>
-                                <option value="mwh">MWh</option>
-                             </select>
-                             <select class="form-control form-select"
-                                     v-model="item.unit"
-                                     v-if="item.extra.calculation_approach == 'heat-steam'">
-                                <option value="btu">Btu</option>
-                                <option value="mmbtu">mmBtu</option>
-                                <option value="therm">therm</option>
-                                <option value="kWh">kWh</option>
-                                <option value="mwh">MWh</option>
-                             </select>
-                           </div>
+                            <select class="form-control form-select"
+                                    name="unit"
+                                    v-model="item.unit"
+                                    v-if="item.extra.calculation_approach == 'purchased-electricity-location-based' || item.extra.calculation_approach == 'purchased-electricity-market-based'">
+                              <option value="kWh">kWh</option>
+                              <option value="mwh">MWh</option>
+                            </select>
+                            <select class="form-control form-select"
+                                    v-model="item.unit"
+                                    v-if="item.extra.calculation_approach == 'heat-steam'">
+                              <option value="btu">Btu</option>
+                              <option value="mmbtu">mmBtu</option>
+                              <option value="therm">therm</option>
+                              <option value="kWh">kWh</option>
+                              <option value="mwh">MWh</option>
+                            </select>
                          </div>
                        </td>
                      </tr>

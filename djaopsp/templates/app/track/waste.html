@@ -97,17 +97,15 @@
                             <input class="form-control" type="number" min="0"
                                    name="measured"
                                    v-model="item.measured">
-                            <div class="input-group-append">
-                              <select class="form-control form-select"
-                                   name="unit" v-model="item.unit">
-                                <option value="t">Metric tons</option>
-                                <option value="lbs">Pounds</option>
-                                <option value="m3">Cubic meters (m<sup>3</sup>)</option>
-                                <option value="kiloliters">Kilo liters</option>
-                                <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
-                                <option value="gallons">US Gallon</option>
-                              </select>
-                            </div>
+                            <select class="form-control form-select"
+                                  name="unit" v-model="item.unit">
+                              <option value="t">Metric tons</option>
+                              <option value="lbs">Pounds</option>
+                              <option value="m3">Cubic meters (m<sup>3</sup>)</option>
+                              <option value="kiloliters">Kilo liters</option>
+                              <option value="ft3">Cubic feet (ft.<sup>3</sup>)</option>
+                              <option value="gallons">US Gallon</option>
+                            </select>
                           </div>
                         </td>
                       </tr>
