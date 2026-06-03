@@ -1842,8 +1842,12 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
         },
         verifiedRate: function() {
             const vm = this;
-            const total = vm.nb_verified + vm.nb_completed;
-            return total > 0 ? Math.round(vm.nb_verified * 100 / total) : 0;
+            if( vm.params.unit === 'percentage'){
+                const total = vm.nb_verified + vm.nb_completed;
+                return total > 0 ? Math.round(vm.nb_verified * 100 / total) : 0;
+            } else {
+                return vm.nb_verified;
+            }
         }
     }
 }));
