@@ -358,6 +358,17 @@
 },
 {
   "fields": {
+    "slug": "f1e2e916eb494b90f9ff0a36982345",
+    "created_at": "2025-11-30 00:00:00Z",
+    "updated_at": "2025-11-30 00:00:00Z",
+    "campaign": 1,
+    "account": 8,
+    "is_frozen": true
+  },
+  "model": "survey.sample", "pk": 5
+},
+{
+  "fields": {
     "slug": "f1e2e916eb494b90f9ff0a3698234a",
     "created_at": "2026-01-01T00:00:00Z",
     "updated_at": "2026-01-01T00:00:00Z",
