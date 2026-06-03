@@ -103,7 +103,7 @@
 <script type="text/javascript" src="{{'/static/js/djaodjin-editor.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaodjin-upload.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaodjin-sidebar-gallery.js'|asset}}"></script>
-<script type="text/javascript" charset="utf-8">
+<script type="text/javascript" charset="utf-8" nonce="{{request.csp_nonce}}">
 assetsUploadUrl = "{% if urls.api_upload_assets %}{{urls.api_upload_assets}}{% else %}{{'/api/themes/assets/'|site_url}}{% endif %}";
 
 $(document).ready(function(){

@@ -343,7 +343,7 @@
 {% endblock %}
 
 {% block track_scripts %}
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
 Vue.prototype.$waste_type = {
     "unspecified": {
         "title": "Unspecified"

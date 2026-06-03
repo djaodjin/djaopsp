@@ -4,6 +4,7 @@ Django settings for djaopsp project.
 """
 import os, sys
 
+from csp.constants import NONE, SELF, UNSAFE_EVAL, UNSAFE_INLINE, NONCE
 from deployutils.configs import load_config, update_settings
 
 from .compat import reverse_lazy
@@ -27,6 +28,8 @@ TESTING_USERNAMES = []
 BROKER_NAME = APP_NAME
 
 ALLOWED_HOSTS = ('*',)
+
+UPGRADE_INSECURE_REQUESTS_IN_ASSETS = False
 
 DB_ENGINE = 'sqlite3'
 DB_NAME = os.path.join(BASE_DIR, 'db.sqlite')
@@ -92,6 +95,7 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'django.contrib.staticfiles',
     'deployutils.apps.django_deployutils',
     'rest_framework',
+    'csp',
     'survey',
     'pages',
     'extended_templates',
@@ -105,6 +109,7 @@ MIDDLEWARE = (
     'deployutils.apps.django_deployutils.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'csp.middleware.CSPMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -750,3 +755,35 @@ SURVEY = {
     # Use djaodjin-survey defaults
     # for converting answers units to question units.
 }
+
+
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": [SELF],
+        "script-src": [SELF, UNSAFE_EVAL, NONCE],
+        "style-src": [
+            SELF,
+            UNSAFE_INLINE,
+            # Google Fonts
+            "https://fonts.googleapis.com"
+        ],
+        "img-src": [SELF, "https:", "data:"],
+        "font-src": [
+            SELF,
+            # Google Fonts
+            "https://fonts.gstatic.com"
+        ],
+        "connect-src": [SELF],
+        "frame-src": [SELF],
+        "frame-ancestors": [SELF],
+        "form-action": [SELF],
+        "object-src": [NONE],
+        "base-uri": [SELF],
+        # ace.js editor
+        "worker-src": [SELF, "blob:"],
+    },
+}
+
+
+if UPGRADE_INSECURE_REQUESTS_IN_ASSETS:
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["upgrade-insecure-requests"] = True
