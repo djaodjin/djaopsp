@@ -49,29 +49,25 @@
 <reporting-organizations inline-template>
   <div>
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-xl-6 col-12">
         <form id="period-update" class="mt-4"
               @submit.prevent="reload()">
           <div class="row">
-          <div class="col-sm-4">
+          <div class="col-md-5 col-6">
             <div class="input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-              </div>
+              <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
               <input class="form-control" type="date" v-model="_start_at" v-cloak>
             </div>
           </div>
-          <div class="col-sm-4">
+          <div class="col-md-5 col-6">
             <div class="input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-              </div>
+              <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
               <input class="form-control" type="date" v-model="_ends_at" v-cloak>
             </div>
           </div>
           </div>
           <div class="row mt-2">
-          <div class="col-sm-4">
+          <div class="col-md-5 col-6">
             <div class="input-group input-group-sm">
               <select class="form-control form-select"
                       v-model="params.period">
@@ -80,7 +76,7 @@
               </select>
             </div>
           </div>
-          <div class="col-sm-4 text-end text-right">
+          <div class="col-md-5 col-6 text-end text-right">
             <button class="btn btn-primary btn-sm"
                   :disabled="!outdated"
                   type="submit">{% trans %}Update{% endtrans %}</button>

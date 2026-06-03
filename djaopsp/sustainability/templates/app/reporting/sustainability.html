@@ -73,16 +73,14 @@
                            v-on:selectitem="addAccount">
           <form  class="form-inline" @submit.prevent="search">
             <div class="input-group mb-3">
-              <div class="input-group-prepend">
-                <!-- optional indicators -->
-                <span class="input-group-text">
-                  <i class="fa fa-spinner fa-spin" v-if="loading"></i>
-                  <template v-else>
-                    <i class="fa fa-search" v-show="isEmpty"></i>
-                    <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
-                  </template>
-                </span>
-              </div>
+              <!-- optional indicators -->
+              <span class="input-group-text">
+                <i class="fa fa-spinner fa-spin" v-if="loading"></i>
+                <template v-else>
+                  <i class="fa fa-search" v-show="isEmpty"></i>
+                  <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
+                </template>
+              </span>
               <!-- the input field -->
               <input class="form-control"
                      type="text"
@@ -105,11 +103,9 @@
                   <a v-text="item.printable_name"></a>
                 </li>
               </ul>
-              <div class="input-group-append">
-                <button class="btn btn-primary" type="submit" value="submit">
-                  Add reporting entity
-                </button>
-              </div>
+              <button class="btn btn-primary" type="submit" value="submit">
+                Add reporting entity
+              </button>
             </div>
           </form>
         </account-typeahead>
