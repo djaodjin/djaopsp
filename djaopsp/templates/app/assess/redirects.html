@@ -1,93 +1,20 @@
 {% extends "app/assess/base.html" %}
 
+{% block app_content_title %}
+{% trans %}Select a questionnaire ...{% endtrans %}
+{% endblock %}
+
 {% block assess_content %}
-<section id="redirects" class="container py-4">
-  <h1 class="text-center">{% trans %}Select a questionnaire ...{% endtrans %}</h1>
-  <div class="bg-body text-body" style="min-height:30rem;">
-    <div class="row">
-      <div class="col-12 offset-md-3 col-md-6 my-4 py-4">
-        {% for assessment in candidates %}
-        <div class="card mb-4">
-          <div class="card-header">
-            <h5>{{assessment.title}}</h5>
-          </div>
-          <div class="card-body">
-            {% if assessment.descr %}
-            <p>
-{{assessment.descr|md}}
-            </p>
-            {% endif %}
-            {% if assessment.last_completed_at %}
-            <p>
-A response from <em>{{profile.printable_name}}</em> to this questionnaire was last completed on {{assessment.last_completed_at|humanizeDate}}.{% if assessment.respondents %} If you have questions, please reach out to the following co-worker(s): {% for user in assessment.respondents %} <span class="author"><a href="mailto:{{user.email}}">{{user.get_full_name()}}</a></span>{{ ", " if not loop.last else "" }}{% endfor %}.{% endif %}
-            </p>
-            {% endif %}
-            {% if assessment.requests %}
-            {% if assessment.ends_at %}
-            <p>
-{% trans profile=profile.printable_name, ends_at=assessment.ends_at|humanizeDate %}The following organizations would like a copy of the up-to-date response before {{ends_at}}.{% endtrans %}
-            </p>
-            {% else %}
-            <p>
-{% trans profile=profile.printable_name %}The following organizations would like a copy of the up-to-date response.{% endtrans %}
-            </p>
-            {% endif %}
-            <decorate-profiles data-elements='{{assessment.requests|to_json}}' inline-template>
-              <div>
-                {% for request in assessment.requests %}
-                <div>
-                  <div class="row align-items-center">
-                    <div class="col-2">
-                      <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture('{{request.grantee}}') ? getAccountPicture('{{request.grantee}}') : '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile picture{% endtrans %}">
-                    </div>
-                    <div class="col-5">
-                      [[getAccountPrintableName('{{request.grantee}}') ? getAccountPrintableName('{{request.grantee}}') : '{{request.grantee}}']]
-                      <div>
-                        <small>on {{request.created_at|humanizeDate}}
-                          ({{request.created_at|humanizeTimeDelta}})</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {% endfor %}
-                <p class="mt-2">
-<em>{% trans %}If you have completed the questionnaire more than 6 months ago, please kindly update the response to reflect current information.{% endtrans %}</em>
-                </p>
-              </div>
-            </decorate-profiles>
-            {% endif %}
-          </div>{# /.card-body #}
-          <div class="card-footer">
-            <div class="row">
-              <div class="col-md-6 text-center">
-                {% if assessment.share_url %}
-                <a class="btn btn-primary my-2"
-                   href="{{assessment.share_url}}">{% trans created_at=assessment.last_completed_at|humanizeDate %}Share {{created_at}} response{% endtrans %}</a>
-                {% endif %}
-              </div>
-              <div class="col-md-6 text-center">
-                {% if assessment.update_url %}
-                <a id="{{assessment.slug}}" class="btn btn-primary my-2"
-                   href="{{assessment.update_url}}">{% if assessment.share_url %}{% trans %}Update response{% endtrans %}{% else %}{% trans %}Continue{% endtrans %}{% endif %}</a>
-                {% else %}
-                <form action="." method="post">
-                  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                  <button id="{{assessment.slug}}" type="submit" class="btn btn-primary" name="campaign" value="{{assessment.slug}}" role="menuitem" tabindex="-1">{% trans %}Get started{% endtrans %} &raquo;</button>
-                </form>
-                {% endif %}
-              </div>
-            </div>
-          </div>{# /.card-footer #}
-        </div>
-        {% endfor %}
-        <hr class="mt-4" />
-        <p class="mt-4">
+<div id="redirects" class="container">
+  <h1 class="text-center py-4">{% trans %}Select a questionnaire ...{% endtrans %}</h1>
+  <div class="offset-sm-1 offset-md-2 offset-lg-3 col-sm-10 col-md-8 col-lg-6">
+    {% include "app/_newsfeed.html" %}
+  </div>
+  <hr class="mt-4" />
+  <p class="mt-4">
 {% trans %}This Website provides additional questionnaires on which to assess
 your organization's performance on a variety of qualitative and quantitative
 metrics.{% endtrans %} <a href="{{'docs/questionnaires/'|site_url}}">{% trans %}See questionnaires{% endtrans %} &raquo;</a>
         </p>
-      </div>
-    </div>
-  </div>
-</section>
+</div>{# .container #}
 {% endblock %}

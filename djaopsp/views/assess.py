@@ -1,20 +1,16 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
 import datetime, json, logging
-from collections import OrderedDict
 from io import BytesIO
 
-from dateutil.relativedelta import relativedelta
 from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
 from django import forms
-from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin
@@ -24,16 +20,13 @@ from pptx.dml.color import RGBColor
 from pptx.util import Inches, Pt
 
 from survey.helpers import datetime_or_now, get_extra
-from survey.models import (Campaign, Choice, EditableFilter,
-    PortfolioDoubleOptIn, Sample)
+from survey.models import Campaign, Choice, EditableFilter, Sample
 from survey.settings import DB_PATH_SEP, URL_PATH_SEP
 from survey.utils import get_account_model, get_question_model
 
 from ..api.samples import AssessmentContentMixin
 from ..compat import reverse, gettext_lazy as _
 from ..mixins import AccountMixin, SectionReportMixin
-from ..utils import (get_latest_active_assessments,
-    get_latest_completed_assessment)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -191,129 +184,11 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AssessRedirectView, self).get_context_data(**kwargs)
-
-        at_time = datetime_or_now()
-        campaign_slug = self.kwargs.get(self.campaign_url_kwarg)
-        campaign_filtered = (get_object_or_404(Campaign, slug=campaign_slug)
-            if campaign_slug else None)
-        path_filtered = self.kwargs.get(self.path_url_kwarg)
-        by_campaigns = OrderedDict()
-
-        # XXX `pending_for` will also include grants pending acceptance.
-        requests = PortfolioDoubleOptIn.objects.pending_for(
-            self.account, at_time=at_time, campaign=campaign_filtered).exclude(
-                models.Q(grantee=self.account) &
-                models.Q(state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED)
-        ).order_by('campaign__title')
-        for optin in requests:
-            campaign = optin.campaign
-            if campaign:
-                # XXX It is possible the request isn't limited
-                #     to a single campaign.
-                if not campaign in by_campaigns:
-                    by_campaigns[optin.campaign] = {
-                        'slug': campaign.slug,
-                        'title': campaign.title,
-                        'descr': campaign.description,
-                        'ends_at': None,
-                        'last_completed_at': None,
-                        'share_url': None,
-                        'respondents': [],
-                        'update_url': None,
-                        'requests': []}
-                if optin.ends_at:
-                    by_campaigns[campaign]['ends_at'] = (
-                        optin.ends_at if not by_campaigns[campaign]['ends_at']
-                        else min(datetime_or_now(
-                            by_campaigns[campaign]['ends_at']), optin.ends_at
-                    )).isoformat()
-                by_campaigns[campaign]['requests'] += [{
-                    'created_at': optin.created_at.isoformat(),
-                    'grantee': optin.grantee.slug
-                }]
-
-        candidates = get_latest_active_assessments(
-            self.account, campaign=campaign_filtered).exclude(
-                campaign__slug__endswith='-verified') # XXX Ad-hoc exclude
-                                                    # of verification campaigns.
-        for sample in candidates:
-            if not sample.campaign in by_campaigns:
-                by_campaigns[sample.campaign] = {
-                    'slug': sample.campaign.slug,
-                    'title': sample.campaign.title,
-                    'descr': sample.campaign.description,
-                    'ends_at': None,
-                    'last_completed_at': None,
-                    'share_url': None,
-                    'respondents': [],
-                    'update_url': None,
-                    'requests': []}
-            reverse_kwargs = {
-                self.account_url_kwarg: self.account,
-                'sample': sample,
-            }
-            if path_filtered:
-                reverse_kwargs.update({self.path_url_kwarg: path_filtered})
-            by_campaigns[sample.campaign]['update_url'] = self.get_redirect_url(
-                **reverse_kwargs)
-            latest_completed = get_latest_completed_assessment(self.account,
-                campaign=sample.campaign)
-            if latest_completed:
-                by_campaigns[sample.campaign]['last_completed_at'] = \
-                    latest_completed.created_at
-                if relativedelta(
-                        at_time, latest_completed.created_at).months < 6:
-                    by_campaigns[sample.campaign]['share_url'] = reverse(
-                        'share', args=(self.account, latest_completed))
-                by_campaigns[sample.campaign]['respondents'] = \
-                    get_user_model().objects.filter(
-                        answer__sample=sample).distinct()
-
-        if campaign_filtered:
-            if not campaign_filtered in by_campaigns:
-                by_campaigns[campaign_filtered] = {
-                    'slug': campaign_filtered.slug,
-                    'title': campaign_filtered.title,
-                    'descr': campaign_filtered.description,
-                    'ends_at': None,
-                    'last_completed_at': None,
-                    'share_url': None,
-                    'respondents': [],
-                    'update_url': None,
-                    'requests': []}
-        else:
-            for campaign in self.campaign_candidates:
-                if not campaign in by_campaigns:
-                    by_campaigns[campaign] = {
-                        'slug': campaign.slug,
-                        'title': campaign.title,
-                        'descr': campaign.description,
-                        'ends_at': None,
-                        'last_completed_at': None,
-                        'share_url': None,
-                        'respondents': [],
-                        'update_url': None,
-                        'requests': []}
-
-        # We have a data structure here that looks like
-        # by_campaiagns = {
-        #   'Slug': {
-        #     'title': String,
-        #     'assess_url': URL,
-        #     'last_completed_at': Datetime,
-        #     'share_url': URL,
-        #     'grantees': [{
-        #         'slug': Slug,
-        #         'created_at': Datetime
-        #     }]
-        #   }
-        # }
-
-        context.update({
-            'candidates': by_campaigns.values()
-        })
         update_context_urls(context, {
-            'api_accounts': site_url("/api/profile")})
+            'api_accounts': site_url("/api/profile"),
+            'api_newsfeed': reverse('api_news_feed', args=(
+                self.account,)) + '?q=requests',
+        })
         return context
 
 

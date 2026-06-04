@@ -1,15 +1,16 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 import logging
 from collections import OrderedDict
 
-from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db import models
+from rest_framework.settings import api_settings
+from rest_framework.generics import get_object_or_404
 from pages.api.newsfeed import NewsFeedListAPIView as NewsfeedBaseAPIView
 from survey.helpers import datetime_or_now
-from survey.models import PortfolioDoubleOptIn
+from survey.models import Campaign, PortfolioDoubleOptIn
 from survey.utils import get_account_model
 
 from ..api.serializers import UserNewsSerializer
@@ -102,6 +103,8 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         }
     """
     account_url_kwarg = 'profile'
+    campaign_url_kwarg = 'campaign'
+    search_param = api_settings.SEARCH_PARAM
     serializer_class = UserNewsSerializer
     URL_PATH_SEP = "/"
 
@@ -140,16 +143,29 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
             })
         return initial_data
 
-    def get_pending_requests(self, at_time=None):
+    ### `get_query_param` might be better in pages
+    def get_query_param(self, key, default_value=None):
+        try:
+            return self.request.query_params.get(key, default_value)
+        except AttributeError:
+            pass
+        return self.request.GET.get(key, default_value)
+
+    def get_pending_requests(self, show_all=False, at_time=None):
+        #pylint:disable=too-many-locals
         if not at_time:
             at_time = datetime_or_now()
 
         assessments = []
+        campaign_slug = self.kwargs.get(self.campaign_url_kwarg)
+        campaign_filtered = (get_object_or_404(
+            Campaign.objects.all(), slug=campaign_slug)
+            if campaign_slug else None)
         for account in self.accounts:
             by_campaigns = OrderedDict()
             # XXX `pending_for` will also include grants pending acceptance.
             requests = PortfolioDoubleOptIn.objects.pending_for(
-                account, at_time=at_time).exclude(
+                account, at_time=at_time, campaign=campaign_filtered).exclude(
                     models.Q(grantee__slug=account) &
                     models.Q(state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED)
             ).order_by('campaign__title')
@@ -176,31 +192,36 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
             # We asume it is a work-in-progress worthy to show in the newsfeed
             # when `updated_at > created_at`. Otherwise the user will have
             # to go through the "History" page to update the response.
-            candidates = get_latest_active_assessments(account).filter(
-                updated_at__gt=models.F('created_at')).exclude(
+            candidates = get_latest_active_assessments(
+                account, campaign=campaign_filtered).exclude(
                 campaign__slug__endswith='-verified') # XXX Ad-hoc exclude
                                                # of verification campaigns.
+            if not show_all:
+                candidates = candidates.filter(
+                    updated_at__gt=models.F('created_at'))
+
             for sample in candidates:
-                if not sample.campaign in by_campaigns:
-                    by_campaigns[sample.campaign] = \
+                campaign = sample.campaign
+                if not campaign in by_campaigns:
+                    by_campaigns[campaign] = \
                         self._get_pending_request_initial_data(
-                                sample.campaign, account=account)
+                                campaign, account=account)
                 # We would use `reverse('assess_index', args=(account, sample))`
                 # if the template was not written to always make a POST request.
-                by_campaigns[sample.campaign]['update_url'] = reverse(
+                by_campaigns[campaign]['update_url'] = reverse(
                     'assess_redirect', args=(account,))
                 latest_completed = get_latest_completed_assessment(account,
-                    campaign=sample.campaign)
+                    campaign=campaign)
                 if latest_completed:
-                    by_campaigns[sample.campaign]['last_completed_at'] = \
+                    by_campaigns[campaign]['last_completed_at'] = \
                         latest_completed.created_at
-                    if latest_completed.created_at > sample.campaign.updated_at:
+                    if latest_completed.created_at > campaign.updated_at:
                         # The profile is forced to update the response when
                         # the questionnaire was last completed before the
                         # questionnaire was updated.
-                        by_campaigns[sample.campaign]['share_url'] = reverse(
+                        by_campaigns[campaign]['share_url'] = reverse(
                             'share', args=(account, latest_completed))
-                    by_campaigns[sample.campaign]['respondents'] = \
+                    by_campaigns[campaign]['respondents'] = \
                         get_user_model().objects.filter(
                             answer__sample=sample).distinct()
 
@@ -213,16 +234,38 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
             if len(self.accounts) == 1:
                 account = next(iter(self.accounts))
             by_campaigns = OrderedDict()
-            campaign_candidates = get_campaign_candidates(
+            if campaign_filtered:
+                campaign_candidates = [campaign_filtered]
+            else:
+                campaign_candidates = get_campaign_candidates(
                     accounts=self.accessible_profiles,
                     tags=(set(['public']) | {plan['slug']
                         for plan in self.get_accessible_plans(self.request)
-            }))
+                }))
             for campaign in campaign_candidates:
                 if not campaign in by_campaigns:
                     by_campaigns[campaign] = \
                         self._get_pending_request_initial_data(
                             campaign, account=account)
+                # We would use `reverse('assess_index', args=(account, sample))`
+                # if the template was not written to always make a POST request.
+                by_campaigns[campaign]['update_url'] = reverse(
+                    'assess_redirect', args=(account,))
+                latest_completed = get_latest_completed_assessment(account,
+                    campaign=campaign)
+                if latest_completed:
+                    by_campaigns[campaign]['last_completed_at'] = \
+                        latest_completed.created_at
+                    if latest_completed.created_at > campaign.updated_at:
+                        # The profile is forced to update the response when
+                        # the questionnaire was last completed before the
+                        # questionnaire was updated.
+                        by_campaigns[campaign]['share_url'] = reverse(
+                            'share', args=(account, latest_completed))
+                    by_campaigns[campaign]['respondents'] = \
+                        get_user_model().objects.filter(
+                            answer__sample=latest_completed).distinct()
+
             assessments += by_campaigns.values()
 
         return assessments
@@ -234,5 +277,9 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         return context
 
     def get_queryset(self):
-        return list(self.get_pending_requests()) + list(
-            self.get_updated_elements())
+        search_term = self.get_query_param(self.search_param)
+        show_all = bool(search_term == 'requests')
+        results = list(self.get_pending_requests(show_all=show_all))
+        if search_term != 'requests':
+            results += list(self.get_updated_elements())
+        return results
