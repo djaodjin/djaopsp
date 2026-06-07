@@ -309,8 +309,14 @@ Vue.component('engage-profiles', {
                 var emails = data.accounts[0].email
                     .split(',').map(function(e) { return e.trim(); })
                     .filter(function(e) { return e; });
-                data.accounts[0].email = emails[0];
-                data.cc = emails.slice(1);
+                if( emails.length > 0 ) {
+                    data.accounts[0].email = emails[0];
+                    data.cc = emails.slice(1);
+                } else {
+                    showErrorMessages({responseJSON: {
+                        email: ["Enter a valid email address."]}});
+                    return;
+                }
             }
             if( typeof campaign !== 'undefined' ) {
                 data['campaign'] = campaign;
