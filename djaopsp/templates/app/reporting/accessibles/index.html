@@ -218,7 +218,12 @@
               </div>
             </form>
           </td>
-          <td :colspan="items.labels ? (items.labels.length + 2) : 2" v-if="itemsLoaded">
+          <td>
+            <input ref="tagFilter"
+                   class="form-control form-control sustainability-tagify"
+                   placeholder="{% trans %}Filter by tags ...{% endtrans %}" />
+          </td>
+          <td :colspan="items.labels ? (items.labels.length + 1) : 1" v-if="itemsLoaded">
           </td>
         </tr>
       </tbody>

@@ -1148,8 +1148,17 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         return context
 
     def get_queryset(self):
+        tags_qs = self.get_query_param('tags')
+        tags_param = None
+        if tags_qs:
+            tags_param = []
+            for tag in tags_qs.split(','):
+                tag = tag.strip()
+                if tag:
+                    tags_param.append(tag)
+
         queryset = get_accessible_accounts(
-            [self.account], campaign=self.campaign)
+            [self.account], campaign=self.campaign, tags=tags_param)
         # XXX Add missing suppliers that are invited but no response yet.
         #     This could be done by creating "dummy" survey_portfolio
         #     where survey_portfolio.ends_at = account.created_at

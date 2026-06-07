@@ -1098,8 +1098,10 @@ Vue.component('reporting-organizations', {
             api_profiles_base_url: this.$urls.api_organizations,
             verifiers: [],
             params: {
-                period: 'yearly'
+                period: 'yearly',
+                tags: ''
             },
+            tagify: null,
             newItem: {
                 email: "",
                 full_name: "",
@@ -1176,6 +1178,19 @@ Vue.component('reporting-organizations', {
             if( grantsResp ) {
                 vm.grants = grantsResp;
                 vm.populateAccounts(vm.grants.results, 'account');
+            }
+            if( vm.tagify ) {
+                var allTags = (vm.tagChoices || []).slice();
+                vm.items.results.forEach(function(entry) {
+                    if( entry.extra && entry.extra.tags ) {
+                        entry.extra.tags.forEach(function(tag) {
+                            if( allTags.indexOf(tag) === -1 ) {
+                                allTags.push(tag);
+                            }
+                        });
+                    }
+                });
+                vm.tagify.whitelist = allTags;
             }
             vm.itemsLoaded = true;
         },
@@ -1373,6 +1388,21 @@ Vue.component('reporting-organizations', {
             vm.reqGet(vm.$urls.api_roles,
             function success(resp) {
                 vm.verifiers = resp.results;
+            });
+        }
+        if( vm.$refs.tagFilter && typeof Tagify !== 'undefined' ) {
+            vm.tagify = new Tagify(vm.$refs.tagFilter, {
+                whitelist: vm.tagChoices || [],
+                dropdown: {
+                    enabled: 0
+                }
+            });
+            vm.tagify.DOM.input.setAttribute('aria-label', 'Tags');
+            vm.tagify.on('change', function() {
+                var tags = vm.tagify.value.map(
+                    function(item) { return item.value; });
+                vm.params.tags = tags.join(',');
+                vm.reload();
             });
         }
     }
