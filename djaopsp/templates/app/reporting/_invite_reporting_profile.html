@@ -21,26 +21,28 @@
           </p>
           <div class="form-group">
             <div class="controls">
-              <label>{% trans %}Organization/profile name{% endtrans %}</label>
-              <input class="form-control w-100"
+              <label for="new-request-full-name">{% trans %}Organization/profile name{% endtrans %}</label>
+              <input id="new-request-full-name" class="form-control w-100"
                      v-model="newItem.full_name"
                      name="full_name" type="text" max-length="150"
                      :disabled="newItem.slug" />
+              <div class="invalid-feedback"></div>
             </div>
           </div>
           <div class="form-group">
             <div class="controls">
-              <label>{% trans %}To{% endtrans %}</label>
-              <input id="new-request-email" class="email w-100"
+              <label for="new-request-email">{% trans %}To{% endtrans %}</label>
+              <input id="new-request-email" class="form-control email w-100"
                      name="email" v-model="newItem.email" type="text"
                      max-length="150" placeholder="invitee@example.com"
-                     autofocus />
+                     required autofocus />
+              <div class="invalid-feedback"></div>
             </div>
           </div>
           <div id="div_id_new_user_relation" class="form-group">
             <div class="controls">
-              <label>{% trans %}The following message will be sent (or modify the message by typing in the box below).{% endtrans %}</label>
-              <textarea class="form-control" name="message"
+              <label for="new-request-message">{% trans %}The following message will be sent (or modify the message by typing in the box below).{% endtrans %}</label>
+              <textarea id="new-request-message" class="form-control" name="message"
                         type="text" rows="10"
                         v-model="message">
               </textarea>
@@ -54,10 +56,10 @@
             </div>
           </div>
           <div>
-            <label>
+            <label for="new-request-expires-at">
             {% trans %}Expect a response before:{% endtrans %}
             </label>
-            <input class="form-control" type="date" v-model="_expires_at" v-cloak>
+            <input id="new-request-expires-at" class="form-control" type="date" v-model="_expires_at" v-cloak>
           </div>
         </div>
         <div class="modal-footer">

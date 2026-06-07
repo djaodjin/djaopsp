@@ -82,7 +82,7 @@ def portfolios_grant_initiated_notice(sender, portfolios, recipients, message,
 @receiver(portfolios_request_initiated,
     dispatch_uid="portfolios_request_initiated_notice")
 def portfolios_request_initiated_notice(sender, portfolios, recipients,
-                                        message, request, **kwargs):
+                                        message, request, cc=None, **kwargs):
     """
     Portfolio request initiated
 
@@ -100,10 +100,13 @@ def portfolios_request_initiated_notice(sender, portfolios, recipients,
     #pylint:disable=unused-argument
     if not recipients:
         recipients = []
+    recipients = [rcpt for rcpt in recipients
+        if (rcpt.get('email') if isinstance(rcpt, dict)
+            else rcpt.email)]
 
     portfolio = portfolios[0] # XXX first one only
     LOGGER.debug("[signal] portfolios_request_initiated_notice("\
-        "portfolio=%s, recipients=%s)", portfolio, recipients)
+        "portfolio=%s, recipients=%s, cc=%s)", portfolio, recipients, cc)
 
     back_url = request.build_absolute_uri(reverse('profile_getstarted', args=(
         portfolio.account,)))
@@ -119,7 +122,8 @@ def portfolios_request_initiated_notice(sender, portfolios, recipients,
         'grantee': portfolio.grantee,
         'originated_by': request.user,
         'message': message,
-        'recipients': recipients
+        'recipients': recipients,
+        'cc': cc or []
     }
     send_notification('portfolios_request_initiated',
       context=PortfolioNotificationSerializer().to_representation(context))

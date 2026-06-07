@@ -269,6 +269,29 @@ Vue.component('engage-profiles', {
         },
         requestAssessment: function($event, campaign) {
             var vm = this;
+            function handleError(resp) {
+                var errorResp = resp;
+                var data = resp.data || resp.responseJSON;
+                if( data ) {
+                    var flat = data;
+                    if( data.accounts?.length > 0 ) {
+                        var {accounts, ...rest} = data;
+                        flat = {...rest, ...accounts[0]};
+                    }
+                    if( flat.cc ) {
+                        var ccErrors = [];
+                        for( var key in flat.cc ) {
+                            if( flat.cc.hasOwnProperty(key) ) {
+                                ccErrors = ccErrors.concat(flat.cc[key]);
+                            }
+                        }
+                        flat.email = (flat.email || []).concat(ccErrors);
+                        delete flat.cc;
+                    }
+                    errorResp = {responseJSON: flat};
+                }
+                showErrorMessages(errorResp);
+            }
             var data = {
                 accounts: [{}],
                 message: vm.message,
@@ -282,6 +305,13 @@ Vue.component('engage-profiles', {
                     data.accounts[0][key] = vm.newItem[key];
                 }
             }
+            if( data.accounts[0].email ) {
+                var emails = data.accounts[0].email
+                    .split(',').map(function(e) { return e.trim(); })
+                    .filter(function(e) { return e; });
+                data.accounts[0].email = emails[0];
+                data.cc = emails.slice(1);
+            }
             if( typeof campaign !== 'undefined' ) {
                 data['campaign'] = campaign;
             }
@@ -290,7 +320,7 @@ Vue.component('engage-profiles', {
                 function success(resp, textStatus, jqXHR) {
                     showMessages(resp.detail, 'info');
                     vm.hideModal($event);
-                });
+                }, handleError);
             } else {
                 if( !vm.newItem.slug ) {
                     vm.reqPost(vm.$urls.api_account_candidates, vm.newItem,
@@ -338,7 +368,7 @@ Vue.component('engage-profiles', {
                             }
                         }
                         vm.hideModal($event);
-                    });
+                    }, handleError);
                 }
             }
             return false;

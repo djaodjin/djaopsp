@@ -46,12 +46,15 @@ class PortfolioNotificationSerializer(NotificationSerializer):
     message = serializers.CharField(required=False, allow_null=True)
     recipients = serializers.ListField(child=UserDetailSerializer(),
         required=False, allow_null=True)
+    cc = serializers.ListField(
+        child=serializers.EmailField(),
+        required=False, default=list)
 
     class Meta:
         fields = ('grantee', 'account', 'campaign', 'last_completed_at',
-            'message', 'recipients')
+            'message', 'recipients', 'cc')
         read_only_fields = ('grantee', 'account', 'campaign',
-            'last_completed_at',)
+            'last_completed_at', 'cc')
 
 
 class SampleFrozenNotificationSerializer(NotificationSerializer):
