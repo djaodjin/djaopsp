@@ -3,7 +3,7 @@
 $dashboard-sidebar-width:      220px;
 $dashboard-sidebar-toggle:      20px;
 $dashboard-nav-footer-height:   134px;
-$dashboard-sidebar-logo-height: 59px;
+$dashboard-sidebar-logo-height: 57px;
 
 // CSS specific to color the djaoapp dashboard pages
 $dashboard-content-bg:          var(--bs-body-bg);
@@ -102,6 +102,13 @@ body{
 .navbar.bg-primary .nav-link:focus {
   color: map-get($theme-colors, "primary");
   background-color: $white;
+}
+
+.navbar.bg-primary .navbar-brand:hover,
+.navbar.bg-primary .navbar-brand:focus {
+  background: none;
+  opacity: 0.8;
+  color: $white;
 }
 
 .footer {
