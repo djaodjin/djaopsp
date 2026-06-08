@@ -8,7 +8,6 @@ from django.views.generic import RedirectView, TemplateView
 from django.views.static import serve as django_static_serve
 from django.urls import path, re_path, include
 
-from .. import __version__
 from ..urlbuilders import login_required
 from ..notifications import signals
 
@@ -50,7 +49,7 @@ if settings.API_DEBUG:
     urlpatterns += [
         path(r'docs/api/schema/', get_schema_view(
             title="DjaoPsp API",
-            version=__version__,
+            version=settings.APP_VERSION,
             description="API for the Practices Sharing Platform",
         ), name='openapi-schema'),
         path(r'docs/api/', APIDocView.as_view()),

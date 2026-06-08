@@ -184,8 +184,80 @@ Run the following command
 
     make package-docker
 
+
+Running djaopsp behind djaoapp locally
+--------------------------------------
+
+Follow the `instructions to install djaoapp`_
+and `instructions to install djaopsp`_
+source repositories on your local machine.
+
+To run djaopsp and djaoapp together on localhost, you need to insure:
+
+1. Both djaoapp and djaopsp databases are populated with matching fixtures
+2. djaoapp is setup to forward HTTP requests to djaopsp
+3. djaopsp decodes the forwarded authenticated user session properly
+
+
+djaoapp will for can access both
+databases, and that the multitier entry in the djaoapp database has settings
+matching the djaopsp server configuration (credentials and site.conf).
+
+To populate the djaopsp database with livedemo fixtures, run the following
+command in the djaopsp source directory.
+
+.. code-block:: shell
+
+    make initdb
+
+
+To populate the djaoapp database with livedemo fixtures, and forward
+HTTP requests properly, run the following command in the djaoapp source
+directory.
+
+.. code-block:: shell
+
+    make setup-livedemo
+    sqlite3 db.sqlite "UPDATE rules_rule set is_forward=1 WHERE app_id=(select id FROM rules_app WHERE slug='djaopsp');"
+    sqlite3 db.sqlite "UPDATE rules_app SET enc_key='$(grep DJAODJIN_SECRET_KEY ../djaopsp/.venv/etc/djaopsp/credentials | cut -d \" -f 2)' WHERE id=(select id FROM rules_app WHERE slug='djaopsp');"
+
+You will most likely want to run both servers in `DEBUG` mode. To do that,
+change the settings in both site.conf file.
+In `DEBUG` mode, the djaopsp server is configured to use a `djaopsp` path
+prefix, so you will also need to update the djaoapp `multitier_site` entry
+to reflect that:
+
+In djaopsp source directory:
+
+.. code-block:: shell
+
+    $ diff -u .venv/etc/djaopsp/site.conf
+    -DEBUG = False
+    +DEBUG = True
+
+    $ python manage.py runserver 8040
+
+In djaoapp source directory:
+
+.. code-block:: shell
+
+    $ sqlite3 db.sqlite "UPDATE multitier_site set is_path_prefix=1 WHERE slug='djaopsp';"
+    $ diff -u .venv/etc/djaoapp/site.conf
+    -DEBUG = False
+    +DEBUG = True
+
+    $ python manage.py runserver
+
+Browse to URL `http://localhost:8000/djaopsp/`, and click the user account
+to login with on the livedemo site.
+
+
 .. _djaodjin-deployutils: https://github.com/djaodjin/djaodjin-deployutils/
 
 .. _djaodjin-pages: https://github.com/djaodjin/djaodjin-pages/
 
 .. _djaodjin-survey: https://djaodjin-survey.readthedocs.io/
+
+.. _instructions to install djaoapp: https://github.com/djaodjin/djaoapp/#install
+
+.. _instructions to install djaopsp: https://github.com/djaodjin/djaopsp/#install
