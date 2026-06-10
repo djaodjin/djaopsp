@@ -138,6 +138,8 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
         update_context_urls(context, {
             'api_newsfeed': reverse('api_news_feed',
                 args=(self.account,)),
+            'app_profile': reverse('app_profile',
+                args=(self.account,)),
             'track_metrics': reverse('track_metrics_index',
                 args=(self.account,)),
             'scorecard_history': reverse('scorecard_history',
