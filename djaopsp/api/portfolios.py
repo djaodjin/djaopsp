@@ -18,7 +18,8 @@ from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
-from survey.filters import DateRangeFilter, OrderingFilter, SearchFilter
+from survey.filters import (DateRangeFilter, OrderingFilter, SearchFilter,
+    PortfolioTagsFilter)
 from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, datetime_or_now,
     extra_as_internal, period_less_than)
@@ -1119,7 +1120,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
 
     ordering = ('full_name',)
 
-    filter_backends = (SearchFilter, OrderingFilter)
+    filter_backends = (SearchFilter, OrderingFilter, PortfolioTagsFilter)
 
     @property
     def period(self):
@@ -1148,17 +1149,8 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         return context
 
     def get_queryset(self):
-        tags_qs = self.get_query_param('tags')
-        tags_param = None
-        if tags_qs:
-            tags_param = []
-            for tag in tags_qs.split(','):
-                tag = tag.strip()
-                if tag:
-                    tags_param.append(tag)
-
         queryset = get_accessible_accounts(
-            [self.account], campaign=self.campaign, tags=tags_param)
+            [self.account], campaign=self.campaign)
         # XXX Add missing suppliers that are invited but no response yet.
         #     This could be done by creating "dummy" survey_portfolio
         #     where survey_portfolio.ends_at = account.created_at

@@ -33,7 +33,6 @@ module.exports = env => ({
       ],
       reporting: [
           'js/chart-bundle.js',
-          'vendor/tagify.js',
           'js/djaodjin-survey-vue.js',
           'js/reporting-vue.js',
       ],
