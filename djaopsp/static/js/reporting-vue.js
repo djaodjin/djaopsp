@@ -278,15 +278,17 @@ Vue.component('engage-profiles', {
                         var {accounts, ...rest} = data;
                         flat = {...rest, ...accounts[0]};
                     }
-                    if( flat.cc ) {
-                        var ccErrors = [];
-                        for( var key in flat.cc ) {
-                            if( flat.cc.hasOwnProperty(key) ) {
-                                ccErrors = ccErrors.concat(flat.cc[key]);
+                    if( flat.email && typeof flat.email === 'object' ) {
+                        var emailErrors = [];
+                        for( var idx in flat.email ) {
+                            if( flat.email.hasOwnProperty(idx) ) {
+                                flat.email[idx].forEach(function(msg) {
+                                    emailErrors.push("Email " +
+                                        (parseInt(idx) + 1) + ": " + msg);
+                                });
                             }
                         }
-                        flat.email = (flat.email || []).concat(ccErrors);
-                        delete flat.cc;
+                        flat.email = emailErrors;
                     }
                     errorResp = {responseJSON: flat};
                 }
@@ -310,8 +312,7 @@ Vue.component('engage-profiles', {
                     .split(',').map(function(e) { return e.trim(); })
                     .filter(function(e) { return e; });
                 if( emails.length > 0 ) {
-                    data.accounts[0].email = emails[0];
-                    data.cc = emails.slice(1);
+                    data.accounts[0].email = emails;
                 } else {
                     showErrorMessages({responseJSON: {
                         email: ["Enter a valid email address."]}});
