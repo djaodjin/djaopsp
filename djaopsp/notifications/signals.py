@@ -82,7 +82,7 @@ def portfolios_grant_initiated_notice(sender, portfolios, recipients, message,
 @receiver(portfolios_request_initiated,
     dispatch_uid="portfolios_request_initiated_notice")
 def portfolios_request_initiated_notice(sender, portfolios, recipients,
-                                        message, request, cc=None, **kwargs):
+                                        message, request, **kwargs):
     """
     Portfolio request initiated
 
@@ -106,7 +106,7 @@ def portfolios_request_initiated_notice(sender, portfolios, recipients,
 
     portfolio = portfolios[0] # XXX first one only
     LOGGER.debug("[signal] portfolios_request_initiated_notice("\
-        "portfolio=%s, recipients=%s, cc=%s)", portfolio, recipients, cc)
+        "portfolio=%s, recipients=%s)", portfolio, recipients)
 
     back_url = request.build_absolute_uri(reverse('profile_getstarted', args=(
         portfolio.account,)))
@@ -122,8 +122,7 @@ def portfolios_request_initiated_notice(sender, portfolios, recipients,
         'grantee': portfolio.grantee,
         'originated_by': request.user,
         'message': message,
-        'recipients': recipients,
-        'cc': cc or []
+        'recipients': recipients
     }
     send_notification('portfolios_request_initiated',
       context=PortfolioNotificationSerializer().to_representation(context))
