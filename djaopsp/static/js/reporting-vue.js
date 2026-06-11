@@ -1098,8 +1098,7 @@ Vue.component('reporting-organizations', {
             api_profiles_base_url: this.$urls.api_organizations,
             verifiers: [],
             params: {
-                period: 'yearly',
-                tags: ''
+                period: 'yearly'
             },
             tagify: null,
             newItem: {
@@ -1397,11 +1396,11 @@ Vue.component('reporting-organizations', {
                     enabled: 0
                 }
             });
-            vm.tagify.DOM.input.setAttribute('aria-label', 'Tags');
+            vm.tagify.DOM.input.setAttribute('aria-label', 'Search');
             vm.tagify.on('change', function() {
                 var tags = vm.tagify.value.map(
                     function(item) { return item.value; });
-                vm.params.tags = tags.join(',');
+                vm.params.q = tags.join(',');
                 vm.reload();
             });
         }

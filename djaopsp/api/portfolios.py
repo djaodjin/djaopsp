@@ -8,7 +8,8 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.db.models import F, Q, Max, Min
+from django.db.models import F, JSONField, Q, Max, Min, TextField
+from django.db.models.functions import Cast
 from django.template.defaultfilters import slugify
 from rest_framework import generics, status
 from rest_framework import response as http
@@ -19,7 +20,7 @@ from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
 from survey.filters import (DateRangeFilter, OrderingFilter, SearchFilter,
-    PortfolioTagsFilter)
+    PortfolioSearchFilter)
 from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, datetime_or_now,
     extra_as_internal, period_less_than)
@@ -1112,6 +1113,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         'slug',
         'full_name',
         'email',
+        'extra_tags_str',
     )
     ordering_fields = (
         ('created_at', 'created_at'),
@@ -1120,7 +1122,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
 
     ordering = ('full_name',)
 
-    filter_backends = (SearchFilter, OrderingFilter, PortfolioTagsFilter)
+    filter_backends = (PortfolioSearchFilter, OrderingFilter)
 
     @property
     def period(self):
@@ -1151,6 +1153,10 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
     def get_queryset(self):
         queryset = get_accessible_accounts(
             [self.account], campaign=self.campaign)
+        queryset = queryset.annotate(
+            extra_json=Cast('portfolios__extra', output_field=JSONField()),
+            extra_tags_str=Cast('extra_json__tags', TextField()),
+        )
         # XXX Add missing suppliers that are invited but no response yet.
         #     This could be done by creating "dummy" survey_portfolio
         #     where survey_portfolio.ends_at = account.created_at

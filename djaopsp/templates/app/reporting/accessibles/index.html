@@ -208,22 +208,15 @@
             <form @submit.prevent="reload()">
               <div class="input-group input-group-sm">
                 <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
-                <input class="form-control"
-                       type="text"
-                       placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
-                       v-model="params.q" />
+                <input ref="tagFilter" class="form-control"
+                       placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}" />
                 <button class="btn btn-primary btn-sm"
                         type="submit"
                         :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
               </div>
             </form>
           </td>
-          <td>
-            <input ref="tagFilter"
-                   class="form-control form-control sustainability-tagify"
-                   placeholder="{% trans %}Filter by tags ...{% endtrans %}" />
-          </td>
-          <td :colspan="items.labels ? (items.labels.length + 1) : 1" v-if="itemsLoaded">
+          <td :colspan="items.labels ? (items.labels.length + 2) : 2" v-if="itemsLoaded">
           </td>
         </tr>
       </tbody>
