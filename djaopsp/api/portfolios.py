@@ -20,7 +20,7 @@ from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
 from survey.filters import (DateRangeFilter, OrderingFilter, SearchFilter,
-    PortfolioSearchFilter)
+    JSONArraySearchFilter)
 from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, datetime_or_now,
     extra_as_internal, period_less_than)
@@ -1113,6 +1113,8 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         'slug',
         'full_name',
         'email',
+    )
+    json_search_fields = (
         'extra_tags_str',
     )
     ordering_fields = (
@@ -1122,7 +1124,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
 
     ordering = ('full_name',)
 
-    filter_backends = (PortfolioSearchFilter, OrderingFilter)
+    filter_backends = (JSONArraySearchFilter, OrderingFilter)
 
     @property
     def period(self):
