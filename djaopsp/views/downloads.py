@@ -1,15 +1,15 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
-from django.views.generic import ListView
 from extended_templates.backends.pdf import PdfTemplateResponse
 from pages.models import PageElement
+from survey.api.base import QuestionListAPIView
 
 from ..api.samples import AssessmentContentMixin
 
 
-class ImproveContentPDFView(AssessmentContentMixin, ListView):
+class ImproveContentPDFView(AssessmentContentMixin, QuestionListAPIView):
 
     http_method_names = ['get']
     template_name = 'app/prints/improve.html'

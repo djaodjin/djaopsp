@@ -19,8 +19,7 @@ from survey.api.matrix import (
 from survey.api.sample import (attach_answers,
     SampleCandidatesMixin, SampleAnswersMixin, SampleFreezeAPIView,
     SampleRecentCreateAPIView as SampleRecentCreateBaseAPIView)
-from survey.api.serializers import (PortfolioRequestCreateSerializer,
-    UnitDetailSerializer)
+from survey.api.serializers import PortfolioRequestCreateSerializer
 from survey.filters import OrderingFilter, SearchFilter
 from survey.helpers import datetime_or_now
 from survey.mixins import SampleMixin, TimersMixin
@@ -40,7 +39,7 @@ from ..signals import sample_frozen
 from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
 from .campaigns import CampaignDecorateMixin
 from .rollups import GraphMixin, RollupMixin
-from .serializers import (AssessmentNodeSerializer, AssessmentContentSerializer,
+from .serializers import (AssessmentContentSerializer,
     RespondentAccountSerializer, ExtendedSampleSerializer,
     ExtendedSampleBenchmarksSerializer)
 
@@ -272,12 +271,6 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
             self._exclude_questions = [] # Why we are not using
                  # `self.request.query_params.get(self.exclude_param)` here?
         return self._exclude_questions
-
-
-    def get_decorated_questions(self, prefix=None):
-        # XXX Because we do not derive from `QuestionListAPIView`.
-        return list(six.itervalues(self.get_questions_by_key(
-            prefix=prefix if prefix else DB_PATH_SEP)))
 
 
     def attach_results(self, questions_by_key, prefix):

@@ -293,6 +293,7 @@ class BenchmarkPPTXView(BenchmarkPSPMixin, FullReportPPTXView):
         return self.request.GET.get(key, default_value)
 
     def get_decorated_questions(self, prefix=None):
+        # XXX Same as `QuestionListAPIView`
         return list(six.itervalues(self.get_questions_by_key(
             prefix=prefix if prefix else DB_PATH_SEP)))
 

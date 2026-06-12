@@ -1,17 +1,23 @@
 # Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
+from survey.api.sample import SampleAnswersMixin
 from survey.helpers import datetime_or_now
 from survey.models import Unit, UnitEquivalences
 
 from .content import PracticesSpreadsheetView
-from ..api.samples import AssessmentContentMixin
+from ..api.campaigns import CampaignDecorateMixin
+from ..api.serializers import AssessmentContentSerializer
 from ..compat import six
+from ..mixins import SectionReportMixin
 from ..scores import get_score_calculator
 
+class AssessPracticesXLSXView(SectionReportMixin, CampaignDecorateMixin,
+                              SampleAnswersMixin, PracticesSpreadsheetView):
 
-class AssessPracticesXLSXView(AssessmentContentMixin, PracticesSpreadsheetView):
-
+    serializer_class = AssessmentContentSerializer # Necessary because we
+                            # rely on `AssessmentContentSerializer.Meta`
+                            # through inheritance.
     base_headers = ['', 'Points', 'Assessed', 'Planned', 'Comments',
         'Opportunity']
 

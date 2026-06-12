@@ -11,7 +11,6 @@ from deployutils.helpers import update_context_urls
 from django import forms
 from django.db import models, transaction
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin
 from django.template.defaultfilters import slugify
@@ -19,6 +18,7 @@ from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.util import Inches, Pt
 
+from survey.api.base import QuestionListAPIView
 from survey.helpers import datetime_or_now, get_extra
 from survey.models import Campaign, Choice, EditableFilter, Sample
 from survey.settings import DB_PATH_SEP, URL_PATH_SEP
@@ -365,7 +365,7 @@ ends_at=2023-12-31&timezone=local&page=1` for group
         return context
 
 
-class AssessPracticesPPTXView(AssessmentContentMixin, ListView):
+class AssessPracticesPPTXView(AssessmentContentMixin, QuestionListAPIView):
     """
     Allows downloading an assessment as a PPTX
     """

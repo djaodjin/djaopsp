@@ -3,13 +3,13 @@
 import io, math
 
 from django.http import HttpResponse
-from django.views.generic import ListView
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.styles.borders import BORDER_THIN
 from openpyxl.styles.fills import FILL_SOLID
 from openpyxl.utils import get_column_letter
 from pages.api.elements import PageElementAPIView
+from survey.api.base import QuestionListAPIView
 from survey.helpers import datetime_or_now
 from survey.mixins import TimersMixin
 from survey.models import Unit
@@ -40,7 +40,7 @@ class ContentDetailDownloadView(PageElementAPIView):
         return resp
 
 
-class PracticesSpreadsheetView(TimersMixin, ListView):
+class PracticesSpreadsheetView(TimersMixin, QuestionListAPIView):
 
     add_style = True
     add_expanded_styles = True
