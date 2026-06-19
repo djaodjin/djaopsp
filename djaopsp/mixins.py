@@ -183,6 +183,10 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
     def update_vault_context_urls(self, context):
         # Upload supporting documents
         update_context_urls(context, {
+            'api_assets': self.request.build_absolute_uri(
+                reverse('pages_api_assets', args=(self.account,))),
+        })
+        update_context_urls(context, {
             'api_asset_upload_complete': self.request.build_absolute_uri(
                 reverse('pages_api_assets', args=(self.account,))),
         })

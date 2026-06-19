@@ -1,10 +1,12 @@
 <explainer inline-template
+           v-bind:uploads="uploads"
            v-bind:callback-arg="practice"
            v-bind:collected-by-picture="getPicture(getCommentsAnswer(practice).collected_by)"
            v-bind:collected-by-printable-name="getPrintableName(getCommentsAnswer(practice).collected_by)"
            v-bind:collected-at-time="getCommentsAnswer(practice).created_at"
            v-bind:init-text="getCommentsAnswer(practice).measured"
            v-on:update-text="updateComment"
+           v-on:uploaded="documentUploaded"
            :disabled="practice.frozen">
   <div>
     <form>
@@ -12,7 +14,7 @@
       <textarea class="form-control"
                 name="other-measures"
                 type="text" rows="10"
-                :placeholder="isTagged('verify') ? '{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}' : '{% trans %}Please provide context and supporting evidence for your answer, including public URL links, or uploaded documents. Thank you.{% endtrans %}'"
+                :placeholder="isTagged('verify') ? '{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}' : '{% trans %}By providing context and supporting evidence for your answer, including public URL links and/or uploaded documents, you enable your customers to gain confidence in your organization\'s response.{% endtrans %}'"
                 v-model="text"
                 :disabled="disabled"
                 @keydown="fitToText"
@@ -27,17 +29,24 @@
         </div>
       </div>
       <div class="row text-start">
-        <div class="col-3">
-          <div class="mb-2">
-            <button type="button" class="btn btn-primary" :disabled="disabled">
-              <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
-                  {% trans %}Upload{% endtrans %}
-              </label>
-            </button>
-            <input name="file" type="file" :id="callbackArg.slug + '-file'" style="display:none;" @change.prevent="uploadFile" :disabled="disabled" />
+        <div class="col-12">
+          <div class="input-group">
+            <span class="input-group-text">
+                <i class="fa-solid fa-link"></i>
+            </span>
+            <select class="form-control form-select input-group-suffix"
+                   aria-label="{% trans %}Uploaded documents{% endtrans %}"
+                   :disabled="disabled">
+               <option @click="modalShowUpload('#' + callbackArg.slug + '-upload')">{% trans %}Upload supporting document...{% endtrans %}</option>
+               <option @click="selectUpload(upload)" v-for="upload in uploads.results">
+                   [[(upload.tags && upload.tags.length) ? upload.tags.join() : upload.location]]
+               </option>
+            </select>
           </div>
         </div>
-        <div class="col-9">
+      </div>
+      <div class="row text-start">
+        <div class="col-12">
           <div class="mt-2" v-if="!(callbackArg.extra && callbackArg.extra.tags && callbackArg.extra.tags.includes('verify'))">
             <small v-if="collectedByPrintableName">
               <img class="rounded-circle float-start m-1" :src="collectedByPicture ? collectedByPicture : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32" alt="{% trans %}Profile picture{% endtrans %}">
@@ -49,5 +58,52 @@
         </div>
       </div>
     </form>
+
+    <div class="modal fade"
+       :id="callbackArg.slug + '-upload'" tabindex="-1" role="dialog"
+       aria-labelledby="modal-preview-media">
+      <div class="modal-dialog" role="document">
+        <form class="modal-content" @submit.prevent="setTitle(activeUpload)">
+          <div class="modal-header">
+            <h4>{% trans %}Uploaded supporting document{% endtrans %}</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans %}Close{% endtrans %}"></button>
+          </div>
+          <div class="modal-body">
+            <div class="text-center" v-if="!activeUpload">
+              <p>
+{% trans %}You can access the supporting documents your organization uploaded by clicking <strong>Documents Vault</strong> in the left sidebar.{% endtrans %}
+              </p>
+              <p>
+{% trans %}Individual answers, comments, and uploaded documents are only shared with the organizations you elect. All customers you have shared information with are available by clicking <strong>History</strong> in the left sidebar. These customers will have access to your completed response, exactly as it appears on the <em>REVIEW</em> step.{% endtrans %}
+<a target="_blank" href="{{'/docs/faq/#technical-3'|site_url}}">{% trans %}Learn more{% endtrans %} &raquo;</a>
+              </p>
+              <button type="button" class="btn btn-primary" :disabled="disabled">
+                <label :for="callbackArg.slug + '-file'" style="margin-bottom:0;">
+                  {% trans %}Upload{% endtrans %}
+                </label>
+              </button>
+              <input name="file" type="file" :id="callbackArg.slug + '-file'" style="display:none;" @change.prevent="uploadFile" :disabled="disabled" />
+            </div>
+            <iframe :src="activeUpload.location" v-if="activeUpload"
+                    style="width:100%;height:50vh;"></iframe>
+          </div>
+          <div class="modal-footer text-start" v-if="activeUpload">
+            <div class="w-100">
+              <label class="form-label">{% trans %}Title{% endtrans %}</label>
+              <div class="input-group mt-2">
+                <input class="upload-title form-control" type="text" placeholder="{% trans %}ex: 2026 Materiality assessment{% endtrans %} ..." v-model="activeTitle" />
+              </div>
+            </div>
+            <div class="w-100 row">
+              <button class="btn btn-primary"
+                      type="submit"
+                      data-bs-dismiss="modal">
+                  {% trans %}Add link to uploaded document{% endtrans %}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </explainer>

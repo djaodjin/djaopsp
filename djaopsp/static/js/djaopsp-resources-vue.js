@@ -800,7 +800,7 @@ var practicesListMixin = {
         openCascadeAutomatically: function(practice, newValue) {
             const vm = this;
             const answer = (( typeof newValue !== 'undefined' ) ? newValue :
-                  vm.getPrimaryAnswer(practice));
+                  vm.getPrimaryAnswer(practice).measured);
             return answer === vm.YES;
         },
         setCascadeVisible: function(headIdx, cascadeVisible) {

@@ -92,7 +92,9 @@ Vue.component('campaign-questions-list', {
             nbRequiredAnswers: this.$sample ? this.$sample.nbRequiredAnswers : 0,
             nbRequiredQuestions: this.$sample ? this.$sample.nbRequiredQuestions : 0,
             api_profiles_url: this.$urls.api_profiles,
-            profilesBySlug: {}
+            profilesBySlug: {},
+            uploads: {results: []},
+            getCompleteCb: 'loadSupportingDocuments'
         }
     },
     methods: {
@@ -102,6 +104,32 @@ Vue.component('campaign-questions-list', {
         _isObject: function (obj) {
             // https://stackoverflow.com/a/46663081/1491475
             return obj instanceof Object && obj.constructor === Object;
+        },
+        loadSupportingDocuments: function() {
+            var vm = this;
+            vm.contentLoaded();
+            vm.reqGet(vm.$urls.api_assets,
+            function(data) {
+                // Reverse the `results` returned by the API so the documents
+                // are in the same order as in the "Vault" - i.e. most recent
+                // first.
+                for( var idx = data.results.length - 1; idx >= 0; --idx ) {
+                    vm.uploads.results.push(data.results[idx]);
+                }
+            });
+        },
+        documentUploaded: function(resp) {
+            var vm = this;
+            var found = false;
+            for( var idx = 0; idx < vm.uploads.results.length; ++idx ) {
+                if( vm.uploads.results[idx].location == resp.location ) {
+                    found = true;
+                    break;
+                }
+            }
+            if( !found ) {
+                vm.uploads.results.unshift(resp);
+            }
         },
         addSegment: function(segment) {
             var vm = this;

@@ -2335,7 +2335,8 @@ pre.code{
 //  position: fixed;
   top: #{$navbar-height};
   height: calc(100vh - #{$navbar-height});
-  z-index: 2000; // sticky-top[z-index] == 1020
+  z-index: 1025; // `sticky-top[z-index]` == 1020, `.dashboard-nav` == 1050,
+                 // `.modal` == 1055.
 }
 
 #app-toolbar-left .sidebar-animate {
