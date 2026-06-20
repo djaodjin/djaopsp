@@ -1113,6 +1113,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         'slug',
         'full_name',
         'email',
+        'extra_supplier_key_str',
     )
     json_search_fields = (
         'extra_tags_str',
@@ -1158,6 +1159,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         queryset = queryset.annotate(
             extra_json=Cast('portfolios__extra', output_field=JSONField()),
             extra_tags_str=Cast('extra_json__tags', TextField()),
+            extra_supplier_key_str=Cast('extra_json__supplier_key', TextField()),
         )
         # XXX Add missing suppliers that are invited but no response yet.
         #     This could be done by creating "dummy" survey_portfolio

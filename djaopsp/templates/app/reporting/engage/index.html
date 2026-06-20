@@ -187,24 +187,21 @@
       </thead>
       <tbody>
         <tr>
-          <td colspan="4">
+          <td colspan="5">
             <form id="invite-search" class="d-inline-block"
                   @submit.prevent="reload()">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <div class="input-group input-group-sm">
                 <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
-                <input class="form-control"
-                       type="text"
-                       placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
-                       name="query"
-                       v-model="params.q" />
+                <input class="form-control portfolio-search-tagify" ref="tagFilter"
+                       placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}" />
                 <button class="btn btn-primary btn-sm"
                         type="submit"
                         :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
               </div>
             </form>{# /#invite-search #}
             <button id="send-invite-example-open"
-                    class="btn btn-outline-primary btn-sm"
+                    class="btn btn-outline-primary"
                     data-bs-toggle="modal"
                     data-bs-target="#invite-reporting-entity"
                     data-toggle="modal"
@@ -213,7 +210,7 @@
                 {% trans %}Send me an invite example{% endtrans %}
             </button>
           </td>
-          <td colspan="4" class="text-end">
+          <td colspan="3" class="text-end">
             <a href="{{'/respondents/'|site_url}}" target="_blank">{% trans %}Find if a company already responded{% endtrans %}&raquo;</a>
           </td>
         </tr>

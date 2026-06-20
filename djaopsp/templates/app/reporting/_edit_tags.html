@@ -1,32 +1,13 @@
 <div style="width:12rem;">
   <div v-show="showEditTags !== index">
-    <div v-if="entry.extra">
-      <span class="badge bg-secondary" v-for="tag in entry.extra.tags">[[tag]]</span>
+    <div v-if="entry.extra" class="d-flex flex-wrap gap-1">
+      <a href="#" class="badge bg-secondary text-decoration-none text-white" v-for="tag in entry.extra.tags" @click.prevent="searchByTag(tag)">[[tag]]</a>
     </div>
-    <small><a href="" @click.prevent="toggleEditTags(index)"><i class="fa-solid fa-edit"></i></a></small>
+    <small><a href="#" @click.prevent="toggleEditTags(index)"><i class="fa-solid fa-edit"></i></a></small>
   </div>
   <div v-show="showEditTags === index">
-    <small><a href="" @click.prevent="toggleEditTags(index)"><i class="fa-solid fa-times"></i></a> {% trans %}select tags ...{% endtrans %}</small>
-    <div v-show="showPreferences < 0">
-      <div v-if="entry.extra && entry.extra.tags">
-        <select class="form-control form-select w-100" multiple="multiple"
-                v-model="entry.extra.tags"
-                @blur="saveTags(entry)">
-          <option :value="choice" :selected="isSelectedTag(entry, choice)" v-for="choice in tagChoices">[[choice]]</option>
-        </select>
-      </div>
-      <div>
-        <small><a href="" @click.prevent="togglePreferences(index)">{% trans %}update choices{% endtrans %}</small>
-      </div>
-    </div>
-    <div v-show="showPreferences >= 0">
-      <textarea class="form-control"
-                placeholder="{% trans %}type words separated by commas then click 'list choices' and select multiple tags.{% endtrans %}"
-                v-model="preferenceTagsAsText"
-                @blur="savePreferences"></textarea>
-      <div>
-        <small><a href="" @click.prevent="togglePreferences(index)">{% trans %}list choices{% endtrans %}</small>
-      </div>
-    </div>
+    <input class="form-control" ref="tagsInput"
+           placeholder="{% trans %}add tags ...{% endtrans %}" />
+    <small><a href="#" @click.prevent="toggleEditTags(index)"><i class="fa-solid fa-check"></i> {% trans %}Done{% endtrans %}</a></small>
   </div>
 </div>
