@@ -2,8 +2,8 @@
 
 {# Browse menu items #}
 <ul class="navbar-nav flex-column py-1" data-intro="Profile" data-position="right">
-  <li class="nav-item{% if not urls.practices_index %} d-flex align-items-center{% endif %}">
-    <a id="browse-practices" class="nav-link{% if urls.practices_index and request.path.startswith(urls.practices_index) %} active{% endif %}" href="{% if urls.practices_index %}{{urls.practices_index}}{% endif %}">
+  <li id="browse-practices" class="nav-item{% if not urls.practices_index %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if urls.practices_index and request.path.startswith(urls.practices_index) %} active{% endif %}" href="{% if urls.practices_index %}{{urls.practices_index}}{% endif %}">
       <span class="ps-1">{% trans %}Browse Practices{% endtrans %}</span>
     </a>
     {% if not urls.practices_index %}
@@ -17,8 +17,8 @@
 {# Responding menu items #}
 {% if profile %}
 <ul class="navbar-nav flex-column py-1" data-intro="Profile" data-position="right">
-  <li class="nav-item{% if not urls.app_profile %} d-flex align-items-center{% endif %}">
-    <a id="scorecard-history" class="nav-link{% if request.path == urls.app_profile %} active{% endif %}" {% if urls.app_profile %}href="{{urls.app_profile}}"{% endif %}>
+  <li id="news" class="nav-item{% if not urls.app_profile %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if request.path == urls.app_profile %} active{% endif %}" {% if urls.app_profile %}href="{{urls.app_profile}}"{% endif %}>
       <span class="ps-1">{% trans %}News{% endtrans %}</span>
     </a>
     {% if not urls.app_profile %}
@@ -26,8 +26,8 @@
             data-bs-toggle="modal" data-bs-target="#lock-description"><i class="fa-solid fa-lock"></i></button>
     {% endif %}
   </li>
-  <li class="nav-item{% if not urls.scorecard_history %} d-flex align-items-center{% endif %}">
-    <a id="scorecard-history" class="nav-link{% if request.path == urls.scorecard_history %} active{% endif %}" {% if urls.scorecard_history %}href="{{urls.scorecard_history}}"{% endif %}>
+  <li id="scorecard-history" class="nav-item{% if not urls.scorecard_history %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if request.path == urls.scorecard_history %} active{% endif %}" {% if urls.scorecard_history %}href="{{urls.scorecard_history}}"{% endif %}>
       <span class="ps-1">{% trans %}History{% endtrans %}</span>
     </a>
     {% if not urls.scorecard_history %}
@@ -36,8 +36,8 @@
     {% endif %}
   </li>
   {% if urls.documents_vault %}
-  <li class="nav-item{% if not urls.documents_vault %} d-flex align-items-center{% endif %}">
-    <a id="documents-vault" class="nav-link{% if request.path == urls.documents_vault %} active{% endif %}" {% if urls.documents_vault %}href="{{urls.documents_vault}}"{% endif %}>
+  <li id="documents-vault" class="nav-item{% if not urls.documents_vault %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if request.path == urls.documents_vault %} active{% endif %}" {% if urls.documents_vault %}href="{{urls.documents_vault}}"{% endif %}>
       <span class="ps-1">{% trans %}Documents Vault{% endtrans %}</span>
     </a>
     {% if not urls.documents_vault %}
@@ -46,8 +46,8 @@
     {% endif %}
   </li>
   {% endif %}
-  <li class="nav-item{% if not urls.track_metrics %} d-flex align-items-center{% endif %}">
-    <a id="track-energy-ghg-emissions" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'energy-ghg-emissions/')  %} active {% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}energy-ghg-emissions/"{% endif %}>
+  <li id="track-energy-ghg-emissions" class="nav-item{% if not urls.track_metrics %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'energy-ghg-emissions/')  %} active {% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}energy-ghg-emissions/"{% endif %}>
       <span class="ps-1">{% trans %}Energy &amp; GHG Emissions{% endtrans %}</span>
     </a>
     {% if not urls.track_metrics %}
@@ -55,8 +55,8 @@
             data-bs-toggle="modal" data-bs-target="#lock-description"><i class="fa-solid fa-lock"></i></button>
     {% endif %}
   </li>
-  <li class="nav-item{% if not urls.track_metrics %} d-flex align-items-center{% endif %}">
-    <a id="track-water" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'water/') %} active{% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}water/"{% endif %}>
+  <li id="track-water" class="nav-item{% if not urls.track_metrics %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'water/') %} active{% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}water/"{% endif %}>
       <span class="ps-1">{% trans %}Water{% endtrans %}</span>
     </a>
     {% if not urls.track_metrics %}
@@ -64,8 +64,8 @@
             data-bs-toggle="modal" data-bs-target="#lock-description"><i class="fa-solid fa-lock"></i></button>
     {% endif %}
   </li>
-  <li class="nav-item{% if not urls.track_metrics %} d-flex align-items-center{% endif %}">
-    <a id="track-waste" class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'waste/') %} active{% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}waste/"{% endif %}>
+  <li id="track-waste" class="nav-item{% if not urls.track_metrics %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if urls.track_metrics and request.path == (urls.track_metrics + 'waste/') %} active{% endif %}" {% if urls.track_metrics %}href="{{urls.track_metrics}}waste/"{% endif %}>
       <span class="ps-1">{% trans %}Waste{% endtrans %}</span>
     </a>
     {% if not urls.track_metrics %}
@@ -78,8 +78,8 @@
 
 {# Tracking reporting profiles menu items #}
 <ul class="navbar-nav flex-column py-1" data-intro="Dashboards" data-position="right">
-  <li class="nav-item{% if not urls.portfolio_engage %} d-flex align-items-center{% endif %}">
-    <a id="suppliers-engage" class="nav-link{% if request.path == urls.portfolio_engage %} active{% endif %}{% if not urls.portfolio_engage %} disabled{% endif %}" {% if urls.portfolio_engage %}href="{{urls.portfolio_engage}}"{% endif %}>
+  <li id="suppliers-engage" class="nav-item{% if not urls.portfolio_engage %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if request.path == urls.portfolio_engage %} active{% endif %}{% if not urls.portfolio_engage %} disabled{% endif %}" {% if urls.portfolio_engage %}href="{{urls.portfolio_engage}}"{% endif %}>
       <span class="ps-1">{% trans %}Engage Suppliers{% endtrans %}</span>
     </a>
     {% if not urls.portfolio_engage %}
@@ -88,8 +88,8 @@
     {% endif %}
   </li>
 
-  <li class="nav-item{% if not urls.compare %} d-flex align-items-center{% endif %}">
-    <a id="suppliers-compare" class="nav-link{% if request.path == urls.compare %}  active{% endif %}{% if not urls.compare %} disabled{% endif %}" {% if urls.compare %}href="{{urls.compare}}"{% endif %}>
+  <li id="suppliers-compare" class="nav-item{% if not urls.compare %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if request.path == urls.compare %}  active{% endif %}{% if not urls.compare %} disabled{% endif %}" {% if urls.compare %}href="{{urls.compare}}"{% endif %}>
       <span class="ps-1">{% trans %}Compare{% endtrans %}</span>
     </a>
     {% if not urls.compare %}
@@ -98,8 +98,8 @@
     {% endif %}
   </li>
 
-  <li class="nav-item{% if not urls.analyze %} d-flex align-items-center{% endif %}">
-    <a id="suppliers-analyze" class="nav-link{% if request.path == urls.analyze %} active{% endif %}{% if not urls.analyze %} disabled{% endif %}" {% if urls.analyze %}href="{{urls.analyze}}"{% endif %}>
+  <li id="suppliers-analyze" class="nav-item{% if not urls.analyze %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if request.path == urls.analyze %} active{% endif %}{% if not urls.analyze %} disabled{% endif %}" {% if urls.analyze %}href="{{urls.analyze}}"{% endif %}>
       <span class="ps-1">{% trans %}Analyze{% endtrans %}</span>
     </a>
     {% if not urls.analyze %}
@@ -112,8 +112,8 @@
 
 {# Editor menu items #}
 <ul class="navbar-nav flex-column py-1" data-intro="Editors" data-position="right">
-  <li class="nav-item{% if not urls.survey_campaign_list %} d-flex align-items-center{% endif %}">
-    <a id="edit-campaigns" class="nav-link{% if urls.survey_campaign_list and request.path.startswith(urls.survey_campaign_list) %} active{% endif %}{% if not urls.survey_campaign_list %} disabled{% endif %}" {% if urls.survey_campaign_list %}href="{{urls.survey_campaign_list}}"{% endif %}>
+  <li id="edit-campaigns" class="nav-item{% if not urls.survey_campaign_list %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if urls.survey_campaign_list and request.path.startswith(urls.survey_campaign_list) %} active{% endif %}{% if not urls.survey_campaign_list %} disabled{% endif %}" {% if urls.survey_campaign_list %}href="{{urls.survey_campaign_list}}"{% endif %}>
       <span class="ps-1">{% trans %}Questionnaires{% endtrans %}</span>
     </a>
     {% if not urls.survey_campaign_list %}
@@ -121,8 +121,8 @@
             data-bs-toggle="modal" data-bs-target="#lock-description"><i class="fa-solid fa-lock"></i></button>
     {% endif %}
   </li>
-  <li class="nav-item{% if not urls.pages_editables_index %} d-flex align-items-center{% endif %}">
-    <a id="edit-practices" class="nav-link{% if urls.pages_editables_index and request.path.startswith(urls.pages_editables_index) %} active{% endif %}{% if not urls.pages_editables_index %} disabled{% endif %}" {% if urls.pages_editables_index %}href="{{urls.pages_editables_index}}"{% endif %}>
+  <li id="edit-practices" class="nav-item{% if not urls.pages_editables_index %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if urls.pages_editables_index and request.path.startswith(urls.pages_editables_index) %} active{% endif %}{% if not urls.pages_editables_index %} disabled{% endif %}" {% if urls.pages_editables_index %}href="{{urls.pages_editables_index}}"{% endif %}>
       <span class="ps-1">{% trans %}Content Editors{% endtrans %}</span>
     </a>
     {% if not urls.pages_editables_index %}

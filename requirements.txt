@@ -11,7 +11,7 @@ django-csp==4.0
 djaodjin-deployutils==0.14.5
 djaodjin-extended-templates==0.5.4
 djaodjin-pages==0.9.1
-djaodjin-survey==0.20.0
+djaodjin-survey==0.20.1
 docutils==0.21.2                  # 0.22 is incompatible with Sphinx==8.1.3
                           # Technically only needed for schema generation but
                           # djangorestframework will import regardless.

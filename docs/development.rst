@@ -198,11 +198,6 @@ To run djaopsp and djaoapp together on localhost, you need to insure:
 2. djaoapp is setup to forward HTTP requests to djaopsp
 3. djaopsp decodes the forwarded authenticated user session properly
 
-
-djaoapp will for can access both
-databases, and that the multitier entry in the djaoapp database has settings
-matching the djaopsp server configuration (credentials and site.conf).
-
 To populate the djaopsp database with livedemo fixtures, run the following
 command in the djaopsp source directory.
 
@@ -218,7 +213,7 @@ directory.
 .. code-block:: shell
 
     make setup-livedemo
-    sqlite3 db.sqlite "UPDATE rules_rule set is_forward=1 WHERE app_id=(select id FROM rules_app WHERE slug='djaopsp');"
+    sqlite3 db.sqlite "UPDATE rules_rule set is_forward=1 WHERE path in ('/app/{profile}/', '/app/', '/') AND app_id=(select id FROM rules_app WHERE slug='djaopsp');"
     sqlite3 db.sqlite "UPDATE rules_app SET enc_key='$(grep DJAODJIN_SECRET_KEY ../djaopsp/.venv/etc/djaopsp/credentials | cut -d \" -f 2)' WHERE id=(select id FROM rules_app WHERE slug='djaopsp');"
 
 You will most likely want to run both servers in `DEBUG` mode. To do that,
