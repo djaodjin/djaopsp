@@ -117,6 +117,10 @@ def _notified_recipients(notification_slug, context):
         user_email = context.get('account', {}).get('email', "")
         if user_email:
             recipients = [user_email]
+        for rcpt in context.get('recipients', []):
+            rcpt_email = rcpt.get('email', "") if isinstance(rcpt, dict) else ""
+            if rcpt_email and rcpt_email not in recipients:
+                recipients.append(rcpt_email)
     elif notification_slug in (
             'portfolios_grant_initiated',
             'portfolio_request_accepted',):

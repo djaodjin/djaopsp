@@ -100,6 +100,9 @@ def portfolios_request_initiated_notice(sender, portfolios, recipients,
     #pylint:disable=unused-argument
     if not recipients:
         recipients = []
+    recipients = [rcpt for rcpt in recipients
+        if (rcpt.get('email') if isinstance(rcpt, dict)
+            else rcpt.email)]
 
     portfolio = portfolios[0] # XXX first one only
     LOGGER.debug("[signal] portfolios_request_initiated_notice("\
