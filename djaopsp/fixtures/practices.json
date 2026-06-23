@@ -1221,7 +1221,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target-by",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by",
     "content": 156,
     "default_unit": 196,
     "ui_hint": "target-by",
@@ -1241,7 +1241,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target-by",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by",
     "content": 160,
     "default_unit": 196,
     "ui_hint": "target-by",
@@ -1261,7 +1261,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/energy-target-by",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/energy-target/energy-target-by",
     "content": 152,
     "default_unit": 196,
     "ui_hint": "target-by",
@@ -1801,7 +1801,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target-by",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by",
     "content": 164,
     "default_unit": 196,
     "ui_hint": "target-by",
@@ -1961,7 +1961,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/waste-reporting/waste-target-by",
+    "path": "/sustainability/environmental-reporting/waste-reporting/waste-target/waste-target-by",
     "content": 168,
     "default_unit": 196,
     "ui_hint": "target-by",
@@ -2101,7 +2101,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/water-reporting/water-target-by",
+    "path": "/sustainability/environmental-reporting/water-reporting/water-target/water-target-by",
     "content": 171,
     "default_unit": 196,
     "ui_hint": "target-by",

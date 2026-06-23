@@ -1768,16 +1768,9 @@ class EngagementStatsMixin(DashboardAggregateMixin):
         if account == self.account:
             grantees = [account]
 
-        last_date = datetime_or_now(self.accounts_ends_at)
-        if self.accounts_start_at:
-            first_date = self.accounts_start_at
-        else:
-            first_date = last_date - relativedelta(months=4)
-        weekends_at = construct_weekly_periods(first_date, last_date)
-
         engagement = get_engagement_by_reporting_status(
-            self.campaign, requested_accounts,
-            grantees=grantees, start_at=weekends_at[0], ends_at=weekends_at[-1])
+            self.campaign, requested_accounts, grantees=grantees,
+            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at)
 
         stats = {key: 0
             for key in humanize.COLLAPSED_REPORTING_ENGAGE_STATUSES.values()}
