@@ -3,7 +3,7 @@
     <div class="col-md-6">
       <form id="period-update" class="row mt-4"
             @submit.prevent="reload()">
-        <div class="col-sm-4">
+        <div class="col-xl-5 col-12">
           <div class="input-group input-group-sm">
             <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
             <input class="form-control" type="date" v-model="_start_at"
@@ -11,7 +11,7 @@
                 v-cloak>
           </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-xl-5 mt-xl-0 col-12 mt-2">
           <div class="input-group input-group-sm">
             <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             <input class="form-control" type="date" v-model="_ends_at"
@@ -19,7 +19,7 @@
                 v-cloak>
           </div>
         </div>
-        <div class="col-sm-4 d-print-none">
+        <div class="col-sm-2 d-print-none mt-xl-0 mt-2">
           <button class="btn btn-primary btn-sm"
                   :disabled="!outdated"
                   type="submit">{% trans %}Update{% endtrans %}</button>

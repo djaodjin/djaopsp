@@ -209,6 +209,7 @@ Vue.component('engage-profiles', {
         },
         populateInvite: function(newAccount) {
             var vm = this;
+            clearMessages();
             vm.newItem = {ends_at: null};
             if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
                 vm.newItem.slug = newAccount.slug;
@@ -269,6 +270,32 @@ Vue.component('engage-profiles', {
         },
         requestAssessment: function($event, campaign) {
             var vm = this;
+            function handleError(resp) {
+                var errorResp = resp;
+                var data = resp.data || resp.responseJSON;
+                if( data ) {
+                    var flat = data;
+                    if( data.accounts?.length > 0 ) {
+                        var {accounts, ...rest} = data;
+                        flat = {...rest, ...accounts[0]};
+                    }
+                    if( flat.recipients && typeof flat.recipients === 'object' ) {
+                        var emailErrors = flat.email || [];
+                        for( var idx in flat.recipients ) {
+                            if( flat.recipients.hasOwnProperty(idx) ) {
+                                flat.recipients[idx].forEach(function(msg) {
+                                    emailErrors.push(
+                                        `Email ${parseInt(idx) + 2}: ${msg}`);
+                                });
+                            }
+                        }
+                        flat.email = emailErrors;
+                        delete flat.recipients;
+                    }
+                    errorResp = {responseJSON: flat};
+                }
+                showErrorMessages(errorResp);
+            }
             var data = {
                 accounts: [{}],
                 message: vm.message,
@@ -282,6 +309,19 @@ Vue.component('engage-profiles', {
                     data.accounts[0][key] = vm.newItem[key];
                 }
             }
+            if( data.accounts[0].email ) {
+                var emails = data.accounts[0].email
+                    .split(',').map(function(e) { return e.trim(); })
+                    .filter(function(e) { return e; });
+                if( emails.length > 0 ) {
+                    data.accounts[0].email = emails[0];
+                    data.accounts[0].recipients = emails.slice(1);
+                } else {
+                    showErrorMessages({responseJSON: {
+                        email: ["Enter a valid email address."]}});
+                    return;
+                }
+            }
             if( typeof campaign !== 'undefined' ) {
                 data['campaign'] = campaign;
             }
@@ -290,7 +330,7 @@ Vue.component('engage-profiles', {
                 function success(resp, textStatus, jqXHR) {
                     showMessages(resp.detail, 'info');
                     vm.hideModal($event);
-                });
+                }, handleError);
             } else {
                 if( !vm.newItem.slug ) {
                     vm.reqPost(vm.$urls.api_account_candidates, vm.newItem,
@@ -338,7 +378,7 @@ Vue.component('engage-profiles', {
                             }
                         }
                         vm.hideModal($event);
-                    });
+                    }, handleError);
                 }
             }
             return false;
