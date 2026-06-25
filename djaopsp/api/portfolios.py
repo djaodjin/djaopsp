@@ -1470,9 +1470,9 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
                 second = extra_as_internal(account)
                 for second_key, second_value in second.items():
                     if second_key in extra:
-                        if isinstance(extra[second_key], list): # 'tags'
-                            extra[second_key] = sorted(list(
-                                set(second_value) | set(extra[second_key])))
+                        if second_key == 'tags':
+                            extra['portfolio_tags'] = extra[second_key]
+                            extra[second_key] = second_value
                     else:
                         extra[second_key] = second_value
                 account.extra = extra

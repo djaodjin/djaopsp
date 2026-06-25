@@ -76,10 +76,6 @@ var portfolioTagsMixin = {
             }
             vm.reqPatch(vm._safeUrl(vm.api_metadata, item.slug)
                 + vm.getQueryString(), {extra: item.extra});
-            if( vm.api_metadata !== vm.api_portfolio_metadata ) {
-                vm.reqPatch(vm._safeUrl(vm.api_portfolio_metadata, item.slug)
-                    + vm.getQueryString(), {extra: item.extra});
-            }
             vm.showEditTags = -1;
         },
         searchByTag: function(tag) {
@@ -97,6 +93,9 @@ var portfolioTagsMixin = {
             if( vm.showEditProfileKey === toggledIdx ) {
                 vm.saveProfileKey(entry);
             } else {
+                if( vm.showEditTags >= 0 ) {
+                    vm.blurEditTags(vm.showEditTags);
+                }
                 if( !vm.items.results[toggledIdx].extra ) {
                     vm.items.results[toggledIdx].extra = {};
                 }
@@ -107,6 +106,11 @@ var portfolioTagsMixin = {
                     vm.items.results[toggledIdx].extra.supplier_key = "";
                 }
                 vm.showEditProfileKey = toggledIdx;
+                vm.$nextTick(function() {
+                    if( vm.$refs.profileKeyInput ) {
+                        vm.$refs.profileKeyInput[0].focus();
+                    }
+                });
             }
         },
         toggleEditTags: function(toggledIdx) {
@@ -124,6 +128,9 @@ var portfolioTagsMixin = {
                 vm.updateTagChoices(entry.extra.tags);
                 vm.showEditTags = -1;
             } else {
+                if( vm.showEditProfileKey >= 0 ) {
+                    vm.toggleEditProfileKey(vm.showEditProfileKey);
+                }
                 vm.showEditTags = toggledIdx;
                 var inputEl = vm.$refs.tagsInput[toggledIdx];
                 inputEl.value = entry.extra?.tags?.join(',') || '';
@@ -133,7 +140,33 @@ var portfolioTagsMixin = {
                         enabled: 0
                     }
                 });
+                vm.tagsTagify.DOM.scope.addEventListener('mousedown', function(e) {
+                    if( !vm.tagsTagify.DOM.input.contains(e.target) ) {
+                        e.preventDefault();
+                    }
+                });
+                vm.tagsTagify.on('blur', function() {
+                    vm.blurEditTags(toggledIdx);
+                });
+                vm.$nextTick(function() {
+                    vm.tagsTagify.DOM.input.focus();
+                });
             }
+        },
+        blurEditTags: function(idx) {
+            var vm = this;
+            if( vm.showEditTags === idx ) {
+                vm.toggleEditTags(idx);
+            }
+        },
+        cancelEditTags: function(idx) {
+            var vm = this;
+            if( vm.showEditTags !== idx ) return;
+            if( vm.tagsTagify ) {
+                vm.tagsTagify.destroy();
+                vm.tagsTagify = null;
+            }
+            vm.showEditTags = -1;
         },
     },
     computed: {
@@ -405,6 +438,9 @@ Vue.component('engage-profiles', {
                 if( !item.extra.tags ) {
                     item.extra.tags = []
                 }
+                if( !item.extra.portfolio_tags ) {
+                    item.extra.portfolio_tags = []
+                }
                 vm.items.results.push(item);
             }
             vm.populateAccounts(vm.items.results);
@@ -569,7 +605,7 @@ Vue.component('engage-profiles', {
             vm.tagify = new Tagify(vm.$refs.tagFilter, {
                 whitelist: vm.tagChoices || [],
                 dropdown: {
-                    enabled: 0
+                    enabled: 1
                 }
             });
             vm.tagify.DOM.input.setAttribute('aria-label', 'Search');
@@ -1429,7 +1465,7 @@ Vue.component('reporting-organizations', {
             vm.tagify = new Tagify(vm.$refs.tagFilter, {
                 whitelist: vm.tagChoices || [],
                 dropdown: {
-                    enabled: 0
+                    enabled: 1
                 }
             });
             vm.tagify.DOM.input.setAttribute('aria-label', 'Search');

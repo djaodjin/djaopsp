@@ -1,13 +1,15 @@
 <div style="width:12rem;">
-  <div v-show="showEditTags !== index">
-    <div v-if="entry.extra" class="d-flex flex-wrap gap-1">
+  <div v-show="showEditTags !== index" class="d-flex flex-wrap gap-1 align-items-center">
+    <template v-if="entry.extra">
       <a href="#" class="badge bg-secondary text-decoration-none text-white" v-for="tag in entry.extra.tags" @click.prevent="searchByTag(tag)">[[tag]]</a>
-    </div>
+    </template>
     <small><a href="#" @click.prevent="toggleEditTags(index)"><i class="fa-solid fa-edit"></i></a></small>
   </div>
-  <div v-show="showEditTags === index">
+  <div v-if="entry.extra && entry.extra.portfolio_tags && entry.extra.portfolio_tags.length" class="d-flex flex-wrap gap-1 mt-1" title="{% trans %}Tags from Track{% endtrans %}">
+    <a href="#" class="badge bg-info text-decoration-none text-white" v-for="tag in entry.extra.portfolio_tags" @click.prevent="searchByTag(tag)">[[tag]]</a>
+  </div>
+  <div v-show="showEditTags === index" @keydown.esc="cancelEditTags(index)" class="mt-1" style="cursor:text;">
     <input class="form-control" ref="tagsInput"
            placeholder="{% trans %}add tags ...{% endtrans %}" />
-    <small><a href="#" @click.prevent="toggleEditTags(index)"><i class="fa-solid fa-check"></i> {% trans %}Done{% endtrans %}</a></small>
   </div>
 </div>

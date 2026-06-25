@@ -188,7 +188,7 @@
       <tbody>
         <tr>
           <td colspan="5">
-            <form id="invite-search" class="d-inline-block"
+            <form id="invite-search" class="d-inline-block align-middle"
                   @submit.prevent="reload()">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <div class="input-group input-group-sm">
@@ -201,7 +201,7 @@
               </div>
             </form>{# /#invite-search #}
             <button id="send-invite-example-open"
-                    class="btn btn-outline-primary"
+                    class="btn btn-outline-primary btn-sm align-middle"
                     data-bs-toggle="modal"
                     data-bs-target="#invite-reporting-entity"
                     data-toggle="modal"
@@ -245,7 +245,7 @@
             <span :class="entry.extra && entry.extra.supplier_key ? '' : 'default-supplier-id'"
                 @click.prevent="toggleEditProfileKey(index)"
                 v-show="showEditProfileKey !== index">[[getProfileKey(entry, index)]]</span>
-            <input type="text" v-model="entry.extra.supplier_key" @blur="saveProfileKey(entry, index)" v-if="showEditProfileKey === index"></input>
+            <input type="text" ref="profileKeyInput" v-model="entry.extra.supplier_key" @blur="saveProfileKey(entry, index)" v-if="showEditProfileKey === index"></input>
           </td>
           <td>
             {% include "app/reporting/_profile_card.html" %}
