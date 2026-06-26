@@ -1,13 +1,6 @@
 <div :id="getPracticeId(practice)" :class="(isPractice(practice) && isFreetextUIHint(practice) ? 'bestpractice row ' : 'row ') + practiceStyle(practice)">
   <div :class="(isPractice(practice) || isEnumHeaderShown(icon)) ? 'col-md-6' : 'col-md-12'">
     <div :class="indentHeader(practice)">
-      <span :class="isCascadeVisible(practice) ? 'dropdown' : 'dropend'"
-           v-if="practice.isCascade">
-        <button class="btn btn-link dropdown-toggle"
-              @click.prevent="toggleCascadeVisible(practice)"
-              aria-label="Reveal additional connected questions">
-        </button>
-      </span>
       <div class="title" v-if="!isPractice(practice) && !isPagebreak(practice)">
         <div>[[practice.title]]</div>
         <div class="descr">[[practice.text]]</div>
@@ -16,12 +9,24 @@
          v-if="!isPractice(practice) && isPagebreak(practice)">
         [[practice.title]]
       </a>
-      <span class="title"
-            v-if="isPractice(practice)">
+      <div class="row">
+        <div class="col-1">
+          <span :class="isCascadeVisible(practice) ? 'dropdown' : 'dropend'"
+                v-if="practice.isCascade">
+            <button class="btn btn-lg btn-link dropdown-toggle"
+                    @click.prevent="toggleCascadeVisible(practice)"
+                    aria-label="Reveal additional connected questions">
+            </button>
+          </span>
+        </div>
+        <div class="col-11">
+          <span class="title" v-if="isPractice(practice)">
         [[practice.ref_num ? (practice.ref_num + " ") : ""]][[practice.title]]
         <a :href="isPractice(practice) ? '{{urls.pages_index}}' + practice.slug + '/' : ''"
            target="_blank" aria-label="Help information"><i class="fa-solid fa-question-circle"></i></a>
-      </span>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -57,7 +62,7 @@
   {# The unit is fixed. question.ui_hint === 'revenue' #}
   <div class="col-md-6 text-center"
        v-if="isRevenueUIHint(practice)">
-    <div class="row">
+    <div class="row g-0">
       <div class="col-md-6">
         <div class="input-group">
           <label class="font-monospace input-group-text">{% trans %}From{% endtrans %}</label>
@@ -87,10 +92,6 @@
       </div>
     </div>
     <div class="input-group" v-show="!isNotDisclosedPublicly(practice)">
-      <span class="input-group-text">
-        <i class="fa-solid fa-times"
-           @click="resetAssessmentAnswer(practice)"></i>
-      </span>
       <input class="form-control"
              type="number"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
@@ -208,7 +209,7 @@
   {# - The unit is variable (out of an "energy units" drop down list) #}
   {# - question.ui_hint === 'energy' #}
   <div class="col-md-6 text-center" v-if="isEnergyUIHint(practice)">
-    <div class="row">
+    <div class="row g-0">
       <div class="col-md-6">
         <div class="input-group">
           <label class="font-monospace input-group-text">{% trans %}From{% endtrans %}</label>
@@ -283,7 +284,7 @@
         </div>
       </div>
     </div>
-    <div class="row">
+    <div class="row g-0">
       <div class="col-md-6">
         <div class="input-group">
           <label class="font-monospace input-group-text">{% trans %}From{% endtrans %}</label>
@@ -363,7 +364,7 @@
         </div>
       </div>
     </div>
-    <div class="row">
+    <div class="row g-0">
       <div class="col-md-6">
         <div class="input-group">
           <label class="font-monospace input-group-text">{% trans %}From{% endtrans %}</label>
@@ -439,7 +440,7 @@
         </div>
       </div>
     </div>
-    <div class="row">
+    <div class="row g-0">
       <div class="col-md-6">
         <div class="input-group">
           <label class="font-monospace input-group-text">{% trans %}From{% endtrans %}</label>
@@ -623,7 +624,7 @@
           <input class="form-control"
                  type="text"
                  name="user"
-                 placeholder="{% trans %}Enter keyword...{% endtrans %}"
+                 placeholder="{% trans %}Enter code, keyword, or click dropdown...{% endtrans %}"
                  autocomplete="off"
                  v-model="query"
                  @keydown.down="down"
@@ -642,8 +643,9 @@
           {# Implementation note: If we use `d-block` instead of    #}
           {# `style="display: block;"` the dropdown shows even when #}
           {# `hasItems` is `False`.                                 #}
-          <ul id="candidateList" :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
-               style="max-height: 250px;">
+          <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+               style="max-height: 250px;"
+               ref="dropdown">
             <li v-for="(item, $item) in items" class="nav-item"
                 @mousedown="hit"
                 @mousemove="setActive($item)" v-if="item.descr">

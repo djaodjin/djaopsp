@@ -2109,7 +2109,7 @@ a.header-anchor:hover{
 }
 
 @include media-breakpoint-up(md) {
-
+/*
   .indent-header-0 {
     display:inline-block;
     margin:0;
@@ -2149,7 +2149,7 @@ a.header-anchor:hover{
     display:inline-block;
     margin-left: 140px;
   }
-
+*/
   .practice-row>.bestpractice {
     //min-height: 100px;
   }
@@ -2168,7 +2168,7 @@ a.header-anchor:hover{
     box-shadow: none;
   }
 
-}
+} // media-breakpoint-up(md)
 
 .example-title {
   color: var(--example-title-color);

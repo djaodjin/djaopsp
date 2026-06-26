@@ -282,6 +282,17 @@ Vue.component('campaign-questions-list', {
             var primaryAnswer = vm.getPrimaryAnswer(practice);
             vm.$set(primaryAnswer, 'measured', candidate.measured);
             vm.$set(primaryAnswer, 'unit', candidate.unit);
+
+            // Implementation Note: Only revenue questions have 'yes-no'
+            // as secondary answers to indicate disclosure. When we use
+            // last year's revenue as a candidate, we want the UI to uncheck
+            // the "not disclosed" check box.
+            for( let idx = 1; idx < practice.answers.length; ++idx ) {
+                if( practice.answers[idx].unit === 'yes-no' ) {
+                    vm.$set(practice.answers[idx], 'measured', null);
+                }
+            }
+
             vm.updateAssessmentAnswer(practice, candidate);
         },
         importFromTrackingTool: function(practice) {
@@ -640,9 +651,16 @@ Vue.component('campaign-questions-list', {
             vm.reqPost(url,
             function success(resp) {
                 if( practice.answers ) {
-                    for( var jdx = 0;
-                         jdx < practice.answers.length; ++jdx ) {
-                        practice.answers[jdx].measured = null;
+                    for( var jdx = 0; jdx < practice.answers.length; ++jdx ) {
+                        if( practice.answers[jdx].unit === 'starts-at' ) {
+                            vm.$set(practice.answers[jdx], 'measured',
+                                vm.getAnswerStartsAt());
+                        } else if( practice.answers[jdx].unit === 'ends-at' ) {
+                            vm.$set(practice.answers[jdx], 'measured',
+                                vm.getAnswerEndsAt());
+                        } else {
+                            vm.$set(practice.answers[jdx], 'measured', null);
+                        }
                     }
                 }
             });
@@ -687,6 +705,8 @@ Vue.component('campaign-questions-list', {
         // for `enum-choices-typeahead` callback
         updateEnumAnswer: function(newValue, practice) {
             var vm = this;
+            const primary = vm.getPrimaryAnswer(practice);
+            vm.$set(primary, 'measured', newValue.text);
             vm.updateAssessmentAnswer(practice, newValue.text);
         },
         updateAssessmentAnswer: function(practice, newValue, tag) {

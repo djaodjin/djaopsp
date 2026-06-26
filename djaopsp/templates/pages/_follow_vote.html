@@ -8,12 +8,12 @@
           class="btn btn-primary btn-sm dj-answers-upvote"
           @click="submitVote()"
           :aria-label="isUpVote ? '{% trans %}Remove upvote{% endtrans %}' : '{% trans %}Upvote{% endtrans %}'">
-    <i class="fa-solid fa-thumbs-o-up" v-if="!isUpVote"></i>
+    <i class="fa-regular fa-thumbs-up" v-if="!isUpVote"></i>
     <i class="fa-solid fa-thumbs-up" v-if="isUpVote"></i>
   </button>
   <div class="d-inline info_follow_vote">
     <a id="nb-followers" class="btn btn-primary btn-sm disabled">[[nbFollowers]] <i class="fa-solid fa-users fa-lg"></i></a>
-    <a id="nb-votes" class="btn btn-primary btn-sm disabled">[[nbUpVotes]] <i class="fa-solid fa-thumbs-o-up fa-lg"></i></a>
+    <a id="nb-votes" class="btn btn-primary btn-sm disabled">[[nbUpVotes]] <i class="fa-solid fa-thumbs-up fa-lg"></i></a>
   </div>
 </div>
 {% endblock %}
