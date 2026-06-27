@@ -106,7 +106,7 @@
           <th class="text-nowrap text-center sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                <button class="btn btn-sort">{% trans %}Tags{% endtrans %}</button>
+                <button class="btn btn-sort">{% trans %}Engage Tags{% endtrans %}</button>
               </div>
             </div>
           </th>
@@ -249,6 +249,9 @@
           </td>
           <td>
             {% include "app/reporting/_profile_card.html" %}
+            <div v-if="entry.extra && entry.extra.portfolio_tags && entry.extra.portfolio_tags.length" class="d-flex flex-wrap gap-1 mt-1" title="{% trans %}Tags from Track{% endtrans %}">
+              <a href="#" class="badge bg-info text-decoration-none text-white" v-for="tag in entry.extra.portfolio_tags" @click.prevent="searchByTag(tag)">[[tag]]</a>
+            </div>
           </td>
 
           <!-- profile whose report has not been requested yet. -->
