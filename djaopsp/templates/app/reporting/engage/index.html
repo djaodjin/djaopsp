@@ -106,7 +106,7 @@
           <th class="text-nowrap text-center sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                <button class="btn btn-sort">{% trans %}Tags{% endtrans %}</button>
+                <button class="btn btn-sort">{% trans %}Engage Tags{% endtrans %}</button>
               </div>
             </div>
           </th>
@@ -187,24 +187,21 @@
       </thead>
       <tbody>
         <tr>
-          <td colspan="4">
-            <form id="invite-search" class="d-inline-block"
+          <td colspan="5">
+            <form id="invite-search" class="d-inline-block align-middle"
                   @submit.prevent="reload()">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <div class="input-group input-group-sm">
                 <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
-                <input class="form-control"
-                       type="text"
-                       placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
-                       name="query"
-                       v-model="params.q" />
+                <input class="form-control portfolio-search-tagify" ref="tagFilter"
+                       placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}" />
                 <button class="btn btn-primary btn-sm"
                         type="submit"
                         :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
               </div>
             </form>{# /#invite-search #}
             <button id="send-invite-example-open"
-                    class="btn btn-outline-primary btn-sm"
+                    class="btn btn-outline-primary btn-sm align-middle"
                     data-bs-toggle="modal"
                     data-bs-target="#invite-reporting-entity"
                     data-toggle="modal"
@@ -213,7 +210,7 @@
                 {% trans %}Send me an invite example{% endtrans %}
             </button>
           </td>
-          <td colspan="4" class="text-end">
+          <td colspan="3" class="text-end">
             <a href="{{'/respondents/'|site_url}}" target="_blank">{% trans %}Find if a company already responded{% endtrans %}&raquo;</a>
           </td>
         </tr>
@@ -248,10 +245,13 @@
             <span :class="entry.extra && entry.extra.supplier_key ? '' : 'default-supplier-id'"
                 @click.prevent="toggleEditProfileKey(index)"
                 v-show="showEditProfileKey !== index">[[getProfileKey(entry, index)]]</span>
-            <input type="text" v-model="entry.extra.supplier_key" @blur="saveProfileKey(entry, index)" v-if="showEditProfileKey === index"></input>
+            <input type="text" ref="profileKeyInput" v-model="entry.extra.supplier_key" @blur="saveProfileKey(entry, index)" v-if="showEditProfileKey === index"></input>
           </td>
           <td>
             {% include "app/reporting/_profile_card.html" %}
+            <div v-if="entry.extra && entry.extra.portfolio_tags && entry.extra.portfolio_tags.length" class="d-flex flex-wrap gap-1 mt-1" title="{% trans %}Tags from Track{% endtrans %}">
+              <a href="#" class="badge bg-info text-decoration-none text-white" v-for="tag in entry.extra.portfolio_tags" @click.prevent="searchByTag(tag)">[[tag]]</a>
+            </div>
           </td>
 
           <!-- profile whose report has not been requested yet. -->

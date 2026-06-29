@@ -97,6 +97,7 @@
 {% endblock %}
 
 {% block app_bodyscripts %}
+<script type="text/javascript" src="{{'/static/vendor/tagify.js'|asset}}"></script>
 {% if ASSETS_DEBUG %}
 <script type="text/javascript" src="{{'/static/vendor/chart.js/dist/chart.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/chartjs-plugin-annotation.js'|asset}}"></script>

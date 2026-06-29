@@ -1866,6 +1866,21 @@ html[data-useragent*='rv:11.0'] .toggle-off>span {
   box-shadow: none;
 }
 
+.tagify.portfolio-search-tagify {
+  --tag-pad: 0.15em 0.5em;
+  padding: 0;
+
+  > .tagify__input {
+    margin: $input-padding-y-sm $input-padding-x-sm;
+    padding-block: 0;
+    line-height: $input-line-height;
+  }
+
+  > .tagify__tag {
+    margin-block: $input-padding-y-sm;
+  }
+}
+
 /* user login and registration */
 .auth-form {
   padding-top: 50px;

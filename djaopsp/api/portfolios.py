@@ -8,7 +8,8 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.db.models import F, Q, Max, Min
+from django.db.models import F, JSONField, Q, Max, Min, TextField
+from django.db.models.functions import Cast
 from django.template.defaultfilters import slugify
 from rest_framework import generics, status
 from rest_framework import response as http
@@ -18,7 +19,8 @@ from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
-from survey.filters import DateRangeFilter, OrderingFilter, SearchFilter
+from survey.filters import (DateRangeFilter, OrderingFilter, SearchFilter,
+    JSONArraySearchFilter)
 from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, datetime_or_now,
     extra_as_internal, period_less_than)
@@ -1111,6 +1113,10 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         'slug',
         'full_name',
         'email',
+        'extra_supplier_key_str',
+    )
+    json_search_fields = (
+        'extra_tags_str',
     )
     ordering_fields = (
         ('created_at', 'created_at'),
@@ -1119,7 +1125,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
 
     ordering = ('full_name',)
 
-    filter_backends = (SearchFilter, OrderingFilter)
+    filter_backends = (JSONArraySearchFilter, OrderingFilter)
 
     @property
     def period(self):
@@ -1150,6 +1156,11 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
     def get_queryset(self):
         queryset = get_accessible_accounts(
             [self.account], campaign=self.campaign)
+        queryset = queryset.annotate(
+            extra_json=Cast('portfolios__extra', output_field=JSONField()),
+            extra_tags_str=Cast('extra_json__tags', TextField()),
+            extra_supplier_key_str=Cast('extra_json__supplier_key', TextField()),
+        )
         # XXX Add missing suppliers that are invited but no response yet.
         #     This could be done by creating "dummy" survey_portfolio
         #     where survey_portfolio.ends_at = account.created_at
@@ -1459,9 +1470,9 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
                 second = extra_as_internal(account)
                 for second_key, second_value in second.items():
                     if second_key in extra:
-                        if isinstance(extra[second_key], list): # 'tags'
-                            extra[second_key] = sorted(list(
-                                set(second_value) | set(extra[second_key])))
+                        if second_key == 'tags':
+                            extra['portfolio_tags'] = extra[second_key]
+                            extra[second_key] = second_value
                     else:
                         extra[second_key] = second_value
                 account.extra = extra
