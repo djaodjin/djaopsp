@@ -208,10 +208,8 @@
             <form @submit.prevent="reload()">
               <div class="input-group input-group-sm">
                 <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
-                <input class="form-control"
-                       type="text"
-                       placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
-                       v-model="params.q" />
+                <input ref="tagFilter" class="form-control portfolio-search-tagify"
+                       placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}" />
                 <button class="btn btn-primary btn-sm"
                         type="submit"
                         :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
@@ -260,7 +258,7 @@
           <span :class="entry.extra && entry.extra.supplier_key ? '' : 'default-supplier-id'"
                 @click.prevent="toggleEditProfileKey(index)"
                 v-show="showEditProfileKey !== index">[[getProfileKey(entry, index)]]</span>
-          <input type="text" v-model="entry.extra.supplier_key" @blur="saveProfileKey(entry, index)" v-if="showEditProfileKey === index"></input>
+          <input type="text" ref="profileKeyInput" v-model="entry.extra.supplier_key" @blur="saveProfileKey(entry, index)" v-if="showEditProfileKey === index"></input>
         </td>
         <td>
           {% include "app/reporting/_profile_card.html" %}
