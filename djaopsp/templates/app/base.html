@@ -12,8 +12,41 @@
 
 {% block content %}
 <div  id="app" class="backdrop mb-4">
-    {% block app_content %}
-    {% endblock %}
+  {% block app_content %}
+  {% endblock %}
+  <div id="lock-description" class="text-body modal fade"
+       tabindex="-1" role="dialog"
+       aria-labelledby="lock-description" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">{% trans %}Why is this section locked?{% endtrans %}</h4>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close">
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+{% trans %}The Sustainability Project (TSP) is sponsored by companies that are looking to learn about their supplier sustainability practices, and planning to improve beyond organizational boundaries.{% endtrans %}
+          </p>
+          <p>
+{% trans %}These paid features are available to sponsors to engage their suppliers, analyze responses, etc.{% endtrans %}
+          </p>
+          <ul class="list-unstyled">
+            <li><a href="{{'/pricing/'|site_url}}">pricing &raquo;</a></li>
+            <li><a href="{{'/contact/'|site_url}}">contact us &raquo;</a></li>
+            <li><a href="{{'/docs/questionnaires/'|site_url}}">available questionnaires &raquo;</a></li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-primary"
+                  data-bs-dismiss="modal">{% trans %}OK{% endtrans %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
