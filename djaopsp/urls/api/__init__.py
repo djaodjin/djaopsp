@@ -8,7 +8,7 @@ from django.urls import path, include
 
 from ...api.content import PageElementAPIView, PageElementIndexAPIView
 from ...api.campaigns import CampaignContentAPIView, CampaignContentIndexAPIView
-from ...api.newsfeed import NewsfeedAPIView
+from ...api.newsfeed import GetStartedAPIView, NewsfeedAPIView
 from ...api.samples import RespondentsAPIView, PortfolioRequestsSend
 
 urlpatterns = [
@@ -18,6 +18,8 @@ urlpatterns = [
     path('attendance/<slug:profile>/', include('pages.urls.api.sequences')),
     path('progress/', include('pages.urls.api.progress')),
 
+    path('content/<slug:profile>/newsfeed/<slug:campaign>',
+         GetStartedAPIView.as_view(), name='api_getstarted'),
     path('content/<slug:profile>/newsfeed', # profile can be a user
          NewsfeedAPIView.as_view(), name='api_news_feed'),
     path('content/', include('pages.urls.api.readers')),

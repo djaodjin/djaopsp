@@ -287,3 +287,61 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         if search_term != 'requests':
             results += list(self.get_updated_elements())
         return results
+
+
+class GetStartedAPIView(NewsfeedAPIView):
+    """
+    List a card for a campaign
+
+    **Tags: content
+
+    **Example
+
+    .. code-block:: http
+
+        GET /api/content/supplier-1/newsfeed/sustainability HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 1,
+          "next": null,
+          "previous": null,
+          "results": [
+            {
+              "slug": "sustainability",
+              "picture": null,
+              "title": "ESG/Environmental practices",
+              "reading_time": null,
+              "account": "supplier-1",
+              "extra": null,
+              "upvote": null,
+              "follow": null,
+              "last_read_at": null,
+              "nb_comments_since_last_read": null,
+              "descr": "Assess your organization's environmental, social\
+ and governance policies against best practices.",
+              "grantees": [
+                {
+                  "created_at": "2026-01-01T00:00:00+00:00",
+                  "grantee": "energy-utility"
+                }
+              ],
+              "ends_at": "2026-12-31T00:00:00+00:00",
+              "last_completed_at": "2026-01-31T00:17:49.082061Z",
+              "respondents": [
+                "steve"
+              ],
+              "share_url": "https://tspproject.org/app/supplier-1/share/\
+1812dff6ab1544958a6bde472431a1d3/",
+              "update_url": "https://tspproject.org/app/supplier-1/assess/"
+            }
+          ]
+        }
+    """
+
+    def get_queryset(self):
+        results = list(self.get_pending_requests())
+        return results
