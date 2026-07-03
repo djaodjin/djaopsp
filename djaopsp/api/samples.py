@@ -147,7 +147,7 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                 campaign=self.sample.campaign,
                 extra=self.sample.extra).order_by('created_at').first()
             if latest_completed:
-                if (django_settings.FEATURES_DEBUG and
+                if False and (django_settings.FEATURES_DEBUG and
                     self.sample.has_identical_answers(latest_completed)):
                     # XXX This creates confusion for users
                     raise ValidationError({'detail': _("This sample contains"\

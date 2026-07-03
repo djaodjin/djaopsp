@@ -168,7 +168,7 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                 account, at_time=at_time, campaign=campaign_filtered).exclude(
                     models.Q(grantee__slug=account) &
                     models.Q(state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED)
-            ).order_by('campaign__title')
+            ).order_by('campaign__pk')
             for optin in requests:
                 campaign = optin.campaign
                 if campaign:
@@ -196,9 +196,13 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                 account, campaign=campaign_filtered).exclude(
                 campaign__slug__endswith='-verified') # XXX Ad-hoc exclude
                                                # of verification campaigns.
+
             if not show_all:
+                # Show responses for which we have an active request
+                # or we are currently editing.
                 candidates = candidates.filter(
-                    updated_at__gt=models.F('created_at'))
+                    models.Q(campaign__in=by_campaigns) |
+                    models.Q(updated_at__gt=models.F('created_at')))
 
             for sample in candidates:
                 campaign = sample.campaign
