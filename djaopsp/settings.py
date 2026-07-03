@@ -560,6 +560,20 @@ DEPLOYUTILS = {
                 'email': '%s@localhost.localdomain' % APP_NAME
             }
         },
+        'steve5': {
+            'username': 'steve5',  # Profile manager for registered organization
+            'last_visited': '2026-01-01T00:00:00.000Z',
+            'roles': {
+                'manager': [{
+                    'slug': 'supplier-1',
+                    'printable_name': 'Steve Shop'
+                }]},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
         'andy': {
             'username': 'andy',
             'roles': {

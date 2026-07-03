@@ -2522,6 +2522,23 @@
   },
   "model": "pages.RelationShip", "pk": 152
 },
+
+{
+  "fields": {
+    "title": "Energy target",
+    "slug": "energy-target",
+    "text_updated_at": "2026-01-01T00:00:00.000Z",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 159
+},
+{
+  "fields": {
+    "rank": 80, "orig_element": 66, "dest_element": 159
+  },
+  "model": "pages.RelationShip", "pk": 159
+},
+
 {
   "fields": {
     "title": "7.3 When do you expect to achieve your Scope 1 GHG Emissions target? (Please describe the target, or why you do not have a target, in comments)",
@@ -2612,7 +2629,7 @@
 
 {
   "fields": {
-    "title": "Energy & GHG Emissions improvement planning and execution",
+    "title": "Scope 1 GHG Emissions",
     "slug": "ghg-emissions-scope1-target",
     "text_updated_at": "2026-01-01T00:00:00.000Z",
     "account": 2
@@ -2624,6 +2641,21 @@
     "rank": 79, "orig_element": 66, "dest_element": 155
   },
   "model": "pages.RelationShip", "pk": 155
+},
+{
+  "fields": {
+    "title": "Scope 2 GHG Emissions",
+    "slug": "ghg-emissions-scope2-target",
+    "text_updated_at": "2026-01-01T00:00:00.000Z",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 154
+},
+{
+  "fields": {
+    "rank": 80, "orig_element": 66, "dest_element": 154
+  },
+  "model": "pages.RelationShip", "pk": 154
 },
 
 {
