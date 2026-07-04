@@ -231,21 +231,29 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
 
             assessments += by_campaigns.values()
 
-        if not assessments:
-            # THere are no pending requests, we will add candidates
-            # so default questionnaires shows up.
+        if show_all or not assessments:
+            # There are no pending requests or we decided to show all
+            # questionnaires available to a user/profile regardless.
+            # This insures the default questionnaires shows up.
             account = None
+            by_campaigns = OrderedDict()
             if len(self.accounts) == 1:
                 account = next(iter(self.accounts))
-            by_campaigns = OrderedDict()
+            campaign_candidates = []
             if campaign_filtered:
-                campaign_candidates = [campaign_filtered]
+                found = False
+                for assessment in assessments:
+                    if assessment.get('slug') == campaign_filtered.slug:
+                        found = True
+                if not found:
+                    campaign_candidates = [campaign_filtered]
             else:
                 campaign_candidates = get_campaign_candidates(
                     accounts=self.accessible_profiles,
                     tags=(set(['public']) | {plan['slug']
                         for plan in self.get_accessible_plans(self.request)
-                }))
+                })).exclude(slug__in=[assessment.get('slug')
+                    for assessment in assessments])
             for campaign in campaign_candidates:
                 if not campaign in by_campaigns:
                     by_campaigns[campaign] = \
@@ -343,5 +351,5 @@ class GetStartedAPIView(NewsfeedAPIView):
     """
 
     def get_queryset(self):
-        results = list(self.get_pending_requests())
+        results = list(self.get_pending_requests(show_all=True))
         return results
