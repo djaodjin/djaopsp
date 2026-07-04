@@ -71,6 +71,12 @@ class EditablesIndexView(AccountMixin, PageElementEditableView):
         """
         return [self.account_url_kwarg, self.path_url_kwarg]
 
+    def get_context_data(self, **kwargs):
+        context = super(EditablesIndexView, self).get_context_data(**kwargs)
+        update_context_urls(context, {'pages_index': context.get(
+            'urls', {}).get('pages_editables_index')})
+        return context
+
 
 class EditablesDetailView(AccountMixin, PageElementEditableView):
     """
