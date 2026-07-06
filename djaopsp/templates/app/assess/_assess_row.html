@@ -93,7 +93,7 @@
     </div>
     <div class="input-group" v-show="!isNotDisclosedPublicly(practice)">
       <input class="form-control"
-             type="number"
+             type="text" inputmode="numeric" pattern="[0-9]*"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
              :placeholder="getPrimaryCandidate(practice).measured"
              style="direction:rtl;"
@@ -192,7 +192,7 @@
              type="number"
              min="0"
              max="100"
-             v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
+             v-model.number="getPrimaryAnswer(practice, '{{assess_type}}').measured"
              :placeholder="getPrimaryCandidate(practice).measured"
              :disabled="practice.frozen"
              {% if not sample.is_frozen %}
@@ -240,7 +240,7 @@
     </div>
     <div class="input-group mt-1">
       <input class="form-control text-end"
-             type="number"
+             type="text" inputmode="numeric" pattern="[0-9]*"
              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
              :placeholder="getPrimaryCandidate(practice).measured"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
@@ -317,11 +317,10 @@
       <div class="col-md-12">
         <div class="input-group">
           <input class="form-control text-end"
-             type="number"
+             type="text" inputmode="numeric" pattern="[0-9]*"
+             :value="getMeasurement(practice)"
              :placeholder="getMeasurementPlaceholder(practice)"
-             v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
-             @keyup="updateMeasurement(practice)"
-             @mousedown="updateMeasurement(practice)"
+             @input="updateMeasurement(practice, $event)"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
              :disabled="practice.frozen"
              aria-label="Measured for the period"></input>
@@ -396,11 +395,10 @@
       <div class="col-md-12">
         <div class="input-group">
           <input class="form-control text-end"
-             type="number"
+             type="text" inputmode="numeric" pattern="[0-9]*"
+             :value="getMeasurement(practice)"
              :placeholder="getMeasurementPlaceholder(practice)"
-             v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
-             @keyup="updateMeasurement(practice)"
-             @mousedown="updateMeasurement(practice)"
+             @input="updateMeasurement(practice, $event)"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
              :disabled="practice.frozen"
              aria-label="Measured in the period"></input>
@@ -471,11 +469,10 @@
       <div class="col-md-12">
         <div class="input-group">
           <input class="form-control text-end"
-             type="number"
+             type="text" inputmode="numeric" pattern="[0-9]*"
+             :value="getMeasurement(practice)"
              :placeholder="getMeasurementPlaceholder(practice)"
-             v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
-             @keyup="updateMeasurement(practice)"
-             @mousedown="updateMeasurement(practice)"
+             @input="updateMeasurement(practice, $event)"
              @blur="updateAssessmentAnswer(practice, practice.answers, '{{assess_type}}')"
              :disabled="practice.frozen"
              aria-label="Measured in the period"></input>

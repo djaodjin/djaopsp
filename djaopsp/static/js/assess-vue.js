@@ -627,6 +627,11 @@ Vue.component('campaign-questions-list', {
             const primary = vm.getPrimaryCandidate(practice);
             return !isNaN(primary.measured) ? primary.measured : null;
         },
+        getMeasurement: function(practice) {
+            const primary = this.getPrimaryAnswer(practice);
+            if( primary.unit !== 'relevance' ) return primary.measured;
+            return null;
+        },
         updateRelevance: function(practice, event) {
             var vm = this;
             const relevance = event.target.value;
@@ -640,12 +645,14 @@ Vue.component('campaign-questions-list', {
                 vm.updateAssessmentAnswer(practice, primary);
             }
         },
-        updateMeasurement: function(practice) {
+        updateMeasurement: function(practice, event) {
             var vm = this;
+            const value = event.target.value;
             const primary = vm.getPrimaryAnswer(practice);
             if( primary.unit === 'relevance' ) {
                 primary.unit = practice.default_unit.slug;
             }
+            primary.measured = value;
         },
         updateMeasurementUnit: function(practice, event) {
             var vm = this;
