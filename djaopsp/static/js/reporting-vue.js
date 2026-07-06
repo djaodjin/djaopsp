@@ -1696,6 +1696,73 @@ var dashboardChart = Vue.component('dashboardChart', {
 });
 
 
+// generate distinct colors using golden angle.
+function goldenAngleColor(index, offset) {
+    var hue = ((offset || 0) + index * 137) % 360;
+    return 'hsl(' + hue + ', 65%, 50%)';
+}
+
+function getChoiceColor(label, index) {
+    var choiceColors = {
+        'Yes': EUISSCA_COLOR,
+        'No': UTILITY_COLOR,
+        'No response': NO_RESPONSE_COLOR
+    };
+    // offset 200 (blue) to avoid green (~120)
+    // and amber (~40) already in choiceColors.
+    return choiceColors[label] || goldenAngleColor(index, 200);
+}
+
+var baseDatalabelsConfig = {
+    backgroundColor: function(context) {
+        var bg = context.dataset.backgroundColor;
+        return Array.isArray(bg) ? bg[context.dataIndex] : bg;
+    },
+    borderColor: 'white',
+    borderRadius: 25,
+    borderWidth: 2,
+    color: 'white',
+    font: {
+        weight: 'bold',
+    },
+    padding: 6,
+    display: function(context) {
+        var dataset = context.dataset;
+        var value = dataset.data[context.dataIndex];
+        return value > 0;
+    }
+};
+
+function unitFormatter(unit) {
+    return function(value) {
+        var rounded = Math.round(value);
+        if( unit === 'percentage' ) {
+            return rounded + '%';
+        }
+        return rounded < 10 ? ' ' + rounded + ' ' : rounded;
+    };
+}
+
+function unitTooltip(unit) {
+    return {
+        boxPadding: 6,
+        callbacks: {
+            label: function(context) {
+                var isDoughnut = typeof context.parsed === 'number';
+                var label = isDoughnut
+                    ? (context.label || '')
+                    : (context.dataset.label || '');
+                var value = Math.round(context.raw);
+                if( unit === 'percentage' ) {
+                    return label + ': ' + value + '%';
+                }
+                return label + ': ' + value;
+            }
+        }
+    };
+}
+
+
 /** Reporting a question aggregated answers by choice
  */
 Vue.component('reporting-benchmarks', dashboardChart.extend({
@@ -1733,9 +1800,6 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
             }
             var labelset = new Set();
             var datasets = [];
-            var colors = [
-                [UTILITY_COLOR, UTILITY_COLOR_LAST],
-                [EUISSCA_COLOR, EUISSCA_COLOR_LAST]];
             for( var idx = 0; idx < resp.results.length; ++idx ) {
                 const benchmarks = resp.results[idx].benchmarks;
                 // Series might not have exactly the same labels. Thus we need
@@ -1768,10 +1832,11 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                     }
                     datasets.push({
                         label: benchmarks[benchIdx].slug,
-                        backgroundColor: colors[benchIdx],
+                        backgroundColor: labels.map(getChoiceColor),
                         data: data
                     });
                 }
+
                 var chartKey = resp.results[idx].path;
                 var chart = vm.charts[chartKey];
                 if( chart ) {
@@ -1779,16 +1844,21 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                 }
                 var element = vm.$refs.canvas;
                 if( element ) {
+                    var unit = vm.params ? vm.params.unit : null;
                     if( resp.results[idx].default_unit &&
                         resp.results[idx].default_unit.system == "datetime" ) {
                         vm.charts[chartKey] = new Chart(element, {
                             type: 'bar',
+                            plugins: [ChartDataLabels],
                             data: {
                                 labels: labels,
                                 datasets: datasets
                             },
                             options: {
                                 responsive: true,
+                                layout: {
+                                    padding: { top: 30 }
+                                },
                                 plugins: {
                                     legend: {
                                         display: false,
@@ -1797,17 +1867,50 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                                     title: {
                                         display: false
                                     },
+                                    datalabels: Object.assign({}, baseDatalabelsConfig, {
+                                        anchor: 'end',
+                                        align: 'end',
+                                        font: { weight: 'bold', size: 10 },
+                                        padding: 4,
+                                        formatter: unitFormatter(unit)
+                                    }),
+                                    tooltip: unitTooltip(unit)
                                 }
                             },
                         });
                     } else {
                         vm.charts[chartKey] = new Chart(element, {
                             type: 'doughnut',
+                            plugins: [ChartDataLabels],
                             data: {
                                 labels: labels,
                                 datasets: datasets
                             },
-                            options: {}
+                            options: {
+                                layout: {
+                                    // for lots of labels the chart gets cut off
+                                    padding: labels.length <= 3 ? 40 : Math.min(labels.length * 15, 120)
+                                },
+                                plugins:{
+                                    legend: {
+                                        display: false
+                                    },
+                                    datalabels: Object.assign({}, baseDatalabelsConfig, {
+                                        anchor: 'end',
+                                        align: 'end',
+                                        offset: 8,
+                                        formatter: function(value, context) {
+                                            var label = context.chart.data.labels[context.dataIndex];
+                                            var rounded = Math.round(value);
+                                            if( unit === 'percentage' ) {
+                                                return rounded + '% ' + label;
+                                            }
+                                            return rounded + ' ' + label;
+                                        }
+                                    }),
+                                    tooltip: unitTooltip(unit)
+                                }
+                            }
                         });
                     }
                 }
@@ -1848,7 +1951,7 @@ Vue.component('reporting-completion-rate', dashboardChart.extend({
                     data.push(resp.results[idx].values[valIdx][1]);
                 }
                 datasets.push({
-                    label: resp.results[idx].slug,
+                    label: resp.results[idx].title || resp.results[idx].slug,
                     backgroundColor: colors[idx],
                     borderColor: colors[idx],
                     data: data
@@ -1857,15 +1960,26 @@ Vue.component('reporting-completion-rate', dashboardChart.extend({
             if( vm.completionRate ) {
                 vm.completionRate.destroy();
             }
+            var unit = vm.params ? vm.params.unit : null;
             vm.completionRate = new Chart(
                 document.getElementById('completionRate'),
                 {
                     type: 'line',
+                    plugins: [ChartDataLabels],
                     data: {
                         labels: labels,
                         datasets: datasets
                     },
-                    options: {}
+                    options: {
+                        plugins: {
+                            datalabels: Object.assign({}, baseDatalabelsConfig, {
+                                font: { weight: 'bold', size: 8 },
+                                padding: 3,
+                                formatter: unitFormatter(unit)
+                            }),
+                            tooltip: unitTooltip(unit)
+                        }
+                      }
                 }
             );
         },
@@ -1944,10 +2058,12 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
             if( vm.completionRate ) {
                 vm.completionRate.destroy();
             }
+            var unit = vm.params ? vm.params.unit : null;
             vm.completionRate = new Chart(
                 document.getElementById('summaryChart'),
                 {
                     type: 'doughnut',
+                    plugins: [ChartDataLabels],
                     borderWidth: 0,
                     data: {
                         labels: labels,
@@ -1959,13 +2075,12 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
                         plugins: {
                             legend: {
                                 display: true,
-                                position: 'right',
-                                labels: {
-                                    boxWidth: 20,
-                                    padding: 2,
-                                    fontSize: 8,
-                                }
-                            }
+                                position: 'bottom'
+                            },
+                            datalabels: Object.assign({}, baseDatalabelsConfig, {
+                                formatter: unitFormatter(unit)
+                            }),
+                            tooltip: unitTooltip(unit)
                         }
                     }
                 }
@@ -2031,10 +2146,12 @@ Vue.component('reporting-goals', dashboardChart.extend({
             if( vm.goals ) {
                 vm.goals.destroy();
             }
+            var unit = vm.params ? vm.params.unit : null;
             vm.goals = new Chart(
                 document.getElementById('goals'),
                 {
                     type: 'bar',
+                    plugins: [ChartDataLabels],
                     data: {
                         labels: labels,
                         datasets: datasets
@@ -2048,7 +2165,11 @@ Vue.component('reporting-goals', dashboardChart.extend({
                             title: {
                                 display: false,
                                 text: 'Planned improvements & targets'
-                            }
+                            },
+                            datalabels: Object.assign({}, baseDatalabelsConfig, {
+                                formatter: unitFormatter(unit)
+                            }),
+                            tooltip: unitTooltip(unit)
                         }
                     },
                 }
@@ -2095,10 +2216,12 @@ Vue.component('reporting-by-segments', dashboardChart.extend({
             if( vm.bySegements ) {
                 vm.bySegements.destroy();
             }
+            var unit = vm.params ? vm.params.unit : null;
             vm.bySegements = new Chart(
                 document.getElementById('bySegements'),
                 {
                     type: 'bar',
+                    plugins: [ChartDataLabels],
                     data: {
                         labels: labels,
                         datasets: datasets
@@ -2121,7 +2244,11 @@ Vue.component('reporting-by-segments', dashboardChart.extend({
                             title: {
                                 display: false,
                                 text: 'By Segments'
-                            }
+                            },
+                            datalabels: Object.assign({}, baseDatalabelsConfig, {
+                                formatter: unitFormatter(unit)
+                            }),
+                            tooltip: unitTooltip(unit)
                         }
                     },
                 }
