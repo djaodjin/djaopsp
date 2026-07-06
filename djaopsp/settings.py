@@ -37,6 +37,7 @@ DB_HOST = ''
 DB_PORT = 5432
 DB_USER = None
 DB_PASSWORD = None
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 
 DEFAULT_FORCE_FREEZE = False
 
@@ -417,6 +418,15 @@ DATABASES = {
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STORAGES = {
+    'default': {
+        'BACKEND': DEFAULT_FILE_STORAGE,
+    },
+    'staticfiles': {
+        'BACKEND': "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 
 # API settings
