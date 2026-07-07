@@ -1702,15 +1702,21 @@ function goldenAngleColor(index, offset) {
     return 'hsl(' + hue + ', 65%, 50%)';
 }
 
-function getChoiceColor(label, index) {
-    var choiceColors = {
-        'Yes': EUISSCA_COLOR,
-        'No': UTILITY_COLOR,
-        'No response': NO_RESPONSE_COLOR
-    };
+function getChartColor(rank, unitSystem) {
+    var colors = [EUISSCA_COLOR, UTILITY_COLOR];
+    if( !(rank >= 0) ) {
+        return NO_RESPONSE_COLOR;
+    }
+    if( unitSystem === 'datetime' ) {
+        return goldenAngleColor(rank);
+    }
+    var idx = rank - 1;
+    if( idx < colors.length ) {
+        return colors[idx];
+    }
     // offset 200 (blue) to avoid green (~120)
-    // and amber (~40) already in choiceColors.
-    return choiceColors[label] || goldenAngleColor(index, 200);
+    // and amber (~40) already in colors.
+    return goldenAngleColor(idx, 200);
 }
 
 var baseDatalabelsConfig = {
@@ -1819,20 +1825,25 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                     var dict = {};
                     const rates = vm.getRates(benchmarks[benchIdx]);
                     for( var valIdx = 0; valIdx < rates.length; ++valIdx ) {
-                        dict[rates[valIdx][0]] = rates[valIdx][1];
+                        dict[rates[valIdx][0]] = {
+                            count: rates[valIdx][1],
+                            rank: rates[valIdx][2]
+                        };
                     }
                     var data = [];
+                    var ranks = [];
                     for( var lblIdx = 0; lblIdx < labels.length; ++lblIdx ) {
-                        const val = dict[labels[lblIdx]];
-                        if( val ) {
-                            data.push(val);
-                        } else {
-                            data.push(0);
-                        }
+                        var entry = dict[labels[lblIdx]];
+                        data.push(entry ? entry.count : 0);
+                        ranks.push(entry ? entry.rank : undefined);
                     }
+                    var unitSystem = resp.results[idx].default_unit
+                        ? resp.results[idx].default_unit.system : null;
                     datasets.push({
                         label: benchmarks[benchIdx].slug,
-                        backgroundColor: labels.map(getChoiceColor),
+                        backgroundColor: ranks.map(function(rank) {
+                            return getChartColor(rank, unitSystem);
+                        }),
                         data: data
                     });
                 }
@@ -1901,6 +1912,9 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                                         offset: 8,
                                         formatter: function(value, context) {
                                             var label = context.chart.data.labels[context.dataIndex];
+                                            if( label.length > 12 ) {
+                                                label = label.substring(0, 10) + '...';
+                                            }
                                             var rounded = Math.round(value);
                                             if( unit === 'percentage' ) {
                                                 return rounded + '% ' + label;
