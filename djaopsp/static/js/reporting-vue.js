@@ -1702,21 +1702,20 @@ function goldenAngleColor(index, offset) {
     return 'hsl(' + hue + ', 65%, 50%)';
 }
 
-function getChartColor(rank, unitSystem) {
+function getChartColor(index, unitSystem) {
     var colors = [EUISSCA_COLOR, UTILITY_COLOR];
-    if( !(rank >= 0) ) {
+    if( index < 0 ) {
         return NO_RESPONSE_COLOR;
     }
     if( unitSystem === 'datetime' ) {
-        return goldenAngleColor(rank);
+        return goldenAngleColor(index);
     }
-    var idx = rank - 1;
-    if( idx < colors.length ) {
-        return colors[idx];
+    if( index < colors.length ) {
+        return colors[index];
     }
     // offset 200 (blue) to avoid green (~120)
     // and amber (~40) already in colors.
-    return goldenAngleColor(idx, 200);
+    return goldenAngleColor(index, 200);
 }
 
 var baseDatalabelsConfig = {
@@ -1745,7 +1744,7 @@ function unitFormatter(unit) {
         if( unit === 'percentage' ) {
             return rounded + '%';
         }
-        return rounded < 10 ? ' ' + rounded + ' ' : rounded;
+        return rounded;
     };
 }
 
@@ -1778,6 +1777,16 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
         }
     },
     methods: {
+        getUnit: function(defaultUnit) {
+            var vm = this;
+            if( vm.item.units && defaultUnit.slug ) {
+                var unit = vm.item.units[defaultUnit.slug];
+                if( typeof unit !== 'undefined' ) {
+                    return vm.item.units[defaultUnit.slug];
+                }
+            }
+            return defaultUnit;
+        },
         _isArray: function(obj) {
             return obj instanceof Object && obj.constructor === Array;
         },
@@ -1818,32 +1827,42 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                     }
                 }
                 const labels = Array.from(labelset).sort();
-                // Make sure we have a value for each label before
-                // adding serie.
+                var unit = vm.getUnit(resp.results[idx].default_unit);
+                var unitSystem = unit ? unit.system : null;
+                var indexByLabel = {};
+                // ordered by rank on the backend, so safe to rely on index
+                if( unit && unit.choices ) {
+                    for( var ci = 0; ci < unit.choices.length; ++ci ) {
+                        indexByLabel[unit.choices[ci].text] = ci;
+                    }
+                }
                 for( var benchIdx = 0;
                      benchIdx < benchmarks.length; ++benchIdx ) {
                     var dict = {};
                     const rates = vm.getRates(benchmarks[benchIdx]);
                     for( var valIdx = 0; valIdx < rates.length; ++valIdx ) {
-                        dict[rates[valIdx][0]] = {
-                            count: rates[valIdx][1],
-                            rank: rates[valIdx][2]
-                        };
+                        dict[rates[valIdx][0]] = rates[valIdx][1];
                     }
                     var data = [];
-                    var ranks = [];
+                    var bgColors = [];
                     for( var lblIdx = 0; lblIdx < labels.length; ++lblIdx ) {
-                        var entry = dict[labels[lblIdx]];
-                        data.push(entry ? entry.count : 0);
-                        ranks.push(entry ? entry.rank : undefined);
+                        const val = dict[labels[lblIdx]];
+                        if( val ) {
+                            data.push(val);
+                        } else {
+                            data.push(0);
+                        }
+                        var colorIdx = indexByLabel[labels[lblIdx]];
+                        if( colorIdx === undefined ) {
+                            // datetime units fallback to lblIdx
+                            colorIdx = labels[lblIdx] !== 'No response'
+                                ? lblIdx : -1;
+                        }
+                        bgColors.push(getChartColor(colorIdx, unitSystem));
                     }
-                    var unitSystem = resp.results[idx].default_unit
-                        ? resp.results[idx].default_unit.system : null;
                     datasets.push({
                         label: benchmarks[benchIdx].slug,
-                        backgroundColor: ranks.map(function(rank) {
-                            return getChartColor(rank, unitSystem);
-                        }),
+                        backgroundColor: bgColors,
                         data: data
                     });
                 }

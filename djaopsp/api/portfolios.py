@@ -18,7 +18,8 @@ from pages.docs import extend_schema
 from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
-from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
+from survey.api.serializers import (MetricsSerializer,
+    SampleBenchmarksSerializer, UnitDetailSerializer)
 from survey.filters import (DateRangeFilter, OrderingFilter, SearchFilter,
     JSONArraySearchFilter)
 from survey.helpers import (construct_monthly_periods,
@@ -210,6 +211,17 @@ class BenchmarkMixin(TimersMixin, AccountsDateRangeMixin,
                 alliance.printable_name, alliance.slug)
             self._report_queries(
                 "BenchmarkMixin._attach_results(account=%s)" % str(alliance))
+
+        units = {}
+        for question in questions_by_key.values():
+            default_unit = question.get('default_unit')
+            if default_unit and default_unit.slug not in units:
+                units[default_unit.slug] = default_unit
+        unit_serializer = UnitDetailSerializer()
+        self.units = {
+            slug: unit_serializer.to_representation(unit)
+            for slug, unit in units.items()
+        }
 
         return questions_by_key
 
