@@ -37,6 +37,7 @@ DB_HOST = ''
 DB_PORT = 5432
 DB_USER = None
 DB_PASSWORD = None
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 
 DEFAULT_FORCE_FREEZE = False
 
@@ -418,6 +419,15 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+STORAGES = {
+    'default': {
+        'BACKEND': DEFAULT_FILE_STORAGE,
+    },
+    'staticfiles': {
+        'BACKEND': "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 
 # API settings
 # ------------
@@ -548,6 +558,20 @@ DEPLOYUTILS = {
         },
         'steve': {
             'username': 'steve',   # Profile manager for registered organization
+            'last_visited': '2026-01-01T00:00:00.000Z',
+            'roles': {
+                'manager': [{
+                    'slug': 'supplier-1',
+                    'printable_name': 'Steve Shop'
+                }]},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
+        'steve5': {
+            'username': 'steve5',  # Profile manager for registered organization
             'last_visited': '2026-01-01T00:00:00.000Z',
             'roles': {
                 'manager': [{

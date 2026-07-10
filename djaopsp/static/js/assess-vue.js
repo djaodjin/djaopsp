@@ -186,54 +186,6 @@ Vue.component('campaign-questions-list', {
             return dateTime.format('MMMM Do YYYY') + " (" + relative + ")";
         },
 
-        getChoices: function(row, icon) {
-            var vm = this;
-            if( !row.choices_headers ) {
-                var defaultUnit = null;
-                if( vm.isPractice(row) ) { // i.e. `row.default_unit`
-                    // We are dealing with a practice.
-                    defaultUnit = row.default_unit;
-                    if( defaultUnit && !defaultUnit.choices ) {
-                        const defaultUnitSlug = (
-                            defaultUnit.slug || defaultUnit);
-                        if( vm.items.units &&
-                            vm.items.units[defaultUnitSlug] ) {
-                            defaultUnit = vm.items.units[defaultUnitSlug];
-                        }
-                    }
-                } else {
-                    // We are dealing with a header.
-                    const entries = vm.getEntries(row.slug);
-                    for( var idx = 0; idx < entries.length; ++idx ) {
-                        if( entries[idx].default_unit ) {
-                            if( !defaultUnit ) {
-                                defaultUnit = entries[idx].default_unit;
-                            } else if( defaultUnit.slug !==
-                                       entries[idx].default_unit.slug ) {
-                                defaultUnit = null;
-                                break;
-                            }
-                        }
-                    }
-                    if( defaultUnit ) {
-                        // When dealing with an icon we take
-                        // the generic unit choices instead of the row ones
-                        // to avoid missing `descr` in the first row.
-                        const defaultUnitSlug = (
-                            defaultUnit.slug || defaultUnit);
-                        if( vm.items.units &&
-                            vm.items.units[defaultUnitSlug] ) {
-                            defaultUnit = vm.items.units[defaultUnitSlug];
-                        }
-                    }
-                }
-                row.choices_headers = [];
-                if( defaultUnit && defaultUnit.choices ) {
-                    row.choices_headers = defaultUnit.choices;
-                }
-            }
-            return row.choices_headers;
-        },
         getNbInputCols: function(practice) {
             var vm = this;
             if( (practice.choices_headers &&
@@ -675,6 +627,11 @@ Vue.component('campaign-questions-list', {
             const primary = vm.getPrimaryCandidate(practice);
             return !isNaN(primary.measured) ? primary.measured : null;
         },
+        getMeasurement: function(practice) {
+            const primary = this.getPrimaryAnswer(practice);
+            if( primary.unit !== 'relevance' ) return primary.measured;
+            return null;
+        },
         updateRelevance: function(practice, event) {
             var vm = this;
             const relevance = event.target.value;
@@ -688,12 +645,14 @@ Vue.component('campaign-questions-list', {
                 vm.updateAssessmentAnswer(practice, primary);
             }
         },
-        updateMeasurement: function(practice) {
+        updateMeasurement: function(practice, event) {
             var vm = this;
+            const value = event.target.value;
             const primary = vm.getPrimaryAnswer(practice);
             if( primary.unit === 'relevance' ) {
                 primary.unit = practice.default_unit.slug;
             }
+            primary.measured = value;
         },
         updateMeasurementUnit: function(practice, event) {
             var vm = this;

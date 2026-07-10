@@ -404,7 +404,7 @@
                         <div v-for="benchmark in practice.benchmarks">
                           {# equals to 2 (Yes/No) #}
                           <div class="progress"
-                               v-if="getRates(benchmark).length == 2">
+                               v-if="getChoices(practice).length == 2">
                             <div class="progress-bar progress-bar-success green-level-2"
                                  role="progressbar"
                                  :aria-valuenow="getRate(benchmark, benchmark.values[1][0])"
@@ -418,7 +418,7 @@
                           {# more than 2 #}
                           <div class="progress mt-1"
                                v-for="value in getRates(benchmark)"
-                               v-if="getRates(benchmark).length > 2">
+                               v-if="getChoices(practice).length > 2">
                             <div class="progress-bar progress-bar-success green-level-2"
                                  role="progressbar"
                                  :aria-valuenow="getRate(benchmark, value[0])"

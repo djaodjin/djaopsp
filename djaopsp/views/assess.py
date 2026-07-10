@@ -189,6 +189,11 @@ class AssessRedirectView(AccountMixin, FormMixin, TemplateView):
             'api_newsfeed': reverse('api_news_feed', args=(
                 self.account,)) + '?q=requests',
         })
+        campaign = kwargs.get(self.campaign_url_kwarg)
+        if campaign:
+            update_context_urls(context, {
+                'api_newsfeed': reverse('api_getstarted', args=(
+                self.account, campaign))})
         return context
 
 

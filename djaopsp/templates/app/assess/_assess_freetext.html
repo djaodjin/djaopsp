@@ -35,10 +35,12 @@
                 <i class="fa-solid fa-link"></i>
             </span>
             <select class="form-control form-select input-group-suffix"
+                   @change="modalShowUpload"
                    aria-label="{% trans %}Uploaded documents{% endtrans %}"
                    :disabled="disabled">
-               <option @click="modalShowUpload('#' + callbackArg.slug + '-upload')">{% trans %}Upload supporting document...{% endtrans %}</option>
-               <option @click="selectUpload(upload)" v-for="upload in uploads.results">
+               <option value="" selected disabled>{% trans %}Insert link to document...{% endtrans %}</option>
+               <option :value="'#' + callbackArg.slug + '-upload'">{% trans %}Upload supporting document...{% endtrans %}</option>
+               <option :value="JSON.stringify(upload)" v-for="upload in uploads.results">
                    [[(upload.tags && upload.tags.length) ? upload.tags.join() : upload.location]]
                </option>
             </select>

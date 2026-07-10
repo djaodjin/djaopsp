@@ -168,7 +168,7 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                 account, at_time=at_time, campaign=campaign_filtered).exclude(
                     models.Q(grantee__slug=account) &
                     models.Q(state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED)
-            ).order_by('campaign__title')
+            ).order_by('campaign__pk')
             for optin in requests:
                 campaign = optin.campaign
                 if campaign:
@@ -196,9 +196,13 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                 account, campaign=campaign_filtered).exclude(
                 campaign__slug__endswith='-verified') # XXX Ad-hoc exclude
                                                # of verification campaigns.
+
             if not show_all:
+                # Show responses for which we have an active request
+                # or we are currently editing.
                 candidates = candidates.filter(
-                    updated_at__gt=models.F('created_at'))
+                    models.Q(campaign__in=by_campaigns) |
+                    models.Q(updated_at__gt=models.F('created_at')))
 
             for sample in candidates:
                 campaign = sample.campaign
@@ -227,21 +231,29 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
 
             assessments += by_campaigns.values()
 
-        if not assessments:
-            # THere are no pending requests, we will add candidates
-            # so default questionnaires shows up.
+        if show_all or not assessments:
+            # There are no pending requests or we decided to show all
+            # questionnaires available to a user/profile regardless.
+            # This insures the default questionnaires shows up.
             account = None
+            by_campaigns = OrderedDict()
             if len(self.accounts) == 1:
                 account = next(iter(self.accounts))
-            by_campaigns = OrderedDict()
+            campaign_candidates = []
             if campaign_filtered:
-                campaign_candidates = [campaign_filtered]
+                found = False
+                for assessment in assessments:
+                    if assessment.get('slug') == campaign_filtered.slug:
+                        found = True
+                if not found:
+                    campaign_candidates = [campaign_filtered]
             else:
                 campaign_candidates = get_campaign_candidates(
                     accounts=self.accessible_profiles,
                     tags=(set(['public']) | {plan['slug']
                         for plan in self.get_accessible_plans(self.request)
-                }))
+                })).exclude(slug__in=[assessment.get('slug')
+                    for assessment in assessments])
             for campaign in campaign_candidates:
                 if not campaign in by_campaigns:
                     by_campaigns[campaign] = \
@@ -282,4 +294,62 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         results = list(self.get_pending_requests(show_all=show_all))
         if search_term != 'requests':
             results += list(self.get_updated_elements())
+        return results
+
+
+class GetStartedAPIView(NewsfeedAPIView):
+    """
+    List a card for a campaign
+
+    **Tags: content
+
+    **Example
+
+    .. code-block:: http
+
+        GET /api/content/supplier-1/newsfeed/sustainability HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 1,
+          "next": null,
+          "previous": null,
+          "results": [
+            {
+              "slug": "sustainability",
+              "picture": null,
+              "title": "ESG/Environmental practices",
+              "reading_time": null,
+              "account": "supplier-1",
+              "extra": null,
+              "upvote": null,
+              "follow": null,
+              "last_read_at": null,
+              "nb_comments_since_last_read": null,
+              "descr": "Assess your organization's environmental, social\
+ and governance policies against best practices.",
+              "grantees": [
+                {
+                  "created_at": "2026-01-01T00:00:00+00:00",
+                  "grantee": "energy-utility"
+                }
+              ],
+              "ends_at": "2026-12-31T00:00:00+00:00",
+              "last_completed_at": "2026-01-31T00:17:49.082061Z",
+              "respondents": [
+                "steve"
+              ],
+              "share_url": "https://tspproject.org/app/supplier-1/share/\
+1812dff6ab1544958a6bde472431a1d3/",
+              "update_url": "https://tspproject.org/app/supplier-1/assess/"
+            }
+          ]
+        }
+    """
+
+    def get_queryset(self):
+        results = list(self.get_pending_requests(show_all=True))
         return results

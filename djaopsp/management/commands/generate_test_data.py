@@ -15,7 +15,7 @@ from django.template.defaultfilters import slugify
 from faker import Faker
 from survey.api.sample import update_or_create_answer
 from survey.helpers import datetime_or_now
-from survey.models import Campaign, Choice, Sample, Unit
+from survey.models import Campaign, Choice, Portfolio, Sample, Unit
 from survey.utils import get_account_model, get_question_model
 
 from ...scores import (freeze_scores, get_score_calculator,
@@ -38,7 +38,10 @@ class Command(BaseCommand):
             help='number of profiles to generate')
         parser.add_argument('--campaign', action='store',
             dest='campaign', default='sustainability',
-            help='name of of the campaign')
+            help='name of the campaign')
+        parser.add_argument('--grantee', action='store',
+            dest='grantee', default='energy-utility',
+            help='name of profile tracking suppliers')
 
     def handle(self, *args, **options):
         #pylint:disable=too-many-locals,too-many-statements
@@ -46,11 +49,13 @@ class Command(BaseCommand):
 
         campaign = options['campaign']
         verification_campaign = "%s-verified" % campaign
+        grantee = options['grantee']
         fake = Faker()
         profiles = self.generate_profiles(
             nb_profiles=options['nb_profiles'], fake=fake)
         self.generate_frozen_samples(profiles, campaign, verification_campaign,
             fake=fake)
+        self.generate_portfolios(profiles, campaign, grantee)
 
         end_time = datetime.datetime.utcnow()
         delta = relativedelta(end_time, start_time)
@@ -127,3 +132,17 @@ class Command(BaseCommand):
                     VerifiedSample.STATUS_RIGOROUS),
                 verified_by=random.choice(self.user_model.objects.filter(
                     username__in=['donny', 'alice'])))
+
+
+    def generate_portfolios(self, profiles, campaign, grantee):
+        #pylint:disable=too-many-locals
+        ends_at = datetime_or_now()
+        if not isinstance(campaign, Campaign):
+            campaign = Campaign.objects.get(slug=str(campaign))
+        if not isinstance(grantee, self.account_model):
+            grantee = self.account_model.objects.get(slug=str(grantee))
+        for profile in profiles:
+            is_tracked = bool(random.getrandbits(1))
+            if is_tracked:
+                Portfolio.objects.create(grantee=grantee, account=profile,
+                    campaign=campaign, ends_at=ends_at)

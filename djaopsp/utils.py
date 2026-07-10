@@ -291,14 +291,17 @@ def get_latest_active_assessments(account, campaign=None):
             kwargs.update({'campaign': campaign})
         else:
             kwargs.update({'campaign__slug': campaign})
+    else:
+        kwargs.update({'answers__isnull': False})
     if isinstance(account, get_account_model()):
         kwargs.update({'account': account})
     else:
         kwargs.update({'account__slug': str(account)})
-    return Sample.objects.filter(
+    queryset = Sample.objects.filter(
         is_frozen=False, extra__isnull=True,
         **kwargs).order_by('-created_at').select_related(
-            'campaign', 'account')
+            'campaign', 'account').distinct()
+    return queryset
 
 
 def get_latest_completed_assessment(account, campaign=None):
