@@ -190,6 +190,146 @@ var portfolioTagsMixin = {
     }
 };
 
+var DoughnutLinesPlugin = {
+    id: 'doughnutLines',
+    afterDraw: function(chart) {
+        if( chart.config.type !== 'doughnut' ) return;
+        var ctx = chart.ctx;
+        chart.data.datasets.forEach(function(dataset, di) {
+            var meta = chart.getDatasetMeta(di);
+            meta.data.forEach(function(arc, i) {
+                if( dataset.data[i] <= 0 ) return;
+                var midAngle = (arc.startAngle + arc.endAngle) / 2;
+                var dlOpts = chart.options.plugins.datalabels;
+                var labelOffset = dlOpts.offset || 0;
+                var labelBorder = dlOpts.borderWidth || 0;
+                var labelPadding = dlOpts.padding || 0;
+                var bw = arc.options.borderWidth || 0;
+                var startR = arc.outerRadius - Math.floor(bw / 2);
+                var endR = arc.outerRadius + labelOffset + labelBorder + labelPadding;
+                ctx.beginPath();
+                ctx.moveTo(
+                    arc.x + Math.cos(midAngle) * startR,
+                    arc.y + Math.sin(midAngle) * startR
+                );
+                ctx.lineTo(
+                    arc.x + Math.cos(midAngle) * endR,
+                    arc.y + Math.sin(midAngle) * endR
+                );
+                var bg = dataset.backgroundColor;
+                ctx.strokeStyle = Array.isArray(bg) ? bg[i] : bg;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+        });
+    }
+};
+
+// generate distinct colors using golden angle.
+function goldenAngleColor(index, offset) {
+    var hue = ((offset || 0) + index * 137) % 360;
+    return 'hsl(' + hue + ', 65%, 50%)';
+}
+
+function getChartColor(index, unitSystem) {
+    var colors = [EUISSCA_COLOR, UTILITY_COLOR];
+    if( index < 0 ) {
+        return NO_RESPONSE_COLOR;
+    }
+    if( unitSystem === 'datetime' ) {
+        return goldenAngleColor(index);
+    }
+    if( index < colors.length ) {
+        return colors[index];
+    }
+    // offset 200 (blue) to avoid green (~120)
+    // and amber (~40) already in colors.
+    return goldenAngleColor(index, 200);
+}
+
+var baseDatalabelsConfig = {
+    backgroundColor: function(context) {
+        var bg = context.dataset.backgroundColor;
+        return Array.isArray(bg) ? bg[context.dataIndex] : bg;
+    },
+    borderColor: 'white',
+    borderRadius: 25,
+    borderWidth: 2,
+    color: 'white',
+    font: {
+        weight: 'bold',
+    },
+    padding: 6,
+    display: function(context) {
+        var dataset = context.dataset;
+        var value = dataset.data[context.dataIndex];
+        return value > 0;
+    }
+};
+
+function unitFormatter(unit) {
+    return function(value) {
+        var rounded = Math.round(value);
+        if( unit === 'percentage' ) {
+            return rounded + '%';
+        }
+        return rounded < 10 ? ' ' + rounded + ' ' : rounded;
+    };
+}
+
+function unitTooltip(unit) {
+    return {
+        boxPadding: 6,
+        callbacks: {
+            label: function(context) {
+                var isDoughnut = typeof context.parsed === 'number';
+                var label = isDoughnut
+                    ? (context.label || '')
+                    : (context.dataset.label || '');
+                var value = Math.round(context.raw);
+                if( unit === 'percentage' ) {
+                    return label + ': ' + value + '%';
+                }
+                return label + ': ' + value;
+            }
+        }
+    };
+}
+
+function doughnutLabelFormatter(unit) {
+    return function(value, context) {
+        var label = context.chart.data.labels[context.dataIndex];
+        if( label.length > 12 ) {
+            label = label.substring(0, 10) + '...';
+        }
+        var rounded = Math.round(value);
+        if( unit === 'percentage' ) {
+            return rounded + '% ' + label;
+        }
+        return rounded + ' ' + label;
+    };
+}
+
+function buildChartColors(labels, unit) {
+    var unitSystem = unit ? unit.system : null;
+    var indexByLabel = {};
+    // ordered by rank on the backend, so it's safe to rely on index
+    if( unit && unit.choices ) {
+        for( var ci = 0; ci < unit.choices.length; ++ci ) {
+            indexByLabel[unit.choices[ci].text] = ci;
+        }
+    }
+    var bgColors = [];
+    for( var li = 0; li < labels.length; ++li ) {
+        var colorIdx = indexByLabel[labels[li]];
+        if( colorIdx === undefined ) {
+            colorIdx = labels[li] !== 'No response' ? li : -1;
+        }
+        bgColors.push(getChartColor(colorIdx, unitSystem));
+    }
+    return bgColors;
+}
+
 /** Component to list, add and remove profiles that are currently invited
     to a campaign.
  */
@@ -923,7 +1063,6 @@ Vue.component('djaopsp-compare-samples', {
                 var labels = [];      // labels on x-axis
                 var choices = [];     // choices shown in each stack
                 var datasets = [];
-                var colors = ['#ff5555', '#9CD76B', '#69B02B'];
                 for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
                     const dataset = vm.datasets[datIdx];
                     const benchmarks = vm.getBenchmarks(dataset, practice);
@@ -967,6 +1106,9 @@ Vue.component('djaopsp-compare-samples', {
                 }
 
                 // Build chart's datasets
+                var unit = vm.getUnit(
+                    vm.displayMetric.default_unit || {});
+                var choiceColors = buildChartColors(choices, unit);
                 for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
                     const dataset = vm.datasets[datIdx];
                     const benchmarks = vm.getBenchmarks(dataset, practice);
@@ -1014,7 +1156,7 @@ Vue.component('djaopsp-compare-samples', {
                                 console.assert(data.length === labels.length)
                                 datasets.push({
                                     label: choices[choiceIdx], // choice
-                                    backgroundColor: colors[choiceIdx],
+                                    backgroundColor: choiceColors[choiceIdx],
                                     data: data,  // by account + by choice
                                     stack: benchmarks[benchIdx].slug // account title
                                 });
@@ -1037,9 +1179,10 @@ Vue.component('djaopsp-compare-samples', {
                                 }
                             }
                             console.assert(data.length === labels.length)
+                            var bgColors = buildChartColors(labels, unit);
                             datasets.push({
                                 label: benchmarks[benchIdx].title, // label
-                                backgroundColor: colors,
+                                backgroundColor: bgColors,
                                 data: data,  // by account + by label
                             });
                         }  // if( choices.length )
@@ -1053,8 +1196,10 @@ Vue.component('djaopsp-compare-samples', {
                 if( chartElem ) {
                   if( choices.length ) {
                     labels = vm.humanizePeriods(labels);
+                    var unit = vm.displayMetric.unit;
                     vm.compareChart = new Chart(chartElem, {
                             type: 'bar',
+                            plugins: [ChartDataLabels],
                             borderWidth: 0,
                             data: {
                                 labels: labels,
@@ -1064,16 +1209,23 @@ Vue.component('djaopsp-compare-samples', {
                                 borderWidth: 1,
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                layout: {
+                                    padding: { top: 30 }
+                                },
                                 plugins: {
                                     legend: {
                                         display: true,
-                                        position: 'right',
-                                        labels: {
-                                            boxWidth: 20,
-                                            padding: 2,
-                                            fontSize: 8,
-                                        }
-                                    }
+                                        position: 'bottom'
+                                    },
+                                    datalabels: Object.assign({}, baseDatalabelsConfig, {
+                                        display: 'auto',
+                                        anchor: 'end',
+                                        align: 'end',
+                                        font: { weight: 'bold', size: 10 },
+                                        padding: 4,
+                                        formatter: unitFormatter(unit)
+                                    }),
+                                    tooltip: unitTooltip(unit)
                                 },
                                 scales: {
                                     x: {
@@ -1087,8 +1239,10 @@ Vue.component('djaopsp-compare-samples', {
                         }
                     );
                   } else {
+                    var unit = vm.displayMetric.unit;
                     vm.compareChart = new Chart(chartElem, {
                             type: 'doughnut',
+                            plugins: [ChartDataLabels, DoughnutLinesPlugin],
                             borderWidth: 0,
                             data: {
                                 labels: labels,
@@ -1098,16 +1252,20 @@ Vue.component('djaopsp-compare-samples', {
                                 borderWidth: 1,
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                layout: {
+                                    padding: labels.length <= 3 ? 40 : Math.min(labels.length * 15, 120)
+                                },
                                 plugins: {
                                     legend: {
-                                        display: true,
-                                        position: 'right',
-                                        labels: {
-                                            boxWidth: 20,
-                                            padding: 2,
-                                            fontSize: 8,
-                                        }
-                                    }
+                                        display: false
+                                    },
+                                    datalabels: Object.assign({}, baseDatalabelsConfig, {
+                                        anchor: 'end',
+                                        align: 'end',
+                                        offset: 8,
+                                        formatter: doughnutLabelFormatter(unit)
+                                    }),
+                                    tooltip: unitTooltip(unit)
                                 }
                             }
                         }
@@ -1696,78 +1854,6 @@ var dashboardChart = Vue.component('dashboardChart', {
 });
 
 
-// generate distinct colors using golden angle.
-function goldenAngleColor(index, offset) {
-    var hue = ((offset || 0) + index * 137) % 360;
-    return 'hsl(' + hue + ', 65%, 50%)';
-}
-
-function getChartColor(index, unitSystem) {
-    var colors = [EUISSCA_COLOR, UTILITY_COLOR];
-    if( index < 0 ) {
-        return NO_RESPONSE_COLOR;
-    }
-    if( unitSystem === 'datetime' ) {
-        return goldenAngleColor(index);
-    }
-    if( index < colors.length ) {
-        return colors[index];
-    }
-    // offset 200 (blue) to avoid green (~120)
-    // and amber (~40) already in colors.
-    return goldenAngleColor(index, 200);
-}
-
-var baseDatalabelsConfig = {
-    backgroundColor: function(context) {
-        var bg = context.dataset.backgroundColor;
-        return Array.isArray(bg) ? bg[context.dataIndex] : bg;
-    },
-    borderColor: 'white',
-    borderRadius: 25,
-    borderWidth: 2,
-    color: 'white',
-    font: {
-        weight: 'bold',
-    },
-    padding: 6,
-    display: function(context) {
-        var dataset = context.dataset;
-        var value = dataset.data[context.dataIndex];
-        return value > 0;
-    }
-};
-
-function unitFormatter(unit) {
-    return function(value) {
-        var rounded = Math.round(value);
-        if( unit === 'percentage' ) {
-            return rounded + '%';
-        }
-        return rounded;
-    };
-}
-
-function unitTooltip(unit) {
-    return {
-        boxPadding: 6,
-        callbacks: {
-            label: function(context) {
-                var isDoughnut = typeof context.parsed === 'number';
-                var label = isDoughnut
-                    ? (context.label || '')
-                    : (context.dataset.label || '');
-                var value = Math.round(context.raw);
-                if( unit === 'percentage' ) {
-                    return label + ': ' + value + '%';
-                }
-                return label + ': ' + value;
-            }
-        }
-    };
-}
-
-
 /** Reporting a question aggregated answers by choice
  */
 Vue.component('reporting-benchmarks', dashboardChart.extend({
@@ -1828,14 +1914,7 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                 }
                 const labels = Array.from(labelset).sort();
                 var unit = vm.getUnit(resp.results[idx].default_unit);
-                var unitSystem = unit ? unit.system : null;
-                var indexByLabel = {};
-                // ordered by rank on the backend, so safe to rely on index
-                if( unit && unit.choices ) {
-                    for( var ci = 0; ci < unit.choices.length; ++ci ) {
-                        indexByLabel[unit.choices[ci].text] = ci;
-                    }
-                }
+                var bgColors = buildChartColors(labels, unit);
                 for( var benchIdx = 0;
                      benchIdx < benchmarks.length; ++benchIdx ) {
                     var dict = {};
@@ -1844,21 +1923,9 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                         dict[rates[valIdx][0]] = rates[valIdx][1];
                     }
                     var data = [];
-                    var bgColors = [];
                     for( var lblIdx = 0; lblIdx < labels.length; ++lblIdx ) {
                         const val = dict[labels[lblIdx]];
-                        if( val ) {
-                            data.push(val);
-                        } else {
-                            data.push(0);
-                        }
-                        var colorIdx = indexByLabel[labels[lblIdx]];
-                        if( colorIdx === undefined ) {
-                            // datetime units fallback to lblIdx
-                            colorIdx = labels[lblIdx] !== 'No response'
-                                ? lblIdx : -1;
-                        }
-                        bgColors.push(getChartColor(colorIdx, unitSystem));
+                        data.push(val ? val : 0);
                     }
                     datasets.push({
                         label: benchmarks[benchIdx].slug,
@@ -1911,7 +1978,7 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                     } else {
                         vm.charts[chartKey] = new Chart(element, {
                             type: 'doughnut',
-                            plugins: [ChartDataLabels],
+                            plugins: [ChartDataLabels, DoughnutLinesPlugin],
                             data: {
                                 labels: labels,
                                 datasets: datasets
@@ -1929,17 +1996,7 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                                         anchor: 'end',
                                         align: 'end',
                                         offset: 8,
-                                        formatter: function(value, context) {
-                                            var label = context.chart.data.labels[context.dataIndex];
-                                            if( label.length > 12 ) {
-                                                label = label.substring(0, 10) + '...';
-                                            }
-                                            var rounded = Math.round(value);
-                                            if( unit === 'percentage' ) {
-                                                return rounded + '% ' + label;
-                                            }
-                                            return rounded + ' ' + label;
-                                        }
+                                        formatter: doughnutLabelFormatter(unit)
                                     }),
                                     tooltip: unitTooltip(unit)
                                 }
@@ -2096,7 +2153,7 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
                 document.getElementById('summaryChart'),
                 {
                     type: 'doughnut',
-                    plugins: [ChartDataLabels],
+                    plugins: [ChartDataLabels, DoughnutLinesPlugin],
                     borderWidth: 0,
                     data: {
                         labels: labels,
