@@ -316,7 +316,16 @@ function withAlpha(color, alpha) {
     return Chart.helpers.color(color).alpha(alpha).rgbString();
 }
 
-function buildChartColors(labels, unit, alpha) {
+function styleInnerRings(datasets) {
+    for( var di = 1; di < datasets.length; ++di ) {
+        var alpha = Math.max(0.2, 1 - di * 0.25);
+        datasets[di].backgroundColor = datasets[di].backgroundColor.map(
+            function(c) { return withAlpha(c, alpha); });
+        datasets[di].datalabels = { display: false };
+    }
+}
+
+function buildChartColors(labels, unit) {
     var unitSystem = unit ? unit.system : null;
     var indexByLabel = {};
     // ordered by rank on the backend, so it's safe to rely on index
@@ -331,8 +340,7 @@ function buildChartColors(labels, unit, alpha) {
         if( colorIdx === undefined ) {
             colorIdx = labels[li] !== 'No response' ? li : -1;
         }
-        var color = getChartColor(colorIdx, unitSystem);
-        bgColors.push(alpha ? withAlpha(color, alpha) : color);
+        bgColors.push(getChartColor(colorIdx, unitSystem));
     }
     return bgColors;
 }
@@ -1186,25 +1194,15 @@ Vue.component('djaopsp-compare-samples', {
                                 }
                             }
                             console.assert(data.length === labels.length)
-                            var bgColors = buildChartColors(labels, unit);
                             datasets.push({
                                 label: benchmarks[benchIdx].title, // label
-                                backgroundColor: bgColors,
+                                backgroundColor: buildChartColors(labels, unit),
                                 data: data,  // by account + by label
                             });
                         }  // if( choices.length )
                     } // benchIdx
                 } // vm.datasets
-
-                // reduce opacity on inner rings for multi-layered doughnuts
-                for( var di = 1; di < datasets.length; ++di ) {
-                    var alpha = Math.max(0.2, 1 - di * 0.25);
-                    datasets[di].backgroundColor =
-                        datasets[di].backgroundColor.map(function(c) {
-                            return withAlpha(c, alpha);
-                        });
-                    datasets[di].datalabels = { display: false };
-                }
+                styleInnerRings(datasets);
 
                 if( vm.compareChart ) {
                     vm.compareChart.destroy();
@@ -1933,8 +1931,6 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                 var unit = vm.getUnit(resp.results[idx].default_unit);
                 for( var benchIdx = 0;
                      benchIdx < benchmarks.length; ++benchIdx ) {
-                    var alpha = benchIdx > 0 ? Math.max(0.2, 1 - benchIdx * 0.25) : null;
-                    var bgColors = buildChartColors(labels, unit, alpha);
                     var dict = {};
                     const rates = vm.getRates(benchmarks[benchIdx]);
                     for( var valIdx = 0; valIdx < rates.length; ++valIdx ) {
@@ -1945,16 +1941,13 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                         const val = dict[labels[lblIdx]];
                         data.push(val ? val : 0);
                     }
-                    var ds = {
+                    datasets.push({
                         label: benchmarks[benchIdx].slug,
-                        backgroundColor: bgColors,
+                        backgroundColor: buildChartColors(labels, unit),
                         data: data
-                    };
-                    if( benchIdx > 0 ) {
-                        ds.datalabels = { display: false };
-                    }
-                    datasets.push(ds);
+                    });
                 }
+                styleInnerRings(datasets);
 
                 var chartKey = resp.results[idx].path;
                 var chart = vm.charts[chartKey];
