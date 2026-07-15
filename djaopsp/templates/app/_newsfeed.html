@@ -100,6 +100,17 @@ by one of your following co-worker(s):
                 </div>
               </decorate-profiles>
             </div>{# /assessment.grantees #}
+            <div v-if="assessment.completed_by && assessment.completed_by.length > 0">
+              <p>
+{% trans completed='[[assessment.completed_by.length]]', total='[[assessment.total_accounts]]' %}{{completed}} out of {{total}} suppliers have completed the questionnaire:{% endtrans %}
+              </p>
+              <ul>
+                <li v-for="completion in assessment.completed_by">
+                  [[completion.printable_name || completion.slug]]
+                  <small>([[completion.reporting_status]], [[$globals.humanizeDate(completion.last_activity_at)]])</small>
+                </li>
+              </ul>
+            </div>{# /assessment.completed_by #}
           </div>{# /.card-body #}
           <div class="card-footer" v-if="assessment.update_url || assessment.external_url">
             <div class="row">

@@ -4,6 +4,7 @@
 import logging
 from collections import OrderedDict
 
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db import models
 from rest_framework.settings import api_settings
@@ -16,6 +17,8 @@ from survey.utils import get_account_model
 from ..api.serializers import UserNewsSerializer
 from ..compat import reverse, gettext_lazy as _
 from ..mixins import VisibilityMixin
+from ..humanize import REPORTING_ACCESSIBLE_ANSWERS, REPORTING_STATUSES
+from ..queries import get_engagement
 from ..utils import (get_campaign_candidates, get_latest_active_assessments,
     get_latest_completed_assessment)
 
@@ -288,12 +291,54 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         context.update({'prefix': self.URL_PATH_SEP})
         return context
 
+    def get_grantee_sample_completion_stats(self, starts_at=None):
+        results = []
+        reporting_status_labels = dict(REPORTING_STATUSES)
+        for account in self.accounts:
+            campaigns = Campaign.objects.filter(
+                portfolio_double_optins__grantee=account).distinct()
+            for campaign in campaigns:
+                requested_accounts = list(PortfolioDoubleOptIn.objects.filter(
+                    grantee=account, campaign=campaign).values_list(
+                    'account_id', flat=True).distinct())
+                if not requested_accounts:
+                    continue
+                queryset = get_engagement(
+                    campaign, accounts=requested_accounts,
+                    grantees=[account],
+                    filter_by=REPORTING_ACCESSIBLE_ANSWERS,
+                    activity_starts_at=starts_at)
+                completed_by = [{
+                    'slug': val.slug,
+                    'printable_name': val.printable_name,
+                    'last_activity_at': val.last_activity_at,
+                    'reporting_status': reporting_status_labels.get(
+                        val.reporting_status),
+                } for val in queryset]
+                if completed_by:
+                    results += [{
+                        'slug': campaign.slug,
+                        'title': campaign.title,
+                        'account': account,
+                        'descr': campaign.description,
+                        'completed_by': completed_by,
+                        'total_accounts': len(requested_accounts),
+                    }]
+        return results
+
     def get_queryset(self):
         search_term = self.get_query_param(self.search_param)
         show_all = bool(search_term == 'requests')
         results = list(self.get_pending_requests(show_all=show_all))
         if search_term != 'requests':
             results += list(self.get_updated_elements())
+            completed_since = self.get_query_param('completed_since')
+            if completed_since:
+                starts_at = datetime_or_now(completed_since)
+            else:
+                starts_at = datetime_or_now() - relativedelta(days=7)
+            results += self.get_grantee_sample_completion_stats(
+                starts_at=starts_at)
         return results
 
 
