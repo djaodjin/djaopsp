@@ -194,6 +194,8 @@ var DoughnutLinesPlugin = {
     id: 'doughnutLines',
     afterDraw: function(chart) {
         if( chart.config.type !== 'doughnut' ) return;
+        var dlOpts = chart.options.plugins.datalabels;
+        if( !dlOpts || dlOpts.anchor !== 'end' ) return;
         var ctx = chart.ctx;
         // only draw lines for the outermost dataset
         var dataset = chart.data.datasets[0];
@@ -202,7 +204,6 @@ var DoughnutLinesPlugin = {
             meta.data.forEach(function(arc, i) {
                 if( dataset.data[i] <= 0 ) return;
                 var midAngle = (arc.startAngle + arc.endAngle) / 2;
-                var dlOpts = chart.options.plugins.datalabels;
                 var labelOffset = dlOpts.offset || 0;
                 var labelBorder = dlOpts.borderWidth || 0;
                 var labelPadding = dlOpts.padding || 0;
@@ -323,6 +324,11 @@ function styleInnerRings(datasets) {
             function(c) { return withAlpha(c, alpha); });
         datasets[di].datalabels = { display: false };
     }
+}
+
+function resolveUnit(units, defaultUnit) {
+    var fallback = defaultUnit || {};
+    return (units && units[fallback.slug]) || fallback;
 }
 
 function buildChartColors(labels, unit) {
@@ -821,7 +827,8 @@ Vue.component('engage-profiles', {
 Vue.component('djaopsp-compare-samples', {
     mixins: [
         practicesListMixin, // defines `_start_at` and `_ends_at`
-        accountDetailMixin
+        accountDetailMixin,
+        percentToggleMixin
     ],
     data: function() {
         return {
@@ -837,7 +844,6 @@ Vue.component('djaopsp-compare-samples', {
                 campaign: null
             },
             visualize: 'chart', //'table',
-            percentToggle: true,
 
             samplesBySlug: {},
             // when clicking on Chart
@@ -846,10 +852,11 @@ Vue.component('djaopsp-compare-samples', {
         }
     },
     methods: {
-        addDataset: function(dataset) {
+        addDataset: function(dataset, completeCb) {
             var vm = this;
             vm.itemsLoaded = false;
-            vm.reqGet(dataset.url, function(resp) {
+            var queryParams = vm.params.unit ? {unit: vm.params.unit} : {};
+            vm.reqGet(dataset.url, queryParams, function(resp) {
                 dataset.results = resp.results;
                 if( vm.datasets.length == 0 ) {
                     // If we don't make a copy, adding missing practices
@@ -899,7 +906,21 @@ Vue.component('djaopsp-compare-samples', {
                 vm.datasets.push(dataset);
                 vm.itemsLoaded = true;
                 vm.updateChart();
+                if( completeCb ) completeCb();
             });
+        },
+        reloadDatasets: function() {
+            var vm = this;
+            var datasets = vm.datasets;
+            vm.datasets = [];
+            var loadNext = function(idx) {
+                if( idx < datasets.length ) {
+                    vm.addDataset(datasets[idx], function() {
+                        loadNext(idx + 1);
+                    });
+                }
+            };
+            loadNext(0);
         },
         firstDatasetLoaded: function() {
             var vm = this;
@@ -1121,8 +1142,7 @@ Vue.component('djaopsp-compare-samples', {
                 }
 
                 // Build chart's datasets
-                var unit = vm.getUnit(
-                    vm.displayMetric.default_unit || {});
+                var unit = resolveUnit(vm.items.units, practice.default_unit);
                 var choiceColors = buildChartColors(choices, unit);
                 for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
                     const dataset = vm.datasets[datIdx];
@@ -1211,7 +1231,7 @@ Vue.component('djaopsp-compare-samples', {
                 if( chartElem ) {
                   if( choices.length ) {
                     labels = vm.humanizePeriods(labels);
-                    var unit = vm.displayMetric.unit;
+                    var unit = vm.params.unit;
                     vm.compareChart = new Chart(chartElem, {
                             type: 'bar',
                             plugins: [ChartDataLabels],
@@ -1254,7 +1274,7 @@ Vue.component('djaopsp-compare-samples', {
                         }
                     );
                   } else {
-                    var unit = vm.displayMetric.unit;
+                    var unit = vm.params.unit;
                     vm.compareChart = new Chart(chartElem, {
                             type: 'doughnut',
                             plugins: [ChartDataLabels, DoughnutLinesPlugin],
@@ -1289,6 +1309,11 @@ Vue.component('djaopsp-compare-samples', {
                 } // /chartElem
             } // /entries
         },
+    },
+    watch: {
+        'params.unit': function() {
+            this.reloadDatasets();
+        }
     },
     computed: {
         datasetLoading: function() {
@@ -1878,16 +1903,6 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
         }
     },
     methods: {
-        getUnit: function(defaultUnit) {
-            var vm = this;
-            if( vm.item.units && defaultUnit.slug ) {
-                var unit = vm.item.units[defaultUnit.slug];
-                if( typeof unit !== 'undefined' ) {
-                    return vm.item.units[defaultUnit.slug];
-                }
-            }
-            return defaultUnit;
-        },
         _isArray: function(obj) {
             return obj instanceof Object && obj.constructor === Array;
         },
@@ -1928,7 +1943,8 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                     }
                 }
                 const labels = Array.from(labelset).sort();
-                var unit = vm.getUnit(resp.results[idx].default_unit);
+                var unit = resolveUnit(
+                    vm.item.units, resp.results[idx].default_unit);
                 for( var benchIdx = 0;
                      benchIdx < benchmarks.length; ++benchIdx ) {
                     var dict = {};
@@ -2076,11 +2092,19 @@ Vue.component('reporting-completion-rate', dashboardChart.extend({
                         datasets: datasets
                     },
                     options: {
+                        layout: {
+                            padding: { right: 20 }
+                        },
                         plugins: {
                             datalabels: Object.assign({}, baseDatalabelsConfig, {
                                 font: { weight: 'bold', size: 8 },
                                 padding: 3,
-                                formatter: unitFormatter(unit)
+                                formatter: unitFormatter(unit),
+                                display: function(context) {
+                                    var data = context.dataset.data;
+                                    return context.dataIndex === data.length - 1
+                                        && data[context.dataIndex] > 0;
+                                }
                             }),
                             tooltip: unitTooltip(unit)
                         }
@@ -2160,6 +2184,7 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
                     data: data
                 });
             }
+            styleInnerRings(datasets);
             if( vm.completionRate ) {
                 vm.completionRate.destroy();
             }
