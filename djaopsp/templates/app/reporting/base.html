@@ -101,6 +101,7 @@
 {% if ASSETS_DEBUG %}
 <script type="text/javascript" src="{{'/static/vendor/chart.js/dist/chart.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/chartjs-plugin-annotation.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/chartjs-plugin-datalabels.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djresourcesvue.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaodjin-survey-vue.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaopsp-resources-vue.js'|asset}}"></script>
@@ -114,6 +115,7 @@ const UTILITY_COLOR = '#f0ad4e';
 const UTILITY_COLOR_LAST = '#facf6f';
 const EUISSCA_COLOR = '#3ca65b';
 const EUISSCA_COLOR_LAST = '#3fa95f';
+const NO_RESPONSE_COLOR = '#d9d9d9';
 
 Vue.prototype.$dateRange = {
     start_at: "{% if start_at %}{{start_at}}{% endif %}",
