@@ -852,11 +852,10 @@ Vue.component('djaopsp-compare-samples', {
         }
     },
     methods: {
-        addDataset: function(dataset, completeCb) {
+        addDataset: function(dataset) {
             var vm = this;
             vm.itemsLoaded = false;
-            var queryParams = vm.params.unit ? {unit: vm.params.unit} : {};
-            vm.reqGet(dataset.url, queryParams, function(resp) {
+            vm.reqGet(dataset.url, function(resp) {
                 dataset.results = resp.results;
                 if( vm.datasets.length == 0 ) {
                     // If we don't make a copy, adding missing practices
@@ -906,21 +905,7 @@ Vue.component('djaopsp-compare-samples', {
                 vm.datasets.push(dataset);
                 vm.itemsLoaded = true;
                 vm.updateChart();
-                if( completeCb ) completeCb();
             });
-        },
-        reloadDatasets: function() {
-            var vm = this;
-            var datasets = vm.datasets;
-            vm.datasets = [];
-            var loadNext = function(idx) {
-                if( idx < datasets.length ) {
-                    vm.addDataset(datasets[idx], function() {
-                        loadNext(idx + 1);
-                    });
-                }
-            };
-            loadNext(0);
         },
         firstDatasetLoaded: function() {
             var vm = this;
@@ -1035,6 +1020,19 @@ Vue.component('djaopsp-compare-samples', {
         getSampleAccountPrintableName: function(sampleSlug) {
             return this.getAccountPrintableName(
                 this.getSampleField(sampleSlug, 'account'));
+        },
+        getChartTotal: function(values) {
+            var total = 0;
+            for( var idx = 0; idx < values.length; ++idx ) {
+                total += values[idx][1];
+            }
+            return total;
+        },
+        getChartDisplayValue: function(value, total) {
+            if( this.params.unit !== 'percentage' ) {
+                return value;
+            }
+            return total ? Math.round(value * 100 / total) : 0;
         },
         populateSamples: function(bench) {
             var vm = this;
@@ -1151,6 +1149,14 @@ Vue.component('djaopsp-compare-samples', {
                          ++benchIdx ) {
                         const values = benchmarks[benchIdx].values;
                         if( choices.length ) {
+                            var totalsByLabel = {};
+                            if( vm.params.unit === 'percentage' ) {
+                                for( var valIdx = 0; valIdx < values.length;
+                                     ++valIdx ) {
+                                    totalsByLabel[values[valIdx][0]] =
+                                        vm.getChartTotal(values[valIdx][1]);
+                                }
+                            }
                             // We are dealing with choices per period
                             for( var choiceIdx = 0; choiceIdx < choices.length;
                                  ++choiceIdx ) {
@@ -1173,7 +1179,10 @@ Vue.component('djaopsp-compare-samples', {
                                                 if( valChoices[idx][0]
                                                     === choiceKey ) {
                                                     data.push(
-                                                        valChoices[idx][1]);
+                                                        vm.getChartDisplayValue(
+                                                            valChoices[idx][1],
+                                                            totalsByLabel[
+                                                                labels[lblIdx]]));
                                                     foundChoice = true;
                                                     break;
                                                 }
@@ -1197,6 +1206,8 @@ Vue.component('djaopsp-compare-samples', {
                                 });
                             }
                         } else { // if( choices.length )
+                            var total = vm.params.unit === 'percentage' ?
+                                vm.getChartTotal(values) : 0;
                             var data = [];
                             for( var lblIdx = 0; lblIdx < labels.length;
                                  ++lblIdx ) {
@@ -1205,7 +1216,8 @@ Vue.component('djaopsp-compare-samples', {
                                      ++valIdx ) {
                                     if( labels[lblIdx] === values[valIdx][0] ) {
                                         found = true;
-                                        data.push(values[valIdx][1]);
+                                        data.push(vm.getChartDisplayValue(
+                                            values[valIdx][1], total));
                                         break;
                                     }
                                 }
@@ -1312,7 +1324,7 @@ Vue.component('djaopsp-compare-samples', {
     },
     watch: {
         'params.unit': function() {
-            this.reloadDatasets();
+            this.updateChart();
         }
     },
     computed: {
