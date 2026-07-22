@@ -54,10 +54,13 @@ class Command(BaseCommand):
         else:
             campaigns = Campaign.objects.all()
 
-        requested_grantees = None
         if options['grantees']:
-            requested_grantees = list(self.account_model.objects.filter(
+            grantees = list(self.account_model.objects.filter(
                 slug__in=options['grantees']))
+        else:
+            grantees = self.account_model.objects.filter(
+                portfolio_double_optin_grantees__campaign__in=campaigns
+            ).distinct()
 
         reporting_status_labels = dict(REPORTING_STATUSES)
 
@@ -65,14 +68,8 @@ class Command(BaseCommand):
         writer.writerow(['grantee_slug', 'account_slug', 'printable_name',
             'campaign', 'last_activity_at', 'reporting_status'])
 
-        for campaign in campaigns:
-            grantees = requested_grantees
-            if grantees is None:
-                grantees = self.account_model.objects.filter(
-                    portfolio_double_optin_grantees__campaign=campaign
-                ).distinct()
-
-            for grantee in grantees:
+        for grantee in grantees:
+            for campaign in campaigns:
                 requested_accounts = list(PortfolioDoubleOptIn.objects.filter(
                     grantee=grantee, campaign=campaign).values_list(
                     'account_id', flat=True).distinct())

@@ -589,7 +589,7 @@ class RequestSerializer(NoModelSerializer):
         help_text=_("The profile that initiated the request"))
 
 
-class NewsfeedSamplesCompletedBySerializer(NoModelSerializer):
+class NewsfeedSampleCompletionSerializer(NoModelSerializer):
 
     slug = serializers.SlugField(
         help_text=_("Account that completed the sample"))
@@ -622,18 +622,19 @@ class UserNewsSerializer(UserNewsBaseSerializer):
         help_text=_("URL to answer the questionnaire"))
     external_url = serializers.URLField(required=False, allow_blank=True,
         help_text=_("URL to external information"))
-    completed_by = serializers.ListSerializer(
-        child=NewsfeedSamplesCompletedBySerializer(), required=False,
-        help_text=_("Accounts that completed the sample"))
-    total_accounts = serializers.IntegerField(required=False,
-        help_text=_("Total number of accounts accessible by grantee"))
+    completion = NewsfeedSampleCompletionSerializer(required=False,
+        help_text=_("Account that completed the sample"))
+    view_response_url = serializers.URLField(required=False, allow_blank=True,
+        help_text=_("URL to view the completed response"))
+    engage_url = serializers.URLField(required=False, allow_blank=True,
+        help_text=_("URL to engage the account about the response"))
 
     class Meta(UserNewsBaseSerializer.Meta):
         fields = UserNewsBaseSerializer.Meta.fields + (
             'grantees', 'ends_at', 'last_completed_at', 'respondents',
             'share_url', 'update_url', 'external_url',
-            'completed_by', 'total_accounts')
+            'completion', 'view_response_url', 'engage_url')
         read_only_fields = UserNewsBaseSerializer.Meta.read_only_fields + (
             'grantees', 'ends_at', 'last_completed_at', 'respondents',
             'share_url', 'update_url', 'external_url',
-            'completed_by', 'total_accounts')
+            'completion', 'view_response_url', 'engage_url')
