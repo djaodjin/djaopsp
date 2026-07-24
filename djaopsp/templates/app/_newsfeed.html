@@ -36,15 +36,48 @@
           </div> {# /.card-footer #}
         </div>
       </div>
+      <div id="grants" v-show="grants.results.length > 0" v-cloak>
+        <div class="card mb-4" v-for="(received, index) in grants.results">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col-2">
+                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(received.account) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
+              </div>
+              <div class="col-10">
+                <h2 class="card-title">[[getAccountPrintableName(received.account) || received.account]]</h2>
+                <h3 class="card-subtitle" v-if="received.campaign">[[received.campaign.title || received.campaign.slug]]</h3>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <p>
+{% trans profile_name="[[getAccountPrintableName(received.account) || received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}
+            </p>
+          </div>
+          <div class="card-footer">
+            <div class="row">
+              <div class="col-md-6 text-center">
+                <button class="btn btn-outline-primary"
+                        @click.prevent="ignore(received, index)">{% trans %}Ignore{% endtrans %}</button>
+              </div>
+              <div class="col-md-6 text-center">
+                <button class="btn btn-primary"
+                        @click.prevent="accept(received, index)">{% trans %}Accept{% endtrans %}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>{# /grants #}
       <div id="newsfeed" v-show="itemsLoaded && items.results.length > 0" v-cloak>
         <div class="card mb-4" v-for="assessment in items.results">
           <div class="card-header">
             <div class="row align-items-center">
               <div class="col-2">
-                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) ? getAccountPicture(assessment.account) : '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
+                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
               </div>
               <div class="col-10">
-                <h2 class="card-title" v-if="getAccountPrintableName(assessment.account) || assessment.account">[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h2>
+                <h2 class="card-title" v-if="assessment.completion">[[assessment.completion.printable_name || assessment.completion.slug]]</h2>
+                <h2 class="card-title" v-else-if="getAccountPrintableName(assessment.account) || assessment.account">[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h2>
                 <h3  class="card-subtitle">[[assessment.title]]</h3>
               </div>
             </div>
@@ -59,7 +92,7 @@
               </div>
             </div>
             <p v-html="assessment.descr ? $globals.md(assessment.descr) : ''"
-               v-if="!assessment.picture">
+               v-if="!assessment.picture && !assessment.completion">
             </p>
             <p v-if="assessment.last_completed_at">
 This assessment was last completed on [[$globals.humanizeDate(assessment.last_completed_at)]]
@@ -83,7 +116,7 @@ by one of your following co-worker(s):
                   <div v-for="request in elements">
                     <div class="row align-items-center">
                       <div class="col-2">
-                        <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(request.grantee) ? getAccountPicture(request.grantee) : '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
+                        <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(request.grantee) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
                       </div>
                       <div class="col-5">
                         [[getAccountPrintableName(request.grantee) ? getAccountPrintableName(request.grantee) : request.grantee]]
@@ -100,8 +133,16 @@ by one of your following co-worker(s):
                 </div>
               </decorate-profiles>
             </div>{# /assessment.grantees #}
+            <div v-if="assessment.completion">
+              <p v-if="assessment.view_response_url">
+{% trans name='[[assessment.completion.printable_name || assessment.completion.slug]]', completed_at='[[$globals.humanizeDate(assessment.completion.last_activity_at)]]', delta='[[$globals.humanizeTimeDelta(assessment.completion.last_activity_at)]]' %}{{name}} completed the questionnaire on {{completed_at}} ({{delta}}) and shared their response with you.{% endtrans %}
+              </p>
+              <p v-if="!assessment.view_response_url">
+{% trans name='[[assessment.completion.printable_name || assessment.completion.slug]]', completed_at='[[$globals.humanizeDate(assessment.completion.last_activity_at)]]', delta='[[$globals.humanizeTimeDelta(assessment.completion.last_activity_at)]]' %}{{name}} completed the questionnaire on {{completed_at}} ({{delta}}) but hasn't shared the response with you yet.{% endtrans %}
+              </p>
+            </div>{# /assessment.completion #}
           </div>{# /.card-body #}
-          <div class="card-footer" v-if="assessment.update_url || assessment.external_url">
+          <div class="card-footer" v-if="assessment.update_url || assessment.external_url || assessment.view_response_url || assessment.engage_url">
             <div class="row">
               <div class="col-md-6 text-center">
                 <a class="btn btn-primary"
@@ -109,6 +150,12 @@ by one of your following co-worker(s):
                    v-if="assessment.share_url">{% trans created_at='[[$globals.humanizeDate(assessment.last_completed_at)]]' %}Share {{created_at}} response{% endtrans %}</a>
               </div>
               <div class="col-md-6 text-center">
+                <a class="btn btn-primary"
+                   :href="assessment.view_response_url"
+                   v-if="assessment.view_response_url">{% trans %}View response{% endtrans %}</a>
+                <a class="btn btn-primary"
+                   :href="assessment.engage_url"
+                   v-if="assessment.engage_url">{% trans %}Request their response{% endtrans %}</a>
                 <form :id="assessment.account + '-' + assessment.slug" :action="assessment.update_url" method="post" v-if="assessment.update_url">
                   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
                   <button class="btn btn-primary"

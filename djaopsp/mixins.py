@@ -166,6 +166,11 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
                 'analyze': reverse('reporting_insights_analyze',
                     args=(self.account,)),
             })
+        if (self.manages(self.account) or self.manages(settings.BROKER_NAME)):
+            update_context_urls(context, {
+                'api_portfolios_received': reverse(
+                    'survey_api_portfolios_received', args=(self.account,)),
+            })
         if self.unlock_editors:
             update_context_urls(context, {
                 'pages_editables_index': reverse(

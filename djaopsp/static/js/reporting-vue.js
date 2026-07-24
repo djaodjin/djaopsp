@@ -1206,7 +1206,6 @@ Vue.component('reporting-organizations', {
     data: function() {
         var data = {
             url: this.$urls.api_portfolio_responses,
-            portfolios_received_url: this.$urls.api_portfolios_received,
             api_sample_verification_url: this.$urls.api_sample_verification,
             api_profiles_base_url: this.$urls.api_organizations,
             verifiers: [],
@@ -1222,10 +1221,6 @@ Vue.component('reporting-organizations', {
                 created_at: null
             },
             message: this.$defaultRequestInitiatedMessage,
-            grants: {
-                count: 0,
-                results: []
-            },
             accountExtra: {
                 supply_chain: false,
                 reminder: false
@@ -1241,42 +1236,15 @@ Vue.component('reporting-organizations', {
         fetch: function(cb) {
             let vm = this;
             vm.lastGetParams = vm.getParams();
-            if( vm.portfolios_received_url ) {
-                vm.reqMultiple([{
-                    method: 'GET', url: vm.url + vm.getQueryString(),
-                },{
-                    method: 'GET', url: vm.portfolios_received_url +
-                        "?state=grant-initiated",
-                }], function(resp, typeaheadResp) {
-                    vm.loadComplete(resp, typeaheadResp);
-                });
-            } else {
-                vm.reqGet(vm.url, vm.lastGetParams, cb);
-            }
+            vm.reqGet(vm.url, vm.lastGetParams, cb);
         },
         getScoreDisplay: function(score) {
             return (score !== null) ? score.toString() + "%" : "";
         },
-        accept: function(portfolio, idx) {
-            var vm = this;
-            vm.reqPost(portfolio.api_accept,
-            function(resp) { // success
-                vm.grants.results.splice(idx, 1);
-                vm.params.q = portfolio.account;
-                vm.filterList();
-            });
-        },
-        ignore: function(portfolio, idx) {
-            var vm = this;
-            vm.reqDelete(portfolio.api_accept,
-            function(resp) { // success
-                vm.grants.results.splice(idx, 1);
-            });
-        },
         shortDate: function(at_time) {
             return moment(at_time).format("MMM D, YYYY");
         },
-        loadComplete: function(resp, grantsResp) {
+        loadComplete: function(resp) {
             var vm = this;
             if( vm.mergeResults ) {
                 vm.populateAccounts(resp.results);
@@ -1286,10 +1254,6 @@ Vue.component('reporting-organizations', {
                 vm.items = resp;
                 vm.populateAccounts(vm.items.results);
                 vm.populateUsers(resp.results, 'verified_by');
-            }
-            if( grantsResp ) {
-                vm.grants = grantsResp;
-                vm.populateAccounts(vm.grants.results, 'account');
             }
             if( vm.tagify ) {
                 var allTags = (vm.tagChoices || []).slice();

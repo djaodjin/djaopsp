@@ -4,20 +4,25 @@
 import logging
 from collections import OrderedDict
 
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from rest_framework.settings import api_settings
 from rest_framework.generics import get_object_or_404
 from pages.api.newsfeed import NewsFeedListAPIView as NewsfeedBaseAPIView
 from survey.helpers import datetime_or_now
-from survey.models import Campaign, PortfolioDoubleOptIn
-from survey.utils import get_account_model
+from survey.models import Campaign, PortfolioDoubleOptIn, Sample
+from survey.utils import get_accessible_accounts, get_account_model
 
 from ..api.serializers import UserNewsSerializer
 from ..compat import reverse, gettext_lazy as _
 from ..mixins import VisibilityMixin
+from ..humanize import (REPORTING_ACCESSIBLE_ANSWERS, REPORTING_COMPLETED,
+    REPORTING_COMPLETED_NOTSHARED, REPORTING_STATUSES, REPORTING_VERIFIED)
+from ..queries import get_engagement
 from ..utils import (get_campaign_candidates, get_latest_active_assessments,
-    get_latest_completed_assessment)
+    get_latest_completed_assessment, get_unlocked)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -288,11 +293,118 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         context.update({'prefix': self.URL_PATH_SEP})
         return context
 
+    def get_grantee_sample_completion_posts(self, starts_at=None):
+        # `Sample.objects.get_latest_frozen_by_portfolios` decorates samples
+        # with `survey.Sample` reporting states, which do not match
+        # the `humanize` constants.
+        SAMPLE_STATE_TO_REPORTING_STATUS = {
+            Sample.REPORTING_COMPLETED: REPORTING_COMPLETED,
+            Sample.REPORTING_COMPLETED_NOTSHARED: REPORTING_COMPLETED_NOTSHARED,
+        }
+        results = []
+        reporting_status_labels = dict(REPORTING_STATUSES)
+        for account in self.accounts:
+            if not get_unlocked(self.request, account,
+                    getattr(settings, 'UNLOCK_PORTFOLIOS', [])):
+                continue
+
+            filtered_in = (models.Q(extra__contains='searchable') &
+                models.Q(extra__contains='public'))
+            campaigns = Campaign.objects.filter(
+                models.Q(account=account) |
+                models.Q(portfolios__grantee=account) |
+                models.Q(portfolio_double_optins__grantee=account) |
+                filtered_in).exclude(slug__endswith='-verified').distinct()
+            suppliers_by_pk = {supplier.pk: supplier
+                for supplier in get_accessible_accounts([account])}
+            for campaign in campaigns:
+                posted_account_ids = set()
+                requested_accounts = list(PortfolioDoubleOptIn.objects.filter(
+                    grantee=account, campaign=campaign,
+                    created_at__gt=campaign.updated_at).values_list(
+                    'account_id', flat=True).distinct())
+                if requested_accounts:
+                    queryset = get_engagement(
+                        campaign, accounts=requested_accounts,
+                        grantees=[account],
+                        filter_by=REPORTING_ACCESSIBLE_ANSWERS,
+                        activity_starts_at=starts_at)
+                    for val in queryset:
+                        posted_account_ids |= {val.account_id}
+                        result = {
+                            'slug': campaign.slug,
+                            'title': campaign.title,
+                            'account': account,
+                            'descr': campaign.description,
+                            'completion': {
+                                'slug': val.slug,
+                                'printable_name': val.printable_name,
+                                'last_activity_at': datetime_or_now(
+                                    val.last_activity_at),
+                                'reporting_status': reporting_status_labels.get(
+                                    val.reporting_status),
+                            },
+                        }
+                        if val.reporting_status in (
+                                REPORTING_COMPLETED, REPORTING_VERIFIED):
+                            result['view_response_url'] = reverse(
+                                'scorecard', args=(account, val.sample))
+                            result['priority'] = 2
+                        else:
+                            result['engage_url'] = reverse(
+                                'reporting_profile_engage', args=(
+                                    account, campaign))
+                            result['priority'] = 3
+                        results += [result]
+                if not suppliers_by_pk:
+                    continue
+
+                samples = Sample.objects.get_latest_frozen_by_portfolios(
+                    campaign=campaign, start_at=starts_at,
+                    accounts=list(suppliers_by_pk.values()),
+                    grantees=[account])
+                for sample in samples:
+                    supplier = suppliers_by_pk.get(sample.account_id)
+                    if not supplier or sample.account_id in posted_account_ids:
+                        continue
+                    if sample.state == Sample.REPORTING_COMPLETED:
+                        continue
+                    results += [{
+                        'slug': campaign.slug,
+                        'title': campaign.title,
+                        'account': account,
+                        'descr': campaign.description,
+                        'completion': {
+                            'slug': supplier.slug,
+                            'printable_name': supplier.printable_name,
+                            'last_activity_at': sample.created_at,
+                            'reporting_status': reporting_status_labels.get(
+                                SAMPLE_STATE_TO_REPORTING_STATUS[
+                                    sample.state]),
+                        },
+                        'engage_url': reverse(
+                            'reporting_profile_engage', args=(
+                                account, campaign)),
+                        'priority': 4,
+                    }]
+        results.sort(key=lambda result: result['completion'][
+            'last_activity_at'], reverse=True)
+        results.sort(key=lambda result: result['priority'])
+        return results
+
     def get_queryset(self):
         search_term = self.get_query_param(self.search_param)
         show_all = bool(search_term == 'requests')
         results = list(self.get_pending_requests(show_all=show_all))
         if search_term != 'requests':
+            completed_since = self.get_query_param('completed_since')
+            if completed_since:
+                starts_at = datetime_or_now(completed_since)
+            else:
+                starts_at = datetime_or_now() - relativedelta(days=7)
+            if settings.FEATURES_DEBUG:
+                results += self.get_grantee_sample_completion_posts(
+                    starts_at=starts_at)
             results += list(self.get_updated_elements())
         return results
 
