@@ -36,12 +36,44 @@
           </div> {# /.card-footer #}
         </div>
       </div>
+      <div id="grants" v-show="grants.results.length > 0" v-cloak>
+        <div class="card mb-4" v-for="(received, index) in grants.results">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col-2">
+                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(received.account) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
+              </div>
+              <div class="col-10">
+                <h2 class="card-title">[[getAccountPrintableName(received.account) || received.account]]</h2>
+                <h3 class="card-subtitle" v-if="received.campaign">[[received.campaign.title || received.campaign.slug]]</h3>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <p>
+{% trans profile_name="[[getAccountPrintableName(received.account) || received.account]]" %}{{profile_name}} would like to share their response with you.{% endtrans %}
+            </p>
+          </div>
+          <div class="card-footer">
+            <div class="row">
+              <div class="col-md-6 text-center">
+                <button class="btn btn-outline-primary"
+                        @click.prevent="ignore(received, index)">{% trans %}Ignore{% endtrans %}</button>
+              </div>
+              <div class="col-md-6 text-center">
+                <button class="btn btn-primary"
+                        @click.prevent="accept(received, index)">{% trans %}Accept{% endtrans %}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>{# /grants #}
       <div id="newsfeed" v-show="itemsLoaded && items.results.length > 0" v-cloak>
         <div class="card mb-4" v-for="assessment in items.results">
           <div class="card-header">
             <div class="row align-items-center">
               <div class="col-2">
-                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) ? getAccountPicture(assessment.account) : '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
+                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
               </div>
               <div class="col-10">
                 <h2 class="card-title" v-if="assessment.completion">[[assessment.completion.printable_name || assessment.completion.slug]]</h2>
@@ -84,7 +116,7 @@ by one of your following co-worker(s):
                   <div v-for="request in elements">
                     <div class="row align-items-center">
                       <div class="col-2">
-                        <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(request.grantee) ? getAccountPicture(request.grantee) : '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
+                        <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(request.grantee) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
                       </div>
                       <div class="col-5">
                         [[getAccountPrintableName(request.grantee) ? getAccountPrintableName(request.grantee) : request.grantee]]

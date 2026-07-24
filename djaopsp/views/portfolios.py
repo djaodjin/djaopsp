@@ -196,11 +196,6 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/accessibles/")
         })
-        if self.manages(self.account) or self.manages(settings.BROKER_NAME):
-            update_context_urls(context, {
-                'api_portfolios_received': reverse(
-                    'survey_api_portfolios_received', args=(self.account,)),
-            })
         try:
             verification_campaign = Campaign.objects.get(
                 slug="%s-verified" % self.campaign)
