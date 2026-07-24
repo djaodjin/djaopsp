@@ -1,11 +1,12 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 from django.conf import settings
 from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
-from pages.views.elements import PageElementView, PageElementEditableView
+from pages.views.elements import (PageElementView, PageElementIndexView,
+    PageElementEditableView)
 from pages.views.sequences import (
     SequenceProgressView as BaseSequenceProgressView,
     SequencePageElementView as BaseSequencePageElementView)
@@ -23,7 +24,7 @@ class SequencePageElementView(SequenceProgressMixin,
     pass
 
 
-class ContentIndexView(PageElementView):
+class ContentIndexView(PageElementIndexView):
     """
     View to display a tree of practices rooted at {path}
     """

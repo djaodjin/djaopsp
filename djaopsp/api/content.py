@@ -1,8 +1,9 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 from pages.api.elements import (PageElementAPIView as PageElementBaseAPIView,
-    PageElementEditableListAPIView as PageElementEditableListBaseAPIView)
+    PageElementIndexAPIView as PageElementIndexBaseAPIView,
+    PageElementEditableIndexAPIView as PageElementEditableIndexBaseAPIView)
 from pages.docs import extend_schema
 from survey.utils import get_question_model
 
@@ -11,7 +12,42 @@ from ..mixins import VisibilityMixin
 from ..utils import get_practice_serializer
 
 
-class PageElementAPIView(VisibilityMixin, PageElementBaseAPIView):
+class ContentAPIMixin(VisibilityMixin):
+
+    serializer_class = ContentElementSerializer
+    practice_serializer_class = get_practice_serializer()
+    #authentication_classes = [] # XXX permissions are handled somewhere else.
+
+    def get_extra_fields(self):
+        extra_fields_select = []
+        if hasattr(self.practice_serializer_class.Meta, 'extra_fields'):
+            extra_fields = self.practice_serializer_class.Meta.extra_fields
+            if extra_fields:
+                for field in extra_fields:
+                    extra_fields_select += ['content__%s' % field]
+        return extra_fields_select
+
+    def attach(self, elements):
+        extra_fields = self.get_extra_fields()
+        values_by_path = {}
+        queryset = get_question_model().objects.filter(
+            path__in=[elem['path'] for elem in elements]).values(
+            'path', 'default_unit__slug', *extra_fields)
+        for resp in queryset:
+            path = resp.pop('path')
+            # don't ask. Django ORM is being funny as usual.
+            default_unit_slug = resp.pop('default_unit__slug')
+            resp.update({'default_unit': default_unit_slug})
+            values_by_path.update({path: resp})
+        for elem in elements:
+            path = elem['path']
+            values = values_by_path.get(path)
+            if values:
+                elem.update(values)
+        return elements
+
+
+class PageElementAPIView(ContentAPIMixin, PageElementBaseAPIView):
     """
     Lists tree of page elements matching prefix
 
@@ -53,40 +89,9 @@ class PageElementAPIView(VisibilityMixin, PageElementBaseAPIView):
           ]
         }
     """
-    serializer_class = ContentElementSerializer
-    practice_serializer_class = get_practice_serializer()
-    #authentication_classes = [] # XXX permissions are handled somewhere else.
-
-    def get_extra_fields(self):
-        extra_fields_select = []
-        if hasattr(self.practice_serializer_class.Meta, 'extra_fields'):
-            extra_fields = self.practice_serializer_class.Meta.extra_fields
-            if extra_fields:
-                for field in extra_fields:
-                    extra_fields_select += ['content__%s' % field]
-        return extra_fields_select
-
-    def attach(self, elements):
-        extra_fields = self.get_extra_fields()
-        values_by_path = {}
-        queryset = get_question_model().objects.filter(
-            path__in=[elem['path'] for elem in elements]).values(
-            'path', 'default_unit__slug', *extra_fields)
-        for resp in queryset:
-            path = resp.pop('path')
-            # don't ask. Django ORM is being funny as usual.
-            default_unit_slug = resp.pop('default_unit__slug')
-            resp.update({'default_unit': default_unit_slug})
-            values_by_path.update({path: resp})
-        for elem in elements:
-            path = elem['path']
-            values = values_by_path.get(path)
-            if values:
-                elem.update(values)
-        return elements
 
 
-class PageElementIndexAPIView(PageElementAPIView):
+class PageElementIndexAPIView(ContentAPIMixin, PageElementIndexBaseAPIView):
     """
     Lists tree of page elements
 
@@ -135,7 +140,7 @@ class PageElementIndexAPIView(PageElementAPIView):
             request, *args, **kwargs)
 
 
-class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
+class PageElementEditableIndexAPIView(PageElementEditableIndexBaseAPIView):
     """
     Lists editable page elements
 
@@ -242,5 +247,5 @@ class PageElementEditableListAPIView(PageElementEditableListBaseAPIView):
 
         """
         #pylint:disable=useless-super-delegation
-        return super(PageElementEditableListAPIView, self).create(
+        return super(PageElementEditableIndexAPIView, self).create(
             request, *args, **kwargs)
