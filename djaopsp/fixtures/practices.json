@@ -1101,7 +1101,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-publicly-reported",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/calculate-ghg-emissions-scope1/ghg-emissions-scope1-publicly-reported",
     "content": 67,
     "default_unit": 202,
     "ui_hint": "yes-comments",
@@ -1121,7 +1121,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-publicly-reported",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/calculate-ghg-emissions-scope2/ghg-emissions-scope2-publicly-reported",
     "content": 69,
     "default_unit": 202,
     "ui_hint": "yes-comments",
@@ -1221,7 +1221,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-target/ghg-emissions-scope1-target/ghg-emissions-scope1-target-by",
     "content": 156,
     "default_unit": 196,
     "ui_hint": "target-by",
@@ -1241,7 +1241,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-target/ghg-emissions-scope2-target/ghg-emissions-scope2-target-by",
     "content": 160,
     "default_unit": 196,
     "ui_hint": "target-by",
@@ -1261,7 +1261,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/energy-target/energy-target-by",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-activities/energy-target/energy-target-by",
     "content": 152,
     "default_unit": 196,
     "ui_hint": "target-by",
@@ -1461,7 +1461,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-publicly-reported",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/calculate-ghg-emissions-scope3/ghg-emissions-scope3-publicly-reported",
     "content": 71,
     "default_unit": 202,
     "ui_hint": "yes-comments",
@@ -1801,7 +1801,7 @@
 ,
 {
   "fields": {
-    "path": "/sustainability/environmental-reporting/ghg-emissions-reporting/ghg-emissions-scope3-details/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by",
+    "path": "/sustainability/environmental-reporting/ghg-emissions-target/ghg-emissions-scope3-target/ghg-emissions-scope3-target-by",
     "content": 164,
     "default_unit": 196,
     "ui_hint": "target-by",
