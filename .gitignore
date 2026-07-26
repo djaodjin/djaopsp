@@ -7,5 +7,6 @@ package-lock.json
 webpack-conf-paths.json
 djaopsp/static/vendor/chart.js
 djaopsp/static/vendor/chartjs-plugin-annotation.js
+djaopsp/static/vendor/chartjs-plugin-datalabels.js
 htdocs/
 htdocs/media
