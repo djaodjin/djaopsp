@@ -351,6 +351,22 @@ function buildChartColors(labels, unit) {
     return bgColors;
 }
 
+// order labels by the rank-ordered choices returned in the unit definition
+function orderChartLabels(labels, unit) {
+    var ranksByLabel = {};
+    for( var ci = 0; ci < unit.choices.length; ++ci ) {
+        ranksByLabel[unit.choices[ci].text] = ci;
+    }
+    return labels.sort(function(left, right) {
+        var leftRank = ranksByLabel[left];
+        var rightRank = ranksByLabel[right];
+        // labels not defined in unit will be appended at the end
+        leftRank = leftRank === undefined ? unit.choices.length : leftRank;
+        rightRank = rightRank === undefined ? unit.choices.length : rightRank;
+        return leftRank - rightRank;
+    });
+}
+
 /** Component to list, add and remove profiles that are currently invited
     to a campaign.
  */
@@ -1139,8 +1155,12 @@ Vue.component('djaopsp-compare-samples', {
                     }
                 }
 
-                // Build chart's datasets
                 var unit = resolveUnit(vm.items.units, practice.default_unit);
+                if( !choices.length && unit && unit.system === 'enum' ) {
+                    labels = orderChartLabels(labels, unit);
+                }
+
+                // Build chart's datasets
                 var choiceColors = buildChartColors(choices, unit);
                 for( var datIdx = 0; datIdx < vm.datasets.length; ++datIdx ) {
                     const dataset = vm.datasets[datIdx];
@@ -1954,9 +1974,11 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                         labelset.add(rates[valIdx][0]);
                     }
                 }
-                const labels = Array.from(labelset).sort();
                 var unit = resolveUnit(
                     vm.item.units, resp.results[idx].default_unit);
+                const labels = unit && unit.system === 'enum' ?
+                    orderChartLabels(Array.from(labelset), unit) :
+                    Array.from(labelset).sort();
                 for( var benchIdx = 0;
                      benchIdx < benchmarks.length; ++benchIdx ) {
                     var dict = {};
