@@ -117,16 +117,14 @@
                target="_blank">
                 {% trans %}Answers &amp; scores (pivotable .csv){% endtrans %}
             </a>
-            {% if urls.download_verification %}
+            {% if verification_exists %}
             <a id="download-verification" class="dropdown-item"
-               :href="'{{urls.download_verification}}' + getQueryString(['page'])"
+               :href="'{{urls.download_raw}}' + getQueryString(['page']) + '&verified=1'"
                target="_blank">
                 {% trans %}Verification (.xlsx){% endtrans %}
             </a>
-            {% endif %}
-            {% if urls.download_verification_long %}
             <a id="download-verification-pivotable" class="dropdown-item"
-               :href="'{{urls.download_verification_long}}' + getQueryString(['page'])"
+               :href="'{{urls.download_raw_long}}' + getQueryString(['page']) + '&verified=1'"
                target="_blank">
                 {% trans %}Verification (pivotable .csv){% endtrans %}
             </a>

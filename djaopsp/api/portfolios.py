@@ -484,7 +484,8 @@ class TotalScoreBySubsectorAPIView(RollupMixin, GraphMixin, SupplierListMixin,
         All accounts which have elected to share their scorecard
         with ``account``.
         """
-        # overrides `MatrixDetailAPIView.get_accounts()`
+        # overrides `MatrixDetailAPIView.get_accounts()` to call
+        # `get_accessible_accounts instead of `.all()`
         show_individual_profiles = True
         accounts_queryset = get_accessible_accounts([self.account],
             start_at=self.accounts_start_at, ends_at=self.accounts_ends_at)

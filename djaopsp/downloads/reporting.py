@@ -1,7 +1,7 @@
 # Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
-import csv, datetime, io, logging, os, re
+import csv, datetime, io, logging, os
 
 from django.conf import settings
 from django.db import connection
@@ -25,8 +25,7 @@ from survey.mixins import TimersMixin
 from survey.models import (Answer, Campaign, Choice, Portfolio, Sample, Unit,
     UnitEquivalences)
 from survey.settings import DB_PATH_SEP
-from survey.utils import (get_accessible_accounts, get_engaged_accounts,
-    get_question_model)
+from survey.utils import get_question_model
 
 from .base import CSVDownloadRenderer
 from .content import PracticesSpreadsheetView
@@ -743,15 +742,16 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
         return self._show_scores
 
     @property
-    def verified_campaign(self):
-        if not hasattr(self, '_verified_campaign'):
-            #pylint:disable=attribute-defined-outside-init
-            self._verified_campaign = self.campaign
-            look = re.match(r'(\S+)-verified$', self._verified_campaign.slug)
-            if look:
-                self._verified_campaign = get_object_or_404(
-                    Campaign.objects.all(), slug=look.group(1))
-        return self._verified_campaign
+    def show_verified(self):
+        if not hasattr(self, '_show_verified'):
+            self._show_verified =self.get_query_param('verified', False)
+            if not isinstance(self._show_verified, bool):
+                try:
+                    self._show_verified = bool(int(self._show_verified))
+                except ValueError:
+                    self._show_verified = bool(
+                        self._show_verified.lower() in ['true'])
+        return self._show_verified
 
     @property
     def engaged_accounts(self):
@@ -776,7 +776,7 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
                 # See `survey.api.matrix.BenchmarkMixin.get_questions_by_key`
                 self._latest_assessments = \
                     Sample.objects.get_latest_frozen_by_accounts(
-                        campaign=self.verified_campaign,
+                        campaign=self.campaign,
                         start_at=self.start_at, ends_at=self.ends_at,
                         segment_prefix=self.db_path,
                     # create a list to prevent RawQuerySet if-condition later on
@@ -795,7 +795,7 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
             if self.engaged_accounts:
                 self._improvements = \
                     Sample.objects.get_latest_frozen_by_accounts(
-                        campaign=self.verified_campaign,
+                        campaign=self.campaign,
                         start_at=self.start_at, ends_at=self.ends_at,
                         segment_prefix=self.db_path,
                 # create a list to prevent RawQuerySet if-condition later on
@@ -847,6 +847,27 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
                     reporting.extra.update(extra)
 
         return self._accounts_with_completed_assessment
+
+
+    def get_decorated_questions(self, prefix=None):
+        """
+        Returns all questions in a campaign
+        """
+        # overiride `CampaignContentMixin.get_decorated_questions`
+        # to enable verification campaign.
+        campaign = self.campaign
+        if self.show_verified:
+            campaign = get_object_or_404(
+                Campaign.objects.all(), slug='%s-verified' % str(campaign))
+        question_kwargs = {}
+        if self.campaign:
+            question_kwargs.update({
+                'enumeratedquestions__campaign': campaign})
+        queryset = get_question_model().objects.filter(
+            path__startswith=prefix, **question_kwargs)
+        search_filter = SearchFilter()
+        queryset = search_filter.filter_queryset(self.request, queryset, self)
+        return self.decorate_questions(queryset)
 
 
     def merge_records(self, left_records, right_records):
@@ -975,7 +996,7 @@ ORDER BY answers.path, answers.account_id
             'latest_assessments': latest_samples.query.sql,
             'question_clause': question_clause
         }
-        if self.campaign != self.verified_campaign:
+        if self.show_verified:
             # When we are downloading the answers for a verification
             # campaign, we run the same query as previously, except we
             # add an indirection through `djaopsp_verifiedsample` to find
@@ -1035,7 +1056,6 @@ ORDER BY answers.path, answers.account_id
             'latest_assessments': latest_samples.query.sql,
             'question_clause': question_clause
         }
-
         with connection.cursor() as cursor:
             cursor.execute(reporting_answers_sql, params=None)
             prev_path = None
@@ -1117,9 +1137,12 @@ ORDER BY answers.path, answers.account_id
         if self.show_planned:
             by_paths = self.get_answers_by_paths(self.latest_improvements)
             self._report_queries(descr="collected planned answers")
+        elif self.show_verified:
+            by_paths = self.get_answers_by_paths(self.latest_assessments)
+            self._report_queries(descr="collected verified answers")
         else:
             by_paths = self.get_answers_by_paths(self.latest_assessments)
-            self._report_queries(descr="collected questions answers")
+            self._report_queries(descr="collected answers")
 
         for entry in questions:
             slug = entry.get('slug')
@@ -1230,27 +1253,6 @@ class AccessiblesAnswersPivotableCSVView(AccessiblesAccountsMixin,
         'full_name',
     )
 
-    def get_accounts(self):
-        """
-        Returns account accessibles by a profile in a specific date range.
-        """
-        # Redefines `AccessiblesAccountsMixin.get_accounts` such that
-        # we use `self.verified_campaign` instead of `self.campaign`
-        # and set `aggregate_set` to `False` instead of `True`.
-        # Furthermore, we use the same [start_at, ends_at[ range
-        # to filter accounts and samples.
-        show_individual_profiles = True
-        queryset = get_accessible_accounts([self.account],
-            campaign=self.verified_campaign,
-            start_at=self.start_at, ends_at=self.ends_at)
-        if False:
-            # XXX skip using the search filter, and always download
-            # all accessible data.
-            search_fillter = SearchFilter()
-            queryset = search_fillter.filter_queryset(
-                self.request, queryset, self)
-        return queryset.order_by('pk'), show_individual_profiles
-
 
 class EngagedAnswersPivotableCSVView(EngagedAccountsMixin,
                                      AnswersPivotableView):
@@ -1260,22 +1262,6 @@ class EngagedAnswersPivotableCSVView(EngagedAccountsMixin,
     basename = 'engage-answers-pivotable'
     renderer_classes = [CSVDownloadRenderer]
     serializer_class = LongFormatSerializer
-
-    def get_accounts(self):
-        """
-        Returns account accessibles by a profile in a specific date range.
-        """
-        # Redefines `AccessiblesAccountsMixin.get_accounts` such that
-        # we use `self.verified_campaign` instead of `self.campaign`
-        # and set `aggregate_set` to `False` instead of `True`.
-        # Furthermore, we use the same [start_at, ends_at[ range
-        # to filter accounts and samples.
-        show_individual_profiles = True
-        accounts_queryset = get_engaged_accounts([self.account],
-            campaign=self.verified_campaign,
-            start_at=self.start_at, ends_at=self.ends_at,
-            search_terms=self.search_terms).order_by('pk')
-        return accounts_queryset, show_individual_profiles
 
 
 class TabularizedAnswersXLSXView(AnswersDownloadMixin,
@@ -1605,27 +1591,6 @@ class AccessiblesAnswersXLSXView(AccessiblesAccountsMixin,
         'full_name',
     )
 
-    def get_accounts(self):
-        """
-        Returns account accessibles by a profile in a specific date range.
-        """
-        # Redefines `AccessiblesAccountsMixin.get_accounts` such that
-        # we use `self.verified_campaign` instead of `self.campaign`
-        # and set `aggregate_set` to `False` instead of `True`.
-        # Furthermore, we use the same [start_at, ends_at[ range
-        # to filter accounts and samples.
-        show_individual_profiles = True
-        queryset = get_accessible_accounts([self.account],
-            campaign=self.verified_campaign,
-            start_at=self.start_at, ends_at=self.ends_at)
-        if False:
-            # XXX skip using the search filter, and always download
-            # all accessible data.
-            search_fillter = SearchFilter()
-            queryset = search_fillter.filter_queryset(
-                self.request, queryset, self)
-        return queryset.order_by('pk'), show_individual_profiles
-
 
 class EngagedAnswersXLSXView(EngagedAccountsMixin,
                              TabularizedAnswersXLSXView):
@@ -1634,19 +1599,3 @@ class EngagedAnswersXLSXView(EngagedAccountsMixin,
     and engaged accounts as columns.
     """
     basename = 'engage-answers'
-
-    def get_accounts(self):
-        """
-        Returns account accessibles by a profile in a specific date range.
-        """
-        # Redefines `AccessiblesAccountsMixin.get_accounts` such that
-        # we use `self.verified_campaign` instead of `self.campaign`
-        # and set `aggregate_set` to `False` instead of `True`.
-        # Furthermore, we use the same [start_at, ends_at[ range
-        # to filter accounts and samples.
-        show_individual_profiles = True
-        accounts_queryset = get_engaged_accounts([self.account],
-            campaign=self.verified_campaign,
-            start_at=self.start_at, ends_at=self.ends_at,
-            search_terms=self.search_terms).order_by('pk')
-        return accounts_queryset, show_individual_profiles
