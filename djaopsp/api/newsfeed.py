@@ -293,6 +293,34 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         context.update({'prefix': self.URL_PATH_SEP})
         return context
 
+    def get_pending_portfolio_grants(self):
+        results = []
+        for account in self.accounts:
+            if not (self.manages(account) or
+                    self.manages(settings.BROKER_NAME)):
+                continue
+            pending_grants = PortfolioDoubleOptIn.objects.pending_for(
+                account).filter(
+                    state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED
+                ).select_related('account', 'campaign', 'grantee')
+            for portfolio in pending_grants:
+                campaign = portfolio.campaign
+                slug = portfolio.account.slug
+                title = _("Portfolio grant")
+                descr = None
+                if campaign:
+                    slug = campaign.slug
+                    title = campaign.title
+                    descr = campaign.description
+                results.append({
+                    'slug': slug,
+                    'title': title,
+                    'descr': descr,
+                    'account': portfolio.account,
+                    'portfolio': portfolio,
+                })
+        return results
+
     def get_grantee_sample_completion_posts(self, starts_at=None):
         # `Sample.objects.get_latest_frozen_by_portfolios` decorates samples
         # with `survey.Sample` reporting states, which do not match
@@ -394,18 +422,21 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
 
     def get_queryset(self):
         search_term = self.get_query_param(self.search_param)
-        show_all = bool(search_term == 'requests')
-        results = list(self.get_pending_requests(show_all=show_all))
-        if search_term != 'requests':
+        if search_term == 'requests':
+            return list(self.get_pending_requests(show_all=True))
+
+        results = self.get_pending_portfolio_grants()
+        results += list(self.get_pending_requests())
+
+        if settings.FEATURES_DEBUG:
             completed_since = self.get_query_param('completed_since')
             if completed_since:
                 starts_at = datetime_or_now(completed_since)
             else:
                 starts_at = datetime_or_now() - relativedelta(days=7)
-            if settings.FEATURES_DEBUG:
-                results += self.get_grantee_sample_completion_posts(
-                    starts_at=starts_at)
-            results += list(self.get_updated_elements())
+            results += self.get_grantee_sample_completion_posts(
+                starts_at=starts_at)
+        results += list(self.get_updated_elements())
         return results
 
 

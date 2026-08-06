@@ -9,8 +9,8 @@ from pages.api.serializers import (
     UserNewsSerializer as UserNewsBaseSerializer)
 from survey.models import PortfolioDoubleOptIn, Sample, Unit
 from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
-    AnswerSerializer, SampleSerializer, TableSerializer, UnitSerializer,
-    UnitDetailSerializer)
+    AnswerSerializer, PortfolioReceivedSerializer, SampleSerializer,
+    TableSerializer, UnitSerializer, UnitDetailSerializer)
 from survey.utils import get_account_model
 
 from .. import humanize
@@ -601,6 +601,22 @@ class NewsfeedSampleCompletionSerializer(NoModelSerializer):
         help_text=_("Reporting status of the completed sample"))
 
 
+class NewsfeedPortfolioReceivedSerializer(PortfolioReceivedSerializer):
+
+    class Meta(PortfolioReceivedSerializer.Meta):
+        fields = ('grantee', 'account', 'campaign', 'created_at', 'ends_at',
+            'state', 'api_accept')
+        read_only_fields = fields
+
+    def get_api_accept(self, obj):
+        api_endpoint = reverse('api_portfolios_grant_accept',
+            args=(obj.grantee, obj.verification_key,))
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(api_endpoint)
+        return api_endpoint
+
+
 class UserNewsSerializer(UserNewsBaseSerializer):
     """
     News item for updates in `PageElement`, or pending questionnaire request
@@ -622,6 +638,8 @@ class UserNewsSerializer(UserNewsBaseSerializer):
         help_text=_("URL to answer the questionnaire"))
     external_url = serializers.URLField(required=False, allow_blank=True,
         help_text=_("URL to external information"))
+    portfolio = NewsfeedPortfolioReceivedSerializer(required=False,
+        help_text=_("Pending portfolio grant received by the profile"))
     completion = NewsfeedSampleCompletionSerializer(required=False,
         help_text=_("Account that completed the sample"))
     view_response_url = serializers.URLField(required=False, allow_blank=True,
@@ -633,8 +651,8 @@ class UserNewsSerializer(UserNewsBaseSerializer):
         fields = UserNewsBaseSerializer.Meta.fields + (
             'grantees', 'ends_at', 'last_completed_at', 'respondents',
             'share_url', 'update_url', 'external_url',
-            'completion', 'view_response_url', 'engage_url')
+            'portfolio', 'completion', 'view_response_url', 'engage_url')
         read_only_fields = UserNewsBaseSerializer.Meta.read_only_fields + (
             'grantees', 'ends_at', 'last_completed_at', 'respondents',
             'share_url', 'update_url', 'external_url',
-            'completion', 'view_response_url', 'engage_url')
+            'portfolio', 'completion', 'view_response_url', 'engage_url')

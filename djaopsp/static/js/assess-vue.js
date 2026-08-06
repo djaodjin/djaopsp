@@ -11,11 +11,6 @@ Vue.component('newsfeed', {
     data: function() {
         return {
             url: this.$urls.api_newsfeed,
-            portfolios_received_url: this.$urls.api_portfolios_received,
-            grants: {
-                count: 0,
-                results: []
-            },
             getCompleteCb: 'getCompleted',
             logExternalRedirectUrl: this.$urls.api_log_external_redirect,
         }
@@ -25,27 +20,19 @@ Vue.component('newsfeed', {
             var vm = this;
             vm.populateAccounts(vm.items.results, 'account');
             vm.populateUserProfiles();
-            if( vm.portfolios_received_url ) {
-                vm.reqGet(vm.portfolios_received_url +
-                    "?state=grant-initiated",
-                function(resp) {
-                    vm.grants = resp;
-                    vm.populateAccounts(vm.grants.results, 'account');
-                });
-            }
         },
-        accept: function(portfolio, idx) {
+        accept: function(item, idx) {
             var vm = this;
-            vm.reqPost(portfolio.api_accept,
+            vm.reqPost(item.portfolio.api_accept,
             function(resp) { // success
-                vm.grants.results.splice(idx, 1);
+                vm.items.results.splice(idx, 1);
             });
         },
-        ignore: function(portfolio, idx) {
+        ignore: function(item, idx) {
             var vm = this;
-            vm.reqDelete(portfolio.api_accept,
+            vm.reqDelete(item.portfolio.api_accept,
             function(resp) { // success
-                vm.grants.results.splice(idx, 1);
+                vm.items.results.splice(idx, 1);
             });
         },
         populateUserProfiles: function() {
