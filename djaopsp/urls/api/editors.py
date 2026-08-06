@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -6,7 +6,7 @@ API URLs
 """
 from django.urls import path, include
 
-from ...api.content import PageElementEditableListAPIView
+from ...api.content import PageElementEditableIndexAPIView
 from ...api.campaigns import (CampaignEditableSegmentsAPIView,
     CampaignEditableContentAPIView, CampaignEditableQuestionAPIView,
     CampaignUploadAPIView)
@@ -14,7 +14,7 @@ from ...api.campaigns import (CampaignEditableSegmentsAPIView,
 
 urlpatterns = [
     path('content',
-        PageElementEditableListAPIView.as_view(),
+        PageElementEditableIndexAPIView.as_view(),
         name="pages_api_editables_index"),
     path('campaigns/<slug:campaign>/upload',
         CampaignUploadAPIView.as_view(),

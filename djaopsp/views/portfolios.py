@@ -6,7 +6,6 @@ import io, json, logging, re
 from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
-from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -196,19 +195,8 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/accessibles/")
         })
-        try:
-            verification_campaign = Campaign.objects.get(
-                slug="%s-verified" % self.campaign)
-            update_context_urls(context, {
-                'download_verification': reverse(
-                    'download_accessibles_raw', args=(
-                        self.account, verification_campaign)),
-                'download_verification_long': reverse(
-                    'download_accessibles_raw_long', args=(
-                        self.account, verification_campaign)),
-            })
-        except Campaign.DoesNotExist:
-            pass
+        context.update({'verification_exists': Campaign.objects.filter(
+            slug="%s-verified" % self.campaign).exists()})
         return context
 
 
@@ -260,19 +248,8 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/engage/")
         })
-        try:
-            verification_campaign = Campaign.objects.get(
-                slug="%s-verified" % self.campaign)
-            update_context_urls(context, {
-                'download_verification': reverse(
-                    'download_matrix_compare', args=(
-                        self.account, verification_campaign)),
-                'download_verification_long': reverse(
-                    'download_engage_raw_long', args=(
-                        self.account, verification_campaign)),
-            })
-        except Campaign.DoesNotExist:
-            pass
+        context.update({'verification_exists': Campaign.objects.filter(
+            slug="%s-verified" % self.campaign).exists()})
         return context
 
 

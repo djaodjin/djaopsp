@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -7,7 +7,8 @@ from collections import OrderedDict
 
 from django.db import transaction
 from django.db.models import Max
-from pages.api.elements import (PageElementEditableListAPIView,
+from django.utils import translation
+from pages.api.elements import (PageElementEditableIndexAPIView,
     PageElementEditableDetail)
 from pages.docs import extend_schema
 from pages.mixins import TrailMixin
@@ -219,6 +220,21 @@ class CampaignDecorateMixin(CampaignMixin):
                     seg_val[0].update({'rank': -1})
                     break
         elements = flatten_content_tree(by_tiles)
+
+        # Applies translation when available
+        translated_queryset = PageElement.objects.filter(
+            slug__in={elem.get('slug') for elem in elements},
+            lang=translation.get_language()).values(
+            'slug', *self.content_extra_fields)
+        translated = {elem.get('slug'): elem
+            for elem in translated_queryset}
+        for elem in elements:
+            elem_transated = translated.get(elem['slug'])
+            if elem_transated:
+                for field_name in self.content_extra_fields:
+                    elem[field_name] = elem_transated.get(
+                        field_name, elem[field_name])
+
         return elements
 
 
@@ -246,7 +262,7 @@ class CampaignContentMixin(CampaignDecorateMixin):
 
 
 class CampaignEditableSegmentsAPIView(CampaignContentMixin,
-                                      PageElementEditableListAPIView):
+                                      PageElementEditableIndexAPIView):
 
     serializer_class = ContentNodeSerializer
 
@@ -471,7 +487,7 @@ class CampaignContentIndexAPIView(CampaignContentAPIView):
 
 
 class CampaignEditableContentAPIView(CampaignContentMixin,
-                                     PageElementEditableListAPIView):
+                                     PageElementEditableIndexAPIView):
 
     serializer_class = ContentNodeSerializer
     strip_segment_prefix = True
