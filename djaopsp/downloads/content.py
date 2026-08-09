@@ -92,15 +92,6 @@ class PracticesSpreadsheetView(TimersMixin, QuestionListAPIView):
 
     @staticmethod
     def _get_row_header(entry):
-        default_unit = entry.get('default_unit', {})
-        default_unit_choices = []
-        if default_unit:
-            try:
-                default_unit = default_unit.slug
-            except AttributeError:
-                default_unit_choices = default_unit.get('choices', [])
-                default_unit = default_unit.get('slug', "")
-
         title = entry.get('title', "")
         ref_num = entry.get('ref_num')
         if ref_num:
@@ -114,7 +105,7 @@ class PracticesSpreadsheetView(TimersMixin, QuestionListAPIView):
             except AttributeError:
                 default_unit_system = default_unit.get('system')
                 default_unit_title = default_unit.get('title')
-            if default_unit_system in Unit.METRIC_SYSTEMS:
+            if default_unit_system in Unit.NUMERICAL_SYSTEMS:
                 title += " (in %s)" % default_unit_title
             else:
                 subtitle = ""

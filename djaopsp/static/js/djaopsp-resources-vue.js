@@ -396,7 +396,7 @@ var practicesListMixin = {
             return this.getAnswerByUnit(practice, 'freetext', "");
         },
         getPrimaryAnswer: function(practice, tag) {
-            if( !practice ) return {};
+            if( !practice || !practice.default_unit ) return {};
             if( tag && tag === 'planned' ) {
                 if( typeof practice.planned === 'undefined' ) {
                     practice['planned'] = [];

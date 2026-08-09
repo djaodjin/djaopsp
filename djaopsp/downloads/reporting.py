@@ -1063,34 +1063,32 @@ ORDER BY answers.path, answers.account_id
             for row in cursor:
                 # The SQL quesry is ordered by `path` so we can build
                 # the final result by chunks, path by path.
+                # Without questions for multiple years (ex: current and base
+                # year GHG emissions), the query would be sorted by slug
+                # i.e. `REGEXP_REPLACE(answers.path, '^/(\S+/)*', '')`
+                # but this function is not supported easily on sqlite3.
                 path = row[0]
                 if prev_path and path != prev_path:
                     # flush
-                    prev_slug = prev_path.split(DB_PATH_SEP)[-1]
-                    if prev_slug in answers_by_paths:
-                        # Ideally the query would be sorted by slug
-                        # i.e. `REGEXP_REPLACE(answers.path, '^/(\S+/)*', '')`
-                        # but this function is not supported easily on sqlite3.
+                    prev_key = prev_path # prev_path.split(DB_PATH_SEP)[-1]
+                    if prev_key in answers_by_paths:
                         answers_by_paths.update({
-                            prev_slug: self.merge_records(
-                                answers_by_paths[prev_slug], chunk)})
+                            prev_key: self.merge_records(
+                                answers_by_paths[prev_key], chunk)})
                     else:
-                        answers_by_paths.update({prev_slug: chunk})
+                        answers_by_paths.update({prev_key: chunk})
                     chunk = []
-                    #self._report_queries(
-                    #    "merged answers by slug %s" % prev_slug)
                 chunk += [row]
                 prev_path = path
             if chunk:
                 # flush last remaining chunk
-                prev_slug = prev_path.split(DB_PATH_SEP)[-1]
-                if prev_slug in answers_by_paths:
+                prev_key = prev_path # prev_path.split(DB_PATH_SEP)[-1]
+                if prev_key in answers_by_paths:
                     answers_by_paths.update({
-                        prev_slug: self.merge_records(
-                            answers_by_paths[prev_slug], chunk)})
+                        prev_key: self.merge_records(
+                            answers_by_paths[prev_key], chunk)})
                 else:
-                    answers_by_paths.update({prev_slug: chunk})
-                self._report_queries("merged answers by slug %s" % prev_slug)
+                    answers_by_paths.update({prev_key: chunk})
 
         return answers_by_paths
 
@@ -1145,12 +1143,15 @@ ORDER BY answers.path, answers.account_id
             self._report_queries(descr="collected answers")
 
         for entry in questions:
-            slug = entry.get('slug')
-            if not slug:
-                # We are running code here before `CampaignDecorateMixin`
-                # has had a chance to add the slug.
-                slug = entry.get('path').split(DB_PATH_SEP)[-1]
-            by_accounts = by_paths.get(slug)
+            path = entry.get('path')
+            key = path
+            if False:
+                key = entry.get('slug')
+                if not key:
+                    # We are running code here before `CampaignDecorateMixin`
+                    # has had a chance to add the slug.
+                    key = path.split(DB_PATH_SEP)[-1]
+            by_accounts = by_paths.get(key)
             if by_accounts:
                 entry.update({'accounts': by_accounts})
             elif self.show_scores:
@@ -1163,7 +1164,7 @@ ORDER BY answers.path, answers.account_id
                 if tags and 'scorecard' in tags:
                     scores = ScorecardCache.objects.filter(
                         sample__in=self.latest_assessments,
-                        path=entry['path']).order_by(
+                        path=path).order_by(
                         'sample__account_id').values_list(
                         'pk', 'sample__account_id', 'normalized_score')
                     # by using `self.points_unit.pk` for both 'unit_id' and
@@ -1500,10 +1501,6 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
         else:
             for account in self.accounts_with_completed_assessment:
                 row += [""]
-
-        if entry.get('default_unit'):
-            slug = entry.get('slug')
-            row += [slug]
 
         return row
 
