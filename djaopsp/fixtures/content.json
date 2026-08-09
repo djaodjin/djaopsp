@@ -1649,6 +1649,42 @@
   },
   "model": "pages.RelationShip", "pk": 72
 },
+
+{
+  "fields": {
+    "title": "GHG Emissions Targets",
+    "slug": "ghg-emissions-target",
+    "text_updated_at": "2026-01-01T00:00:00.000Z",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 99
+},
+{
+  "fields": {
+    "orig_element": 65, "dest_element": 99,
+    "rank": 90
+  },
+  "model": "pages.RelationShip", "pk": 99
+},
+{
+  "fields": {
+    "title": "Decarbonization Activities",
+    "slug": "ghg-emissions-activities",
+    "text_updated_at": "2026-01-01T00:00:00.000Z",
+    "picture": "/static/img/data-metrics.png",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 100
+},
+{
+  "fields": {
+    "orig_element": 65, "dest_element": 100,
+    "rank": 91
+  },
+  "model": "pages.RelationShip", "pk": 100
+},
+
 {
   "fields": {
     "title": "Waste reporting",
@@ -1660,7 +1696,7 @@
 },
 {
   "fields": {
-    "rank": 59, "orig_element": 66, "dest_element": 73
+    "rank": 59, "orig_element": 65, "dest_element": 73
   },
   "model": "pages.RelationShip", "pk": 73
 },
@@ -1708,7 +1744,7 @@
 },
 {
   "fields": {
-    "rank": 58, "orig_element": 66, "dest_element": 76
+    "rank": 58, "orig_element": 65, "dest_element": 76
   },
   "model": "pages.RelationShip", "pk": 76
 },
@@ -1769,13 +1805,13 @@
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 58
+  "model": "pages.PageElement", "pk": 80
 },
 {
   "fields": {
-    "orig_element": 79, "dest_element": 58
+    "orig_element": 79, "dest_element": 80
   },
-  "model": "pages.RelationShip", "pk": 58
+  "model": "pages.RelationShip", "pk": 80
 },
 {
   "fields": {
@@ -1784,13 +1820,13 @@
     "text_updated_at": "2026-01-01T00:00:00.000Z",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 80
+  "model": "pages.PageElement", "pk": 81
 },
 {
   "fields": {
-    "rank": 127, "orig_element": 79, "dest_element": 80
+    "rank": 127, "orig_element": 79, "dest_element": 81
   },
-  "model": "pages.RelationShip", "pk": 80
+  "model": "pages.RelationShip", "pk": 81
 },
 {
   "fields": {
@@ -1800,13 +1836,13 @@
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 81
+  "model": "pages.PageElement", "pk": 82
 },
 {
   "fields": {
-    "orig_element": 80, "dest_element": 81
+    "orig_element": 81, "dest_element": 82
   },
-  "model": "pages.RelationShip", "pk": 81
+  "model": "pages.RelationShip", "pk": 82
 },
 {
   "fields": {
@@ -1816,13 +1852,13 @@
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 82
+  "model": "pages.PageElement", "pk": 83
 },
 {
   "fields": {
-    "orig_element": 80, "dest_element": 82
+    "orig_element": 81, "dest_element": 83
   },
-  "model": "pages.RelationShip", "pk": 82
+  "model": "pages.RelationShip", "pk": 83
 },
 {
   "fields": {
@@ -1832,13 +1868,13 @@
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 83
+  "model": "pages.PageElement", "pk": 84
 },
 {
   "fields": {
-    "orig_element": 80, "dest_element": 83
+    "orig_element": 81, "dest_element": 84
   },
-  "model": "pages.RelationShip", "pk": 83
+  "model": "pages.RelationShip", "pk": 84
 },
 {
   "fields": {
@@ -1848,13 +1884,13 @@
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 84
+  "model": "pages.PageElement", "pk": 85
 },
 {
   "fields": {
-    "orig_element": 80, "dest_element": 84
+    "orig_element": 81, "dest_element": 85
   },
-  "model": "pages.RelationShip", "pk": 84
+  "model": "pages.RelationShip", "pk": 85
 },
 {
   "fields": {
@@ -1864,13 +1900,13 @@
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 85
+  "model": "pages.PageElement", "pk": 86
 },
 {
   "fields": {
-    "orig_element": 80, "dest_element": 85
+    "orig_element": 81, "dest_element": 86
   },
-  "model": "pages.RelationShip", "pk": 85
+  "model": "pages.RelationShip", "pk": 86
 },
 {
   "fields": {
@@ -1880,13 +1916,13 @@
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 86
+  "model": "pages.PageElement", "pk": 87
 },
 {
   "fields": {
-    "orig_element": 80, "dest_element": 86
+    "orig_element": 81, "dest_element": 87
   },
-  "model": "pages.RelationShip", "pk": 86
+  "model": "pages.RelationShip", "pk": 87
 },
 {
   "fields": {
@@ -1896,13 +1932,30 @@
     "picture": "/static/img/data-metrics.png",
     "account": 2
   },
-  "model": "pages.PageElement", "pk": 87
+  "model": "pages.PageElement", "pk": 88
 },
 {
   "fields": {
-    "orig_element": 80, "dest_element": 87
+    "orig_element": 81, "dest_element": 88
   },
-  "model": "pages.RelationShip", "pk": 87
+  "model": "pages.RelationShip", "pk": 88
+},
+
+{
+  "fields": {
+    "title": "Scope 3 reporting",
+    "slug": "ghg-emissions-scope3-details",
+    "text_updated_at": "2026-01-01T00:00:00.000Z",
+    "account": 2,
+    "extra": ""
+  },
+  "model": "pages.PageElement", "pk": 90
+},
+{
+  "fields": {
+    "rank": 82, "orig_element": 65, "dest_element": 90
+  },
+  "model": "pages.RelationShip", "pk": 90
 },
 
 {
@@ -1957,25 +2010,6 @@
   },
   "model": "pages.RelationShip", "pk": 104
 },
-
-
-{
-  "fields": {
-    "title": "Scope 3 reporting",
-    "slug": "ghg-emissions-scope3-details",
-    "text_updated_at": "2026-01-01T00:00:00.000Z",
-    "account": 2,
-    "extra": ""
-  },
-  "model": "pages.PageElement", "pk": 90
-},
-{
-  "fields": {
-    "rank": 82, "orig_element": 65, "dest_element": 90
-  },
-  "model": "pages.RelationShip", "pk": 90
-},
-
 {
   "fields": {
     "title": "Scope 3 measured and trended",
@@ -2528,13 +2562,6 @@
   },
   "model": "pages.PageElement", "pk": 152
 },
-{
-  "fields": {
-    "orig_element": 65, "dest_element": 152,
-    "rank": 1
-  },
-  "model": "pages.RelationShip", "pk": 152
-},
 
 {
   "fields": {
@@ -2547,7 +2574,7 @@
 },
 {
   "fields": {
-    "rank": 80, "orig_element": 66, "dest_element": 159
+    "rank": 80, "orig_element": 100, "dest_element": 159
   },
   "model": "pages.RelationShip", "pk": 159
 },
@@ -2564,13 +2591,6 @@
 },
 {
   "fields": {
-    "orig_element": 65, "dest_element": 156,
-    "rank": 2
-  },
-  "model": "pages.RelationShip", "pk": 156
-},
-{
-  "fields": {
     "title": "7.4 Is your Scope 1 GHG Emissions target a science-based target, net-zero target, or other?",
     "slug": "ghg-emissions-scope1-science-based-target",
     "text_updated_at": "2026-01-01T00:00:00.000Z",
@@ -2578,13 +2598,6 @@
     "account": 2
   },
   "model": "pages.PageElement", "pk": 157
-},
-{
-  "fields": {
-    "orig_element": 65, "dest_element": 157,
-    "rank": 2
-  },
-  "model": "pages.RelationShip", "pk": 157
 },
 
 {
@@ -2596,13 +2609,6 @@
     "account": 2
   },
   "model": "pages.PageElement", "pk": 158
-},
-{
-  "fields": {
-    "orig_element": 65, "dest_element": 158,
-    "rank": 2
-  },
-  "model": "pages.RelationShip", "pk": 158
 },
 
 {
@@ -2617,13 +2623,6 @@
 },
 {
   "fields": {
-    "orig_element": 65, "dest_element": 160,
-    "rank": 2
-  },
-  "model": "pages.RelationShip", "pk": 160
-},
-{
-  "fields": {
     "title": "7.10 Is your Scope 2 GHG Emissions target a science-based target, net-zero target, or other?",
     "slug": "ghg-emissions-scope2-science-based-target",
     "text_updated_at": "2026-01-01T00:00:00.000Z",
@@ -2632,14 +2631,6 @@
   },
   "model": "pages.PageElement", "pk": 161
 },
-{
-  "fields": {
-    "orig_element": 65, "dest_element": 161,
-    "rank": 2
-  },
-  "model": "pages.RelationShip", "pk": 161
-},
-
 {
   "fields": {
     "title": "Scope 1 GHG Emissions",

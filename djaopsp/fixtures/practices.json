@@ -902,7 +902,7 @@
 {
   "fields": {
     "path": "/sustainability/social-reporting/governance-fines",
-    "content": 58,
+    "content": 80,
     "default_unit": 202,
     "ui_hint": "yes-comments",
     "extra": "{\"tags\":[\"assess-only\"]}"
