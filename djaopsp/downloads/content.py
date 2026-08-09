@@ -229,7 +229,7 @@ class PracticesSpreadsheetView(TimersMixin, QuestionListAPIView):
                 #max_heading_width = max(max_heading_width,
                 #    entry['indent'] + len(entry['title']))
                 nb_wrapped_lines = max(int((
-                    entry['indent'] + len(entry['title']))
+                    entry['indent'] + len(entry.get('title', "")))
                     * 0.9 / max_heading_width) + 1, 1)
                 row_heights += [nb_wrapped_lines * 5.29 * height_ratio]
 
