@@ -21,6 +21,20 @@ Vue.component('newsfeed', {
             vm.populateAccounts(vm.items.results, 'account');
             vm.populateUserProfiles();
         },
+        accept: function(item, idx) {
+            var vm = this;
+            vm.reqPost(item.portfolio.api_accept,
+            function(resp) { // success
+                vm.items.results.splice(idx, 1);
+            });
+        },
+        ignore: function(item, idx) {
+            var vm = this;
+            vm.reqDelete(item.portfolio.api_accept,
+            function(resp) { // success
+                vm.items.results.splice(idx, 1);
+            });
+        },
         populateUserProfiles: function() {
             var vm = this;
             var users = new Set();

@@ -6,7 +6,6 @@ import io, json, logging, re
 from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
-from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -196,11 +195,6 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/accessibles/")
         })
-        if self.manages(self.account) or self.manages(settings.BROKER_NAME):
-            update_context_urls(context, {
-                'api_portfolios_received': reverse(
-                    'survey_api_portfolios_received', args=(self.account,)),
-            })
         context.update({'verification_exists': Campaign.objects.filter(
             slug="%s-verified" % self.campaign).exists()})
         return context

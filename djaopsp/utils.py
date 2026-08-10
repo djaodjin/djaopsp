@@ -123,7 +123,8 @@ def _notified_recipients(notification_slug, context):
                 recipients.append(rcpt_email)
     elif notification_slug in (
             'portfolios_grant_initiated',
-            'portfolio_request_accepted',):
+            'portfolio_request_accepted',
+            'completed_assessments_report',):
         user_email = context.get('grantee', {}).get('email', "")
         if user_email:
             recipients = [user_email]
