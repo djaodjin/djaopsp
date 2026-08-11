@@ -2,7 +2,7 @@
 # see LICENSE.
 
 import logging
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -13,14 +13,15 @@ from rest_framework.generics import get_object_or_404
 from pages.api.newsfeed import NewsFeedListAPIView as NewsfeedBaseAPIView
 from survey.helpers import datetime_or_now
 from survey.models import Campaign, PortfolioDoubleOptIn, Sample
-from survey.utils import get_accessible_accounts, get_account_model
+from survey.utils import get_account_model
 
 from ..api.serializers import UserNewsSerializer
 from ..compat import reverse, gettext_lazy as _
 from ..mixins import VisibilityMixin
 from ..humanize import (REPORTING_ACCESSIBLE_ANSWERS, REPORTING_COMPLETED,
-    REPORTING_COMPLETED_NOTSHARED, REPORTING_STATUSES, REPORTING_VERIFIED)
+    REPORTING_VERIFIED)
 from ..queries import get_engagement
+from ..templatetags.djaopsp_tags import humanizeDate
 from ..utils import (get_campaign_candidates, get_latest_active_assessments,
     get_latest_completed_assessment, get_unlocked)
 
@@ -293,150 +294,177 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         context.update({'prefix': self.URL_PATH_SEP})
         return context
 
-    def get_pending_portfolio_grants(self):
+    def get_pending_grants(self):
         results = []
-        for account in self.accounts:
-            if not (self.manages(account) or
-                    self.manages(settings.BROKER_NAME)):
-                continue
-            pending_grants = PortfolioDoubleOptIn.objects.pending_for(
-                account).filter(
-                    state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED
-                ).select_related('account', 'campaign', 'grantee')
-            for portfolio in pending_grants:
-                campaign = portfolio.campaign
-                slug = portfolio.account.slug
-                title = _("Portfolio grant")
-                descr = None
-                if campaign:
-                    slug = campaign.slug
-                    title = campaign.title
-                    descr = campaign.description
-                results.append({
-                    'slug': slug,
-                    'title': title,
-                    'descr': descr,
-                    'account': portfolio.account,
-                    'portfolio': portfolio,
-                })
-        return results
-
-    def get_grantee_sample_completion_posts(self, starts_at=None):
-        # `Sample.objects.get_latest_frozen_by_portfolios` decorates samples
-        # with `survey.Sample` reporting states, which do not match
-        # the `humanize` constants.
-        SAMPLE_STATE_TO_REPORTING_STATUS = {
-            Sample.REPORTING_COMPLETED: REPORTING_COMPLETED,
-            Sample.REPORTING_COMPLETED_NOTSHARED: REPORTING_COMPLETED_NOTSHARED,
-        }
-        results = []
-        reporting_status_labels = dict(REPORTING_STATUSES)
         for account in self.accounts:
             if not get_unlocked(self.request, account,
                     getattr(settings, 'UNLOCK_PORTFOLIOS', [])):
                 continue
 
+            # could also call `unsolicited` instead of `pending_for`
+            pending_grants = PortfolioDoubleOptIn.objects.pending_for(
+                account).filter(
+                    state=PortfolioDoubleOptIn.OPTIN_GRANT_INITIATED
+                ).select_related('account', 'campaign', 'grantee')
+            for optin in pending_grants:
+                title = _("Pro-actively shared responses")
+                descr = _("The supplier pro-actively shared their"
+" responses%(campaign)s up to %(ends_at)s with *$%(grantee)s*.\n\n"
+"Click **Accept** to add the supplier to the"
+" [track dashboard](%(portfolio_track)s)\n\nClick **Ignore** to discard"
+" these responses.") % {
+                    'campaign': (_(" to %(campaign_title)s") % {
+                        'campaign_title':  optin.campaign.title}
+                        if optin.campaign else ""),
+                    'ends_at': humanizeDate(optin.created_at),
+                    'grantee': str(optin.grantee),
+                    'portfolio_track': reverse('portfolio_track', args=(
+                        account,)),
+                }
+                results.append({
+                    'title': title,
+                    'descr': descr,
+                    'account': optin.account,
+                    'campaign': optin.campaign,
+                    'accept_url': reverse('api_portfolios_grant_accept',
+                        args=(optin.grantee, optin.verification_key,)),
+                })
+        return results
+
+
+    def get_completed_sample_posts(self, excludes=None, start_at=None):
+        """
+        returns a list of posts for completed responses.
+
+        `excludes` contains a list of `{'account': "", 'campaign': ""}`
+        which already resulted in a post through other means (ex: a grant).
+        """
+        #pylint:disable=too-many-locals
+        already_posted = defaultdict(list)
+        if excludes:
+            for val in excludes:
+                campaign = val.get('campaign')
+                if campaign:
+                    account = val.get('account')
+                    already_posted[account].append(campaign)
+
+        results = []
+        for grantee in self.accounts:
+            if not get_unlocked(self.request, grantee,
+                    getattr(settings, 'UNLOCK_PORTFOLIOS', [])):
+                # If the profile does not have access to the dashboards
+                # to engage suppliers, there is nothing to do.
+                continue
+
+            # All campaigns the grantee might be interested in
             filtered_in = (models.Q(extra__contains='searchable') &
                 models.Q(extra__contains='public'))
             campaigns = Campaign.objects.filter(
-                models.Q(account=account) |
-                models.Q(portfolios__grantee=account) |
-                models.Q(portfolio_double_optins__grantee=account) |
+                models.Q(account=grantee) |
+                models.Q(portfolios__grantee=grantee) |
+                models.Q(portfolio_double_optins__grantee=grantee) |
                 filtered_in).exclude(slug__endswith='-verified').distinct()
-            suppliers_by_pk = {supplier.pk: supplier
-                for supplier in get_accessible_accounts([account])}
+
+            # Supplier was requested by `grantee` to complete a response
+            # to `campaign` after the questionnaire was last updated.
+            # When the supplier shared the completed response with `grantee`,
+            # the post is purely informative, and contains a "view response"
+            # link.
+            # When the supplier has not shared the completed response with
+            # `grantee` yet, the post contains a link to the engage dashboard.
             for campaign in campaigns:
-                posted_account_ids = set()
                 requested_accounts = list(PortfolioDoubleOptIn.objects.filter(
-                    grantee=account, campaign=campaign,
-                    created_at__gt=campaign.updated_at).values_list(
+                    grantee=grantee, campaign=campaign,
+                    created_at__gte=campaign.updated_at).values_list(
                     'account_id', flat=True).distinct())
                 if requested_accounts:
                     queryset = get_engagement(
                         campaign, accounts=requested_accounts,
-                        grantees=[account],
+                        grantees=[grantee],
                         filter_by=REPORTING_ACCESSIBLE_ANSWERS,
-                        activity_starts_at=starts_at)
+                        activity_starts_at=start_at)
                     for val in queryset:
-                        posted_account_ids |= {val.account_id}
-                        result = {
-                            'slug': campaign.slug,
-                            'title': campaign.title,
-                            'account': account,
-                            'descr': campaign.description,
-                            'completion': {
-                                'slug': val.slug,
-                                'printable_name': val.printable_name,
-                                'last_activity_at': datetime_or_now(
-                                    val.last_activity_at),
-                                'reporting_status': reporting_status_labels.get(
-                                    val.reporting_status),
-                            },
-                        }
+                        if campaign in already_posted.get(val.account, []):
+                            continue
+                        descr = _("*$%(account)s* completed a request"
+" from *$%(grantee)s* to respond to %(campaign)s on %(at_time)s.") % {
+                            'account': val.account,
+                            'grantee': grantee,
+                            'campaign': campaign.title,
+                            'at_time': humanizeDate(val.last_activity_at)}
+                        view_response_url = None
+                        engage_url = None
                         if val.reporting_status in (
                                 REPORTING_COMPLETED, REPORTING_VERIFIED):
-                            result['view_response_url'] = reverse(
-                                'scorecard', args=(account, val.sample))
-                            result['priority'] = 2
+                            view_response_url = reverse(
+                                'scorecard', args=(grantee, val.sample))
                         else:
-                            result['engage_url'] = reverse(
-                                'reporting_profile_engage', args=(
-                                    account, campaign))
-                            result['priority'] = 3
-                        results += [result]
-                if not suppliers_by_pk:
-                    continue
+                            descr += _("\n\nThe supplier hasn't shared"
+" the response with *$%(grantee)s* yet. Please remind the supplier to do"
+" so in order to access their answers.") % {'grantee': grantee}
+                            engage_url = reverse('reporting_profile_engage',
+                                args=(grantee, campaign))
+                        results += [{
+                            'title': _("Completed request for %(campaign)s") % {
+                                'campaign': campaign.title},
+                            'account': val.account,
+                            'descr': descr,
+                            'view_response_url': view_response_url,
+                            'engage_url': engage_url
+                        }]
+                        already_posted[val.account].append(campaign.slug)
 
-                samples = Sample.objects.get_latest_frozen_by_portfolios(
-                    campaign=campaign, start_at=starts_at,
-                    accounts=list(suppliers_by_pk.values()),
-                    grantees=[account])
-                for sample in samples:
-                    supplier = suppliers_by_pk.get(sample.account_id)
-                    if not supplier or sample.account_id in posted_account_ids:
-                        continue
-                    if sample.state == Sample.REPORTING_COMPLETED:
-                        continue
-                    results += [{
-                        'slug': campaign.slug,
-                        'title': campaign.title,
-                        'account': account,
-                        'descr': campaign.description,
-                        'completion': {
-                            'slug': supplier.slug,
-                            'printable_name': supplier.printable_name,
-                            'last_activity_at': sample.created_at,
-                            'reporting_status': reporting_status_labels.get(
-                                SAMPLE_STATE_TO_REPORTING_STATUS[
-                                    sample.state]),
-                        },
-                        'engage_url': reverse(
-                            'reporting_profile_engage', args=(
-                                account, campaign)),
-                        'priority': 4,
-                    }]
-        results.sort(key=lambda result: result['completion'][
-            'last_activity_at'], reverse=True)
-        results.sort(key=lambda result: result['priority'])
+            # All completed responses to a questionnaire the profile
+            # is interested that have not been previously been covered
+            # by a post. These includes suppliers that have not been
+            # engaged in the current season and profiles that might not
+            # be suppliers.
+            samples = Sample.objects.get_latest_frozen_by_accounts(
+                start_at=start_at)
+            for sample in samples:
+                if sample.campaign in already_posted.get(sample.account, []):
+                    continue
+                if sample.campaign not in campaigns:
+                    continue
+                if sample.created_at < sample.campaign.updated_at:
+                    continue
+                results += [{
+                    'title': _("Completed response for %(campaign)s") % {
+                        'campaign': sample.campaign.title
+                    },
+                    'account': sample.account,
+                    'descr': _("*$%(account)s* completed a response"
+" to %(campaign)s on %(last_completed_at)s.\n\n*$%(grantee)s* hasn't"
+" requested a response from *$%(account)s* on or after %(campaign)s was"
+" updated on %(at_time)s.\n\nEngage the supplier if you would like to access"
+" their response.") % {
+                        'grantee': grantee,
+                        'account': sample.account,
+                        'campaign': sample.campaign.title,
+                        'last_completed_at': humanizeDate(sample.created_at),
+                        'at_time': humanizeDate(sample.campaign.updated_at)},
+                    'engage_url': reverse(
+                        'reporting_profile_engage', args=(
+                            grantee, sample.campaign)),
+                }]
+
         return results
+
 
     def get_queryset(self):
         search_term = self.get_query_param(self.search_param)
         if search_term == 'requests':
             return list(self.get_pending_requests(show_all=True))
 
-        results = self.get_pending_portfolio_grants()
-        results += list(self.get_pending_requests())
+        results = list(self.get_pending_requests())
+        results += self.get_pending_grants()
 
         if settings.FEATURES_DEBUG:
-            completed_since = self.get_query_param('completed_since')
-            if completed_since:
-                starts_at = datetime_or_now(completed_since)
-            else:
-                starts_at = datetime_or_now() - relativedelta(days=7)
-            results += self.get_grantee_sample_completion_posts(
-                starts_at=starts_at)
+            start_at = datetime_or_now() - relativedelta(days=7)
+            results += self.get_completed_sample_posts(
+                start_at=start_at, excludes=results)
         results += list(self.get_updated_elements())
+
         return results
 
 
