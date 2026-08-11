@@ -37,14 +37,14 @@
         </div>
       </div>
       <div id="newsfeed" v-show="itemsLoaded && items.results.length > 0" v-cloak>
-        <div class="card mb-4" v-for="assessment in items.results">
+        <div class="card mb-4" v-for="(assessment, index) in items.results">
           <div class="card-header">
             <div class="row align-items-center">
               <div class="col-2">
-                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) ? getAccountPicture(assessment.account) : '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
+                <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(assessment.account) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
               </div>
               <div class="col-10">
-                <h2 class="card-title" v-if="getAccountPrintableName(assessment.account) || assessment.account">[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h2>
+                <h2 class="card-title">[[getAccountPrintableName(assessment.account) ? getAccountPrintableName(assessment.account) : assessment.account]]</h2>
                 <h3  class="card-subtitle">[[assessment.title]]</h3>
               </div>
             </div>
@@ -55,10 +55,10 @@
                 <img class="img-fluid" :src="assessment.picture" alt="{% trans %}Profile logo{% endtrans %}" />
               </div>
               <div class="col-8"
-                   v-html="assessment.descr ? $globals.md(assessment.descr) : ''">
+                   v-html="assessment.descr ? decorateWithNames($globals.md(assessment.descr)) : ''">
               </div>
             </div>
-            <p v-html="assessment.descr ? $globals.md(assessment.descr) : ''"
+            <p v-html="assessment.descr ? decorateWithNames($globals.md(assessment.descr)) : ''"
                v-if="!assessment.picture">
             </p>
             <p v-if="assessment.last_completed_at">
@@ -83,7 +83,7 @@ by one of your following co-worker(s):
                   <div v-for="request in elements">
                     <div class="row align-items-center">
                       <div class="col-2">
-                        <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(request.grantee) ? getAccountPicture(request.grantee) : '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
+                        <img class="img-fluid" style="max-height:64px;" :src="getAccountPicture(request.grantee) || '{{'/static/img/default-organization.png'|asset}}'" alt="{% trans %}Profile logo{% endtrans %}">
                       </div>
                       <div class="col-5">
                         [[getAccountPrintableName(request.grantee) ? getAccountPrintableName(request.grantee) : request.grantee]]
@@ -101,14 +101,24 @@ by one of your following co-worker(s):
               </decorate-profiles>
             </div>{# /assessment.grantees #}
           </div>{# /.card-body #}
-          <div class="card-footer" v-if="assessment.update_url || assessment.external_url">
+          <div class="card-footer" v-if="assessment.accept_url || assessment.update_url || assessment.external_url || assessment.view_response_url || assessment.engage_url">
             <div class="row">
               <div class="col-md-6 text-center">
+                <button class="btn btn-outline-primary"
+                        @click.prevent="ignore(assessment, index)"
+                        v-if="assessment.accept_url">{% trans %}Ignore{% endtrans %}</button>
                 <a class="btn btn-primary"
                    :href="assessment.share_url"
                    v-if="assessment.share_url">{% trans created_at='[[$globals.humanizeDate(assessment.last_completed_at)]]' %}Share {{created_at}} response{% endtrans %}</a>
               </div>
               <div class="col-md-6 text-center">
+                <button class="btn btn-primary"
+                        @click.prevent="accept(assessment, index)"
+                        v-if="assessment.accept_url">{% trans %}Accept{% endtrans %}</button>
+                <a :href="assessment.view_response_url"
+                   v-if="assessment.view_response_url">{% trans %}View response{% endtrans %}</a>
+                <a :href="assessment.engage_url"
+                   v-if="assessment.engage_url">{% trans %}Engage dashboard{% endtrans %}</a>
                 <form :id="assessment.account + '-' + assessment.slug" :action="assessment.update_url" method="post" v-if="assessment.update_url">
                   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
                   <button class="btn btn-primary"

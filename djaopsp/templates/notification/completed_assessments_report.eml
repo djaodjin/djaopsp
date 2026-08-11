@@ -1,0 +1,31 @@
+{% extends "notification/base.eml" %}
+
+{% block subject %}
+{{completed_by|length}} supplier(s) completed their {{campaign.title}} response
+{% endblock %}
+
+{% block title %}
+{{completed_by|length}} supplier(s) completed their {{campaign.title}} response
+{% endblock %}
+
+{% block html_content %}
+<p>
+{{grantee.printable_name}} requested responses from {{total_accounts}}
+suppliers. Between {{starts_at}} and {{ends_at}}, {{completed_by|length}}
+of them completed the {{campaign.title}} questionnaire:
+</p>
+<ul>
+{% for completion in completed_by %}
+<li>
+{{completion.printable_name}}
+({{completion.reporting_status}}, {{completion.last_activity_at}})
+</li>
+{% endfor %}
+</ul>
+<hr />
+<p>
+You are receiving this email, because you are listed as a profile
+manager for {{grantee.printable_name}} and your organization requested
+responses from these suppliers (see <em>Engage</em> dashboard).
+</p>
+{% endblock %}

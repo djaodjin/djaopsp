@@ -16,10 +16,46 @@ Vue.component('newsfeed', {
         }
     },
     methods: {
+        decorateWithNames: function(text) {
+            var vm = this;
+            return text.replaceAll(/\$[a-zA-Z0-9_\-]+/g, function(match) {
+                const printableName = vm.getAccountPrintableName(
+                    match.slice(1));
+                return printableName ? printableName : match;
+            });
+        },
         getCompleted: function(){
             var vm = this;
             vm.populateAccounts(vm.items.results, 'account');
             vm.populateUserProfiles();
+        },
+        accept: function(item, idx) {
+            var vm = this;
+            vm.reqPost(item.accept_url,
+            function(resp) {
+                const campaign = resp.campaign.slug;
+                vm.reqGet(`/api/${resp.grantee}/reporting?q_f==slug&q=${resp.account}`,
+                function(resp) {
+                    var idx = 0;
+                    for( idx = 0; idx < resp.labels.length; ++idx ) {
+                        if( resp.labels[idx].slug == campaign ) {
+                            break;
+                        }
+                    }
+                    item.accept_url = null;
+                    if( idx < resp.results[0].values.length ) {
+                        item.view_response_url = resp.results[0].values[idx].url;
+                    }
+                    vm.$forceUpdate();
+                });
+            });
+        },
+        ignore: function(item, idx) {
+            var vm = this;
+            vm.reqDelete(item.accept_url,
+            function(resp) {
+                vm.items.results.splice(idx, 1);
+            });
         },
         populateUserProfiles: function() {
             var vm = this;

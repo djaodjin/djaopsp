@@ -644,37 +644,62 @@
 
 {
   "fields": {
-    "slug": "dda134c8b4da487da9169e771794de11",
+    "slug": "dda134c8b4da487da9169e771794de17",
+    "created_at": "2026-01-02T00:00:00+00:00",
+    "updated_at": "2026-01-02T00:00:00+00:00",
+    "campaign": 1,
+    "account": 11,
+    "is_frozen": true
+  },
+  "model": "survey.sample", "pk": 7
+},
+{
+  "fields": {
+    "created_at": "2026-01-02T00:00:00Z",
+    "question": 110,
+    "unit": 196,
+    "sample": 7,
+    "measured": 6,
+    "denominator": 1,
+    "collected_by": 8
+  },
+  "model": "survey.answer", "pk": 48
+},
+
+{
+  "fields": {
+    "slug": "dda134c8b4da487da9169e771794de18",
     "created_at": "2025-01-01T00:00:00+00:00",
     "updated_at": "2025-01-01T00:00:00+00:00",
     "campaign": 1,
     "account": 11,
     "is_frozen": false
   },
-  "model": "survey.sample", "pk": 7
+  "model": "survey.sample", "pk": 8
 },
+
 {
   "fields": {
     "slug": "dda134c8b4da487da9169e771794de12",
-    "created_at": "2025-01-01T00:00:00+00:00",
-    "updated_at": "2025-01-01T00:00:00+00:00",
+    "created_at": "2026-01-02T00:00:00+00:00",
+    "updated_at": "2026-01-02T00:00:00+00:00",
     "campaign": 1,
     "account": 12,
     "is_frozen": true
   },
-  "model": "survey.sample", "pk": 8
+  "model": "survey.sample", "pk": 9
 },
 {
   "fields": {
     "created_at": "2024-09-01T00:00:00Z",
     "question": 1,
     "unit": 202,
-    "sample": 8,
+    "sample": 9,
     "measured": 6,
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 48
+  "model": "survey.answer", "pk": 49
 },
 {
   "fields": {
@@ -685,7 +710,7 @@
     "account": 13,
     "is_frozen": true
   },
-  "model": "survey.sample", "pk": 9
+  "model": "survey.sample", "pk": 10
 },
 {
   "fields": {
@@ -696,7 +721,7 @@
     "account": 14,
     "is_frozen": true
   },
-  "model": "survey.sample", "pk": 10
+  "model": "survey.sample", "pk": 11
 },
 {
   "fields": {
@@ -707,7 +732,7 @@
     "account": 19,
     "is_frozen": true
   },
-  "model": "survey.sample", "pk": 11
+  "model": "survey.sample", "pk": 12
 },
 {
   "fields": {
@@ -715,11 +740,11 @@
     "question": 8,
     "collected_by": 8,
     "unit": 202,
-    "sample": 11,
+    "sample": 12,
     "measured": 6,
     "denominator": 1
   },
-  "model": "survey.answer", "pk": 49
+  "model": "survey.answer", "pk": 50
 },
 {
   "fields": {
@@ -727,23 +752,23 @@
     "question": 67,
     "collected_by": 8,
     "unit": 51,
-    "sample": 11,
+    "sample": 12,
     "measured": 10,
     "denominator": 1
   },
-  "model": "survey.answer", "pk": 50
+  "model": "survey.answer", "pk": 51
 },
 {
   "fields": {
     "created_at": "2024-12-31T00:00:00+00:00",
-    "sample": 11,
+    "sample": 12,
     "question": 3,
     "collected_by": 8,
     "unit": 198,
     "measured": 500,
     "denominator": 1
   },
-  "model": "survey.answer", "pk": 51
+  "model": "survey.answer", "pk": 52
 },
 {
   "fields": {
@@ -754,7 +779,7 @@
     "measured": 6,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 52
+  "model": "survey.answer", "pk": 53
 },
 
 {
@@ -765,18 +790,18 @@
     "account": 9,
     "is_frozen": true
   },
-  "model": "survey.sample", "pk": 12
+  "model": "survey.sample", "pk": 13
 },
 {
   "fields": {
     "created_at": "2026-01-01T00:00:00+00:00",
-    "sample": 12,
+    "sample": 13,
     "question": 67,
     "collected_by": 5,
     "unit": 51,
     "measured": 12
   },
-  "model": "survey.answer", "pk": 53
+  "model": "survey.answer", "pk": 54
 },
 
 {
@@ -789,7 +814,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 54
+  "model": "survey.answer", "pk": 55
 },
 {
   "fields": {
@@ -801,7 +826,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 55
+  "model": "survey.answer", "pk": 56
 },
 {
   "fields": {
@@ -809,18 +834,6 @@
     "question": 47,
     "unit": 202,
     "sample": 1,
-    "measured": 6,
-    "denominator": 1,
-    "collected_by": 8
-  },
-  "model": "survey.answer", "pk": 56
-},
-{
-  "fields": {
-    "created_at": "2025-11-30T00:00:00Z",
-    "question": 47,
-    "unit": 202,
-    "sample": 5,
     "measured": 6,
     "denominator": 1,
     "collected_by": 8
@@ -829,10 +842,10 @@
 },
 {
   "fields": {
-    "created_at": "2024-09-01T00:00:00Z",
-    "question": 56,
+    "created_at": "2025-11-30T00:00:00Z",
+    "question": 47,
     "unit": 202,
-    "sample": 1,
+    "sample": 5,
     "measured": 6,
     "denominator": 1,
     "collected_by": 8
@@ -841,6 +854,18 @@
 },
 {
   "fields": {
+    "created_at": "2024-09-01T00:00:00Z",
+    "question": 56,
+    "unit": 202,
+    "sample": 1,
+    "measured": 6,
+    "denominator": 1,
+    "collected_by": 8
+  },
+  "model": "survey.answer", "pk": 59
+},
+{
+  "fields": {
     "created_at": "2025-11-30T00:00:00Z",
     "question": 56,
     "unit": 202,
@@ -849,7 +874,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 59
+  "model": "survey.answer", "pk": 60
 },
 {
   "fields": {
@@ -858,18 +883,6 @@
     "unit": 202,
     "sample": 1,
     "measured": 6,
-    "denominator": 1,
-    "collected_by": 8
-  },
-  "model": "survey.answer", "pk": 60
-},
-{
-  "fields": {
-    "created_at": "2025-11-30T00:00:00Z",
-    "question": 57,
-    "unit": 202,
-    "sample": 5,
-    "measured": 7,
     "denominator": 1,
     "collected_by": 8
   },
@@ -877,6 +890,18 @@
 },
 {
   "fields": {
+    "created_at": "2025-11-30T00:00:00Z",
+    "question": 57,
+    "unit": 202,
+    "sample": 5,
+    "measured": 7,
+    "denominator": 1,
+    "collected_by": 8
+  },
+  "model": "survey.answer", "pk": 62
+},
+{
+  "fields": {
     "created_at": "2024-09-01T00:00:00Z",
     "question": 74,
     "unit": 202,
@@ -885,7 +910,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 62
+  "model": "survey.answer", "pk": 63
 },
 {
   "fields": {
@@ -897,7 +922,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 63
+  "model": "survey.answer", "pk": 64
 },
 
 { "fields": {
@@ -924,7 +949,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 64
+  "model": "survey.answer", "pk": 65
 },
 {
   "fields": {
@@ -936,7 +961,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 65
+  "model": "survey.answer", "pk": 66
 },
 
 {
@@ -946,36 +971,36 @@
     "unit": 196,
     "sample": 1,
     "measured": 100,
-    "denominator": 1,
-    "collected_by": 8
-  },
-  "model": "survey.answer", "pk": 66
-},
-{
-  "fields": {
-    "created_at": "2025-11-30T00:00:00Z",
-    "question": 63,
-    "unit": 196,
-    "sample": 5,
-    "measured": 101,
     "denominator": 1,
     "collected_by": 8
   },
   "model": "survey.answer", "pk": 67
 },
-
 {
   "fields": {
-    "created_at": "2024-09-01T00:00:00Z",
-    "question": 91,
+    "created_at": "2025-11-30T00:00:00Z",
+    "question": 63,
     "unit": 196,
-    "sample": 1,
-    "measured": 100,
+    "sample": 5,
+    "measured": 101,
     "denominator": 1,
     "collected_by": 8
   },
   "model": "survey.answer", "pk": 68
 },
+
+{
+  "fields": {
+    "created_at": "2024-09-01T00:00:00Z",
+    "question": 91,
+    "unit": 196,
+    "sample": 1,
+    "measured": 100,
+    "denominator": 1,
+    "collected_by": 8
+  },
+  "model": "survey.answer", "pk": 69
+},
 {
   "fields": {
     "created_at": "2025-11-30T00:00:00Z",
@@ -986,7 +1011,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 69
+  "model": "survey.answer", "pk": 70
 },
 
 {
@@ -996,36 +1021,36 @@
     "unit": 196,
     "sample": 1,
     "measured": 100,
-    "denominator": 1,
-    "collected_by": 8
-  },
-  "model": "survey.answer", "pk": 70
-},
-{
-  "fields": {
-    "created_at": "2025-11-30T00:00:00Z",
-    "question": 106,
-    "unit": 196,
-    "sample": 5,
-    "measured": 101,
     "denominator": 1,
     "collected_by": 8
   },
   "model": "survey.answer", "pk": 71
 },
-
 {
   "fields": {
-    "created_at": "2024-09-01T00:00:00Z",
-    "question": 99,
+    "created_at": "2025-11-30T00:00:00Z",
+    "question": 106,
     "unit": 196,
-    "sample": 1,
-    "measured": 100,
+    "sample": 5,
+    "measured": 101,
     "denominator": 1,
     "collected_by": 8
   },
   "model": "survey.answer", "pk": 72
 },
+
+{
+  "fields": {
+    "created_at": "2024-09-01T00:00:00Z",
+    "question": 99,
+    "unit": 196,
+    "sample": 1,
+    "measured": 100,
+    "denominator": 1,
+    "collected_by": 8
+  },
+  "model": "survey.answer", "pk": 73
+},
 {
   "fields": {
     "created_at": "2025-11-30T00:00:00Z",
@@ -1036,7 +1061,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 73
+  "model": "survey.answer", "pk": 74
 },
 
 {
@@ -1049,7 +1074,7 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 74
+  "model": "survey.answer", "pk": 75
 },
 {
   "fields": {
@@ -1061,5 +1086,17 @@
     "denominator": 1,
     "collected_by": 8
   },
-  "model": "survey.answer", "pk": 75
+  "model": "survey.answer", "pk": 76
+},
+
+{
+  "fields": {
+    "slug": "dda134c8b4da487da9169e771794aa13",
+    "created_at": "2026-01-01T00:00:00+00:00",
+    "updated_at": "2026-01-01T00:00:00+00:00",
+    "campaign": 1,
+    "account": 15,
+    "is_frozen": true
+  },
+  "model": "survey.sample", "pk": 14
 }]

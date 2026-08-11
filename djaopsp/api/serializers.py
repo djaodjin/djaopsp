@@ -9,8 +9,8 @@ from pages.api.serializers import (
     UserNewsSerializer as UserNewsBaseSerializer)
 from survey.models import PortfolioDoubleOptIn, Sample, Unit
 from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
-    AnswerSerializer, SampleSerializer, TableSerializer, UnitSerializer,
-    UnitDetailSerializer)
+    AnswerSerializer, PortfolioReceivedSerializer, SampleSerializer,
+    TableSerializer, UnitSerializer, UnitDetailSerializer)
 from survey.utils import get_account_model
 
 from .. import humanize
@@ -604,17 +604,26 @@ class UserNewsSerializer(UserNewsBaseSerializer):
     respondents = serializers.ListSerializer(
         child=serializers.CharField(), required=False,
         help_text=_("Users that previously responded to the questionnaire"))
+
     share_url = serializers.URLField(required=False, allow_blank=True,
         help_text=_("URL to share the latest response"))
     update_url = serializers.URLField(required=False, allow_blank=True,
         help_text=_("URL to answer the questionnaire"))
     external_url = serializers.URLField(required=False, allow_blank=True,
         help_text=_("URL to external information"))
+    accept_url = serializers.URLField(required=False, allow_blank=True,
+        help_text=_("URL to accept a grant to access responses"))
+    view_response_url = serializers.URLField(required=False, allow_blank=True,
+        help_text=_("URL to view the completed response"))
+    engage_url = serializers.URLField(required=False, allow_blank=True,
+        help_text=_("URL to engage the account about the response"))
 
     class Meta(UserNewsBaseSerializer.Meta):
         fields = UserNewsBaseSerializer.Meta.fields + (
             'grantees', 'ends_at', 'last_completed_at', 'respondents',
-            'share_url', 'update_url', 'external_url')
+            'share_url', 'update_url', 'external_url',
+            'accept_url', 'view_response_url', 'engage_url')
         read_only_fields = UserNewsBaseSerializer.Meta.read_only_fields + (
             'grantees', 'ends_at', 'last_completed_at', 'respondents',
-            'share_url', 'update_url', 'external_url')
+            'share_url', 'update_url', 'external_url',
+            'accept_url', 'view_response_url', 'engage_url')

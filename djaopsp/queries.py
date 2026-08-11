@@ -169,7 +169,8 @@ def _get_engagement_sql(campaign=None,
                         start_at=None, ends_at=None,
                         segment_prefix=None, segment_title="",
                         accounts=None, grantees=None, tags=None,
-                        filter_by=None, order_by=None):
+                        filter_by=None, order_by=None,
+                        activity_starts_at=None, activity_ends_at=None):
     """
     Decorate samples with an engagement state (invited, completed, etc.)
 
@@ -255,10 +256,20 @@ def _get_engagement_sql(campaign=None,
         else:
             sample_extra_filters_clause += " AND survey_sample.extra IS NULL"
 
-    filter_by_clause = ""
+    filter_conditions = []
     if filter_by:
-        filter_by_clause = "WHERE reporting_status IN (%s)" % ",".join(
-            ["%d" % val for val in filter_by])
+        filter_conditions += [
+            "reporting_status IN (%s)" % ",".join(
+                ["%d" % val for val in filter_by])]
+    if activity_starts_at:
+        filter_conditions += [
+            "last_activity_at >= '%s'" % activity_starts_at.isoformat()]
+    if activity_ends_at:
+        filter_conditions += [
+            "last_activity_at < '%s'" % activity_ends_at.isoformat()]
+    filter_by_clause = ""
+    if filter_conditions:
+        filter_by_clause = "WHERE " + " AND ".join(filter_conditions)
     order_by_clause = ""
     if order_by:
         order_by_clause = "ORDER BY "
@@ -459,13 +470,16 @@ ON engaged.account_id = %(accounts_table)s.id
 def get_engagement(campaign, accounts,
                    start_at=None, ends_at=None,
                    segment_prefix=None, segment_title="",
-                   grantees=None, filter_by=None, order_by=None):
+                   grantees=None, filter_by=None, order_by=None,
+                   activity_starts_at=None, activity_ends_at=None):
     #pylint:disable=too-many-arguments
     return PortfolioDoubleOptIn.objects.raw(_get_engagement_sql(
         campaign=campaign, start_at=start_at, ends_at=ends_at,
         segment_prefix=segment_prefix, segment_title=segment_title,
         accounts=accounts, grantees=grantees, tags=[],
-        filter_by=filter_by, order_by=order_by))
+        filter_by=filter_by, order_by=order_by,
+        activity_starts_at=activity_starts_at,
+        activity_ends_at=activity_ends_at))
 
 
 # XXX This function is currently not used anymore
