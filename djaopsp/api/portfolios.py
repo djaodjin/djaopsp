@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 #pylint:disable=too-many-lines
 
@@ -794,8 +794,8 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
         return http.Response(serializer.data)
 
 
-class CompareAPIView(CampaignDecorateMixin, AccountsNominativeQuerysetMixin,
-                     CompareAPIBaseView):
+class CompareAPIView(TimersMixin, CampaignDecorateMixin,
+                     AccountsNominativeQuerysetMixin, CompareAPIBaseView):
     """
     Compares answers matching prefix (XXX same as download?)
 
