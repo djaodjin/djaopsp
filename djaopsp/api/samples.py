@@ -411,8 +411,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
         return queryset
 
 
-class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
-                               QuestionListAPIView):
+class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
     """
     Formats answers for a subset of questions
 
@@ -554,7 +553,9 @@ class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
         }
     """
     exclude_param = 'e'
-    content_extra_fields = {'title',}
+    content_extra_fields = {'title', 'extra'} # we need `extra` for the odd
+                  # case when path prefixes can be clicked through. Most
+                  # likely should be deprecated behavior.
     serializer_class = AssessmentContentSerializer
 
     @property
@@ -754,7 +755,7 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
             request, *args, **kwargs)
 
 
-class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
+class SampleBenchmarksAPIView(GraphMixin, RollupMixin,
                               SectionReportMixin, CampaignDecorateMixin,
                               SampleBenchmarksBaseAPIView):
     """

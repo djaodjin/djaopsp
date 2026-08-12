@@ -794,7 +794,7 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
         return http.Response(serializer.data)
 
 
-class CompareAPIView(TimersMixin, CampaignDecorateMixin,
+class CompareAPIView(CampaignDecorateMixin,
                      AccountsNominativeQuerysetMixin, CompareAPIBaseView):
     """
     Compares answers matching prefix (XXX same as download?)

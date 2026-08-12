@@ -682,7 +682,7 @@ class LongFormatCSVView(AccountsNominativeQuerysetMixin, CSVDownloadView):
         return row
 
 
-class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin, TimersMixin):
+class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin):
     """
     Download answers and scores for a set of accounts
     """
@@ -1360,7 +1360,7 @@ class TabularizedAnswersXLSXView(AnswersDownloadMixin,
             # (ex: because the unit is an enum), let's use that.
             if unit_id == self.target_by_unit.pk:
                 try:
-                    text = int(text)
+                    text = int(text) if text else ""
                 except ValueError:
                     pass
             if unit_id == self.comments_unit.pk:

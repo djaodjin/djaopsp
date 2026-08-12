@@ -22,7 +22,7 @@ from survey.api.serializers import (CampaignSerializer,
     QuestionCreateSerializer, QuestionUpdateSerializer)
 from survey.filters import SearchFilter
 from survey.helpers import extra_as_internal
-from survey.mixins import QuestionMixin
+from survey.mixins import QuestionMixin, TimersMixin
 from survey.models import EnumeratedQuestions, Unit
 from survey.utils import (get_content_model, get_question_model,
     get_question_serializer)
@@ -36,7 +36,7 @@ from ..mixins import CampaignMixin, DashboardsAvailableQuerysetMixin
 LOGGER = logging.getLogger(__name__)
 
 
-class CampaignDecorateMixin(CampaignMixin):
+class CampaignDecorateMixin(TimersMixin, CampaignMixin):
     """
     Inserts intermediate headings in a list of questions for each sections
     available.
