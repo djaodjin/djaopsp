@@ -169,6 +169,7 @@ class CampaignDecorateMixin(CampaignMixin):
                         segment_prefix]))})
                     if 'extra' not in tile_key:
                         tile_key.update({'extra': extra})
+            self._report_queries("segment content for '%s'" % segment_prefix)
 
         # Adds 'text' summaries for top-level tiles
         summaries = PageElement.objects.filter(slug__in={val[0].get('slug')
@@ -210,7 +211,9 @@ class CampaignDecorateMixin(CampaignMixin):
             if slug:
                 merged_fields = headings_by_slug.get(slug, {})
                 if 'extra' in merged_fields:
-                    merged_fields['extra'].update(element.get('extra', {}))
+                    extra = element.get('extra')
+                    if extra:
+                        merged_fields['extra'].update(extra)
                 element.update(merged_fields)
         if self.campaign:
             campaign_slug = self.campaign.slug
@@ -220,6 +223,7 @@ class CampaignDecorateMixin(CampaignMixin):
                     seg_val[0].update({'rank': -1})
                     break
         elements = flatten_content_tree(by_tiles)
+        self._report_queries("campaign content completed")
 
         # Applies translation when available
         translated_queryset = PageElement.objects.filter(
@@ -234,6 +238,7 @@ class CampaignDecorateMixin(CampaignMixin):
                 for field_name in self.content_extra_fields:
                     elem[field_name] = elem_transated.get(
                         field_name, elem[field_name])
+        self._report_queries("campaign content translated")
 
         return elements
 

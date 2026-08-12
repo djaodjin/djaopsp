@@ -9,7 +9,7 @@ from pages.api.serializers import (
     UserNewsSerializer as UserNewsBaseSerializer)
 from survey.models import PortfolioDoubleOptIn, Sample, Unit
 from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
-    AnswerSerializer, PortfolioReceivedSerializer, SampleSerializer,
+    AnswerSerializer, SampleSerializer,
     TableSerializer, UnitSerializer, UnitDetailSerializer)
 from survey.utils import get_account_model
 

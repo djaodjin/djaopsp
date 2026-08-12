@@ -378,6 +378,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
             self.units = {}
         self.units.update(units)
 
+        self._report_queries("returns questions with populated answers")
         return questions_by_key
 
 
@@ -406,6 +407,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
                         self.campaign, scorecard_cache.path)
                 })
 
+        self._report_queries("scores attached")
         return queryset
 
 
@@ -552,6 +554,7 @@ class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
         }
     """
     exclude_param = 'e'
+    content_extra_fields = {'title',}
     serializer_class = AssessmentContentSerializer
 
     @property
@@ -573,7 +576,6 @@ class AssessmentContentAPIView(TimersMixin, AssessmentContentMixin,
         self._start_time()
         queryset = self.filter_queryset(self.get_queryset())
         resp = self.get_paginated_response(queryset)
-        self._report_queries("AssessmentContentAPIView.list done")
         return resp
 
     def get_paginated_response(self, data):
@@ -828,6 +830,7 @@ class SampleBenchmarksAPIView(TimersMixin, GraphMixin, RollupMixin,
     # XXX This class should inherit from
     # `survey.api.matrix.SampleBenchmarksIndexAPIView`, and add benchmarks
     # for scores.
+    content_extra_fields = {'title',}
     pagination_class = BenchmarksPagination
     account_model = get_account_model()
     serializer_class = ExtendedSampleBenchmarksSerializer

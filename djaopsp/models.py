@@ -37,7 +37,7 @@ class Account(models.Model):
             return self.full_name
         return self.slug
 
-    def save(self, force_insert=False, force_update=False,
+    def save(self, *args, force_insert=False, force_update=False,
              using=None, update_fields=None):
         if getattr(self, self.slug_field):
             # serializer will set created slug to '' instead of None.

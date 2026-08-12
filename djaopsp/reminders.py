@@ -35,13 +35,13 @@ def send_reminders(organization, email=None, campaign=None, dry_run=False):
             requesters_by_campaign.update({optin.campaign: requesters})
         requesters += [optin.grantee]
 
-    for campaign, requesters in requesters_by_campaign.items():
+    for camp, requesters in requesters_by_campaign.items():
         context.update({
-            'campaign': campaign,
+            'campaign': camp,
             'requesters': requesters
         })
         deadline = PortfolioDoubleOptIn.objects.pending_for(
-            account=organization, campaign=campaign).filter(
+            account=organization, campaign=camp).filter(
             state=PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED).aggregate(
             Min('ends_at')).get('ends_at__min')
         if deadline:
