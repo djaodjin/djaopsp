@@ -24,6 +24,7 @@ if os.getenv('DJANGO_COVERAGE'):
     cov = coverage.coverage(data_file=data_file)
     sys.stderr.write("start recording coverage in %s\n" % str(data_file))
     cov.set_option("run:relative_files", True)
+    cov.set_option("run:timid", True)
     cov.set_option("run:sigterm", True)
     cov.set_option("run:debug", 'trace')
     cov.set_option("run:debug_file",
