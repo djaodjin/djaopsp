@@ -26,7 +26,7 @@ if os.getenv('DJANGO_COVERAGE'):
     cov.set_option("run:relative_files", True)
     cov.set_option("run:timid", True)
     cov.set_option("run:sigterm", True)
-    cov.set_option("run:debug", 'trace')
+    cov.set_option("run:debug", 'trace,sys')
     cov.set_option("run:debug_file",
         os.path.join(os.getenv('DJANGO_COVERAGE'), 'trace.log'))
     cov.start()
