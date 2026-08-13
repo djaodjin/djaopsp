@@ -81,7 +81,9 @@
 
                       {% block sidebar %}
                       <ul class="nav flex-column d-md-none">
-                        <hr />
+                        <li role="presentation">
+                          <hr />
+                        </li>
                         {% include "_generic_navbar.html" %}
                       </ul>
                       {% endblock %}
@@ -100,23 +102,27 @@
                       {# Theme color mode selection #}
                       <ul class="nav flex-column py-1" data-intro="Color mode" data-position="right">
                         <li class="nav-item dropup">
-                          <a id="color-mode" class="nav-link dropdown-toggle" href="#" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
+                          <a id="color-mode" class="nav-link dropdown-toggle"
+                             href="#" aria-expanded="false"
+                             data-bs-toggle="dropdown"
+                             data-bs-display="static"
+                             aria-label="{% trans %}Toggle theme{% endtrans %}">
                             <span class="fa-solid fa-paintbrush align-middle"></span>
                             {% trans %}Color mode{% endtrans %}
                             <span class="caret"></span>
                           </a>
                           <ul class="dropdown-menu" role="menu">
-                            <li role="presentation">
+                            <li role="menuitem">
                               <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
                                 {% trans %}Light{% endtrans %}
                               </button>
                             </li>
-                            <li role="presentation">
+                            <li role="menuitem">
                               <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
                                 {% trans %}Dark{% endtrans %}
                               </button>
                             </li>
-                            <li role="presentation">
+                            <li role="menuitem">
                               <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="false">
                                 {% trans %}Auto{% endtrans %}
                               </button>
@@ -143,7 +149,8 @@
 
                   <div class="d-flex">
                     <button class="btn btn-secondary me-2 sidebar-toggle sidebar-toggle-default"
-                            data-target="#dashboard-navbar">
+                            data-target="#dashboard-navbar"
+                            aria-label="{% trans %}Toggle menubar on/off{% endtrans %}">
                       <div class="bar1 default"></div>
                       <div class="bar2 default"></div>
                       <div class="bar3 default"></div>
