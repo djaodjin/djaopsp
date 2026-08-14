@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import csv, json, logging
 from collections import OrderedDict
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Max
 from django.utils import translation
@@ -226,19 +227,23 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
         self._report_queries("campaign content completed")
 
         # Applies translation when available
-        translated_queryset = PageElement.objects.filter(
-            slug__in={elem.get('slug') for elem in elements},
-            lang=translation.get_language()).values(
-            'slug', *self.content_extra_fields)
-        translated = {elem.get('slug'): elem
-            for elem in translated_queryset}
-        for elem in elements:
-            elem_transated = translated.get(elem['slug'])
-            if elem_transated:
-                for field_name in self.content_extra_fields:
-                    elem[field_name] = elem_transated.get(
-                        field_name, elem[field_name])
-        self._report_queries("campaign content translated")
+        lang_code = translation.get_language()
+        lang_codes = [lang_code]
+        if '-' in lang_code:
+            lang_codes += [lang_code.split('-')[0]]
+        if settings.LANGUAGE_CODE not in lang_codes:
+            translated_queryset = PageElement.objects.filter(
+                slug__in={elem.get('slug') for elem in elements},
+                lang__in=lang_codes).values('slug', *self.content_extra_fields)
+            translated = {elem.get('slug'): elem
+                for elem in translated_queryset}
+            for elem in elements:
+                elem_transated = translated.get(elem['slug'])
+                if elem_transated:
+                    for field_name in self.content_extra_fields:
+                        elem[field_name] = elem_transated.get(
+                            field_name, elem.get(field_name))
+            self._report_queries("campaign content translated")
 
         return elements
 
