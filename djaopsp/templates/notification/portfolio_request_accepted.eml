@@ -19,6 +19,12 @@ I shared <strong>{{account.printable_name|safe}}</strong>
 {{campaign.title}} assessments up to {{last_completed_at}} with
 {{grantee.printable_name}}.
 </p>
+{% if campaign.updated_at and last_completed_at < campaign.updated_at %}
+<p>
+<strong>WARNING! The latest assessment was completed before the updates
+to {{campaign.title}} were live on {{campaign.updated_at}}.</strong>
+</p>
+{% endif %}
 <p>
 {{originated_by.printable_name}}<br/>
 {{originated_by.email}}
