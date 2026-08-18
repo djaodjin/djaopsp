@@ -65,6 +65,7 @@
                 {% trans %}Verification (pivotable .csv){% endtrans %}
             </a>
             {% endif %}
+            {% if planned_exists %}
             <a id="download-planned" class="dropdown-item"
                :href="'{{urls.download_raw}}' + getQueryString(['page']) + '&planned=1'"
                target="_blank">
@@ -75,6 +76,7 @@
                target="_blank">
                 {% trans %}Planned improvements (pivotable .csv){% endtrans %}
             </a>
+            {% endif %}
           </ul>
         </div>{# /.btn-group #}
       </div>

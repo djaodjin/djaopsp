@@ -165,7 +165,13 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
     def get_context_data(self, **kwargs):
         context = super(PortfolioAccessiblesView, self).get_context_data(
             **kwargs)
-        context.update({'ends_at': None, 'start_at': None})
+        context.update({
+            'ends_at': None,
+            'start_at': None,
+            'verification_exists': Campaign.objects.filter(
+                slug="%s-verified" % self.campaign).exists(),
+            'planned_exists': get_extra(self.campaign, 'is_planned')
+        })
         update_context_urls(context, {
             'api_accessibles': reverse(
                 'survey_api_portfolios_requests', args=(self.account,)),
@@ -195,8 +201,6 @@ class PortfolioAccessiblesView(UpdatedMenubarMixin, DashboardMixin,
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/accessibles/")
         })
-        context.update({'verification_exists': Campaign.objects.filter(
-            slug="%s-verified" % self.campaign).exists()})
         return context
 
 
@@ -210,6 +214,11 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
     def get_context_data(self, **kwargs):
         context = super(PortfolioEngagementView, self).get_context_data(
             **kwargs)
+        context.update({
+            'verification_exists': Campaign.objects.filter(
+                slug="%s-verified" % self.campaign).exists(),
+            'planned_exists': get_extra(self.campaign, 'is_planned')
+        })
         update_context_urls(context, {
             'api_activities_base': site_url("/api/activities"),
             'api_sample_base_url': reverse('survey_api_sample_list', args=(
@@ -248,8 +257,6 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/engage/")
         })
-        context.update({'verification_exists': Campaign.objects.filter(
-            slug="%s-verified" % self.campaign).exists()})
         return context
 
 
