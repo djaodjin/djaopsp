@@ -113,6 +113,7 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
     search_param = api_settings.SEARCH_PARAM
     serializer_class = UserNewsSerializer
     URL_PATH_SEP = "/"
+    CUT_OFF_DATE = None
 
     @property
     def user(self):
@@ -357,13 +358,15 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                 continue
 
             # All campaigns the grantee might be interested in
-            filtered_in = (models.Q(extra__contains='searchable') &
-                models.Q(extra__contains='public'))
-            campaigns = Campaign.objects.filter(
-                models.Q(account=grantee) |
-                models.Q(portfolios__grantee=grantee) |
-                models.Q(portfolio_double_optins__grantee=grantee) |
-                filtered_in).exclude(slug__endswith='-verified').distinct()
+            campaigns = set(Campaign.objects.filter(account=grantee))
+            campaigns |= set(Campaign.objects.filter(
+                portfolios__grantee=grantee))
+            campaigns |= set(Campaign.objects.filter(
+                portfolio_double_optins__grantee=grantee))
+            campaigns |= set(Campaign.objects.filter(
+                models.Q(extra__contains='searchable') &
+                models.Q(extra__contains='public')).exclude(
+                slug__endswith='-verified'))
 
             # Supplier was requested by `grantee` to complete a response
             # to `campaign` after the questionnaire was last updated.
@@ -463,7 +466,7 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
             start_at = datetime_or_now() - relativedelta(days=7)
             results += self.get_completed_sample_posts(
                 start_at=start_at, excludes=results)
-        results += list(self.get_updated_elements())
+        results += list(self.get_updated_elements(start_at=self.CUT_OFF_DATE))
 
         return results
 
