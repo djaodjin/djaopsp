@@ -314,7 +314,9 @@ function doughnutLabelFormatter(unit) {
 }
 
 function withAlpha(color, alpha) {
-    return Chart.helpers.color(color).alpha(alpha).rgbString();
+    return color; // workaround to show doughnut charts with inner rings
+                  // when `DEBUG=0`.
+    //return Chart.helpers.color(color).alpha(alpha).rgbString();
 }
 
 function styleInnerRings(datasets) {
