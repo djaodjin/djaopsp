@@ -95,6 +95,7 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
 
     def get_queryset(self):
         #pylint:disable=too-many-locals,too-many-statements
+        #pylint:disable=too-many-nested-blocks
         segments = self.sections_available
         by_tiles = OrderedDict()
         if self.kwargs.get(self.path_url_kwarg):
@@ -152,7 +153,9 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
                                 field_name, tile_key)
                             break
                     if absent:
-                        element = PageElement.objects.filter(slug=part).values(
+                        element = PageElement.objects.filter(
+                            slug=part,
+                            lang=settings.LANGUAGE_CODE).values(
                             *self.content_extra_fields).first()
                         # `rank` is already set in the `question` dict
                         # as it is critical it is unique accross radio
@@ -173,8 +176,9 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
             self._report_queries("segment content for '%s'" % segment_prefix)
 
         # Adds 'text' summaries for top-level tiles
-        summaries = PageElement.objects.filter(slug__in={val[0].get('slug')
-            for val in six.itervalues(by_tiles)}).values('slug', 'text')
+        summaries = PageElement.objects.filter(
+            slug__in={val[0].get('slug') for val in six.itervalues(by_tiles)},
+            lang=settings.LANGUAGE_CODE).values('slug', 'text')
         for summary in summaries:
             key = "%s%s" % (DB_PATH_SEP, summary.get('slug'))
             text = summary.get('text')
@@ -198,7 +202,8 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
         headings = [element['slug'] for element in elements
             if 'title' not in element]
         headings_queryset = PageElement.objects.filter(
-            slug__in=headings).values(
+            slug__in=headings,
+            lang=settings.LANGUAGE_CODE).values(
             'slug', *self.content_extra_fields).annotate(
             rank=Max('to_element__rank'))
         for element in headings_queryset:

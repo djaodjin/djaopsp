@@ -14,7 +14,7 @@
       <textarea class="form-control"
                 name="other-measures"
                 type="text" rows="10"
-                :placeholder="isTagged('verify') ? '{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}' : '{% trans %}By providing context and supporting evidence for your answer, including public URL links and/or uploaded documents, you enable your customers to gain confidence in your organization\'s response.{% endtrans %}'"
+                :placeholder="isTagged('verify') ? \"{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}\" : \"{% trans %}By providing context and supporting evidence for your answer, including public URL links and/or uploaded documents, you enable your customers to gain confidence in your organization's response.{% endtrans %}\""
                 v-model="text"
                 :disabled="disabled"
                 @keydown="fitToText"

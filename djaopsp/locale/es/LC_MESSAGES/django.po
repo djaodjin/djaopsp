@@ -134,7 +134,9 @@ msgstr "Inicie sesión como propietario del sitio"
 msgid ""
 "\n"
 "There are no news at this point.\n"
-msgstr "No hay novedades en este momento."
+msgstr ""
+"\n"
+"No hay novedades en este momento.\n"
 
 #: djaopsp/templates/app/_progress_bar.html:6
 #: djaopsp/templates/app/index.html:18
@@ -164,7 +166,9 @@ msgid ""
 "\n"
 "If you were prompted to take, or update, an assessment,\n"
 "start here.\n"
-msgstr "Si se le solicitó realizar o actualizar una evaluación, empieza aqui."
+msgstr ""
+"\n"
+"Si se le solicitó realizar o actualizar una evaluación, empieza aqui.\n"
 
 #: djaopsp/templates/app/index.html:36
 msgid "Historical assessments"
@@ -188,7 +192,10 @@ msgid ""
 "\n"
 "Record data metrics all year long so you can report quantifiable "
 "improvements.\n"
-msgstr "Registre métricas de datos durante todo el año para que pueda generar informes cuantificables mejoras"
+msgstr ""
+"\n"
+"Registre métricas de datos durante todo el año para que pueda generar "
+"informes cuantificables mejoras.\n"
 
 #: djaopsp/templates/app/index.html:60
 msgid "Dashboards"
@@ -202,7 +209,9 @@ msgstr "Tablero"
 msgid ""
 "\n"
 "Manage invites sent to organizations and their reporting status.\n"
-msgstr "Administre las invitaciones enviadas a organizaciones y el estado de sus informes."
+msgstr ""
+"\n"
+"Administre las invitaciones enviadas a organizaciones y el estado de sus informes.\n"
 
 #: djaopsp/templates/app/index.html:69
 #: djaopsp/templates/app/reporting/base.html:38
@@ -235,7 +244,9 @@ msgid ""
 "\n"
 "Under this section, you will find industry-specific practices,\n"
 "and member-only content.\n"
-msgstr "En esta sección encontrará prácticas específicas de la industria, y contenido exclusivo para miembros."
+msgstr ""
+"\n"
+"En esta sección encontrará prácticas específicas de la industria, y contenido exclusivo para miembros.\n"
 
 #: djaopsp/templates/app/index.html:109
 msgid "Browse"
@@ -251,7 +262,9 @@ msgstr "Cuestionarios"
 msgid ""
 "\n"
 "Create practices and organize them in assessment campaigns.\n"
-msgstr "Crear prácticas y organizarlas en campañas de evaluación."
+msgstr ""
+"\n"
+"Crear prácticas y organizarlas en campañas de evaluación.\n"
 
 #: djaopsp/templates/app/index.html:125
 msgid "Edit assessments"
@@ -647,7 +660,7 @@ msgstr "No hay cuadro de mando disponible para la consulta de búsqueda. Tenga e
 #: djaopsp/templates/app/reporting/accessibles/index.html:198
 #, python-format
 msgid "%(profile_name)s would like to share their response with you."
-msgstr "Me gustaría compartir su respuesta con usted."
+msgstr "%(profile_name)s gustaría compartir su respuesta con usted."
 
 #: djaopsp/templates/app/reporting/accessibles/index.html:203
 #: djaopsp/templates/app/share/index.html:59
@@ -662,7 +675,7 @@ msgstr "Aceptar"
 #: djaopsp/templates/app/reporting/dashboard/index.html:4
 #, python-format
 msgid "%(campaign)s Insights - %(profile)s"
-msgstr "Perspectivas"
+msgstr "%(campaign)s Perspectivas - %(profile)s"
 
 #: djaopsp/templates/app/reporting/dashboard/index.html:4
 #: djaopsp/templates/app/reporting/engage/index.html:4
@@ -684,7 +697,7 @@ msgstr "Externa a interna"
 #: djaopsp/templates/app/reporting/engage/index.html:4
 #, python-format
 msgid "%(campaign)s Engagement - %(profile)s"
-msgstr "Compromiso"
+msgstr "%(campaign)s Compromiso - %(profile)s"
 
 #: djaopsp/templates/app/reporting/engage/index.html:49
 msgid "Completed week-by-week"
@@ -761,7 +774,7 @@ msgstr "Agregada"
 #: djaopsp/templates/app/reporting/engage/index.html:229
 #, python-format
 msgid "No profile accessible for %(profile)s"
-msgstr "No hay perfil accesible para %(perfil)"
+msgstr "No hay perfil accesible para %(profile)s"
 
 #: djaopsp/templates/app/reporting/engage/index.html:237
 #: djaopsp/templates/app/reporting/engage/index.html:266
@@ -821,12 +834,12 @@ msgstr "no divulgado públicamente"
 #: djaopsp/templates/app/scorecard/history.html:4
 #, python-format
 msgid "Completed Questionnaires for %(profile)s"
-msgstr "Cuestionarios completados para %(perfil)s"
+msgstr "Cuestionarios completados para %(profile)s"
 
 #: djaopsp/templates/app/scorecard/history.html:5
 #, python-format
 msgid "Completed Questionnaires History for %(profile)s"
-msgstr "Historial de cuestionarios completados para %(perfil)s"
+msgstr "Historial de cuestionarios completados para %(profile)s"
 
 #: djaopsp/templates/app/scorecard/history.html:21
 msgid "Pending Requests"
@@ -1041,7 +1054,9 @@ msgid ""
 "\n"
 "Under this section, you can view the recorded data points that have been\n"
 "entered for your profile so far.\n"
-msgstr "En esta sección, puede ver los puntos de datos registrados que\n"
+msgstr ""
+"\n"
+"En esta sección, puede ver los puntos de datos registrados que\n"
 "ingresado para tu perfil hasta ahora.\n"
 
 #: djaopsp/templates/app/track/index.html:31
@@ -1057,8 +1072,10 @@ msgid ""
 "\n"
 "Under this section, you can track energy consumption and estimate\n"
 "GHG Emissions.\n"
-msgstr "En esta sección, puede realizar un seguimiento del consumo de energía y realizar una estimación\n"
-"Emisiones de GEI"
+msgstr ""
+"\n"
+"En esta sección, puede realizar un seguimiento del consumo de energía\n"
+"y realizar una estimación Emisiones de GEI\n"
 
 #: djaopsp/templates/app/track/index.html:47
 #: djaopsp/templates/app/track/index.html:64
@@ -1074,7 +1091,9 @@ msgstr "Desperdiciar"
 msgid ""
 "\n"
 "Under this section, you can track waste generated.\n"
-msgstr "En esta sección, puede realizar un seguimiento de los residuos generados.\n"
+msgstr ""
+"\n"
+"En esta sección, puede realizar un seguimiento de los residuos generados.\n"
 
 #: djaopsp/templates/app/track/index.html:72
 msgid "Water"
@@ -1084,7 +1103,9 @@ msgstr "Agua"
 msgid ""
 "\n"
 "Under this section, you can track water usage.\n"
-msgstr "En esta sección, puedes realizar un seguimiento del consumo de agua.\n"
+msgstr ""
+"\n"
+"En esta sección, puedes realizar un seguimiento del consumo de agua.\n"
 
 #: djaopsp/templates/app/track/values.html:11
 msgid "Date"
@@ -1273,7 +1294,7 @@ msgstr "No entrar"
 #: djaopsp/templates/survey/matrix/compare.html:4
 #, python-format
 msgid "%(campaign)s Compare - %(profile)s"
-msgstr "%(campaña)s Comparar - %(perfil)s"
+msgstr "%(campaign)s Comparar - %(profile)s"
 
 #: djaopsp/templates/survey/matrix/compare.html:21
 msgid "Individual account"
