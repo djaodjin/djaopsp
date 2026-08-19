@@ -752,15 +752,6 @@
 
 { "fields": {
     "app": 1,
-    "rank": 12,
-    "path": "/app/assess/",
-    "rule_op": 1,
-    "engaged": "app,info"
-  },
-  "model": "rules.Rule", "pk": 12
-},
-{ "fields": {
-    "app": 1,
     "rank": 13,
     "path": "/app/reporting/",
     "rule_op": 1

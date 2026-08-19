@@ -1,4 +1,4 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 import io, json, logging, re
@@ -108,31 +108,12 @@ class DashboardMixin(TrailMixin, AccountsAggregatedQuerysetMixin):
         return context
 
 
-class MenubarMixin(object):
-
-    def get_context_data(self, **kwargs):
-        context = super(MenubarMixin, self).get_context_data(**kwargs)
-        update_context_urls(context, {
-            # reporting dashboards menu items
-            'portfolio_responses': reverse(
-                'portfolio_responses', args=(self.account, self.campaign)),
-            #'reporting_organization_dashboard': reverse(
-            #    'reporting_organization_dashboard', args=(
-            #    self.account, self.campaign)),
-            #'matrix_chart': reverse(
-            #    'matrix_chart', args=(self.account, self.campaign, 'totals')),
-        })
-        return context
-
-
 class UpdatedMenubarMixin(object):
 
     def get_context_data(self, **kwargs):
         context = super(UpdatedMenubarMixin, self).get_context_data(**kwargs)
         update_context_urls(context, {
             # reporting dashboards menu items
-            'compare': reverse('matrix_compare',
-                args=(self.account, self.campaign)),
             'engage': reverse('reporting_profile_engage',
                 args=(self.account, self.campaign)),
             'accessibles': reverse('reporting_profile_accessibles',
@@ -260,42 +241,6 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
         return context
 
 
-class PortfolioResponsesView(MenubarMixin, DashboardMixin, TemplateView):
-    """
-    Manages engagement with requested reports
-    """
-    template_name = 'app/reporting/index.html'
-
-    def get_template_names(self):
-        campaign_slug = self.campaign.slug
-        candidates = ['app/reporting/%s.html' % campaign_slug]
-        candidates += list(super(
-            PortfolioResponsesView, self).get_template_names())
-        return candidates
-
-    def get_context_data(self, **kwargs):
-        context = super(PortfolioResponsesView, self).get_context_data(**kwargs)
-        update_context_urls(context, {
-            'api_accessibles': reverse(
-                'survey_api_portfolios_requests', args=(self.account,)),
-            'api_account_candidates': site_url("/api/accounts/profiles"),
-            'api_organizations': site_url("/api/profile"),
-            'api_organization_profile': site_url(
-                "/api/profile/%(account)s" % {'account': self.account}),
-
-            'api_portfolio_responses': reverse('api_portfolio_responses',
-                args=(self.account, self.campaign)),
-            'download': reverse('portfolio_responses_download',
-                args=(self.account, self.campaign)),
-            'download_raw': reverse('download_matrix_compare',
-                args=(self.account, self.campaign)),
-        })
-        context.update({
-            'account_extra': json.dumps(self.account.extra),
-        })
-        return context
-
-
 class CompletedAssessmentsRawXLSXView(CompletedAssessmentsMixin, TemplateView):
     """
     Download all completed assessments
@@ -399,7 +344,7 @@ class ReportingDashboardView(UpdatedMenubarMixin, DashboardMixin, TemplateView):
         return context
 
 
-class PortfoliosDetailView(GraphMixin, MenubarMixin, DashboardMixin,
+class PortfoliosDetailView(GraphMixin, UpdatedMenubarMixin, DashboardMixin,
                            MatrixDetailView):
 
     matrix_url_kwarg = 'path'

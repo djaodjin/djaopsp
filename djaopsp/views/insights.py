@@ -1,4 +1,4 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 import logging
@@ -7,11 +7,9 @@ from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags imp
     site_url)
 from deployutils.helpers import update_context_urls
 from django.views.generic.base import TemplateView
-from survey.mixins import CampaignMixin
 
 from ..compat import reverse
 from ..mixins import AccountMixin
-from .portfolios import UpdatedMenubarMixin
 
 
 LOGGER = logging.getLogger(__name__)
@@ -108,34 +106,3 @@ class CompareInsightsView(InsightsView):
                 'scorecard_redirect', args=(self.account,))
         })
         return context
-
-
-class CampaignInsightsMixin(UpdatedMenubarMixin, CampaignMixin):
-
-    def get_context_data(self, **kwargs):
-        context = super(CampaignInsightsMixin, self).get_context_data(**kwargs)
-        update_context_urls(context, {
-            'compare': reverse(
-                'reporting_insights_compare_campaign', args=(
-                self.account, self.campaign)),
-            'analyze': reverse(
-                'reporting_insights_analyze_campaign', args=(
-                self.account, self.campaign)),
-        })
-        return context
-
-
-class CampaignInsightsView(CampaignInsightsMixin, InsightsView):
-    """
-    Same view as `InsightsView` but constraint to a `Campaign`
-    """
-
-class CampaignAnalyzeInsightsView(CampaignInsightsMixin, AnalyzeInsightsView):
-    """
-    Same view as `AnalyzeInsightsView` but constraint to a `Campaign`
-    """
-
-class CampaignCompareInsightsView(CampaignInsightsMixin, CompareInsightsView):
-    """
-    Same view as `CompareInsightsView` but constraint to a `Campaign`
-    """

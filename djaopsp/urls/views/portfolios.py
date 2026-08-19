@@ -1,4 +1,4 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -10,7 +10,6 @@ from ...views.portfolios import (ByCampaignAccessiblesView,
     CompletedAssessmentsRawXLSXView,
     DashboardRedirectView,
     PortfolioAccessiblesView, PortfolioEngagementView,
-    PortfolioResponsesView,
     PortfoliosDetailView, ReportingDashboardView)
 from ...downloads.reporting import (
     AccessiblesAnswersXLSXView, AccessiblesAnswersPivotableCSVView,
@@ -20,8 +19,7 @@ from ...downloads.reporting import (
     PortfolioAccessiblesXLSXView, PortfolioAccessiblesLongCSVView,
     PortfolioEngagementXLSXView)
 from ...views.insights import (AnalyzeInsightsView, CompareInsightsView,
-    InsightsView, CampaignAnalyzeInsightsView, CampaignCompareInsightsView,
-    CampaignInsightsView)
+    InsightsView)
 
 urlpatterns = [
     # Redirects
@@ -102,27 +100,9 @@ urlpatterns = [
         ReportingDashboardView.as_view(),
         name='reporting_organization_dashboard'),
 
-    # side-by-side comparaison, and aggregates analytics
-    path('reporting/<slug:campaign>/insights/compare/',
-        CampaignCompareInsightsView.as_view(),
-        name='reporting_insights_compare_campaign'),
-    path('reporting/<slug:campaign>/insights/analyze/',
-        CampaignAnalyzeInsightsView.as_view(),
-        name='reporting_insights_analyze_campaign'),
-    path('reporting/<slug:campaign>/insights/',
-        CampaignInsightsView.as_view(),
-        name='reporting_insights_campaign'),
-
-    path('reporting/<slug:campaign>/compare/<path:path>/',
-        CampaignCompareInsightsView.as_view(), name='matrix_compare_path'),
-    path('reporting/<slug:campaign>/compare/',
-        CampaignCompareInsightsView.as_view(), name='matrix_compare'),
     path('reporting/<slug:campaign>/matrix/<path:path>/',
         PortfoliosDetailView.as_view(), name='matrix_chart'),
 
-    path('reporting/<slug:campaign>/retiring/',
-        PortfolioResponsesView.as_view(),
-        name='portfolio_responses'),
     path('reporting/<slug:campaign>/',
         PortfolioEngagementView.as_view(),
         name='reporting_profile_engage'),

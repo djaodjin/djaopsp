@@ -10,14 +10,7 @@
         <ul class="nav nav-tabs justify-content-end">
           {% block help_menus %}
 
-          {# XXX current menus #}
-
-          {% if urls.portfolio_responses %}
-          <li class="divider-vertical"></li>
-          <li class="nav-item">
-            <a class="nav-link{% if request.path == urls.portfolio_responses %} active{% endif %}" href="{{urls.portfolio_responses}}">Reporting entities</a>
-          </li>
-          {% endif %}
+          {# XXX old menus #}
           {% if urls.reporting_organization_dashboard %}
           <li class="divider-vertical"></li>
           <li class="nav-item">
