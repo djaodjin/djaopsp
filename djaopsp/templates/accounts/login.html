@@ -7,19 +7,19 @@
     <div class="offset-md-2 col-md-8">
         <div class="card">
             <div class="card-body">
-                <h1 class="text-center"><i class="fa-solid fa-sign-in fa-lg"></i> Sign in</h1>
-                {% include "_form.html" %}
-                <hr />
-                <div class="row">
-                    <div class="col-md-8">
-                    <p>
+              <h1 class="text-center"><i class="fa-solid fa-sign-in fa-lg"></i> Sign in</h1>
+              {% include "_form.html" %}
+              <hr />
+              <div class="row text-body">
+                <div class="col-md-8">
+                  <p>
 Forgot password? <i class="fa-solid fa-long-arrow-right"></i> <a href="{{'recover/'|site_url}}{% if next %}?next={{next}}{% endif %}">Recover</a>
-                    </p>
-                    <p>
+                  </p>
+                  <p>
 Unsure if you already have an account? <i class="fa-solid fa-long-arrow-right"></i> <a href="{{'activate/'|site_url}}{% if next %}?next={{next}}{% endif %}"> Get started</a>
-                    </p>
-                    </div>
-               </div>
+                  </p>
+                </div>
+              </div>
             </div>
         </div>
     </div>
