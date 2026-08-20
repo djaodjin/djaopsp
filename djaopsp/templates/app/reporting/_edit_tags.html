@@ -3,7 +3,9 @@
     <template v-if="entry.extra">
       <a href="#" class="badge bg-secondary text-decoration-none text-white" v-for="tag in entry.extra.tags" @click.prevent="searchByTag(tag)">[[tag]]</a>
     </template>
-    <small><a href="#" @click.prevent="toggleEditTags(index)"><i class="fa-solid fa-edit"></i></a></small>
+    <small><a href="#"
+              aria-label="{% trans %}edit tags{% endtrans %}"
+              @click.prevent="toggleEditTags(index)"><i class="fa-solid fa-edit"></i></a></small>
   </div>
 
   <div v-show="showEditTags === index" @keydown.esc="cancelEditTags(index)" class="mt-1" style="cursor:text;">

@@ -12,6 +12,7 @@
   <div class="sticky-cell-content-container">
     <div class="sticky-cell-content">
       <div class="btn btn-link btn-sort text-center"
+           aria-label="{% trans %}sort by{% endtrans %}"
            @click="sortBy('environmental_value')">
         <img src="{{'/static/img/green-leaf.png'|asset}}"
              width="32" hegiht="32"
@@ -27,6 +28,7 @@
   <div class="sticky-cell-content-container">
     <div class="sticky-cell-content">
       <div class="btn btn-link btn-sort text-center"
+           aria-label="{% trans %}sort by{% endtrans %}"
            @click="sortBy('business_value')">
         <img src="{{'/static/img/cogs.png'|asset}}"
              width="32" hegiht="32"
@@ -42,6 +44,7 @@
   <div class="sticky-cell-content-container">
     <div class="sticky-cell-content">
       <div class="btn btn-link btn-sort text-center"
+           aria-label="{% trans %}sort by{% endtrans %}"
            @click="sortBy('profitability')">
         <img src="{{'/static/img/dollar-sign.png'|asset}}"
              width="32" hegiht="32"
@@ -57,6 +60,7 @@
   <div class="sticky-cell-content-container">
     <div class="sticky-cell-content">
       <div class="btn btn-link btn-sort text-center"
+           aria-label="{% trans %}sort by{% endtrans %}"
            @click="sortBy('implementation_ease')">
         <img src="{{'/static/img/shovel.png'|asset}}"
              width="32" hegiht="32" data-bs-toggle="tooltip"
