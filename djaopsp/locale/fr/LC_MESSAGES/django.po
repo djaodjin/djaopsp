@@ -981,13 +981,17 @@ msgstr "Il n'y a pas suffisamment de données disponibles pour effectuer une com
 msgid "Profile picture"
 msgstr "Image du profil"
 
+# Implementation Note: No quote character (') in the translated string
+# as it does not mix well with Javascript in HTML attributes.
 #: djaopsp/templates/app/assess/_assess_freetext.html:17
 msgid "If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you."
-msgstr "Si vous avez des remarques ou des commentaires concernant la vérifiabilité ou l'exhaustivité, veuillez les ajouter ici. Merci."
+msgstr "Si vous avez des remarques ou des commentaires concernant la vérifiabilité, veuillez les ajouter ici. Merci."
 
+# Implementation Note: No quote character (') in the translated string
+# as it does not mix well with Javascript in HTML attributes.
 #: djaopsp/templates/app/assess/_assess_freetext.html:17
 msgid "By providing context and supporting evidence for your answer, including public URL links and/or uploaded documents, you enable your customers to gain confidence in your organization\\'s response."
-msgstr "En fournissant du contexte et des éléments probants à l'appui de votre réponse — notamment des liens URL publics et/ou des documents téléchargés —, vous permettez à vos clients d'avoir confiance dans la réponse de votre organisation."
+msgstr "En fournissant du contexte et des documents supportant votre réponse (liens URL publics et/ou des documents téléchargés), vous permettez à vos clients de gagner confiance dans la réponse de votre organisation."
 
 #: djaopsp/templates/app/assess/_assess_freetext.html:39
 msgid "Uploaded documents"
