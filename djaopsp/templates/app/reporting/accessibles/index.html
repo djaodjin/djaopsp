@@ -160,6 +160,7 @@
               <div class="sticky-cell-content">
                 {% trans %}Organization/profile{% endtrans %}
                 <button class="btn btn-link btn-sort"
+                        aria-label="{% trans %}sort by{% endtrans %}"
                         @click.prevent="sortBy('full_name')">
                   <i :class="sortIcon('full_name')"></i>
                 </button>

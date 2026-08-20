@@ -97,6 +97,7 @@
               <div class="sticky-cell-content">
                 {% trans %}Profile{% endtrans %}
                 <button class="btn btn-link btn-sort"
+                        aria-label="{% trans %}sort by{% endtrans %}"
                         @click.prevent="sortBy('full_name')">
                   <i :class="sortIcon('full_name')"></i>
                 </button>
@@ -106,7 +107,9 @@
           <th class="text-nowrap text-center sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                <button class="btn btn-sort">{% trans %}Engage Tags{% endtrans %}</button>
+                <button class="btn btn-sort">
+                    {% trans %}Engage Tags{% endtrans %}
+                </button>
               </div>
             </div>
           </th>
@@ -140,6 +143,7 @@
               <div class="sticky-cell-content">
                   {% trans %}Last update{% endtrans %}
                 <button class="btn btn-link btn-sort"
+                        aria-label="{% trans %}sort by{% endtrans %}"
                         @click.prevent="sortBy('last_activity_at')">
                   <i :class="sortIcon('last_activity_at')"></i>
                 </button>
@@ -155,6 +159,7 @@
               <div class="sticky-cell-content">
                 {% trans %}Last reminder{% endtrans %}
                 <button class="btn btn-link btn-sort"
+                        aria-label="{% trans %}sort by{% endtrans %}"
                         @click.prevent="sortBy('last_reminder_at')">
                   <i>&nbsp;</i>
                   <!-- XXX API does not support sort by last_reminder_at yet.
@@ -177,6 +182,7 @@
               <div class="sticky-cell-content">
                   {% trans %}Added{% endtrans %}
                 <button class="btn btn-link btn-sort"
+                        aria-label="{% trans %}sort by{% endtrans %}"
                         @click.prevent="sortBy('requested_at')">
                   <i :class="sortIcon('requested_at')"></i>
                 </button>
