@@ -7,7 +7,7 @@
           <div class="input-group input-group-sm">
             <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
             <input class="form-control" type="date" v-model="_start_at"
-                aria-label="Start date of the period"
+                aria-label="{% trans %}Start date of the period{% endtrans %}"
                 v-cloak>
           </div>
         </div>
@@ -15,7 +15,7 @@
           <div class="input-group input-group-sm">
             <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             <input class="form-control" type="date" v-model="_ends_at"
-                aria-label="End date of the period"
+                aria-label="{% trans %}End date of the period{% endtrans %}"
                 v-cloak>
           </div>
         </div>

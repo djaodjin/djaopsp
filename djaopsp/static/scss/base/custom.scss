@@ -1650,12 +1650,14 @@ thead{
 
 .table tr > th.sticky-cell-top > .sticky-cell-content-container {
   border-bottom: 1px solid #616363;
-  padding: 20px 0;
+  padding-top: $navbar-height;
+  padding-bottom: 20px;
 }
 
 .table tr > th.sticky-cell-left > .sticky-cell-content-container {
   border-right: 1px solid #616363;
-  padding: 20px;
+  padding-top: $navbar-height;
+  padding-bottom: 20px;
 }
 
 .table tr > th.sticky-cell > .sticky-cell-content-container > .sticky-cell-content {

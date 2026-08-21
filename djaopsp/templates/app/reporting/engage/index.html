@@ -85,10 +85,11 @@
     <table class="table table-striped mt-4">
       <thead>
         <tr>
-          <th class="sticky-cell sticky-cell-top">
+          <th class="text-nowrap text-center sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                  <span aria-hidden="true"></span>
+                  {# aligns all headers #}
+                  <span style="display:inline-block;line-height: 38px;">&nbsp;</span>
               </div>
             </div>
           </th>
@@ -108,20 +109,20 @@
           <th class="text-nowrap text-center sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                <button class="btn btn-sort">
-                    {% trans %}Engage Tags{% endtrans %}
-                </button>
+                <span style="display:inline-block;line-height: 38px;">{% trans %}Engage Tags{% endtrans %}</span>
               </div>
             </div>
           </th>
           <th class="text-nowrap text-center sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
-              <div class="sticky-cell-content">
+              <div class="sticky-cell-content" style="padding-right:20px;">
                   <select class="form-control form-select"
+                          name="status"
+                          style="min-width:100px;"
                           v-model="params.status"
                           @change="reload()">
-                      <option value="invited-denied">{% trans %}Declined to respond{% endtrans %}</option>
                       <option value="">{% trans %}Status{% endtrans %}</option>
+                      <option value="invited-denied">{% trans %}Declined to respond{% endtrans %}</option>
                       <option value="invited">{% trans %}Invited{% endtrans %}</option>
                       <option value="updated">{% trans %}Work in progress{% endtrans %}</option>
                       <option value="completed-notshared">{% trans %}Completed{% endtrans %} ({% trans %}not yet shared{% endtrans %})</option>
@@ -174,6 +175,7 @@
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
                   {# primary action #}
+                  <span style="display:inline-block;line-height: 38px;">&nbsp;</span>
               </div>
             </div>
           </th>

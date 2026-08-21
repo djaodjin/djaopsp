@@ -56,13 +56,19 @@
           <div class="col-md-5 col-6">
             <div class="input-group input-group-sm">
               <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-              <input class="form-control" type="date" v-model="_start_at" v-cloak>
+              <input class="form-control" type="date"
+                     v-model="_start_at"
+                     aria-label="{% trans %}Start date of the period{% endtrans %}"
+                     v-cloak>
             </div>
           </div>
           <div class="col-md-5 col-6">
             <div class="input-group input-group-sm">
               <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-              <input class="form-control" type="date" v-model="_ends_at" v-cloak>
+              <input class="form-control" type="date"
+                     v-model="_ends_at"
+                     aria-label="{% trans %}End date of the period{% endtrans %}"
+                     v-cloak>
             </div>
           </div>
           </div>
@@ -153,7 +159,7 @@
           <th class="sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                  <span aria-hidden="true"></span>
+                  <span style="display:inline-block;line-height: 38px;">&nbsp;</span>
               </div>
             </div>
           </th>
@@ -172,7 +178,8 @@
           <th class="sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                <button class="btn btn-sort">{% trans %}Tags{% endtrans %}</button>
+                  {% trans %}Tags{% endtrans %}
+                  <span style="display:inline-block;line-height: 38px;">&nbsp;</span>
               </div>
             </div>
           </th>
@@ -181,7 +188,8 @@
               v-show="itemsLoaded && items.labels && items.labels.length > 0" v-cloak>
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                  <button class="btn btn-sort">[[label]]</button>
+                  [[label]]
+                  <span style="display:inline-block;line-height: 38px;">&nbsp;</span>
                   <!--
                   <select class="form-select"
                           v-model="params.status"
@@ -200,6 +208,7 @@
           <th class="sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
+                <span style="display:inline-block;line-height: 38px;">&nbsp;</span>
               </div>
             </div>
           </th>
