@@ -70,6 +70,7 @@
           <div class="col-md-5 col-6">
             <div class="input-group input-group-sm">
               <select class="form-control form-select"
+                      name="period"
                       v-model="params.period">
                   <option value="monthly">{% trans %}Monthly{% endtrans %}</option>
                   <option value="yearly">{% trans %}Yearly{% endtrans %}</option>
@@ -152,6 +153,7 @@
           <th class="sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
+                  <span aria-hidden="true"></span>
               </div>
             </div>
           </th>
@@ -270,7 +272,12 @@
           </a>
         </td>
         <td>
-          <button class="btn btn-danger btn-sm" @click.prevent="remove($event, index)" data-trip data-trip-index="3" data-trip-content="<p>Click here to cancel access request.</p>" data-trip-position="s">
+          <button class="btn btn-danger btn-sm"
+                @click.prevent="remove($event, index)"
+                aria-label="remove"
+                data-trip data-trip-index="3"
+                data-trip-content="<p>Click here to cancel access request.</p>"
+                data-trip-position="s">
             <i class="fa-solid fa-trash"></i>
           </button>
         </td>

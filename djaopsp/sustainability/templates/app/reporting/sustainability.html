@@ -10,7 +10,7 @@
 <table class="table table-striped">
   <thead>
     <tr>
-      <th></th>
+      <th><span aria-hidden="true"></span></th>
       <th>Organization/profile<button class="btn btn-link btn-sort"
                                       @click.prevent="sortBy('printable_name')">
           <i :class="sortIcon('printable_name')"></i>
@@ -61,7 +61,7 @@
           <i class="sortIcon('nb_planned_improvements')"></i>
         </button>
       </th>
-      <th></th>
+      <th><span aria-hidden="true"></span></th>
     </tr>
   </thead>
   <tbody style="color:black;">
