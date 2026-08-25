@@ -762,7 +762,9 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin):
         if not hasattr(self, '_engaged_accounts'):
             #pylint:disable=attribute-defined-outside-init
             accounts_queryset, show_individual_profiles = self.get_accounts()
-            self._engaged_accounts = list(accounts_queryset)
+            # Implementation Note: `tabularize()` expects accounts to be
+            # sorted by ids (lower first).
+            self._engaged_accounts = list(accounts_queryset.order_by('pk'))
         return self._engaged_accounts
 
     @property
