@@ -6,6 +6,7 @@ from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings as django_settings
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
 from pages.docs import extend_schema
@@ -23,9 +24,9 @@ from survey.api.serializers import PortfolioRequestCreateSerializer
 from survey.filters import OrderingFilter, SearchFilter
 from survey.helpers import datetime_or_now
 from survey.mixins import SampleMixin, TimersMixin
-from survey.models import PortfolioDoubleOptIn, Sample
+from survey.models import Choice, PortfolioDoubleOptIn, Sample
 from survey.settings import DB_PATH_SEP
-from survey.utils import get_account_model
+from survey.utils import get_account_model, get_question_model
 
 from ..compat import gettext_lazy as _, reverse, six
 from ..mixins import AccountMixin, SectionReportMixin
@@ -48,6 +49,46 @@ LOGGER = logging.getLogger(__name__)
 
 
 class SampleNotesMixin(SampleMixin):
+
+    def attach_verifier_notes(self, units, questions_by_key,
+                              prefix=None, excludes=None, extra_fields=None):
+        verification_notes = self.get_notes(prefix=prefix, excludes=excludes)
+        if False and django_settings.FEATURES_DEBUG:
+            verifier = get_user_model().objects.get(
+                username=self.verification.verifier_notes.account.slug)
+            VERIFIED_CHOICE = Choice.objects.filter(
+                unit__slug='verifiability',
+                text__in=[
+                    'Self-reported Yes > Verifiable',
+                    'Self-reported Yes > Unverifiable'
+                ]).values_list('pk', flat=True)
+            question_key_by_slug = {
+                question.path.split(DB_PATH_SEP)[-1]: question
+                for question in get_question_model().objects.filter(
+                        pk__in=questions_by_key.keys())}
+            notes = verification_notes
+            verification_notes = []
+            for v_answer in notes:
+                if v_answer.measured not in VERIFIED_CHOICE:
+                    continue
+                v_path = v_answer.question.path
+                v_slug = v_path.split(DB_PATH_SEP)[-1]
+                connected_question = question_key_by_slug.get(v_slug)
+                if connected_question:
+                    v_answer.question = connected_question
+                    v_answer.collected_by = verifier
+                    verification_notes += [v_answer]
+
+        attach_answers(
+            units,
+            questions_by_key,
+            verification_notes,
+            extra_fields=extra_fields,
+            key='answers') # Implementation note: attaching the notes
+                           # as 'answers' instead of 'notes' because
+                           # so far they are distinct questions and
+                           # it simplifies the Javascript client.
+
 
     def get_notes(self, prefix=None, excludes=None):
         """
@@ -342,16 +383,11 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
 
         elif self.verification_available:
             # Verification notes are only available to verifiers
-            attach_answers(
-                units,
-                questions_by_key,
-                self.get_notes(prefix=prefix,
-                    excludes=self.exclude_questions),
-                extra_fields=extra_fields,
-                key='answers') # Implementation note: attaching the notes
-                               # as 'answers' instead of 'notes' because
-                               # so far they are distinct questions and
-                               # it simplifies the Javascript client.
+            self.attach_verifier_notes(
+                units, questions_by_key,
+                prefix=prefix,
+                excludes=self.exclude_questions,
+                extra_fields=extra_fields)
 
         # Attach scores
         calculator = get_score_calculator(prefix)
