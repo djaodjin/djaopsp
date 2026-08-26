@@ -7,7 +7,7 @@ const confPaths = JSON.parse(fs.readFileSync('webpack-conf-paths.json').toString
 
 module.exports = env => ({
   mode: 'production',
-  target: ['web', 'es5'],
+  target: ['web', 'es2018'],
   entry: {
       assess: [
           'js/djaodjin-survey-vue.js',

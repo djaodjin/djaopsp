@@ -20,7 +20,7 @@ RUN_DIR       ?= $(abspath $(srcDir))
 installDirs   ?= /usr/bin/install -d
 installFiles  ?= /usr/bin/install -p -m 644
 DOCKER        ?= docker
-ESCHECK       ?= eslint es5
+ESCHECK       ?= eslint
 NPM           ?= npm
 PIP           ?= pip
 PYTHON        ?= python
@@ -89,7 +89,7 @@ build-assets: $(ASSETS_DIR)/cache/app.css \
 	rm -rf $(ASSETS_DIR)/rest_framework $(ASSETS_DIR)/scss $(ASSETS_DIR)/css
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-base.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-i18n.js $(ASSETS_DIR)/vendor
-	cd $(srcDir) && $(ESCHECK) htdocs/static/cache/*.js htdocs/static/vendor/*.js -v
+	cd $(srcDir) && $(ESCHECK) --no-inline-config htdocs/static/cache/*.js htdocs/static/vendor/*.js
 
 
 clean: clean-dbs
