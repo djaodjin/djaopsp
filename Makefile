@@ -75,8 +75,6 @@ all:
 
 # We are installing the overridden vendor files along with the ones installed
 # from node_modules.
-# Implementation note: chart.js is a directory. chartjs-plugin-annotation.js
-# and chartjs-plugin-datalabels.js are not ES5 compatible.
 build-assets: $(ASSETS_DIR)/cache/app.css \
               $(ASSETS_DIR)/cache/email.css \
               $(ASSETS_DIR)/cache/assess.js
@@ -91,7 +89,6 @@ build-assets: $(ASSETS_DIR)/cache/app.css \
 	rm -rf $(ASSETS_DIR)/rest_framework $(ASSETS_DIR)/scss $(ASSETS_DIR)/css
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-base.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(srcDir)/djaopsp/static/vendor/djaoapp-i18n.js $(ASSETS_DIR)/vendor
-	rm -rf $(srcDir)/htdocs/static/vendor/chart.js $(srcDir)/htdocs/static/vendor/chartjs-plugin-annotation.js $(srcDir)/htdocs/static/vendor/chartjs-plugin-datalabels.js
 	cd $(srcDir) && $(ESCHECK) htdocs/static/cache/*.js htdocs/static/vendor/*.js -v
 
 
@@ -179,9 +176,9 @@ vendor-assets-prerequisites: $(libDir)/.npm/$(APP_NAME)-packages \
                              $(installTop)/.npm/fontawesome-free-7.0.0-web
 	$(installDirs) $(ASSETS_DIR)/fonts $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/bootstrap/dist/js/bootstrap.min.js $(ASSETS_DIR)/vendor
-	cp -rf $(libDir)/node_modules/chart.js $(srcDir)/djaopsp/static/vendor
-	$(installFiles) $(libDir)/node_modules/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.js $(srcDir)/djaopsp/static/vendor
-	$(installFiles) $(libDir)/node_modules/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.js $(srcDir)/djaopsp/static/vendor
+	$(installFiles) $(libDir)/node_modules/chart.js/dist/chart.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.js $(ASSETS_DIR)/vendor
+	$(installFiles) $(libDir)/node_modules/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.css $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/dropzone/dist/dropzone.js $(ASSETS_DIR)/vendor
 	$(installFiles) $(libDir)/node_modules/easymde/dist/easymde.min.js $(ASSETS_DIR)/vendor
@@ -204,9 +201,6 @@ vendor-assets-prerequisites: $(libDir)/.npm/$(APP_NAME)-packages \
 clean-dbs:
 	[ ! -f $(DB_FILENAME) ] || rm $(DB_FILENAME)
 
-# The chart.js in node_modules/chart.js/dist/chart.js does not pass
-# `es-check es5`. The webpack.config.js file rules loader excludes
-# `node_modules` from babel, so we install chart.js in $srcDir here.
 $(libDir)/.npm/$(APP_NAME)-packages: $(srcDir)/package.json
 	$(installFiles) $^ $(libDir)
 	$(NPM) install --cache $(libDir)/.npm --prefix $(libDir)

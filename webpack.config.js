@@ -1,14 +1,3 @@
-/**
-
-`chart.js` and `chartjs-plugin-annotation.js` do not have an ES5 distribution
-by default. The annotation plugin though import chart.js and chart.js' helpers
-in such a way that if we are not careful to install the whole chart.js module
-in vendor/chart.js/ and update the modules path (resolveLoader.modules)
-properly, we end-up with an ES6 code base in /static/cache/ (checked by
-eslint in Makefile rule).
-The annotation plugin also needs to be registered (done through
-`chart-bundle.js`).
- */
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
@@ -20,11 +9,7 @@ module.exports = env => ({
   mode: 'production',
   target: ['web', 'es5'],
   entry: {
-      'chart-bundle': [
-          'js/chart-bundle.js',
-      ],
       assess: [
-          'js/chart-bundle.js',
           'js/djaodjin-survey-vue.js',
           'js/djaodjin-pages-vue.js',
           'js/assess-vue.js',
