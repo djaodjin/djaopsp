@@ -938,7 +938,6 @@ var practicesListMixin = {
                 '#f0ad4e', '#f0ad4e'];
             datasets.push({
                 label: "peers",
-                datalabels: {labels: {title: null}},
                 backgroundColor: '#f0ad4e',
                 borderColor: '#f0ad4e',
                 data: values

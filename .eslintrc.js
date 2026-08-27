@@ -1,7 +1,6 @@
 module.exports = {
     "env": {
-        "browser": true,
-        "es6": true
+        "browser": true
     },
     "overrides": [
         {
@@ -14,10 +13,18 @@ module.exports = {
             "parserOptions": {
                 "sourceType": "script"
             }
+        },
+        {
+            "files": [
+                "htdocs/static/vendor/marked.min.js"
+            ],
+            "parserOptions": {
+                "ecmaVersion": 2022
+            }
         }
     ],
     "parserOptions": {
-        "ecmaVersion": "latest"
+        "ecmaVersion": 2018
     },
     "rules": {
     }

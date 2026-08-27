@@ -314,9 +314,7 @@ function doughnutLabelFormatter(unit) {
 }
 
 function withAlpha(color, alpha) {
-    return color; // workaround to show doughnut charts with inner rings
-                  // when `DEBUG=0`.
-    //return Chart.helpers.color(color).alpha(alpha).rgbString();
+    return Chart.helpers.color(color).alpha(alpha).rgbString();
 }
 
 function styleInnerRings(datasets) {
@@ -1268,6 +1266,7 @@ Vue.component('djaopsp-compare-samples', {
                     var unit = vm.params.unit;
                     vm.compareChart = new Chart(chartElem, {
                             type: 'bar',
+                            plugins: [ChartDataLabels],
                             borderWidth: 0,
                             data: {
                                 labels: labels,
@@ -1310,7 +1309,7 @@ Vue.component('djaopsp-compare-samples', {
                     var unit = vm.params.unit;
                     vm.compareChart = new Chart(chartElem, {
                             type: 'doughnut',
-                            plugins: [DoughnutLinesPlugin],
+                            plugins: [ChartDataLabels, DoughnutLinesPlugin],
                             borderWidth: 0,
                             data: {
                                 labels: labels,
@@ -1976,6 +1975,7 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                         resp.results[idx].default_unit.system == "datetime" ) {
                         vm.charts[chartKey] = new Chart(element, {
                             type: 'bar',
+                            plugins: [ChartDataLabels],
                             data: {
                                 labels: labels,
                                 datasets: datasets
@@ -2007,7 +2007,7 @@ Vue.component('reporting-benchmarks', dashboardChart.extend({
                     } else {
                         vm.charts[chartKey] = new Chart(element, {
                             type: 'doughnut',
-                            plugins: [DoughnutLinesPlugin],
+                            plugins: [ChartDataLabels, DoughnutLinesPlugin],
                             data: {
                                 labels: labels,
                                 datasets: datasets
@@ -2084,6 +2084,7 @@ Vue.component('reporting-completion-rate', dashboardChart.extend({
                 document.getElementById('completionRate'),
                 {
                     type: 'line',
+                    plugins: [ChartDataLabels],
                     data: {
                         labels: labels,
                         datasets: datasets
@@ -2190,7 +2191,7 @@ Vue.component('reporting-completion-total', dashboardChart.extend({
                 document.getElementById('summaryChart'),
                 {
                     type: 'doughnut',
-                    plugins: [DoughnutLinesPlugin],
+                    plugins: [ChartDataLabels, DoughnutLinesPlugin],
                     borderWidth: 0,
                     data: {
                         labels: labels,
@@ -2278,6 +2279,7 @@ Vue.component('reporting-goals', dashboardChart.extend({
                 document.getElementById('goals'),
                 {
                     type: 'bar',
+                    plugins: [ChartDataLabels],
                     data: {
                         labels: labels,
                         datasets: datasets
@@ -2347,6 +2349,7 @@ Vue.component('reporting-by-segments', dashboardChart.extend({
                 document.getElementById('bySegements'),
                 {
                     type: 'bar',
+                    plugins: [ChartDataLabels],
                     data: {
                         labels: labels,
                         datasets: datasets

@@ -60,11 +60,11 @@
 <script type="text/javascript" src="{{'/static/vendor/moment.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/moment-timezone-with-data.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/marked.min.js'|asset}}"></script>
-{% block app_bodyscripts %}
-{% if ASSETS_DEBUG %}
-<script type="text/javascript" src="{{'/static/vendor/chart.js/dist/chart.js'|asset}}"></script>
+<script type="text/javascript" src="{{'/static/vendor/chart.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/chartjs-plugin-annotation.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/vendor/chartjs-plugin-datalabels.js'|asset}}"></script>
+{% block app_bodyscripts %}
+{% if ASSETS_DEBUG %}
 <script type="text/javascript" src="{{'/static/js/djresourcesvue.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaodjin-pages-vue.js'|asset}}"></script>
 <script type="text/javascript" src="{{'/static/js/djaopsp-resources-vue.js'|asset}}"></script>

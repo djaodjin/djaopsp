@@ -1091,7 +1091,6 @@ Vue.component('scorecard', {
                             labels: labels,
                             datasets: [{
                                 label: "score",
-                                datalabels: {labels: {title: null}},
                                 data: data,
                                 backgroundColor: [
                                     'rgb(255, 99, 132)',
