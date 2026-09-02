@@ -34,6 +34,7 @@ module.exports = env => ({
           presets: [['@babel/preset-env', {
               configPath: __dirname + "/package.json",
               debug: true,
+              forceAllTransforms: true,
               //useBuiltIns: 'usage',
               // XXX If we starts to use the polyfill, there is a problem
               // with Vue/extend in 'js/assess-vue.js'.
