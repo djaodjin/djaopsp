@@ -74,8 +74,9 @@ var portfolioTagsMixin = {
             if( !item.extra ) {
                 item.extra = {}
             }
-            vm.reqPatch(vm._safeUrl(vm.api_metadata, item.slug)
-                + vm.getQueryString(), {extra: item.extra});
+            vm.reqPatch(vm.appendQueryString(
+                vm._safeUrl(vm.api_metadata, item.slug)),
+                {extra: item.extra});
             vm.showEditTags = -1;
         },
         searchByTag: function(tag) {
@@ -425,15 +426,22 @@ Vue.component('engage-profiles', {
                 typeaheadQueryString += ('&q=' + vm.lastGetParams['q']);
             }
             vm.reqMultiple([{
-                method: 'GET', url: vm.url + vm.getQueryString(),
+                method: 'GET', url: vm.appendQueryString(vm.url),
             },{
                 method: 'GET', url: vm.typeaheadUrl + typeaheadQueryString,
             }], function(resp, typeaheadResp) {
                 vm.loadComplete(resp, typeaheadResp);
+            }, function reloadError(resp, typeaheadResp) { // at least one error
+                if( resp.status == 200 ) {
+                    const data = resp.data;
+                    vm.loadComplete(resp, {});
+                }
             });
             if( !vm.autoreload ) {
                 for( let key in vm.$refs ) {
-                    vm.$refs[key].get();
+                    if( typeof vm.$refs[key].get !== 'undefined' ) {
+                        vm.$refs[key].get();
+                    }
                 }
             }
         },
@@ -1395,9 +1403,9 @@ Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.ext
             vm.params.campaign = vm.campaign ? vm.campaign : null;
             const title = vm.$el.querySelector(
                 '[value="' + groupSlug + '"]').textContent;
-            const url = vm._safeUrl(vm._safeUrl(
+            const url = vm.appendQueryString(vm._safeUrl(vm._safeUrl(
                 vm.$urls.api_account_groups, groupSlug),
-                vm.prefix) + vm.getQueryString();
+                vm.prefix));
             return {title: title, url: url};
         },
         validate: function() {
@@ -1812,7 +1820,7 @@ var dashboardChart = Vue.component('dashboardChart', {
                 if( vm.datasets[idx].url ) {
                     queryArray.push({
                         method: 'GET',
-                        url: vm.datasets[idx].url + vm.getQueryString(),
+                        url: vm.appendQueryString(vm.datasets[idx].url),
                         data: null
                     });
                 }

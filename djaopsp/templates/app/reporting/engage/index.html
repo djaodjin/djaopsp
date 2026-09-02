@@ -23,7 +23,7 @@
       <div class="col-sm-6 text-end">
 
         <div class="btn-group" role="group">
-          <a class="btn btn-primary" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
+          <a class="btn btn-primary" id="xlsx-download-btn" :href="appendQueryString('{{urls.download}}',['page'])">
             <i class="fa-solid fa-download"></i> {% trans %}Download (xlsx){% endtrans %}
           </a>
           <button type="button"
@@ -34,45 +34,45 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-start">
             <a class="dropdown-item"
-               :href="'{{urls.download}}' + getQueryString(['page'])"
+               :href="appendQueryString('{{urls.download}}',['page'])"
                target="_blank">
               {% trans %}Download (.xlsx){% endtrans %}
             </a>
             <a id="xlsx-download-contacts" class="dropdown-item"
-               :href="'{{urls.download}}invites/' + getQueryString(['page'])"
+               :href="appendQueryString('{{urls.download}}invites/',['page'])"
                target="_blank">
               {% trans %}Contacts (.xlsx){% endtrans %}
             </a>
             <a id="download-answers" class="dropdown-item"
-               :href="'{{urls.download_raw}}' + getQueryString(['page'])"
+               :href="appendQueryString('{{urls.download_raw}}',['page'])"
                target="_blank">
                 {% trans %}Answers &amp; scores (.xlsx){% endtrans %}
             </a>
             <a id="download-answers-pivotable" class="dropdown-item"
-               :href="'{{urls.download_raw_long}}' + getQueryString(['page'])"
+               :href="appendQueryString('{{urls.download_raw_long}}',['page'])"
                target="_blank">
                 {% trans %}Answers &amp; scores (pivotable .csv){% endtrans %}
             </a>
             {% if verification_exists %}
             <a id="download-verification" class="dropdown-item"
-               :href="'{{urls.download_raw}}' + getQueryString(['page']) + '&verified=1'"
+               :href="appendQueryString('{{urls.download_raw}}' + '?verified=1', ['page'])"
                target="_blank">
                 {% trans %}Verification (.xlsx){% endtrans %}
             </a>
             <a id="download-verification-pivotable" class="dropdown-item"
-               :href="'{{urls.download_raw_long}}' + getQueryString(['page']) + '&verified=1'"
+               :href="appendQueryString('{{urls.download_raw_long}}' + '?verified=1', ['page'])"
                target="_blank">
                 {% trans %}Verification (pivotable .csv){% endtrans %}
             </a>
             {% endif %}
             {% if planned_exists %}
             <a id="download-planned" class="dropdown-item"
-               :href="'{{urls.download_raw}}' + getQueryString(['page']) + '&planned=1'"
+               :href="appendQueryString('{{urls.download_raw}}' + '?planned=1', ['page'])"
                target="_blank">
                 {% trans %}Planned improvements (.xlsx){% endtrans %}
             </a>
             <a id="download-planned-pivotable" class="dropdown-item"
-               :href="'{{urls.download_raw_long}}' + getQueryString(['page']) + '&planned=1'"
+               :href="appendQueryString('{{urls.download_raw_long}}' + '?planned=1', ['page'])"
                target="_blank">
                 {% trans %}Planned improvements (pivotable .csv){% endtrans %}
             </a>

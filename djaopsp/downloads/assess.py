@@ -157,5 +157,5 @@ class AssessPracticesXLSXView(SectionReportMixin, CampaignDecorateMixin,
         return row
 
     def get_filename(self):
-        return datetime_or_now().strftime("%s-%s-%%Y%%m%%d.xlsx" % (
+        return self.sample.created_at.strftime("%s-%s-%%Y%%m%%d.xlsx" % (
             self.sample.account.slug, self.campaign.slug))
