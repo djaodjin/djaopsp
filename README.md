@@ -23,7 +23,7 @@ If you are looking to add features, this project integrates
 
 Tested with
 
-- **Python:** 3.12, **Django:** 5.2 ([LTS](https://www.djangoproject.com/download/))
+- **Python:** 3.12, **Django:** 5.2 ([LTS](https://www.djangoproject.com/download/)), **Node.js:** 22.23.2
 
 
 Install
@@ -37,11 +37,13 @@ the active directory to that source directory.
 
 The following commands are executed at the top of source directory.
 
-Please first verify that you have at least Python3.10 and make installed on your
-development environment
+Please first verify that you have at least Python 3.10, Node.js 22.23.2 and make
+installed on your development environment.
 
     $ python --version
     Python 3.12.13
+    $ node --version
+    v22.23.2
     $ make --version
     GNU Make 3.81
 
