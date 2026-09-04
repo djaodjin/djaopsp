@@ -1414,6 +1414,8 @@ Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.ext
     },
     mounted: function() {
         var vm = this;
+        // We are not adding plans/subscriptions if we are not connected
+        // to a djaoapp instance.
         vm.reqGet(vm.plans_url, function(resp) {
             vm.plans = resp.results;
         });
