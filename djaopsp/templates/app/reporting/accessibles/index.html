@@ -220,8 +220,11 @@
             <form @submit.prevent="reload()">
               <div class="input-group input-group-sm">
                 <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
-                <input ref="tagFilter" class="form-control portfolio-search-tagify"
-                       placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}" />
+                <input class="form-control portfolio-search-tagify"
+                       placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}"
+                       ref="tagFilter"
+                       name="query"
+                       v-model="params.q" />
                 <button class="btn btn-primary btn-sm"
                         type="submit"
                         :disabled="!outdated">{% trans %}Search{% endtrans %}</button>

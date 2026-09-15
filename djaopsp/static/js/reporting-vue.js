@@ -422,16 +422,21 @@ Vue.component('engage-profiles', {
                 }
                 typeaheadQueryString += ('&q=' + vm.lastGetParams['q']);
             }
-            vm.reqMultiple([{
-                method: 'GET', url: vm.url + vm.getQueryString(),
-            },{
-                method: 'GET', url: vm.typeaheadUrl + typeaheadQueryString,
-            }], function(resp, typeaheadResp) {
-                vm.loadComplete(resp, typeaheadResp);
+            vm.reqGet(vm.url + vm.getQueryString(),
+            function(resp) {
+                vm.reqGet(vm.typeaheadUrl + typeaheadQueryString,
+                function(typeaheadResp) {
+                    vm.loadComplete(resp, typeaheadResp);
+                },
+                function() {
+                    vm.loadComplete(resp);
+                });
             });
             if( !vm.autoreload ) {
                 for( let key in vm.$refs ) {
-                    vm.$refs[key].get();
+                    if( typeof vm.$refs[key].get !== 'undefined' ) {
+                        vm.$refs[key].get();
+                    }
                 }
             }
         },
@@ -818,21 +823,6 @@ Vue.component('engage-profiles', {
     mounted: function(){
         var vm = this;
         vm.get();
-        if( vm.$refs.tagFilter && typeof Tagify !== 'undefined' ) {
-            vm.tagify = new Tagify(vm.$refs.tagFilter, {
-                whitelist: vm.tagChoices || [],
-                dropdown: {
-                    enabled: 1
-                }
-            });
-            vm.tagify.DOM.input.setAttribute('aria-label', 'Search');
-            vm.tagify.on('change', function() {
-                var tags = vm.tagify.value.map(
-                    function(item) { return item.value; });
-                vm.params.q = tags.join(',');
-                vm.reload();
-            });
-        }
     }
 });
 
@@ -1695,21 +1685,6 @@ Vue.component('reporting-organizations', {
             vm.reqGet(vm.$urls.api_roles,
             function success(resp) {
                 vm.verifiers = resp.results;
-            });
-        }
-        if( vm.$refs.tagFilter && typeof Tagify !== 'undefined' ) {
-            vm.tagify = new Tagify(vm.$refs.tagFilter, {
-                whitelist: vm.tagChoices || [],
-                dropdown: {
-                    enabled: 1
-                }
-            });
-            vm.tagify.DOM.input.setAttribute('aria-label', 'Search');
-            vm.tagify.on('change', function() {
-                var tags = vm.tagify.value.map(
-                    function(item) { return item.value; });
-                vm.params.q = tags.join(',');
-                vm.reload();
             });
         }
     }

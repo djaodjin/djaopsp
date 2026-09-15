@@ -202,8 +202,11 @@
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <div class="input-group input-group-sm">
                 <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
-                <input class="form-control portfolio-search-tagify" ref="tagFilter"
-                       placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}" />
+                <input class="form-control portfolio-search-tagify"
+                       ref="tagFilter"
+                       placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}"
+                       name="query"
+                       v-model="params.q" />
                 <button class="btn btn-primary btn-sm"
                         type="submit"
                         :disabled="!outdated">{% trans %}Search{% endtrans %}</button>
@@ -237,7 +240,7 @@
             {% trans profile=profile.printable_name %}No profile accessible for {{profile}}{% endtrans %}
           </td>
           <td class="text-center" colspan="8" v-if="params.q">
-            Invite [[params.q]] as a new profile ...
+            {% trans search_term='[[params.q]]' %}No profile associated with {{search_term}} could be found. Either change the search term to find an existing profile, or click "Add" to invite the supplier to create a new profile ...{% endtrans %}
             <button id="create-reporting-profile-open"
                     class="btn btn-primary"
                     data-bs-toggle="modal" data-bs-target="#invite-reporting-entity"
@@ -269,7 +272,7 @@
           </td>
           <td class="text-center" colspan="3"
               v-if="hasNoReportingStatus(entry)">
-              {% trans %}no invite between{% endtrans %} [[_start_at]] and [[_ends_at]]
+              {% trans start_at='[[_start_at]]', ends_at='[[_ends_at]]' %}Profile already exists but no invite has been sent between {{start_at}} and {{ends_at}} yet.{% endtrans %}
           </td>
           <td class="text-nowrap text-center"
               v-if="hasNoReportingStatus(entry)">
