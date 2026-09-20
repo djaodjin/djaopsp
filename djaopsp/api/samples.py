@@ -51,9 +51,10 @@ LOGGER = logging.getLogger(__name__)
 class SampleNotesMixin(SampleMixin):
 
     def attach_verifier_notes(self, units, questions_by_key,
-                              prefix=None, excludes=None, extra_fields=None):
+                              prefix=None, excludes=None, extra_fields=None,
+                              interlienar=False):
         verification_notes = self.get_notes(prefix=prefix, excludes=excludes)
-        if False and django_settings.FEATURES_DEBUG:
+        if interlienar and django_settings.FEATURES_DEBUG:
             verifier = get_user_model().objects.get(
                 username=self.verification.verifier_notes.account.slug)
             VERIFIED_CHOICE = Choice.objects.filter(
@@ -70,6 +71,7 @@ class SampleNotesMixin(SampleMixin):
             verification_notes = []
             for v_answer in notes:
                 if v_answer.measured not in VERIFIED_CHOICE:
+                    #verification_notes += [v_answer]
                     continue
                 v_path = v_answer.question.path
                 v_slug = v_path.split(DB_PATH_SEP)[-1]
@@ -360,6 +362,9 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
         Overrides CampaignContentMixin.get_questions to return a list
         of questions based on the answers available in the sample.
         """
+        LOGGER.debug(
+          "AssessmentContentMixin.get_questions_by_key(prefix=%s, initial=%s)",
+            prefix, initial)
         questions_by_key = initial if isinstance(initial, dict) else {}
 
         extra_fields = getattr(
@@ -383,11 +388,12 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
 
         elif self.verification_available:
             # Verification notes are only available to verifiers
+            interlienar = self.get_query_param('interlienar', False)
             self.attach_verifier_notes(
                 units, questions_by_key,
                 prefix=prefix,
                 excludes=self.exclude_questions,
-                extra_fields=extra_fields)
+                extra_fields=extra_fields, interlienar=interlienar)
 
         # Attach scores
         calculator = get_score_calculator(prefix)

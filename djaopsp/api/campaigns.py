@@ -96,7 +96,7 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
     def get_queryset(self):
         #pylint:disable=too-many-locals,too-many-statements
         #pylint:disable=too-many-nested-blocks
-        segments = self.sections_available
+        segments = self.segments_available
         by_tiles = OrderedDict()
         if self.kwargs.get(self.path_url_kwarg):
             strip_segment_prefix = True
@@ -353,8 +353,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
                 ]
             }
         """
-        segments = self.sections_available
-        serializer = self.get_serializer(segments, many=True)
+        serializer = self.get_serializer(self.segments_available, many=True)
         return Response({'results': serializer.data})
 
     def post(self, request, *args, **kwargs):

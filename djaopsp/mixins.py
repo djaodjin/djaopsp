@@ -204,6 +204,11 @@ class CampaignMixin(CampaignMixinBase):
 
     @property
     def segments_available(self):
+        """
+        Returns a list of groups of questions (i.e. segments) an account
+        can answer against for all the questions in the campaign. The list
+        is filtered such that all questions' path match the db_path prefix.
+        """
         if not hasattr(self, '_segments_available'):
             candidates = get_segments_candidates(self.campaign)
             if self.db_path and self.db_path != DB_PATH_SEP:
@@ -215,16 +220,6 @@ class CampaignMixin(CampaignMixinBase):
             else:
                 self._segments_available = candidates
         return self._segments_available
-
-    @property
-    def sections_available(self):
-        """
-        Returns a subset of questions in a segment an account
-        can answer against.
-        """
-        if not hasattr(self, '_sections_available'):
-            self._sections_available = self.segments_available
-        return self._sections_available
 
 
 class DashboardsAvailableQuerysetMixin(AccountMixin):
@@ -333,19 +328,22 @@ class ReportMixin(SampleMixin, AccountMixin, TrailMixin):
 
     @property
     def segments_available(self):
+        """
+        Returns a list of groups of questions (i.e. segments) an account
+        can answer against based on the answers in the sample.
+        """
         if not hasattr(self, '_segments_available'):
             self._segments_available = get_segments_available(self.sample)
+            if self.verification_available:
+                try:
+                    self._segments_available += get_segments_available(
+                        Sample.objects.filter(
+                            notes__sample=self.sample).get())
+                except Sample.objects.DoesNotExist:
+                    # It is OK if there are no verification attached
+                    # to a response.
+                    pass
         return self._segments_available
-
-    @property
-    def sections_available(self):
-        """
-        Returns a subset of questions in a segment an account
-        can answer against.
-        """
-        if not hasattr(self, '_sections_available'):
-            self._sections_available = self.segments_available
-        return self._sections_available
 
     @property
     def segments_candidates(self):
@@ -369,6 +367,8 @@ class ReportMixin(SampleMixin, AccountMixin, TrailMixin):
             self._verification_available = (
                 self.account in self.verifier_accounts)
             if not self._verification_available:
+                # Showing verifications to accounts with valid dashboards
+                # is done here.
                 queryset = Sample.objects.filter(
                     notes__sample=self.sample,
                     notes__sample__account__portfolios__grantee=self.account,
@@ -554,70 +554,9 @@ class SectionReportMixin(ReportMixin):
                         self.db_path.startswith(path)):
                         self._segments_available += [seg]
             else:
-                self._segments_available = get_segments_available(self.sample)
+                self._segments_available = super(
+                    SectionReportMixin, self).segments_available
         return self._segments_available
-
-
-    @property
-    def sections_available(self):
-        #pylint:disable=too-many-nested-blocks
-        if not hasattr(self, '_sections_available'):
-            # We get all segments that have at least one answer, regardless
-            # of their visibility or ownership status.
-            self._sections_available = self.segments_available
-            if self.db_path and self.db_path != DB_PATH_SEP:
-                candidates = self._sections_available
-                self._sections_available = []
-                for seg in candidates:
-                    path = seg.get('path')
-                    if path and path.startswith(self.db_path):
-                        self._sections_available += [seg]
-                if not self._sections_available:
-                    # Either the segment does not have an answer yet,
-                    # or we are dealing with a section of a segment
-                    # displayed on its own page.
-                    visibility = [] # XXX We do not use `self.visibility`
-                                    #     because "sustainability" is not
-                                    #     currently set as "public". (v1 to v2)
-                    owners = self.owners
-                    slug = self.db_path.split(DB_PATH_SEP)[-1]
-                    try:
-                        queryset = PageElement.objects.filter(slug=slug)
-                        element = queryset.get()
-                        if not (owners and element.account in owners):
-                            filtered_in = None
-                            if visibility:
-                                for visible in visibility:
-                                    visibility_q = Q(extra__contains=visible)
-                                    if filtered_in:
-                                        filtered_in |= visibility_q
-                                    else:
-                                        filtered_in = visibility_q
-                            if filtered_in:
-                                queryset = queryset.filter(filtered_in)
-                            element = queryset.get()
-                    except PageElement.DoesNotExist:
-                        raise Http404(_("Cannot find page '%(slug)s' "\
-                            "with visibility %(visibility)s and "\
-                            "ownership %(owners)s") % {
-                            'slug': slug,
-                            'visibility': visibility,
-                            'owners': owners
-                        })
-                    extra = {'pagebreak': True}
-                    try:
-                        element.extra = json.loads(element.extra)
-                        extra.update(element.extra)
-                    except (TypeError, ValueError):
-                        pass
-                    self._sections_available = [{
-                        'indent': 0,
-                        'path': self.db_path,
-                        'slug': element.slug,
-                        'title': element.title,
-                        'extra': extra,
-                    }]
-        return self._sections_available
 
     @property
     def nb_answers(self):

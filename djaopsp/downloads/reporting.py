@@ -154,6 +154,9 @@ class FullReportPPTXView(CampaignMixin, AccountMixin, TemplateView):
 
     def get_questions_by_key(self, prefix=None, initial=None):
         #pylint:disable=unused-argument
+        LOGGER.debug(
+            "FullReportPPTXView.get_questions_by_key(prefix=%s, initial=%s)",
+            prefix, initial)
         return initial if isinstance(initial, dict) else {}
 
     def get_template_names(self):

@@ -43,7 +43,9 @@ var practicesListMixin = {
             charts: {},
             avgNormalizedScore: 0,
             highestNormalizedScore: 0,
-            getCompleteCb: 'contentLoaded'
+            getCompleteCb: 'contentLoaded',
+            api_profiles_url: this.$urls.api_profiles,
+            profilesBySlug: {},
         }
     },
     methods: {
@@ -472,19 +474,40 @@ var practicesListMixin = {
             }
             return practice.notes[practice.notes.length - 1];
         },
-        getPicture: function(user) {
-            if( user && user.picture ) {
-                return user.picture;
+        getCollectedByField: function(user, fieldName) {
+            var vm = this;
+            if( user && user.hasOwnProperty(fieldName) ) {
+                return user[fieldName];
+            }
+            if( user ) {
+                const profile = vm.profilesBySlug[user];
+                if( profile && profile.hasOwnProperty(fieldName) ) {
+                    return profile[fieldName];
+                }
+                vm.profilesBySlug[user] = {
+                    picture: null,
+                    printable_name: user
+                };
+                let queryParams = "?q_f==slug&q=" + user;
+                vm.reqGet(vm.api_profiles_url + queryParams,
+                function(resp) {
+                    for( let idx = 0; idx < resp.results.length; ++idx ) {
+                        vm.profilesBySlug[resp.results[idx].slug] =
+                            resp.results[idx];
+                    }
+                }, function() {
+                    // discard errors (ex: "not found").
+                });
+                return vm.profilesBySlug[user][fieldName];
             }
             return "";
         },
-        getPrintableName: function(user) {
-            if( user && user.printable_name ) {
-                return user.printable_name;
-            }
-            return user;
+        getPicture: function(user) {
+            return this.getCollectedByField(user, 'picture');
         },
-
+        getPrintableName: function(user) {
+            return this.getCollectedByField(user, 'printable_name');
+        },
         getIntrinsicValue: function(practice, fieldName) {
             if( !(practice.extra && practice.extra.intrinsic_values) ) {
                 return 0;

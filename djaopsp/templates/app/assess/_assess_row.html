@@ -1,4 +1,4 @@
-<div :id="getPracticeId(practice)" :class="(isPractice(practice) && isFreetextUIHint(practice) ? 'bestpractice row ' : 'row ') + practiceStyle(practice)">
+<div :id="getPracticeId(practice)" :class="(isPractice(practice) && isFreetextUIHint(practice) ? 'bestpractice row ' : 'row ')">
   <div :class="(isPractice(practice) || isEnumHeaderShown(icon)) ? 'col-md-6' : 'col-md-12'">
     <div :class="indentHeader(practice)">
       <div class="title" v-if="!isPractice(practice) && !isPagebreak(practice)">

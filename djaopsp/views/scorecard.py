@@ -14,6 +14,7 @@ from django.views.generic.base import (RedirectView, TemplateResponseMixin,
     TemplateView)
 from django.views.generic.edit import FormMixin
 from survey.models import Answer, Campaign, Choice, Sample
+from survey.settings import DB_PATH_SEP, URL_PATH_SEP
 from survey.utils import get_account_model
 
 from ..compat import reverse
@@ -178,8 +179,8 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             'pages_index': reverse('pages_index'),
             'download': reverse('assess_download_index',
                 args=(self.account, self.sample)),
-            'survey_api_sample_answers': reverse('api_sample_content',
-                args=(self.account, self.sample, '-'))[:-2],
+            'api_content': reverse('api_sample_content_index',
+                args=(self.account, self.sample)), # + '?interlienar=1',
             'api_account_benchmark': reverse(
                 'survey_api_sample_benchmarks_index',
                 args=(self.account, self.sample)),
@@ -187,7 +188,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             # with. They must use ``sample.account``.
             'assess_base': reverse('assess_practices',
                 args=(self.sample.account, self.sample, '-'))[:-2],
-            'api_profiles': site_url("/api/accounts/users"),
+            'api_profiles': site_url("/api/accounts"),
             'api_assessment_reset': reverse('survey_api_sample_reset_index',
                 args=(self.sample.account, self.sample)),
             # The Vue component will use the fully resolved URL to show
