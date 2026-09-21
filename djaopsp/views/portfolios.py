@@ -440,6 +440,7 @@ class ByCampaignAccessiblesView(DashboardRedirectView):
         context = super(ByCampaignAccessiblesView, self).get_context_data(
             **kwargs)
         update_context_urls(context, {
+            'api_accounts': site_url("/api/profile"),
             'api_organizations': site_url("/api/profile"),
             'api_portfolio_responses': reverse(
                 'api_last_by_campaign_accessibles', args=(self.account,)),
