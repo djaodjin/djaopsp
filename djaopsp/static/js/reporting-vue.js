@@ -560,6 +560,10 @@ Vue.component('engage-profiles', {
                     function(resp) {
                         vm.newItem = resp;
                         data.accounts = [vm.newItem];
+                        var inputEmail = data.accounts[0].email;
+                        if( inputEmail && inputEmail.split('@', 1)[0].trim() === '' ) {
+                            delete data.accounts[0].email;
+                        }
                         vm.reqPost(vm.$urls.api_accessibles, data,
                         function success(resp) {
                             const now = new Date(Date.now());
