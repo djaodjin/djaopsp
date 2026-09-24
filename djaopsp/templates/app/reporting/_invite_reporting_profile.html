@@ -33,9 +33,11 @@
             <div class="controls">
               <label for="new-request-email">{% trans %}To{% endtrans %}</label>
               <input id="new-request-email" class="form-control email w-100"
-                     name="email" v-model="newItem.email" type="text"
+                     name="email" v-model="newItem.email"
+                     :type="newItem.slug && !newItem.isExample ? 'text' : 'email'"
                      max-length="150" placeholder="invitee@example.com"
                      required autofocus />
+              <small class="form-text" v-if="newItem.slug && !newItem.isExample">{% trans %}Enter one or more email addresses, separated by commas.{% endtrans %}</small>
               <div class="invalid-feedback"></div>
             </div>
           </div>

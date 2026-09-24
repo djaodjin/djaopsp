@@ -512,13 +512,16 @@ Vue.component('engage-profiles', {
                         var {accounts, ...rest} = data;
                         flat = {...rest, ...accounts[0]};
                     }
-                    if( flat.recipients && typeof flat.recipients === 'object' ) {
-                        var emailErrors = flat.email || [];
+                    if( Object.keys(flat.recipients || {}).length > 0 ) {
+                        var emailErrors = [];
                         for( var idx in flat.recipients ) {
                             if( flat.recipients.hasOwnProperty(idx) ) {
-                                flat.recipients[idx].forEach(function(msg) {
-                                    emailErrors.push(
-                                        `Email ${parseInt(idx) + 2}: ${msg}`);
+                                var recipientErrors = flat.recipients[idx];
+                                Object.keys(recipientErrors).forEach(function(field) {
+                                    recipientErrors[field].forEach(function(msg) {
+                                        emailErrors.push(
+                                            `Email ${parseInt(idx) + 1}: ${msg}`);
+                                    });
                                 });
                             }
                         }
@@ -540,19 +543,6 @@ Vue.component('engage-profiles', {
             for( key in vm.newItem ) {
                 if( vm.newItem.hasOwnProperty(key) &&  vm.newItem[key] ) {
                     data.accounts[0][key] = vm.newItem[key];
-                }
-            }
-            if( data.accounts[0].email ) {
-                var emails = data.accounts[0].email
-                    .split(',').map(function(e) { return e.trim(); })
-                    .filter(function(e) { return e; });
-                if( emails.length > 0 ) {
-                    data.accounts[0].email = emails[0];
-                    data.accounts[0].recipients = emails.slice(1);
-                } else {
-                    showErrorMessages({responseJSON: {
-                        email: ["Enter a valid email address."]}});
-                    return;
                 }
             }
             if( typeof campaign !== 'undefined' ) {
@@ -584,6 +574,21 @@ Vue.component('engage-profiles', {
                         });
                     });
                 } else {
+                    if( data.accounts[0].email ) {
+                        var emails = data.accounts[0].email
+                            .split(',').map(function(e) { return e.trim(); })
+                            .filter(function(e) { return e; });
+                        if( emails.length > 0 ) {
+                            data.accounts[0].email = emails[0];
+                            data.accounts[0].recipients = emails.map(function(email) {
+                                return {email: email};
+                            });
+                        } else {
+                            showErrorMessages({responseJSON: {
+                                email: ["Enter a valid email address."]}});
+                            return;
+                        }
+                    }
                     vm.reqPost(vm.$urls.api_accessibles, data,
                     function success(resp, textStatus, jqXHR) {
                         if( jqXHR.status == 201 ) {
