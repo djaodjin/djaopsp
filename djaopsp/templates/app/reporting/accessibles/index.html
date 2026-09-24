@@ -7,39 +7,12 @@
 <meta name="description" property="og:description" content="Browse responses to {{campaign.title}}" />
 {% endblock %}
 
-
 {% block reporting_title %}{% trans %}Track{% endtrans %}{% endblock %}
 
 {% block reporting_toggle %}
 <div class="side-notes" style="font-size:0.8rem;">
-  <h5>What are the different statuses?</h5>
   <div class="row">
     <div class="col-sm-6">
-      <dl>
-        <dt><i class="fa-solid fa-certificate" style="color: green;"></i> verified</dt>
-        <dd>A subject matter expert has read through the response and rated the accuracy of the response.</dd>
-      </dl>
-      <dl>
-        <dt><i class="fa-solid fa-circle" style="color: green;"></i> completed</dt>
-        <dd>The reporting profile has completed the questionnaire and shared it with your account.</dd>
-      </dl>
-      <dl>
-        <dt><i class="fa-solid fa-circle" style="color: yellow;"></i> responded</dt>
-        <dd>The reporting profile has completed the questionnaire but hasn't shared the response with your account yet.</dd>
-      </dl>
-      </div>
-      <div class="col-sm-6">
-      <dl>
-        <dt><i class="fa-solid fa-circle" style="color: red;"></i> no-response</dt>
-        <dd>The reporting profile was invited but did not complete the questionnaire. It could either means they abandoned in the middle of responding or they have never started.</dd>
-      </dl>
-      <dl>
-        <dt><i class="fa-solid fa-circle" style="color: grey;"></i> no-data</dt>
-        <dd>The reporting profile has not completed the questionnaire nor had been invited to do so.</dd>
-      </dl>
-      {% if urls.help %}
-      <a href="{{urls.help}}" target="blank">find more help &raquo;</a>
-      {% endif %}
     </div>
   </div>
 </div>
@@ -48,59 +21,55 @@
 {% block reporting_content %}
 <reporting-organizations inline-template>
   <div>
-    <div class="row">
-      <div class="col-xl-6 col-12">
-        <form id="period-update" class="mt-4"
-              @submit.prevent="reload()">
-          <div class="row">
-          <div class="col-md-5 col-6">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
-              <input class="form-control" type="date"
-                     v-model="_start_at"
-                     aria-label="{% trans %}Start date of the period{% endtrans %}"
-                     v-cloak>
-            </div>
+    <form id="period-update" class="mt-4"
+          @submit.prevent="reload()">
+      <div class="row">
+        <div class="col-md-4 col-12 mt-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text" id="from-inp">{% trans %}From{% endtrans %}</span>
+            <input class="form-control" type="date"
+                   v-model="_start_at"
+                   aria-label="{% trans %}Start date of the period{% endtrans %}"
+                   v-cloak>
           </div>
-          <div class="col-md-5 col-6">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-              <input class="form-control" type="date"
-                     v-model="_ends_at"
-                     aria-label="{% trans %}End date of the period{% endtrans %}"
-                     v-cloak>
-            </div>
+        </div>
+        <div class="col-md-4 col-12 mt-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text" id="from-inp">{% trans %}To{% endtrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <input class="form-control" type="date"
+                   v-model="_ends_at"
+                   aria-label="{% trans %}End date of the period{% endtrans %}"
+                   v-cloak>
           </div>
+        </div>
+        <div class="col-md-2 col-12 mt-2">
+          <div class="input-group input-group-sm">
+            <select aria-label="{% trans %}Select period{% endtrans %}"
+                class="form-control form-select"
+                name="period"
+                v-model="params.period">
+                <option value="monthly">{% trans %}Monthly{% endtrans %}</option>
+                <option value="yearly">{% trans %}Yearly{% endtrans %}</option>
+            </select>
           </div>
-          <div class="row mt-2">
-          <div class="col-md-5 col-6">
-            <div class="input-group input-group-sm">
-              <select class="form-control form-select"
-                      name="period"
-                      v-model="params.period">
-                  <option value="monthly">{% trans %}Monthly{% endtrans %}</option>
-                  <option value="yearly">{% trans %}Yearly{% endtrans %}</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-md-5 col-6 text-end text-right">
-            <button class="btn btn-primary btn-sm"
-                  :disabled="!outdated"
-                  type="submit">{% trans %}Update{% endtrans %}</button>
-          </div>
-          </div>
-        </form>{# /#period-update #}
+        </div>
+        <div class="col-md-2 col-12 mt-2 d-print-none">
+            <button class="btn btn-primary btn-sm w-100"
+                    :disabled="!outdated"
+                    type="submit">{% trans %}Update{% endtrans %}</button>
+        </div>
       </div>
-    </div>
+    </form>{# /#period-update #}
+    <hr />
     <div class="row align-items-end">
-      <div class="col-sm-6">
+      <div class="col-4">
         <span class="mt-4" v-show="itemsLoaded" v-cloak>
-          [[items.count]] {% trans %}accessible profiles{% endtrans %}
+          [[items.count]] {% trans %}tracked profiles{% endtrans %}
         </span>
       </div>
       {% if urls.download %}
-      <div class="col-sm-6 text-end">
-        <div class="btn-group mt-4 mb-1">
+      <div class="col-8 text-end">
+        <div class="btn-group mt-4 mb-1" role="group">
           <a class="btn btn-primary" id="xlsx-download-btn" :href="'{{urls.download}}' + getQueryString(['page'])">
             <i class="fa-solid fa-file-text"></i> {% trans %}Download (xlsx){% endtrans %}
           </a>
@@ -159,14 +128,14 @@
           <th class="sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                  <span style="display:inline-block;line-height: 38px;">&nbsp;</span>
+                  <span style="display:inline-block;line-height: 38px;">ID</span>
               </div>
             </div>
           </th>
           <th class="sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
-                {% trans %}Organization/profile{% endtrans %}
+                {% trans %}Profile name{% endtrans %}
                 <button class="btn btn-link btn-sort"
                         aria-label="{% trans %}sort by{% endtrans %}"
                         @click.prevent="sortBy('full_name')">
@@ -205,25 +174,26 @@
               </div>
             </div>
           </th>
-          <th class="sticky-cell sticky-cell-top">
+          <td class="sticky-cell sticky-cell-top">
             <div class="sticky-cell-content-container">
               <div class="sticky-cell-content">
                 <span style="display:inline-block;line-height: 38px;">&nbsp;</span>
               </div>
             </div>
-          </th>
+          </td>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td colspan="2">
-            <form @submit.prevent="reload()">
+            <form id="search-profile" @submit.prevent="reload()">
+              <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <div class="input-group input-group-sm">
                 <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
                 <input class="form-control portfolio-search-tagify"
+                       name="query"
                        placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}"
                        ref="tagFilter"
-                       name="query"
                        v-model="params.q" />
                 <button class="btn btn-primary btn-sm"
                         type="submit"
@@ -231,7 +201,10 @@
               </div>
             </form>
           </td>
-          <td :colspan="items.labels ? (items.labels.length + 2) : 2" v-if="itemsLoaded">
+          <td class="text-end" :colspan="items.labels ? (items.labels.length + 2) : 2" v-if="itemsLoaded">
+            {% if urls.help %}
+            <a href="{{urls.help}}" target="blank">{% trans %}What are the different statuses?{% endtrans %} &raquo;</a>
+            {% endif %}
           </td>
         </tr>
       </tbody>
