@@ -37,6 +37,7 @@
                      :type="!newItem.isExample ? 'text' : 'email'"
                      max-length="150" placeholder="invitee@example.com"
                      required autofocus />
+              <small class="form-text" v-if="!newItem.slug && !newItem.isExample">{% trans %}Enter an email address, or a domain starting with @ (for example, @example.com) if you don't have a contact email yet.{% endtrans %}</small>
               <small class="form-text" v-if="newItem.slug && !newItem.isExample">{% trans %}Enter one or more email addresses, separated by commas.{% endtrans %}</small>
               <div class="invalid-feedback"></div>
             </div>
