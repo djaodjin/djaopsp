@@ -400,11 +400,17 @@ Vue.component('engage-profiles', {
             showRespondents: -1,
             showRecipients: -1,
             tagify: null,
+            notifyContacts: false,
+            useEmailDomain: false,
             message: this.$defaultRequestInitiatedMessage,
             getCb: 'loadComplete'
         }
     },
     methods: {
+        toggleEmailDomain: function() {
+            this.newItem.email = '';
+            this.notifyContacts = false;
+        },
         hasNoReportingStatus: function(item) {
             return (typeof item.reporting_status === 'undefined') ||
                 item.reporting_status === null;
@@ -443,6 +449,8 @@ Vue.component('engage-profiles', {
         populateInvite: function(newAccount) {
             var vm = this;
             clearMessages();
+            vm.notifyContacts = false;
+            vm.useEmailDomain = false;
             vm.newItem = {ends_at: null};
             if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
                 vm.newItem.slug = newAccount.slug;
@@ -556,7 +564,12 @@ Vue.component('engage-profiles', {
                 }, handleError);
             } else {
                 if( !vm.newItem.slug ) {
-                    vm.reqPost(vm.$urls.api_account_candidates, vm.newItem,
+                    var sendEmail = vm.notifyContacts;
+                    var profileData = {...vm.newItem};
+                    if( vm.useEmailDomain ) {
+                        profileData.email = '@' + profileData.email.trim();
+                    }
+                    vm.reqPost(vm.$urls.api_account_candidates, profileData,
                     function(resp) {
                         vm.newItem = resp;
                         data.accounts = [vm.newItem];
@@ -564,7 +577,8 @@ Vue.component('engage-profiles', {
                         if( inputEmail && inputEmail.split('@', 1)[0].trim() === '' ) {
                             delete data.accounts[0].email;
                         }
-                        vm.reqPost(vm.$urls.api_accessibles, data,
+                        vm.reqPost(vm.$urls.api_accessibles
+                            + (sendEmail ? '?notify=true' : ''), data,
                         function success(resp) {
                             const now = new Date(Date.now());
                             const endsAt = new Date(vm.params.ends_at);
@@ -573,7 +587,7 @@ Vue.component('engage-profiles', {
                             }
                             if( vm.params.page ) vm.params.page = 1;
                             vm.params.q = vm.newItem.full_name;
-                            vm.get();
+                            vm.reload();
                             vm.hideModal($event);
                         });
                     });
@@ -593,7 +607,7 @@ Vue.component('engage-profiles', {
                             return;
                         }
                     }
-                    vm.reqPost(vm.$urls.api_accessibles, data,
+                    vm.reqPost(vm.$urls.api_accessibles + '?notify=true', data,
                     function success(resp, textStatus, jqXHR) {
                         if( jqXHR.status == 201 ) {
                             // Check for 201 so we don't reload the page
@@ -1595,13 +1609,13 @@ Vue.component('reporting-organizations', {
                 function(resp) {
                     vm.newItem = resp;
                     data.accounts = [vm.newItem];
-                    vm.reqPost(vm.$urls.api_accessibles, data,
+                    vm.reqPost(vm.$urls.api_accessibles + '?notify=true', data,
                     function success(resp) {
                         vm.get();
                     });
                 });
             } else {
-                vm.reqPost(vm.$urls.api_accessibles, data,
+                vm.reqPost(vm.$urls.api_accessibles + '?notify=true', data,
                 function success(resp) {
                     vm.get();
                 });
