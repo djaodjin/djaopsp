@@ -438,18 +438,16 @@ Vue.component('engage-profiles', {
                     vm.loadComplete(resp);
                 });
             });
-            if( !vm.autoreload ) {
-                for( let key in vm.$refs ) {
-                    if( typeof vm.$refs[key].get !== 'undefined' ) {
-                        vm.$refs[key].get();
-                    }
-                }
-            }
+        },
+        reset: function() {
+            var vm = this;
+            vm.params.q = '';
+            vm.reload();
         },
         populateInvite: function(newAccount) {
             var vm = this;
             clearMessages();
-            vm.notifyContacts = !!newAccount.slug;
+            vm.notifyContacts = !vm.hasNoReportingStatus(newAccount);
             vm.useEmailDomain = false;
             vm.newItem = {ends_at: null};
             if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
@@ -467,7 +465,7 @@ Vue.component('engage-profiles', {
                 }
             }
             if( !vm.newItem.email && vm.params.q &&
-                vm.params.q.indexOf('@') > 0 ) {
+                vm.params.q.indexOf('@') >= 0 ) {
                 vm.newItem.email = vm.params.q;
             }
             if( newAccount.hasOwnProperty('printable_name')
@@ -1632,6 +1630,11 @@ Vue.component('reporting-organizations', {
                 vm.get();
             });
         },
+        reset: function() {
+            var vm = this;
+            vm.params.q = '';
+            vm.reload();
+        },
         savePreferences: function() {
             var vm = this;
             var updated = true;
@@ -1814,7 +1817,8 @@ var dashboardChart = Vue.component('dashboardChart', {
                 if( vm.datasets[idx].url ) {
                     queryArray.push({
                         method: 'GET',
-                        url: vm.datasets[idx].url + vm.getQueryString(),
+                        url: vm.datasets[idx].url + vm.getQueryString(
+                            ['o', 'page', 'q']),
                         data: null
                     });
                 }

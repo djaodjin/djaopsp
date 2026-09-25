@@ -189,7 +189,15 @@
             <form id="search-profile" @submit.prevent="reload()">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <div class="input-group input-group-sm">
-                <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
+                <!-- optional indicators -->
+                <span class="input-group-text">
+                  <i class="fa-solid fa-spinner fa-spin" v-if="!itemsLoaded"></i>
+                  <template v-else>
+                    <i class="fa-solid fa-search" v-show="!params.q"></i>
+                    <i class="fa-solid fa-times" v-show="params.q" @click="reset()"></i>
+                  </template>
+                </span>
+                <!-- the input field -->
                 <input class="form-control portfolio-search-tagify"
                        name="query"
                        placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}"

@@ -194,7 +194,15 @@
             <form id="invite-search" @submit.prevent="reload()">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <div class="input-group input-group-sm">
-                <span class="input-group-text" id="from-inp"><i class="fa-solid fa-search"></i></span>
+                <!-- optional indicators -->
+                <span class="input-group-text">
+                  <i class="fa-solid fa-spinner fa-spin" v-if="!itemsLoaded"></i>
+                  <template v-else>
+                    <i class="fa-solid fa-search" v-show="!params.q"></i>
+                    <i class="fa-solid fa-times" v-show="params.q" @click="reset()"></i>
+                  </template>
+                </span>
+                <!-- the input field -->
                 <input class="form-control portfolio-search-tagify"
                        name="query"
                        placeholder="{% trans %}Search by profile name, e-mail, or tags ...{% endtrans %}"
@@ -231,15 +239,21 @@
       <tbody v-show="itemsLoaded && items.results.length == 0" v-cloak>
         <tr>
           <td colspan="7" v-if="!params.q">
-            {% trans profile=profile.printable_name %}No profile engaged for {{profile}}{% endtrans %}
+              {% trans start_at='[[_start_at]]', ends_at='[[_ends_at]]' %}No profile engaged between {{start_at}} and {{ends_at}}.{% endtrans %}
           </td>
-          <td class="text-center" colspan="7" v-if="params.q">
-            {% trans search_term='[[params.q]]' %}No profile associated with {{search_term}} could be found. Either change the search term to find an existing profile, or click "Add" to invite the supplier to create a new profile ...{% endtrans %}
+          <td class="text-center" colspan="6" v-if="params.q">
+            {% trans search_term='[[params.q]]' %}No profile associated with {{search_term}} could be found. Either change the search term to find an existing profile, or click "Add" to create a new profile ...{% endtrans %}
+          </td>
+          <td class="text-nowrap text-center"
+              style="border-left:2px solid black;"
+              v-if="params.q">
             <button id="create-reporting-profile-open"
                     class="btn btn-primary"
-                    data-bs-toggle="modal" data-bs-target="#invite-reporting-entity"
-                    data-toggle="modal" data-target="#invite-reporting-entity"
-                    @click="populateInvite({})">{% trans %}Add{% endtrans %}</button>
+                    data-bs-toggle="modal"
+                    data-bs-target="#invite-reporting-entity"
+                    @click="populateInvite({})">
+                {% trans %}Add{% endtrans %}
+            </button>
           </td>
         </tr>
       </tbody>
@@ -266,19 +280,16 @@
           </td>
           <td class="text-center" colspan="3"
               v-if="hasNoReportingStatus(entry)">
-              {% trans start_at='[[_start_at]]', ends_at='[[_ends_at]]' %}Profile already exists but no invite has been sent between {{start_at}} and {{ends_at}} yet.{% endtrans %}
+              {% trans start_at='[[_start_at]]', ends_at='[[_ends_at]]' %}Profile already exists, but has not been engaged between {{start_at}} and {{ends_at}}.{% endtrans %}
           </td>
           <td class="text-nowrap text-center"
+              style="border-left:2px solid black;"
               v-if="hasNoReportingStatus(entry)">
               <button id="invite-reporting-profile-open"
                       class="btn btn-primary"
                       data-bs-toggle="modal" data-bs-target="#invite-reporting-entity"
                       data-toggle="modal" data-target="#invite-reporting-entity"
-                      @click="populateInvite(entry)">{% trans %}Send invitation{% endtrans %}</button>
-          </td>
-          <td class="text-center"
-              style="border-left:2px solid black;"
-              v-if="hasNoReportingStatus(entry)">
+                      @click="populateInvite(entry)">{% trans %}Add{% endtrans %}</button>
           </td>
 
           <!-- profile whose report was requested at some point. -->
@@ -292,7 +303,8 @@
                 <small>({% trans %}declined to respond{% endtrans %})</small>
             </div>
             <div v-if="entry.reporting_status === 'invited'">
-                {% trans %}Invited{% endtrans %}
+                {% trans %}Invited{% endtrans %}<br />
+                <small v-if="entry.ends_at">({% trans deadline='[[$globals.humanizeDate(entry.ends_at)]]' %}to complete before {{deadline}}{% endtrans %})</small>
             </div>
             <div v-if="entry.reporting_status === 'updated'">
                 {% trans %}Work in progress{% endtrans %}
@@ -359,7 +371,7 @@
                     data-bs-toggle="modal" data-bs-target="#invite-reporting-entity"
                     data-toggle="modal" data-target="#invite-reporting-entity"
                     @click="populateInvite(entry)"
-                    v-if="!(entry.reporting_status === 'completed' || entry.reporting_status === 'verified')">{% trans %}(Re-)send{% endtrans %}</button>
+                    v-if="!(entry.reporting_status === 'completed' || entry.reporting_status === 'verified')">{% trans %}(Re-)invite{% endtrans %}</button>
           </td>
           <td class="text-nowrap text-center"
               style="border-left:2px solid black;"
@@ -384,7 +396,7 @@
 
 {% block reporting_scripts %}
 <script type="text/javascript" nonce="{{request.csp_nonce}}">
-Vue.prototype.$defaultRequestInitiatedMessage = "Hello,\n\nI would like to invite you to complete and share an assessment for your organization.";
+Vue.prototype.$defaultRequestInitiatedMessage = "{% trans %}Hello,\n\nI would like to invite you to complete and share a response to the questionnaire for your organization.{% endtrans %}";
 
 jQuery(document).ready(function($) {
     $("#invite-reporting-entity").on('shown.bs.modal', function () {
