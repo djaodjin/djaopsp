@@ -168,6 +168,7 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         campaign_filtered = (get_object_or_404(
             Campaign.objects.all(), slug=campaign_slug)
             if campaign_slug else None)
+        print("XXX self.accounts=%s" % str(self.accounts))
         for account in self.accounts:
             by_campaigns = OrderedDict()
             # XXX `pending_for` will also include grants pending acceptance.
@@ -268,22 +269,23 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                             campaign, account=account)
                 # We would use `reverse('assess_index', args=(account, sample))`
                 # if the template was not written to always make a POST request.
-                by_campaigns[campaign]['update_url'] = reverse(
-                    'assess_redirect', args=(account,))
-                latest_completed = get_latest_completed_assessment(account,
-                    campaign=campaign)
-                if latest_completed:
-                    by_campaigns[campaign]['last_completed_at'] = \
-                        latest_completed.created_at
-                    if latest_completed.created_at > campaign.updated_at:
-                        # The profile is forced to update the response when
-                        # the questionnaire was last completed before the
-                        # questionnaire was updated.
-                        by_campaigns[campaign]['share_url'] = reverse(
-                            'share', args=(account, latest_completed))
-                    by_campaigns[campaign]['respondents'] = \
-                        get_user_model().objects.filter(
-                            answer__sample=latest_completed).distinct()
+                if account:
+                    by_campaigns[campaign]['update_url'] = reverse(
+                        'assess_redirect', args=(account,))
+                    latest_completed = get_latest_completed_assessment(account,
+                        campaign=campaign)
+                    if latest_completed:
+                        by_campaigns[campaign]['last_completed_at'] = \
+                            latest_completed.created_at
+                        if latest_completed.created_at > campaign.updated_at:
+                            # The profile is forced to update the response when
+                            # the questionnaire was last completed before the
+                            # questionnaire was updated.
+                            by_campaigns[campaign]['share_url'] = reverse(
+                                'share', args=(account, latest_completed))
+                        by_campaigns[campaign]['respondents'] = \
+                            get_user_model().objects.filter(
+                                answer__sample=latest_completed).distinct()
 
             assessments += by_campaigns.values()
 
