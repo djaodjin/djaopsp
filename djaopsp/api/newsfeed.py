@@ -423,7 +423,7 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
             # engaged in the current season and profiles that might not
             # be suppliers.
             samples = Sample.objects.get_latest_frozen_by_accounts(
-                start_at=start_at)
+                start_at=start_at, tags=[]) # XXX survey>0.20.3, + `stable=True`
             for sample in samples:
                 if sample.campaign in already_posted.get(sample.account, []):
                     continue
