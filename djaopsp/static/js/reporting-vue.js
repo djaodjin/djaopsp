@@ -389,12 +389,13 @@ Vue.component('engage-profiles', {
                 status: ''
             },
             newItem: {
-                email: "",
-                full_name: "",
-                type: "organization",
-                printable_name: "",
                 created_at: null,
-                ends_at: null
+                email: "",
+                ends_at: null,
+                full_name: "",
+                printable_name: "",
+                slug: null,
+                type: "organization",
             },
             showContacts: -1,
             showRespondents: -1,
@@ -445,14 +446,18 @@ Vue.component('engage-profiles', {
             vm.reload();
         },
         populateInvite: function(newAccount) {
+            // The search input field will most times call `populateInvite`
+            // with a a profile name, contact e-mail or e-mail domain.
             var vm = this;
             clearMessages();
             vm.notifyContacts = !vm.hasNoReportingStatus(newAccount);
-            vm.useEmailDomain = false;
-            vm.newItem = {ends_at: null};
+
+            // Sets invite fields from the portfolio optin.
+            vm.newItem.slug = null;
             if( newAccount.hasOwnProperty('slug') && newAccount.slug ) {
                 vm.newItem.slug = newAccount.slug;
             }
+            vm.newItem.email = "";
             const email = vm.getAccountField(newAccount, 'email');
             if( email ) {
                 vm.newItem.email = email;
@@ -468,8 +473,13 @@ Vue.component('engage-profiles', {
                 vm.params.q.indexOf('@') >= 0 ) {
                 vm.newItem.email = vm.params.q;
             }
+            vm.useEmailDomain = false; // XXX derives from `newItem.email` ?
+
+            vm.newItem.printable_name = "";
+            vm.newItem.full_name = "";
             if( newAccount.hasOwnProperty('printable_name')
                 && newAccount.printable_name ) {
+                vm.newItem.printable_name = newAccount.printable_name;
                 vm.newItem.full_name = newAccount.printable_name;
             }
             if( newAccount.hasOwnProperty('full_name')
@@ -480,18 +490,38 @@ Vue.component('engage-profiles', {
                 vm.params.q.indexOf('@') < 0 ) {
                 vm.newItem.full_name = vm.params.q;
             }
+            vm.newItem.picture = null;
             if( newAccount.hasOwnProperty('picture')
                 && newAccount.picture ) {
                 vm.newItem.picture = newAccount.picture;
             }
+            vm.newItem.created_at = null;
             if( newAccount.hasOwnProperty('created_at')
                 && newAccount.created_at ) {
                 vm.newItem.created_at = newAccount.created_at;
             }
+            vm.newItem.ends_at = null;
             if( newAccount.hasOwnProperty('expires_at') ) {
                 vm.newItem.ends_at = newAccount.expires_at;
             }
-            vm.params.q = "";
+        },
+        focusInviteInput: function() {
+            var vm = this;
+            // If we are creating a new profile, start with the focus
+            // on the profile name input field.
+            if( !vm.newItem.slug && !vm.newItem.full_name ) {
+                if( vm.$refs.inviteFullName ) {
+                    vm.$nextTick(function() {
+                        vm.$refs.inviteFullName.focus();
+                    });
+                }
+            } else {
+                if( vm.$refs.inviteContacts ) {
+                    vm.$nextTick(function() {
+                        vm.$refs.inviteContacts.focus();
+                    });
+                }
+            }
         },
         populateInviteExample: function(email) {
             var vm = this;
@@ -862,6 +892,12 @@ Vue.component('engage-profiles', {
     mounted: function(){
         var vm = this;
         vm.get();
+        jQuery(vm.$refs.inviteModal).on('shown.bs.modal', function() {
+            vm.focusInviteInput();
+        });
+    },
+    beforeDestroy: function() {
+        jQuery(vm.$refs.inviteModal).off('shown.bs.modal');
     }
 });
 

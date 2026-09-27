@@ -395,13 +395,7 @@
 {% endblock %}
 
 {% block reporting_scripts %}
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
+<script type="text/javascript"{% if request.csp_nonce %} nonce="{{request.csp_nonce}}"{% endif %}>
 Vue.prototype.$defaultRequestInitiatedMessage = "{% trans %}Hello,\n\nI would like to invite you to complete and share a response to the questionnaire for your organization.{% endtrans %}";
-
-jQuery(document).ready(function($) {
-    $("#invite-reporting-entity").on('shown.bs.modal', function () {
-        $(this).find("[name='email']").focus();
-    });
-});
 </script>
 {% endblock %}

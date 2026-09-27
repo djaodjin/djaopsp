@@ -1,7 +1,9 @@
 <!-- modal dialog to add a request to add a role to a user
      on an profile. -->
 <div id="invite-reporting-entity"
-     class="add-role-modal modal fade" tabindex="-1" role="dialog"
+     class="add-role-modal modal fade"
+     ref="inviteModal"
+     role="dialog" tabindex="-1"
      aria-labelledby="Request access" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -23,8 +25,9 @@
             <div class="controls">
               <label for="new-request-full-name">{% trans %}Profile name{% endtrans %}</label>
               <input id="new-request-full-name" class="form-control w-100"
+                     max-length="150" name="full_name"
+                     ref="inviteFullName" type="text"
                      v-model="newItem.full_name"
-                     name="full_name" type="text" max-length="150"
                      :disabled="newItem.slug" />
               <div class="invalid-feedback"></div>
             </div>
@@ -36,8 +39,9 @@
                 <div class="input-group has-validation">
                   <span class="input-group-text">@</span>
                   <input id="new-request-domain" class="form-control email"
-                         name="email" v-model="newItem.email" type="text"
-                         max-length="150" placeholder="example.com" required />
+                         max-length="150" name="email" placeholder="example.com"
+                         required type="text"
+                         v-model="newItem.email" />
                   <div class="invalid-feedback"></div>
                 </div>
                 <small class="form-text">{% trans %}Enter the email domain for the profile. Note that an actual contact email address is required to send an invitation and reminders.{% endtrans %}</small>
@@ -46,10 +50,12 @@
                 <label for="new-request-email">{% trans %}Contact(s) Email{% endtrans %}</label>
                 <input id="new-request-email" class="form-control email w-100"
                        :disabled="newItem.isExample"
-                       name="email" v-model="newItem.email"
+                       max-length="150" name="email"
+                       placeholder="invitee@example.com"
+                       ref="inviteContacts" required
                        :type="newItem.isExample ? 'email' : 'text'"
-                       max-length="150" placeholder="invitee@example.com"
-                       required autofocus />
+                       v-model="newItem.email"
+                       autofocus />
                 <small class="form-text" v-if="!newItem.isExample">{% trans %}Enter one or more email addresses, separated by commas.{% endtrans %}</small>
                 <div class="invalid-feedback"></div>
               </template>
