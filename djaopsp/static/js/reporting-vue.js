@@ -538,7 +538,7 @@ Vue.component('engage-profiles', {
                     errorResp = {responseJSON: flat};
                 }
                 showErrorMessages(errorResp);
-            }
+            } // end of `requestAssessment`
             var data = {
                 accounts: [{}],
                 message: vm.message,
@@ -563,9 +563,7 @@ Vue.component('engage-profiles', {
                 }, handleError);
             } else {
                 var sendEmail = vm.notifyContacts;
-                if( vm.useEmailDomain ) {
-                    delete data.accounts[0].email;
-                } else if( data.accounts[0].email ) {
+                if( vm.isValidEmail && data.accounts[0].email ) {
                     var emails = data.accounts[0].email
                         .split(',').map(function(e) { return e.trim(); })
                         .filter(function(e) { return e; });
@@ -587,6 +585,9 @@ Vue.component('engage-profiles', {
                     } else {
                         profileData.email = data.accounts[0].email;
                     }
+                    if( !vm.isValidEmail ) {
+                        delete data.accounts[0].email;
+                    }
                     vm.reqPost(vm.$urls.api_account_candidates, profileData,
                     function(resp) {
                         vm.newItem = {...resp, email: vm.newItem.email,
@@ -607,6 +608,9 @@ Vue.component('engage-profiles', {
                         }, handleError);
                     });
                 } else {
+                    if( !vm.isValidEmail ) {
+                        delete data.accounts[0].email;
+                    }
                     vm.reqPost(vm.$urls.api_accessibles
                         + (sendEmail ? '?notify=true' : ''), data,
                     function success(resp, textStatus, jqXHR) {
@@ -843,6 +847,17 @@ Vue.component('engage-profiles', {
                 }
             }
         },
+        isValidEmail: function() {
+            var vm = this;
+            const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const emails = vm.newItem.email.split(',');
+            for( var idx = 0; idx < emails.length; ++idx ) {
+                if( !regex.test(emails[idx]) ) {
+                    return false;
+                }
+            }
+            return true;
+        }
     },
     mounted: function(){
         var vm = this;

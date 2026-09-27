@@ -72,7 +72,7 @@
             <div class="form-check form-switch">
               <input id="new-request-notify" class="form-check-input"
                      type="checkbox"
-                     v-model="notifyContacts" :disabled="useEmailDomain" />
+                     v-model="notifyContacts" :disabled="!isValidEmail" />
               <label class="form-check-label" for="new-request-notify">
                 {% trans %}Notify contacts{% endtrans %}
               </label>
@@ -80,7 +80,7 @@
           </div>
 
           <div id="div_id_new_user_relation" class="form-group mb-3"
-               v-if="newItem.isExample || notifyContacts">
+               v-if="newItem.isExample || (isValidEmail && notifyContacts)">
             <hr />
             <div class="controls">
               <label class="small text-muted mb-2" for="new-request-message">{% trans %}Use the default message for the invite, or add context for your request by typing in the box below.{% endtrans %}</label>
@@ -104,7 +104,7 @@
                     type="button">{% trans %}Cancel{% endtrans %}</button>
             <button class="btn btn-primary"
                     type="submit">
-              [[(newItem.isExample || notifyContacts) ? "{% trans %}Send e-mail{% endtrans %}" : "{% trans %}Add{% endtrans %}"]]
+              [[(newItem.isExample || (isValidEmail && notifyContacts)) ? "{% trans %}Send e-mail{% endtrans %}" : "{% trans %}Add{% endtrans %}"]]
             </button>
         </div>
       </form>
