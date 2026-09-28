@@ -450,6 +450,7 @@ Vue.component('engage-profiles', {
             // with a a profile name, contact e-mail or e-mail domain.
             var vm = this;
             clearMessages();
+            vm.newItem.isExample = false;
             vm.notifyContacts = !vm.hasNoReportingStatus(newAccount);
 
             // Sets invite fields from the portfolio optin.
@@ -526,12 +527,14 @@ Vue.component('engage-profiles', {
         populateInviteExample: function(email) {
             var vm = this;
             vm.useEmailDomain = false;
-            vm.newItem = {
-                isExample: true,
-                slug: 'supplier-1',
-                ends_at: null,
-                email: email
-            };
+            vm.newItem.isExample = true;
+            vm.newItem.created_at = null;
+            vm.newItem.email = email;
+            vm.newItem.ends_at = null;
+            vm.newItem.full_name = "";
+            vm.newItem.printable_name = "";
+            vm.newItem.slug = 'supplier-1';
+            vm.newItem.type = "organization";
         },
         hideModal: function($event) {
             var form = jQuery($event.target);
@@ -614,6 +617,9 @@ Vue.component('engage-profiles', {
                         profileData.email = '@' + profileData.email.trim();
                     } else {
                         profileData.email = data.accounts[0].email;
+                    }
+                    if( !profileData.slug ) {
+                        delete profileData.slug;
                     }
                     if( !vm.isValidEmail ) {
                         delete data.accounts[0].email;
