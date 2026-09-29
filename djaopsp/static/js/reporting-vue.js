@@ -1012,6 +1012,37 @@ Vue.component('djaopsp-compare-samples', {
             }
             return [];
         },
+        getAnswerBenchmarks: function(dataset, path) {
+            const vm = this;
+            const practice = vm.getCompareAnswers(dataset, {path: path});
+            const benchmarks = practice.benchmarks || [];
+            if( !vm.isEnumUnit(practice) ) {
+                return benchmarks;
+            }
+            const choices = vm.getChoices(practice);
+            const datasetIdx = vm.datasets.indexOf(dataset);
+            const results = [];
+            benchmarks.forEach(function(bench, benchIdx) {
+                const rates = vm.getRates(bench);
+                const groups = choices.length
+                    ? choices
+                        .filter(choice => choice.text !== 'No response')
+                        .map(choice =>
+                            rates.find(rate => rate[0] === choice.text)
+                            || [choice.text, 0, []]
+                        )
+                    : rates;
+                groups.forEach(function(group, answerIdx) {
+                    results.push({
+                        slug: 'answer-' + datasetIdx + '-' +
+                            benchIdx + '-' + answerIdx,
+                        title: bench.title + ' - ' + group[0],
+                        values: [group]
+                    });
+                });
+            });
+            return results;
+        },
         getCompareAnswers: function(dataset, practice) {
             var vm = this;
             if( typeof dataset.results != 'undefined' && dataset.results.length > 0 ) {
