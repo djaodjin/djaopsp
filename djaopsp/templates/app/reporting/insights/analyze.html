@@ -655,8 +655,13 @@ You can find tutorials to get started with the analyze dashboard
         </div>
         <div v-show="datasets.length > 0" style="position:relative;" v-cloak>
 
+          <div class="alert alert-info mt-4" role="status" v-if="showNoAnalysisData">
+            <p class="mb-1 fw-bold">{% trans %}No data available for this question and selection.{% endtrans %}</p>
+            <p class="mb-0">{% trans %}Try a different date range or account selection.{% endtrans %}</p>
+          </div>
+
           <!-- Presents datasets -->
-          <div v-show="visualize === 'table'">
+          <div v-show="visualize === 'table' && !showNoAnalysisData">
             <table class="table table-bordered mt-4">
               <thead>
                 <tr>
@@ -696,7 +701,7 @@ You can find tutorials to get started with the analyze dashboard
             {% include "_pagination.html" %}
           </div>
 
-          <div v-show="visualize === 'chart'" v-cloak>
+          <div v-show="visualize === 'chart' && !showNoAnalysisData" v-cloak>
             <h2 class="text-center mt-2">[[displayMetric.title]] ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
             <h3 class="text-center"><span v-show="datasets.length > 1">{% trans %}left to right{% endtrans %}:</span>[[circleLabels]]</h3>
             <div>
@@ -707,7 +712,7 @@ You can find tutorials to get started with the analyze dashboard
           </div>
 
           <!-- Selects how to present datasets -->
-          <div class="row">
+          <div class="row" v-show="!showNoAnalysisData">
             <div class="col-md-5">
               {% include "app/reporting/_percentage_toggle.html" %}
             </div>
@@ -799,12 +804,21 @@ You can find tutorials to get started with the analyze dashboard
         </div>{# /datasets.length > 0 #}
 
         <!-- items in query set -->
-        <div v-for="dataset in datasets" v-show="datasets.length > 0">
-          <ul class="nav nav-tabs justify-content-start">
-            <li class="nav-item" v-for="bench in getAnswerBenchmarks(dataset, displayMetric.path)">
-              <a class="nav-link" :href="'#'+bench.slug"
-                 @click="onDatasetSelected(bench)"
-                 data-bs-toggle="tab">[[bench.title]]</a>
+        <div v-for="(dataset, datasetIdx) in datasets" v-show="datasets.length > 0">
+          <div class="my-3" v-if="benchmarkPeriodsByDataset[datasetIdx].length">
+            <label class="form-label" :for="'period-' + datasetIdx">{% trans %}Period{% endtrans %}</label>
+            <select class="form-select" :id="'period-' + datasetIdx"
+                    :value="getSelectedPeriod(dataset)"
+                    @change="$set(periodFilters, displayMetric.path + ':' + datasetIdx, $event.target.value)">
+              <option v-for="period in benchmarkPeriodsByDataset[datasetIdx]"
+                      :key="period" :value="period">[[humanizePeriods([period])[0] ]]</option>
+            </select>
+          </div>
+          <ul class="nav nav-tabs justify-content-start" :key="'tabs-' + displayMetric.path + getSelectedPeriod(dataset)">
+            <li class="nav-item" v-for="tab in getAnswerBenchmarks(dataset, displayMetric.path)">
+              <a class="nav-link" :href="'#'+tab.slug"
+                 @click="onDatasetSelected(tab)"
+                 data-bs-toggle="tab">[[tab.title]]</a>
             </li>
           </ul>
           <!-- filter by answer
@@ -812,15 +826,25 @@ You can find tutorials to get started with the analyze dashboard
               [[selectedDatapoint]]
           </p>
           -->
-          <div class="tab-content">
-            <div :id="bench.slug" class="tab-pane" role="tabpanel" v-for="bench in getAnswerBenchmarks(dataset, displayMetric.path)">
+          <div class="tab-content" :key="'answers-' + displayMetric.path + getSelectedPeriod(dataset)">
+            <div :id="tab.slug" class="tab-pane" role="tabpanel" v-for="tab in getAnswerBenchmarks(dataset, displayMetric.path)">
+              <div class="my-3" v-if="tab.allAnswerGroups">
+                <label class="form-label" :for="tab.slug + '-answer'">{% trans %}Answer{% endtrans %}</label>
+                <select class="form-select" :id="tab.slug + '-answer'"
+                        :value="tab.selectedAnswer"
+                        @change="selectAnswerFilter(tab, $event.target.value)">
+                  <option value="">{% trans %}All answers{% endtrans %}</option>
+                  <option v-for="group in tab.allAnswerGroups" :key="group[0]"
+                          :value="group[0]">[[group[0] ]] ([[group[1] ]])</option>
+                </select>
+              </div>
               <table class="table table-striped">
                 <tr>
                   <th class="col-2">{% trans %}Supplier ID{% endtrans %}</th>
                   <th class="col-8">{% trans %}Profile name{% endtrans %}</th>
                   <th class="col-2">{% trans %}Answer{% endtrans %}</th>
                </tr>
-               <tbody v-for="by_answers in bench.values">
+               <tbody v-for="by_answers in tab.values">
                  <tr v-for="(entry, index) in by_answers[2]">
                    <td class="col-2">
                      <span>[[index + 1 + (params.page ? (params.page - 1) * itemsPerPage : 0)]]</span><br />
@@ -831,6 +855,13 @@ You can find tutorials to get started with the analyze dashboard
                    </td>
                    <td class="col-2">
                        <a :href="'{{urls.scorecard_base}}' + entry + '/'" target="_blank">[[by_answers[0] ]]</a>
+                   </td>
+                 </tr>
+               </tbody>
+               <tbody v-if="!hasAnswerSuppliers(tab)">
+                 <tr>
+                   <td colspan="3" class="text-center text-muted py-3">
+                     {% trans %}No supplier responses available.{% endtrans %}
                    </td>
                  </tr>
                </tbody>
