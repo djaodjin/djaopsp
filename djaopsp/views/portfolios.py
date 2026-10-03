@@ -50,9 +50,13 @@ class DashboardRedirectView(DashboardsAvailableQuerysetMixin,
         return super(DashboardRedirectView, self).get_template_names()
 
     def get(self, request, *args, **kwargs):
-        if self.account in self.verifier_accounts:
+        is_broker = False
+        site = request.session.get('site')
+        if site:
+            is_broker = bool(self.account.slug == site.get('slug'))
+
+        if is_broker:
             # Dashboard looks quite different for broker
-            # and verification partners.
             context = self.get_context_data(**kwargs)
             update_context_urls(context, {
                 'profile_base': site_url("/activities/accounts/"),
@@ -70,6 +74,12 @@ class DashboardRedirectView(DashboardsAvailableQuerysetMixin,
             return self.render_to_response(context)
 
         candidates = self.dashboards_available
+        if not candidates:
+            filtered_in = Q(extra__contains='searchable')
+            for visible in set(['public']):
+                filtered_in &= Q(extra__contains=visible)
+            candidates = Campaign.objects.filter(filtered_in)
+
         if not candidates:
             raise Http404("No campaign available")
 
@@ -192,6 +202,12 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
     """
     template_name = 'app/reporting/engage/index.html'
 
+    def get_template_names(self):
+        candidates = ['app/reporting/engage/%s.html' % self.campaign]
+        candidates += list(super(
+            PortfolioEngagementView, self).get_template_names())
+        return candidates
+
     def get_context_data(self, **kwargs):
         context = super(PortfolioEngagementView, self).get_context_data(
             **kwargs)
@@ -200,6 +216,12 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
                 slug="%s-verified" % self.campaign).exists(),
             'planned_exists': get_extra(self.campaign, 'is_planned')
         })
+        if self.campaign.slug.endswith('-verified'):
+            update_context_urls(context, {
+                'api_portfolio_responses': reverse(
+                    'api_verifications', args=(self.account, self.campaign)),
+            })
+
         update_context_urls(context, {
             'api_activities_base': site_url("/api/activities"),
             'api_sample_base_url': reverse('survey_api_sample_list', args=(

@@ -4,27 +4,6 @@
 
 {% block reporting_content %}
 <reporting-organizations id="managed" inline-template>
-<div>
-
-  <div class="row mt-4">
-    <div class="col-12">
-      <reporting-completion-rate ref="completionWeekly" :params="params" inline-template>
-        <div>
-          <h2 class="text-center">{% trans %}Completed and verified week-by-week{% endtrans %}<span v-cloak>([[params.unit == 'percentage' ? '%' : 'Nb']])</span></h2>
-          <div>
-            <div class="card-body" v-if="!itemLoaded">
-              <p>
-                <h3 class="text-center"><i class="fa-solid fa-refresh fa-spin"></i></h3>
-              </p>
-            </div>
-            <div class="card-body" v-show="itemLoaded" v-cloak>
-              <canvas id="completionRate"></canvas>
-            </div>
-          </div>
-        </div>
-      </reporting-completion-rate>
-    </div>{# /.col-12 #}
-  </div>
   <div>
     <div class="pt-2">
     {% include "_filter.html" %}
@@ -124,6 +103,5 @@
     </table>
     {% include "_pagination.html" %}
   </div>
-</div>
 </reporting-organizations>
 {% endblock %}

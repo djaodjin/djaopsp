@@ -125,6 +125,7 @@ initdb:
 		djaopsp/fixtures/practices_custom_choices.json \
 		djaopsp/fixtures/matrices.json \
 		djaopsp/fixtures/samples.json \
+		djaopsp/fixtures/verifications.json \
 		djaopsp/fixtures/100-completed-notshared.json \
 		djaopsp/fixtures/101-onboarding.json \
 		djaopsp/fixtures/200-benchmarks.json \

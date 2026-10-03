@@ -1,6 +1,5 @@
 # Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
-import json
 
 from dateutil.relativedelta import relativedelta
 from deployutils.apps.django_deployutils import mixins as deployutils_mixins
@@ -10,10 +9,8 @@ from deployutils.helpers import update_context_urls
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q, F
-from django.http import Http404
 from pages.mixins import (TrailMixin,
     SequenceProgressMixin as SequenceProgressMixinBase)
-from pages.models import PageElement
 from survey.helpers import datetime_or_now, get_extra
 from survey.mixins import (CampaignMixin as CampaignMixinBase,
     DateRangeContextMixin, SampleMixin)
@@ -227,17 +224,14 @@ class DashboardsAvailableQuerysetMixin(AccountMixin):
     @property
     def dashboards_available(self):
         """
-        Returns a list of campaign dashboards available to the request user.
+        Returns a list of campaign dashboards available to `self.account`.
         """
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_dashboards_available'):
-            filtered_in = Q(extra__contains='searchable')
-            for visible in set(['public']):
-                filtered_in &= Q(extra__contains=visible)
             self._dashboards_available = Campaign.objects.filter(
                 Q(portfolios__grantee=self.account) |
-                Q(account__slug=self.account) |
-                filtered_in).distinct()
+                Q(portfolio_double_optins__grantee=self.account) |
+                Q(account__slug=self.account)).distinct()
         return self._dashboards_available
 
     def get_queryset(self):
@@ -657,8 +651,7 @@ class AccountsDateRangeMixin(DateRangeContextMixin,
             at_time = datetime_or_now()
             if _accounts_ends_at:
                 _accounts_ends_at = datetime_or_now(_accounts_ends_at)
-                if _accounts_ends_at > at_time:
-                    at_time = _accounts_ends_at
+                at_time = max(at_time, _accounts_ends_at)
             param_ends_at = self.get_query_param('accounts_ends_at',
                 self.get_query_param('ends_at'))
             if param_ends_at is not None:

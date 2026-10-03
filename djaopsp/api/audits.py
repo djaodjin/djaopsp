@@ -1,25 +1,118 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 import logging
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.db import transaction
+from django.db import models, transaction
 from rest_framework import generics
 from rest_framework import response as http
 from survey.helpers import construct_weekly_periods, datetime_or_now
 from survey.models import Sample
 from survey.utils import get_engaged_accounts
 
-from ..compat import gettext_lazy as _
-from ..mixins import ReportMixin
+from ..compat import gettext_lazy as _, reverse
+from ..mixins import AccountMixin, CampaignMixin, ReportMixin
 from ..models import VerifiedSample
 from ..helpers import as_percentage
 from .portfolios import CompletionRateMixin
-from .serializers import VerifiedSampleSerializer
+from .serializers import ReportingSerializer, VerifiedSampleSerializer
 
 LOGGER = logging.getLogger(__name__)
+
+
+class VerificationListAPIView(CampaignMixin, AccountMixin,
+                              generics.ListAPIView):
+    """
+    Lists verifications
+
+    **Tags**: reporting
+
+    **Examples
+
+    .. code-block:: http
+
+        GET /api/energy-utility/reporting/sustainability-verified/notes HTTP/1.1
+
+    responds
+
+    .. code-block:: json
+
+        {
+          "count": 1,
+          "next": null,
+          "previous": null,
+          "results": [
+              {
+                "grantee": "energy-utility",
+                "account": "supplier-1",
+                "campaign": "sustainability",
+                "created_at": "2022-01-01T00:00:00Z",
+                "ends_at": "2023-01-01T00:00:00Z",
+                "state": "request-denied",
+                "api_accept": null,
+                "reporting_status": "completed",
+                "last_activity_at": "2022-11-01T00:00:00Z",
+                "requested_at": "2022-01-01T00:00:00Z"
+              },
+              {
+                "grantee": "energy-utility",
+                "account": "andy-shop",
+                "campaign": "sustainability",
+                "created_at": "2022-01-01T00:00:00Z",
+                "ends_at": "2023-01-01T00:00:00Z",
+                "state": "request-accepted",
+                "api_accept": null,
+                "reporting_status": "completed",
+                "last_activity_at": "2022-11-01T00:00:00Z",
+                "requested_at": "2022-01-01T00:00:00Z"
+              }
+          ]
+        }
+    """
+    # Implementation is very close to `CompletedAssessmentsMixin`.
+    serializer_class = ReportingSerializer
+
+    def get_queryset(self):
+        queryset = Sample.objects.filter(
+            verified__verifier_notes__campaign=self.campaign,
+            verified__verifier_notes__account=self.account).annotate(
+                last_completed_at=models.F('created_at'),
+                account_slug=models.F('account__slug'),
+                printable_name=models.F('account__full_name'),
+                email=models.F('account__email'),
+                segment=models.F('campaign__title')).select_related('verified')
+        return queryset
+
+    def decorate_queryset(self, queryset):
+        for sample in queryset:
+            sample.score_url = reverse('scorecard',
+                args=(self.account, sample.slug)) # The broker should be able
+            # to access all scorecards without requiring a `Portfolio` record
+            # to exist.
+            sample.notes_url = reverse('api_verifier_notes_index',
+                args=(self.account, sample.slug))
+            try:
+                sample.verified_status = sample.verified.verified_status
+                sample.verified_by = sample.verified.verified_by
+            except VerifiedSample.DoesNotExist: #RelatedObjectDoesNotExist:
+                sample.verified_status = VerifiedSample.STATUS_NO_REVIEW
+                sample.verified_by = None
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            self.decorate_queryset(page)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        self.decorate_queryset(queryset)
+        serializer = self.get_serializer(queryset, many=True)
+        return http.Response(serializer.data)
 
 
 class VerifierNotesIndexAPIView(ReportMixin, generics.UpdateAPIView):
@@ -215,7 +308,8 @@ def completed_verified_by_week(grantee, campaign=None,
     """
     Returns two lists with completed and verified samples per week.
     """
-    #pylint:disable=too-many-arguments,too-many-locals
+    #pylint:disable=too-many-arguments,too-many-positional-arguments
+    #pylint:disable=too-many-locals
     last_date = datetime_or_now(ends_at)
     if start_at:
         first_date = start_at

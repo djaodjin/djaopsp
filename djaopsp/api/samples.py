@@ -53,6 +53,8 @@ class SampleNotesMixin(SampleMixin):
     def attach_verifier_notes(self, units, questions_by_key,
                               prefix=None, excludes=None, extra_fields=None,
                               interlienar=False):
+        #pylint:disable=too-many-arguments,too-many-positional-arguments
+        #pylint:disable=too-many-locals
         verification_notes = self.get_notes(prefix=prefix, excludes=excludes)
         if interlienar and django_settings.FEATURES_DEBUG:
             verifier = get_user_model().objects.get(
@@ -370,6 +372,7 @@ class AssessmentContentMixin(SectionReportMixin, CampaignDecorateMixin,
         extra_fields = getattr(
             self.practice_serializer_class.Meta, 'extra_fields', [])
         units = {}
+
         attach_answers(
             units,
             questions_by_key,
