@@ -923,6 +923,9 @@ Vue.component('djaopsp-compare-samples', {
             itemsLoaded: true,
             queryType: 'individual-account',
             datasets: [],
+            answerFilters: {},
+            periodFilters: {},
+            enumAnswerTabLimit: 5,
             getCompleteCb: 'firstDatasetLoaded',
             periodType: '',
             displayMetric: {
@@ -1012,8 +1015,97 @@ Vue.component('djaopsp-compare-samples', {
             }
             return [];
         },
-        getCompareAnswers: function(dataset, practice) {
+        getBenchmarkPeriods: function(dataset, path) {
+            const periods = new Set();
+            this.getBenchmarks(dataset, path).forEach(bench => {
+                (bench.values || []).forEach(value => {
+                    if( Array.isArray(value[1]) ) {
+                        periods.add(value[0]);
+                    }
+                });
+            });
+            return Array.from(periods).sort().reverse();
+        },
+        getSelectedPeriod: function(dataset) {
+            const datasetIdx = this.datasets.indexOf(dataset);
+            const periods = this.benchmarkPeriodsByDataset[datasetIdx];
+            const selectedPeriod = this.periodFilters[this.displayMetric.path + ':' + datasetIdx];
+            return periods.includes(selectedPeriod)
+                ? selectedPeriod : periods[0];
+        },
+        getAnswerBenchmarks: function(dataset, path) {
+            const vm = this;
+            const practice = vm.getCompareAnswers(dataset, {path: path});
+            const selectedPeriod = vm.getSelectedPeriod(dataset);
+            const benchmarks = (practice.benchmarks || []).map(bench => {
+                if( !selectedPeriod ) {
+                    return bench;
+                }
+                const periodValues = (bench.values || []).find(
+                    period => period[0] === selectedPeriod);
+                return Object.assign({}, bench, {
+                    values: periodValues ? periodValues[1] : []
+                });
+            });
+            if( !vm.isEnumUnit(practice) ) {
+                return benchmarks;
+            }
+            const choices = vm.getChoices(practice).filter(
+                choice => choice.text !== 'No response');
+            const datasetIdx = vm.datasets.indexOf(dataset);
+            const results = [];
+            benchmarks.forEach(function(bench, benchIdx) {
+                const rates = vm.getRates(bench);
+                const groups = choices.length
+                    ? choices.map(choice =>
+                        rates.find(rate => rate[0] === choice.text)
+                        || [choice.text, 0, []]
+                    )
+                    : rates;
+                if( choices.length > vm.enumAnswerTabLimit ) {
+                    if( !groups.some(group => group[1] > 0) ) {
+                        return;
+                    }
+                    const slug = 'answer-' + datasetIdx + '-' + benchIdx;
+                    const filterKey = path + ':' + slug;
+                    const selectedAnswer = vm.answerFilters[filterKey] || '';
+                    results.push({
+                        slug: slug,
+                        title: bench.title,
+                        selectedAnswer: selectedAnswer,
+                        filterKey: filterKey,
+                        allAnswerGroups: groups,
+                        values: selectedAnswer ? groups.filter(
+                            group => group[0] === selectedAnswer) : groups
+                    });
+                    return;
+                }
+                groups.forEach(function(group, answerIdx) {
+                    if( !(group[1] > 0) ) {
+                        return;
+                    }
+                    results.push({
+                        slug: 'answer-' + datasetIdx + '-' +
+                            benchIdx + '-' + answerIdx,
+                        title: bench.title + ' - ' + group[0],
+                        values: [group]
+                    });
+                });
+            });
+            return results;
+        },
+        selectAnswerFilter: function(tab, selectedAnswer) {
             var vm = this;
+            vm.$set(vm.answerFilters, tab.filterKey, selectedAnswer);
+            vm.populateSamples({
+                values: selectedAnswer ? tab.allAnswerGroups.filter(
+                    group => group[0] === selectedAnswer) : tab.allAnswerGroups
+            });
+        },
+        hasAnswerSuppliers: function(tab) {
+            return tab.values.some(group => group[2] && group[2].length > 0);
+        },
+        getCompareAnswers: function(dataset, practice) {
             if( typeof dataset.results != 'undefined' && dataset.results.length > 0 ) {
                 for( let idx = 0; idx < dataset.results.length; ++idx ) {
                     if( dataset.results[idx].path === practice.path ) {
@@ -1325,7 +1417,9 @@ Vue.component('djaopsp-compare-samples', {
                         }  // if( choices.length )
                     } // benchIdx
                 } // vm.datasets
-                styleInnerRings(datasets);
+                if( !choices.length ) {
+                    styleInnerRings(datasets);
+                }
 
                 if( vm.compareChart ) {
                     vm.compareChart.destroy();
@@ -1421,6 +1515,16 @@ Vue.component('djaopsp-compare-samples', {
     computed: {
         datasetLoading: function() {
             return this.datasets.length > 0 && !this.itemsLoaded;
+        },
+        benchmarkPeriodsByDataset: function() {
+            return this.datasets.map(dataset =>
+                this.getBenchmarkPeriods(dataset, this.displayMetric.path));
+        },
+        showNoAnalysisData: function() {
+            return this.itemsLoaded && this.datasets.length > 0 &&
+                !this.datasets.some(dataset =>
+                    this.getBenchmarks(dataset, this.displayMetric.path).some(
+                        benchmark => benchmark.values && benchmark.values.length > 0));
         },
         circleLabels: function() {
             const vm = this;
