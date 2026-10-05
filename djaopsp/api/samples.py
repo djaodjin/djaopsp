@@ -62,8 +62,9 @@ class SampleNotesMixin(SampleMixin):
             VERIFIED_CHOICE = Choice.objects.filter(
                 unit__slug='verifiability',
                 text__in=[
-                    'Self-reported Yes > Verifiable',
-                    'Self-reported Yes > Unverifiable'
+                    'Verifiable',
+                    'Unverifiable - No supporting evidence found',
+                    'Unverifiable - Requires explanation of supporting evidence'
                 ]).values_list('pk', flat=True)
             question_key_by_slug = {
                 question.path.split(DB_PATH_SEP)[-1]: question

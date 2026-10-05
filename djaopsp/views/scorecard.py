@@ -180,7 +180,7 @@ class ScorecardIndexView(ReportMixin, TemplateView):
             'download': reverse('assess_download_index',
                 args=(self.account, self.sample)),
             'api_content': reverse('api_sample_content_index',
-                args=(self.account, self.sample)), # + '?interlienar=1',
+                args=(self.account, self.sample)) + '?interlienar=1',
             'api_account_benchmark': reverse(
                 'survey_api_sample_benchmarks_index',
                 args=(self.account, self.sample)),
