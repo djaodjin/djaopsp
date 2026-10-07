@@ -1099,4 +1099,15 @@
     "is_frozen": true
   },
   "model": "survey.sample", "pk": 14
+},
+{
+  "fields": {
+    "slug": "bbbbbbbbbbbbbbbbbbb69e771794aa15",
+    "created_at": "2026-01-01T00:00:00+00:00",
+    "updated_at": "2026-01-01T00:00:00+00:00",
+    "campaign": 3,
+    "account": 19,
+    "is_frozen": false
+  },
+  "model": "survey.sample", "pk": 15
 }]

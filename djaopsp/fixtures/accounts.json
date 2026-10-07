@@ -209,6 +209,17 @@
 },
 { "fields": {
     "date_joined": "2025-01-01T00:00:00+00:00",
+    "email": "desktop-reviewers@localhost.localdomain",
+    "first_name": "Desktop",
+    "last_name": "Reviewers",
+    "is_active": false,
+    "password": "!",
+    "username": "desktop-reviewers"
+  },
+  "model": "auth.User", "pk": 18
+},
+{ "fields": {
+    "date_joined": "2025-01-01T00:00:00+00:00",
     "email": "abby@localhost.localdomain",
     "first_name": "Abby",
     "last_name": "Verifier",

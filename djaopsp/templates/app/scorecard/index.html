@@ -60,7 +60,7 @@
                 <div class="row mx-2">
                   <div class="col-sm-8 text-start text-left">
                     <div class="mt-4">
-                      Contact Information
+                      {% trans %}Contact Information{% endtrans %}
                       <ul class="list-unstyled mb-0">
                         <li>{% if sample.account.email %}{{sample.account.email}}{% else %}&nbsp;{% endif %}</li>
                         <li>{% if sample.account.phone %}{{sample.account.phone}}{% else %}&nbsp;{% endif %}</li>
@@ -369,12 +369,12 @@
                   <div class="row" v-if="isAssessmentUnit(practice)">
                     <div class="col-6 col-sm-4"
                          v-if="isAssessmentUnit(practice)">
-                      {% trans %}Implementation rate{% endtrans %}
                       <div v-show="!chartsAvailable">
                         <i class="fa-solid fa-refresh fa-spin"></i>
                       </div>
                       <div v-show="chartsAvailable" v-cloak>
-                        [[practice.nb_respondents]] {% trans %}respondents{% endtrans %}
+                        {% trans %}Implementation rate{% endtrans %}
+{# XXX should get `nb_respondents` from benchmarks API call [[practice.nb_respondents]] {% trans %}respondents{% endtrans %} #}
                         <div class="progress">
                           <div :class="'progress-bar progress-bar-success green-level-' + getIntrinsicValue(practice, 'avg_value')"
                                role="progressbar"
@@ -396,11 +396,11 @@
                   {# Show benchmarks with special case for 2-values choices #}
                   <div class="row" v-if="!isAssessmentUnit(practice)">
                     <div class="col-6 col-sm-4">
-                      {% trans %}Implementation rate{% endtrans %}
                       <div v-show="!chartsAvailable">
                         <i class="fa-solid fa-refresh fa-spin"></i>
                       </div>
-                      <div v-show="chartsAvailable">
+                      <div v-show="chartsAvailable && practice.benchmarks">
+                      {% trans %}Implementation rate{% endtrans %}
 {# XXX should get `nb_respondents` from benchmarks API call [[practice.nb_respondents]] {% trans %}respondents{% endtrans %} #}
                         <div v-for="benchmark in practice.benchmarks">
                           {# equals to 2 (Yes/No) #}

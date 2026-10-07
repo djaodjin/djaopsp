@@ -137,8 +137,7 @@
     "required": false
   },
   "model": "survey.EnumeratedQuestions", "pk": 7
-}
-,
+},
 {
   "fields": {
     "path": "/sustainability/esg-strategy-heading/report-externally",
@@ -157,8 +156,7 @@
     "required": false
   },
   "model": "survey.EnumeratedQuestions", "pk": 8
-}
-,
+},
 {
   "fields": {
     "path": "/sustainability/esg-strategy-heading/report-3rd-party-verified",
@@ -2669,4 +2667,24 @@
     "required": false
   },
   "model": "survey.EnumeratedQuestions", "pk": 412
-}]
+},
+{
+  "fields": {
+    "path": "/sustainability/sustainability-verified/esg-strategy-heading/report-externally",
+    "content": 7,
+    "default_unit": 205,
+    "ui_hint": "select",
+    "extra": "{\"tags\":[\"assess-only\",\"verify\"]}"
+  },
+  "model": "survey.question", "pk": 413
+},
+{
+  "fields": {
+    "campaign": 3,
+    "question": 413,
+    "rank": 413,
+    "required": true
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 413
+}
+]

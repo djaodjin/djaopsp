@@ -193,6 +193,9 @@ class BenchmarkMixin(TimersMixin, AccountsDateRangeMixin,
 
 
     def get_questions_by_key(self, prefix=None, initial=None):
+        LOGGER.debug(
+            "BenchmarkMixin.get_questions_by_key(prefix=%s, initial=%s)",
+            prefix, initial)
         questions_by_key = super(BenchmarkMixin, self).get_questions_by_key(
             prefix=prefix, initial=initial)
 

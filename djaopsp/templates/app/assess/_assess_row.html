@@ -1,4 +1,4 @@
-<div :id="getPracticeId(practice)" :class="(isPractice(practice) && isFreetextUIHint(practice) ? 'bestpractice row ' : 'row ') + practiceStyle(practice)">
+<div :id="getPracticeId(practice)" :class="(isPractice(practice) && isFreetextUIHint(practice) ? 'bestpractice row ' : 'row ')">
   <div :class="(isPractice(practice) || isEnumHeaderShown(icon)) ? 'col-md-6' : 'col-md-12'">
     <div :class="indentHeader(practice)">
       <div class="title" v-if="!isPractice(practice) && !isPagebreak(practice)">
@@ -504,51 +504,27 @@
   {# when question.unit is 'verifiability' #}
   <div class="col-md-6 text-center" {# default value from `getNbInputCols` #}
        v-if="isVerifiabilityUIHint(practice)">
-    <div class="input-group">
-      <select class="form-control form-select"
+    <select class="form-control form-select"
               v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
               @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
               :disabled="practice.frozen"
               aria-label="Verifiability">
-        <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select verifiability ...{% endtrans %}</option>
+        <option v-if="getAnswerByUnit(practice, 'verifiability').measured == null" disabled :value="null">{% trans %}Select verifiability ...{% endtrans %}</option>
         {% for option in units.verifiability %}
         <option value="{{option.text}}">{{option.descr}}</option>
         {% endfor %}
-      </select>
-      <a class="p-2"
-         href="{{'/docs/guides/verification/#verifiability'|site_url}}"
-         target="_blank">
-        <i class="fa-solid fa-question-circle"></i>
-      </a>
-      <select class="form-control form-select"
-              v-model="getAnswerByUnit(practice, 'completeness').measured"
-              @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'completeness'), '{{assess_type}}')"
-              :disabled="practice.frozen"
-              aria-label="Completeness">
-        <option v-if="getAnswerByUnit(practice, 'completeness').measured == null" disabled :value="null">{% trans %}Select completeness ...{% endtrans %}</option>
-        {% for option in units.completeness %}
-        <option value="{{option.text}}">{{option.descr}}</option>
-        {% endfor %}
-      </select>
-      <a class="p-2"
-         href="{{'/docs/guides/verification/#completeness'|site_url}}"
-         target="_blank">
-        <i class="fa-solid fa-question-circle"></i>
-      </a>
-    </div>
-    <div class="input-group">
-      <select class="form-control form-select"
-              v-model="getAnswerByUnit(practice, 'supporting-document').measured"
-              value=""
-              @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'), '{{assess_type}}')"
-              :disabled="practice.frozen"
-              aria-label="Type of supporting documents">
-        <option v-if="getAnswerByUnit(practice, 'supporting-document').measured == null" disabled :value="null">{% trans %}Select supporting document ...{% endtrans %}</option>
-        {% for option in units.supporting_document %}
-        <option value="{{option.text}}">{{option.descr}}</option>
-        {% endfor %}
-      </select>
-    </div>
+    </select>
+    <select class="form-control form-select"
+            v-model="getAnswerByUnit(practice, 'supporting-document').measured"
+            value=""
+            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'), '{{assess_type}}')"
+            :disabled="practice.frozen"
+            aria-label="Type of supporting documents">
+      <option v-if="getAnswerByUnit(practice, 'supporting-document').measured == null" disabled :value="null">{% trans %}Select supporting document ...{% endtrans %}</option>
+      {% for option in units.supporting_document %}
+      <option value="{{option.text}}">{{option.descr}}</option>
+      {% endfor %}
+    </select>
   </div>
 
   {# when question.unit.system is 'enum' and UI hint computes to 'radio' #}

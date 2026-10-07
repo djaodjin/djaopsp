@@ -13,18 +13,15 @@
           {% trans %}On{% endtrans %} [[answer.measured]]
       </p>
       {% if verification_enabled %}
-      <div class="row verifier-notes" v-if="answer.unit === 'ai-audit'">
-        <div class="col-md-3">
-          <div class="mt-2">
-            <img class="rounded-circle" src="{{'/static/img/default-user.png'|asset}}" width="32" height="32" alt="">
-            <span>Chat GPT</span>
-          </div>
-        </div>
-        <div class="col-md-9">
-          <p class="mt-2" style="word-wrap:break-word;">
-            [[answer.measured]]
-          </p>
-        </div>
+      <div class="row verifier-notes pt-1 m-2" v-if="answer.unit === 'verifiability'">
+        <small>
+          <img class="rounded-circle" :src="getPicture(answer.collected_by) ? getPicture(answer.collected_by) : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32" alt="{% trans %}Profile picture{% endtrans %}">
+ [[getPrintableName(answer.collected_by)]]
+ [[$globals.humanizeDate(answer.created_at)]] ([[$globals.humanizeTimeDelta(answer.created_at)]])
+        </small>
+        <p>
+          [[answer.measured]]
+        </p>
       </div>
       {% endif %}
     </div>

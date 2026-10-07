@@ -1,0 +1,9 @@
+[
+{
+  "fields": {
+    "sample": 1,
+    "verifier_notes": 15
+  },
+  "model": "djaopsp.VerifiedSample", "pk": 1
+}
+]

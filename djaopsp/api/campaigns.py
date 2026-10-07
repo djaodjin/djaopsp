@@ -96,7 +96,7 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
     def get_queryset(self):
         #pylint:disable=too-many-locals,too-many-statements
         #pylint:disable=too-many-nested-blocks
-        segments = self.sections_available
+        segments = self.segments_available
         by_tiles = OrderedDict()
         if self.kwargs.get(self.path_url_kwarg):
             strip_segment_prefix = True
@@ -195,8 +195,22 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
             if 'title' not in element]
         headings_queryset = self.decorate_questions(
             get_question_model().objects.filter(path__in=heading_candiates))
-        headings_by_slug = {element['path'].split(DB_PATH_SEP)[-1]:
-            element for element in headings_queryset}
+        if headings_queryset:
+            headings_by_path = {element['path']: element
+                for element in headings_queryset}
+            for element in elements:
+                path = element.get('path')
+                if path:
+                    merged_fields = headings_by_path.get(path, {})
+                    for key, val in merged_fields.items():
+                        if key == 'extra':
+                            merged_extra = extra_as_internal(merged_fields)
+                            extra = element.get('extra')
+                            if extra:
+                                merged_extra.update(extra)
+                            element.update({key: merged_extra})
+                        elif key not in element:
+                            element.update({key: val})
 
         # Let's load content information for actual headings now.
         headings = [element['slug'] for element in elements
@@ -206,21 +220,23 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
             lang=settings.LANGUAGE_CODE).values(
             'slug', *self.content_extra_fields).annotate(
             rank=Max('to_element__rank'))
-        for element in headings_queryset:
-            if element['slug'] not in headings_by_slug:
-                headings_by_slug.update({element['slug']: element})
+        if headings_queryset:
+            headings_by_slug = {element['slug']: element
+                for element in headings_queryset}
+            for element in elements:
+                slug = element.get('slug')
+                if slug:
+                    merged_fields = headings_by_slug.get(slug, {})
+                    for key, val in merged_fields.items():
+                        if key == 'extra':
+                            merged_extra = extra_as_internal(merged_fields)
+                            extra = element.get('extra')
+                            if extra:
+                                merged_extra.update(extra)
+                            element.update({key: merged_extra})
+                        elif key not in element:
+                            element.update({key: val})
 
-        for element in headings_by_slug.values():
-            element['extra'] = extra_as_internal(element)
-        for element in elements:
-            slug = element.get('slug')
-            if slug:
-                merged_fields = headings_by_slug.get(slug, {})
-                if 'extra' in merged_fields:
-                    extra = element.get('extra')
-                    if extra:
-                        merged_fields['extra'].update(extra)
-                element.update(merged_fields)
         if self.campaign:
             campaign_slug = self.campaign.slug
             campaign_path = "%s%s" % (DB_PATH_SEP, campaign_slug)
@@ -228,6 +244,7 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
                 if seg_path == campaign_path:
                     seg_val[0].update({'rank': -1})
                     break
+
         elements = flatten_content_tree(by_tiles)
         self._report_queries("campaign content completed")
 
@@ -336,8 +353,7 @@ class CampaignEditableSegmentsAPIView(CampaignContentMixin,
                 ]
             }
         """
-        segments = self.sections_available
-        serializer = self.get_serializer(segments, many=True)
+        serializer = self.get_serializer(self.segments_available, many=True)
         return Response({'results': serializer.data})
 
     def post(self, request, *args, **kwargs):

@@ -299,32 +299,32 @@
 { "fields": {
     "unit": 205,
     "rank": 1,
-    "text": "No Response",
-    "descr": ""
+    "text": "Negative or no answer",
+    "descr": "Negative or no answer"
   },
   "model" : "survey.choice", "pk": 19
 },
 { "fields": {
     "unit": 205,
     "rank": 2,
-    "text": "Self-reported No",
-    "descr": ""
+    "text": "Unverifiable - No supporting evidence found",
+    "descr": "Unverifiable - No supporting evidence found"
   },
   "model" : "survey.choice", "pk": 20
 },
 { "fields": {
     "unit": 205,
     "rank": 4,
-    "text": "Self-reported Yes > Unverifiable",
-    "descr": ""
+    "text": "Unverifiable - Requires explanation of supporting evidence",
+    "descr": "Unverifiable - Requires explanation of supporting evidence"
   },
   "model" : "survey.choice", "pk": 22
 },
 { "fields": {
     "unit": 205,
     "rank": 5,
-    "text": "Self-reported Yes > Verifiable",
-    "descr": ""
+    "text": "Verifiable",
+    "descr": "Verifiable"
   },
   "model" : "survey.choice", "pk": 23
 },
@@ -566,7 +566,7 @@
     "title" : "Verification of ESG/Environmental practices",
     "created_at": "2026-01-01T00:00:00.000Z",
     "updated_at": "2026-01-01T00:00:00.000Z",
-    "account": 2,
+    "account": 19,
     "extra": ""
   },
   "model" : "survey.campaign", "pk" : 3
@@ -3134,8 +3134,7 @@
 },
 {
   "fields": {
-    "rank": 10,
-    "orig_element": 1, "dest_element": 189
+    "rank": 20, "orig_element": 1, "dest_element": 189
   },
   "model": "pages.RelationShip", "pk": 189
 },

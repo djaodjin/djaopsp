@@ -127,8 +127,6 @@ Vue.component('campaign-questions-list', {
             nbQuestions: this.$sample ? this.$sample.nbQuestions  : 0,
             nbRequiredAnswers: this.$sample ? this.$sample.nbRequiredAnswers : 0,
             nbRequiredQuestions: this.$sample ? this.$sample.nbRequiredQuestions : 0,
-            api_profiles_url: this.$urls.api_profiles,
-            profilesBySlug: {},
             uploads: {results: []},
             getCompleteCb: 'loadSupportingDocuments'
         }
@@ -443,40 +441,6 @@ Vue.component('campaign-questions-list', {
                     elem.scrollIntoView(true);
                 });
             }
-        },
-        getCollectedByField: function(user, fieldName) {
-            var vm = this;
-            if( user && user.hasOwnProperty(fieldName) ) {
-                return user[fieldName];
-            }
-            if( user ) {
-                const profile = vm.profilesBySlug[user];
-                if( profile && profile.hasOwnProperty(fieldName) ) {
-                    return profile[fieldName];
-                }
-                vm.profilesBySlug[user] = {
-                    picture: null,
-                    printable_name: user
-                };
-                let queryParams = "?q_f==slug&q=" + user;
-                vm.reqGet(vm.api_profiles_url + queryParams,
-                function(resp) {
-                    for( let idx = 0; idx < resp.results.length; ++idx ) {
-                        vm.profilesBySlug[resp.results[idx].slug] =
-                            resp.results[idx];
-                    }
-                }, function() {
-                    // discard errors (ex: "not found").
-                });
-                return vm.profilesBySlug[user][fieldName];
-            }
-            return "";
-        },
-        getPicture: function(user) {
-            return this.getCollectedByField(user, 'picture');
-        },
-        getPrintableName: function(user) {
-            return this.getCollectedByField(user, 'printable_name');
         },
         populateUserProfiles: function() {
             var vm = this;
@@ -1040,7 +1004,7 @@ Vue.component('scorecard', {
     ],
     data: function() {
         return {
-            url: this.$urls.survey_api_sample_answers,
+            url: this.$urls.api_content,
             api_assessment_freeze: this.$urls.api_assessment_freeze ?
                 this.$urls.api_assessment_freeze : this._safeUrl(
                     this.$urls.api_assessment_sample, '/freeze'),
