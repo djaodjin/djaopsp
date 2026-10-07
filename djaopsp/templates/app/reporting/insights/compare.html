@@ -16,6 +16,7 @@
       <!-- individual accounts -->
       <query-individual-account inline-template
         data-humanize-date="humanizeDate"
+        data-url="{% if urls.api_query_individual_account_samples %}{{urls.api_query_individual_account_samples}}{% endif %}"
         v-bind:disabled="datasetLoading"
         v-on:updatedataset="addDataset"
         ref="query">
@@ -100,7 +101,8 @@
         </div>
       </query-individual-account>
 
-    <div id="responses" class="mt-4" v-show="itemsLoaded && items.results.length > 0" v-cloak>
+    <div id="responses" class="mt-4"
+         v-show="itemsLoaded && items.results.length > 0" v-cloak>
       <div class="row">
         <div class="col sticky-cell sticky-cell-top">
           <div class="sticky-cell-content-container">

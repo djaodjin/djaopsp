@@ -168,7 +168,6 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
         campaign_filtered = (get_object_or_404(
             Campaign.objects.all(), slug=campaign_slug)
             if campaign_slug else None)
-        print("XXX self.accounts=%s" % str(self.accounts))
         for account in self.accounts:
             by_campaigns = OrderedDict()
             # XXX `pending_for` will also include grants pending acceptance.

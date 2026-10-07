@@ -9,15 +9,6 @@
 
 {% block reporting_title %}{% trans %}Track{% endtrans %}{% endblock %}
 
-{% block reporting_toggle %}
-<div class="side-notes" style="font-size:0.8rem;">
-  <div class="row">
-    <div class="col-sm-6">
-    </div>
-  </div>
-</div>
-{% endblock %}
-
 {% block reporting_content %}
 <reporting-organizations inline-template>
   <div>
@@ -257,7 +248,7 @@
           <i class="fa-solid fa-circle" style="color: grey;"
              v-if="val.state === 'no-data'"></i>
           <br />
-          <a :href="val.url" v-if="val.url" class="btn-link">
+          <a :href="val.location" v-if="val.location" class="btn-link">
               <div v-if="val.normalized_score">
                 <small>[[val.normalized_score]]%</small>
               </div>

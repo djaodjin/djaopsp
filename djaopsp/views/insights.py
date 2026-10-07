@@ -81,11 +81,21 @@ class CompareInsightsView(InsightsView):
         context = super(CompareInsightsView, self).get_context_data(**kwargs)
         api_account_candidates = reverse(
             'api_last_by_campaign_accessibles', args=(self.account,))
+        api_query_individual_account_samples = reverse(
+            'api_portfolio_accessible_samples', args=(
+                self.account, 'sustainability')) + "?q_f==slug&q={profile}"
         if self.account in self.verifier_accounts:
             api_account_candidates = site_url("/api/accounts/profiles")
+            api_query_individual_account_samples = reverse(
+                'survey_api_sample_list', args=("__profile__",)).replace(
+                "__profile__", "{profile}")
         update_context_urls(context, {
             'api_version': site_url("/api"),
+            'api_sample_base': reverse('survey_api_sample_list', args=(
+                self.account,)),
             'api_account_candidates': api_account_candidates,
+            'api_query_individual_account_samples':
+                api_query_individual_account_samples,
             'api_accounts': site_url("/api/profile"),
             'api_plans': site_url("/api/profile/%(profile)s/plans" % {
                 'profile': self.account}),

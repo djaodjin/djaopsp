@@ -1109,7 +1109,6 @@ class CompareIndexAPIView(CompareAPIView):
 
 class PortfolioAccessibleSamplesMixin(TimersMixin,
                                       AccountsNominativeQuerysetMixin):
-    schema = None
     search_fields = (
         'slug',
         'full_name',
@@ -1301,6 +1300,11 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
             # Merge portfolio extra field into account extra field.
             extra = {}
             for val in values:
+                if val.slug:
+                    val.location = self.request.build_absolute_uri(
+                        reverse('scorecard', args=(self.account, val.slug)))
+                else:
+                    val.location = None
                 extra.update(extra_as_internal(val))
             account.extra = extra_as_internal(account)
             try:

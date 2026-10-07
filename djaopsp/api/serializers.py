@@ -8,8 +8,8 @@ from pages.api.serializers import (
     PageElementDetailSerializer as BasePageElementDetailSerializer,
     UserNewsSerializer as UserNewsBaseSerializer)
 from survey.models import PortfolioDoubleOptIn, Sample, Unit
-from survey.api.serializers import (EnumField, ExtraField, AccountSerializer,
-    AnswerSerializer, SampleSerializer,
+from survey.api.serializers import (AccountSerializer, AnswerSerializer,
+    CampaignSerializer, EnumField, ExtraField, SampleSerializer,
     TableSerializer, UnitSerializer, UnitDetailSerializer)
 from survey.utils import get_account_model
 
@@ -404,32 +404,23 @@ class ReportingSerializer(NoModelSerializer):
         return []
 
 
-class AccessiblePeriodReportSerializer(serializers.ModelSerializer):
+class AccessiblePeriodReportSerializer(SampleSerializer):
 
-    url = serializers.SerializerMethodField(required=False,
-        help_text=_("URL to access response"))
     state = EnumField(choices=humanize.REPORTING_STATUSES, required=False,
         help_text=_("state of response"))
     normalized_score = serializers.SerializerMethodField(required=False,
         help_text=_("score on the response"))
 
-    class Meta:
-        model = Sample
-        fields = ('created_at', 'state', 'url', 'normalized_score')
-        read_only_fields = ('created_at', 'state', 'url', 'normalized_score')
+    class Meta(object):
+        model = SampleSerializer.Meta.model
+        fields = SampleSerializer.Meta.fields + ('state', 'normalized_score')
+        read_only_fields = SampleSerializer.Meta.read_only_fields + (
+            'state', 'normalized_score')
 
     def get_normalized_score(self, obj):
         if obj.pk and obj.campaign:
             return get_top_normalized_score(obj,
                 segments_candidates=self.context.get('segments_candidates'))
-        return None
-
-    def get_url(self, obj):
-        request = self.context.get('request')
-        account = self.context.get('account')
-        if obj.slug:
-            return request.build_absolute_uri(reverse('scorecard',
-                args=(account, obj.slug)))
         return None
 
 
