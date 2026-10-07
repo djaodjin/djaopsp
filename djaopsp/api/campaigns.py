@@ -8,6 +8,7 @@ from collections import OrderedDict
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Max
+from django.http import Http404
 from django.utils import translation
 from pages.api.elements import (PageElementEditableIndexAPIView,
     PageElementEditableDetail)
@@ -31,7 +32,7 @@ from survey.settings import DB_PATH_SEP
 
 from .serializers import ContentNodeSerializer, CreateContentElementSerializer
 from ..campaigns import import_campaign
-from ..compat import six
+from ..compat import gettext_lazy as _, six
 from ..mixins import CampaignMixin, DashboardsAvailableQuerysetMixin
 
 LOGGER = logging.getLogger(__name__)
@@ -96,12 +97,31 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
     def get_queryset(self):
         #pylint:disable=too-many-locals,too-many-statements
         #pylint:disable=too-many-nested-blocks
-        segments = self.segments_available
         by_tiles = OrderedDict()
-        if self.kwargs.get(self.path_url_kwarg):
+        strip_segment_prefix = self.strip_segment_prefix
+        if self.db_path and self.db_path != DB_PATH_SEP:
             strip_segment_prefix = True
+            slug = self.db_path.split(DB_PATH_SEP)[-1]
+            try:
+                queryset = PageElement.objects.filter(slug=slug)
+                element = queryset.get()
+            except PageElement.DoesNotExist:
+                raise Http404(_("Cannot find page '%(slug)s'") % {'slug': slug})
+            extra = {'pagebreak': True}
+            try:
+                extra.update(json.loads(element.extra))
+            except (TypeError, ValueError):
+                pass
+            segments = [{
+                'indent': 0,
+                'path': self.db_path,
+                'slug': element.slug,
+                'title': element.title,
+                'extra': extra,
+            }]
         else:
-            strip_segment_prefix = self.strip_segment_prefix
+            segments = self.segments_available
+
         for segment in segments:
             segment_prefix = segment['path']
             extra = segment.get('extra', {})

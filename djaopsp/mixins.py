@@ -333,7 +333,7 @@ class ReportMixin(SampleMixin, AccountMixin, TrailMixin):
                     self._segments_available += get_segments_available(
                         Sample.objects.filter(
                             notes__sample=self.sample).get())
-                except Sample.objects.DoesNotExist:
+                except Sample.DoesNotExist:
                     # It is OK if there are no verification attached
                     # to a response.
                     pass
