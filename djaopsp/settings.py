@@ -28,7 +28,6 @@ TESTING_USERNAMES = []
 BROKER_NAME = APP_NAME
 
 ALLOWED_HOSTS = ('*',)
-
 UPGRADE_INSECURE_REQUESTS_IN_ASSETS = False
 
 DB_ENGINE = 'sqlite3'
@@ -44,7 +43,7 @@ DEFAULT_FORCE_FREEZE = False
 update_settings(sys.modules[__name__],
     load_config(APP_NAME, 'credentials', 'site.conf', verbose=True))
 
-# Enable override on command line.
+# Enable override on command line even when it is not defined in site.conf
 for env_var in ['DEBUG', 'API_DEBUG', 'ASSETS_DEBUG', 'FEATURES_DEBUG']:
     if os.getenv(env_var):
         setattr(sys.modules[__name__], env_var, (int(os.getenv(env_var)) > 0))
@@ -66,6 +65,7 @@ JWT_ALGORITHM = 'HS256'
 if not hasattr(sys.modules[__name__], "JWT_SECRET_KEY"):
     JWT_SECRET_KEY = getattr(sys.modules[__name__], "DJAODJIN_SECRET_KEY",
         SECRET_KEY)
+
 
 # Installed apps
 # --------------
@@ -94,14 +94,15 @@ INSTALLED_APPS = ENV_INSTALLED_APPS + (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'deployutils.apps.django_deployutils',
     'rest_framework',
     'csp',
+    'deployutils.apps.django_deployutils',
     'survey',
     'pages',
     'extended_templates',
     'djaopsp.sustainability',
-    'djaopsp' # project should be the last entry.
+    # project should be the last entry.
+    'djaopsp'
 )
 
 MIDDLEWARE = (
@@ -119,6 +120,37 @@ MIDDLEWARE = (
 
 ROOT_URLCONF = 'djaopsp.urls'
 WSGI_APPLICATION = 'djaopsp.wsgi.application'
+
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": [SELF],
+        "script-src": [SELF, UNSAFE_EVAL, NONCE],
+        "style-src": [
+            SELF,
+            UNSAFE_INLINE,
+            # Google Fonts
+            "https://fonts.googleapis.com"
+        ],
+        "img-src": [SELF, "https:", "data:"],
+        "font-src": [
+            SELF,
+            # Google Fonts
+            "https://fonts.gstatic.com"
+        ],
+        "connect-src": [SELF],
+        "frame-src": [SELF],
+        "frame-ancestors": [SELF],
+        "form-action": [SELF],
+        "object-src": [NONE],
+        "base-uri": [SELF],
+        # ace.js editor
+        "worker-src": [SELF, "blob:"],
+    },
+}
+
+
+if UPGRADE_INSECURE_REQUESTS_IN_ASSETS:
+    CONTENT_SECURITY_POLICY["DIRECTIVES"]["upgrade-insecure-requests"] = True
 
 # Logging
 # -------
@@ -173,10 +205,10 @@ LOGGING = {
         },
         'request_format': {
             'format':
-            '%(levelname)s %(remote_addr)s %(username)s [%(asctime)s]'\
+            '%(remote_addr)s %(username)s %(levelname)s [%(asctime)s]'\
                 ' %(message)s "%(http_user_agent)s"',
             'datefmt': '%d/%b/%Y:%H:%M:%S %z'
-        }
+        },
     },
     'handlers': {
         'db_log': {
@@ -224,7 +256,7 @@ LOGGING = {
         },
         'survey': {
             'handlers': [],
-            'level': 'INFO',
+            'level': 'INFO',  # shows detailed timing information
         },
         'django.request': {
             'handlers': [],
@@ -245,6 +277,7 @@ LOGGING = {
         },
     },
 }
+
 
 # static assets (CSS, JavaScript, Images)
 # ---------------------------------------
@@ -329,7 +362,8 @@ FILE_CHARSET = 'utf-8'
 TEMPLATES_DIRS = (
     os.path.join(BASE_DIR, 'djaopsp', 'sustainability', 'templates'),
     os.path.join(BASE_DIR, 'djaopsp', 'templates', 'jinja2'),
-    os.path.join(BASE_DIR, 'djaopsp', 'templates'),)
+    os.path.join(BASE_DIR, 'djaopsp', 'templates'),
+)
 
 # List of callables that know how to import templates from various sources.
 TEMPLATES_LOADERS = (
@@ -395,6 +429,29 @@ EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
 EMAILER_BACKEND = 'extended_templates.backends.TemplateEmailBackend'
 MANAGERS = getattr(sys.modules[__name__], 'ADMINS', [])
 
+# Language settings
+# -----------------
+# https://docs.djangoproject.com/en/3.2/topics/i18n/
+LANGUAGE_CODE = 'en-us'
+USE_I18N = True
+USE_L10N = True
+
+LOCALE_PATHS = (os.path.join(BASE_DIR, APP_NAME, 'locale'),)
+
+# Date/time settings
+# ------------------
+# If you set this to False, Django will not use timezone-aware datetimes.
+USE_TZ = True
+
+# Local time zone for this installation. Choices can be found here:
+#   http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
+# although not all choices may be available on all operating systems.
+# In a Windows environment this must be set to your system time zone.
+#
+# We must use UTC here otherwise the date of request in gunicorn access
+# and error logs will be off compared to the dates shown in nginx logs.
+# (see https://github.com/benoitc/gunicorn/issues/963)
+TIME_ZONE = 'UTC'
 
 # Databases
 # ---------
@@ -439,6 +496,12 @@ REST_FRAMEWORK = {
         # is absent.
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'djaopsp.downloads.base.XLSXRenderer',
+#        'djaopsp.downloads.base.CSVDownloadRenderer',
+#        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
     'DEFAULT_PAGINATION_CLASS':
         'djaopsp.pagination.PageNumberPagination',
     'DEFAULT_SCHEMA_CLASS': 'djaopsp.api_docs.schemas.AutoSchema',
@@ -556,6 +619,24 @@ DEPLOYUTILS = {
                 'email': '%s@localhost.localdomain' % APP_NAME
             }
         },
+        'abby': {
+            'username': 'abby',   # Profile manager for verifier
+            'roles': {
+                'manager': [{
+                    'slug': 'desktop-reviewers',
+                    'printable_name': 'Desktop Reviewers',
+                    "subscriptions": [{
+                        "plan": "verification-partners",
+                        "ends_at": "2026-12-31T23:59:59Z"
+                    }],
+                }]},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
+        # Suppliers in various states of onboarding and completion
         'steve': {
             'username': 'steve',   # Profile manager for registered organization
             'last_visited': '2026-01-01T00:00:00.000Z',
@@ -600,23 +681,6 @@ DEPLOYUTILS = {
             'roles': {
                 'viewer': [{'slug': 'supplier-1',
                     'printable_name': 'Steve Shop'}]},
-            'site': {
-                'slug': APP_NAME,
-                'printable_name': APP_NAME,
-                'email': '%s@localhost.localdomain' % APP_NAME
-            }
-        },
-        'abby': {
-            'username': 'abby',   # Profile manager for verifier
-            'roles': {
-                'manager': [{
-                    'slug': 'desktop-reviewers',
-                    'printable_name': 'Desktop Reviewers',
-                    "subscriptions": [{
-                        "plan": "verification-partners",
-                        "ends_at": "2026-12-31T23:59:59Z"
-                    }],
-                }]},
             'site': {
                 'slug': APP_NAME,
                 'printable_name': APP_NAME,
@@ -723,18 +787,6 @@ AUTH_PASSWORD_VALIDATORS = [{
 }]
 
 
-# Internationalization
-# --------------------
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_L10N = True
-USE_TZ = True
-
-LOCALE_PATHS = (os.path.join(BASE_DIR, APP_NAME, 'locale'),)
-
-
 # djaopsp app
 # -----------
 ACCOUNT_MODEL = 'djaopsp.Account'
@@ -777,39 +829,7 @@ SURVEY = {
     'ACCOUNT_URL_KWARG': 'profile',
     'BYPASS_SAMPLE_AVAILABLE': 'djaopsp.utils.is_portfolios_bypass',
     'CONTENT_MODEL': 'pages.PageElement',
-    'DEFAULT_FORCE_FREEZE': DEFAULT_FORCE_FREEZE
+    'DEFAULT_FORCE_FREEZE': DEFAULT_FORCE_FREEZE,
     # Use djaodjin-survey defaults
     # for converting answers units to question units.
 }
-
-
-CONTENT_SECURITY_POLICY = {
-    "DIRECTIVES": {
-        "default-src": [SELF],
-        "script-src": [SELF, UNSAFE_EVAL, NONCE],
-        "style-src": [
-            SELF,
-            UNSAFE_INLINE,
-            # Google Fonts
-            "https://fonts.googleapis.com"
-        ],
-        "img-src": [SELF, "https:", "data:"],
-        "font-src": [
-            SELF,
-            # Google Fonts
-            "https://fonts.gstatic.com"
-        ],
-        "connect-src": [SELF],
-        "frame-src": [SELF],
-        "frame-ancestors": [SELF],
-        "form-action": [SELF],
-        "object-src": [NONE],
-        "base-uri": [SELF],
-        # ace.js editor
-        "worker-src": [SELF, "blob:"],
-    },
-}
-
-
-if UPGRADE_INSECURE_REQUESTS_IN_ASSETS:
-    CONTENT_SECURITY_POLICY["DIRECTIVES"]["upgrade-insecure-requests"] = True
