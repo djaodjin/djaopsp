@@ -37,7 +37,7 @@
         </div>
       </div>
       <div id="newsfeed" v-show="itemsLoaded && items.results.length > 0" v-cloak>
-        <div class="card mb-4" v-for="(assessment, index) in items.results">
+        <div :id="assessment.account + (assessment.slug ? ('-' + assessment.slug) : '')" class="card mb-4" v-for="(assessment, index) in items.results">
           <div class="card-header">
             <div class="row align-items-center">
               <div class="col-2">
@@ -119,7 +119,7 @@ by one of your following co-worker(s):
                    v-if="assessment.view_response_url">{% trans %}View response{% endtrans %}</a>
                 <a :href="assessment.engage_url"
                    v-if="assessment.engage_url">{% trans %}Engage dashboard{% endtrans %}</a>
-                <form :id="assessment.account + '-' + assessment.slug" :action="assessment.update_url" method="post" v-if="assessment.update_url">
+                <form :action="assessment.update_url" method="post" v-if="assessment.update_url">
                   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
                   <button class="btn btn-primary"
                           type="submit"

@@ -2686,5 +2686,43 @@
     "required": true
   },
   "model": "survey.EnumeratedQuestions", "pk": 413
+},
+{
+  "fields": {
+    "path": "/energy-ghg-emissions/ghg-emissions-scope1",
+    "content": 103,
+    "default_unit": 51,
+    "ui_hint": "ghg-emissions",
+    "extra": "{\"tags\":[\"assess-only\"]}"
+  },
+  "model": "survey.question", "pk": 414
+},
+{
+  "fields": {
+    "campaign": 4,
+    "question": 414,
+    "rank": 1,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 414
+},
+{
+  "fields": {
+    "path": "/energy-ghg-emissions/ghg-emissions-scope2",
+    "content": 104,
+    "default_unit": 51,
+    "ui_hint": "ghg-emissions",
+    "extra": "{\"tags\":[\"assess-only\"]}"
+  },
+  "model": "survey.question", "pk": 415
+},
+{
+  "fields": {
+    "campaign": 4,
+    "question": 415,
+    "rank": 2,
+    "required": false
+  },
+  "model": "survey.EnumeratedQuestions", "pk": 415
 }
 ]

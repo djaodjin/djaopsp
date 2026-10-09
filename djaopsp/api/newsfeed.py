@@ -238,10 +238,9 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
 
             assessments += by_campaigns.values()
 
-        if show_all or not assessments:
-            # There are no pending requests or we decided to show all
-            # questionnaires available to a user/profile regardless.
-            # This insures the default questionnaires shows up.
+        if show_all:
+            # We decided to show all questionnaires available to a user/profile
+            # regardless. This insures the default questionnaires shows up.
             account = None
             by_campaigns = OrderedDict()
             if len(self.accounts) == 1:
@@ -287,6 +286,34 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                                 answer__sample=latest_completed).distinct()
 
             assessments += by_campaigns.values()
+
+        elif not assessments:
+            # When a user newly registered, and is not yet associated
+            # to a profile, we might have no pending requests to show
+            # even though the organization the user works for has pending
+            # requests. We thus add a post that will force giving a role
+            # to the user, then redirect to the page showing all pending
+            # requests.
+            title = _("Assess")
+            descr = _("If you were prompted to take, or update, an assessment,"\
+                      " start here.")
+            assessments = []
+            for account in self.accounts:
+                assessments += [{
+                    'title': title,
+                    'descr': descr,
+                    'account': account,
+                    'update_url': reverse('profile_getstarted', args=(account,))
+                }]
+            if not assessments:
+                broker = get_account_model().objects.get(
+                    slug=settings.BROKER_NAME)
+                assessments += [{
+                    'title': title,
+                    'descr': descr,
+                    'account': broker,
+                    'update_url': reverse('getstarted')
+                }]
 
         return assessments
 

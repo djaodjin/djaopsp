@@ -571,6 +571,16 @@
   },
   "model" : "survey.campaign", "pk" : 3
 },
+{ "fields" : {
+    "slug" : "energy-ghg-emissions",
+    "title" : "Energy & GHG Emissions",
+    "created_at": "2026-01-01T00:00:00.000Z",
+    "updated_at": "2026-01-01T00:00:00.000Z",
+    "account": 2,
+    "extra": "{\"visibility\":[\"public\"]}"
+  },
+  "model" : "survey.campaign", "pk" : 4
+},
 {
   "fields": {
     "title": "Core Environment, Social and Governance (ESG) Assessment",
@@ -696,6 +706,21 @@
 },
 {
   "fields": {
+    "title": "Environment, Social & Governance (ESG) Materiality Assessment",
+    "slug": "esg-assessment",
+    "text_updated_at": "2026-01-01T00:00:00.000Z",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 9
+},
+{
+  "fields": {
+    "rank": 2, "orig_element": 2, "dest_element": 9
+  },
+  "model": "pages.RelationShip", "pk": 9
+},
+{
+  "fields": {
     "title": "1.7 Has your company conducted a systematic, rigorous assessment to identify and prioritize material ESG impacts, issues and opportunities?",
     "slug": "systematic-rigorous-assessment",
     "text_updated_at": "2026-01-01T00:00:00.000Z",
@@ -709,6 +734,16 @@
     "rank": 3, "orig_element": 2, "dest_element": 10
   },
   "model": "pages.RelationShip", "pk": 10
+},
+{
+  "fields": {
+    "title": "Energy & GHG Emissions",
+    "slug": "energy-ghg-emissions",
+    "text_updated_at": "2026-01-01T00:00:00.000Z",
+    "extra": "{\"pagebreak\":true,\"tags\":[\"scorecard\",\"assess\"],\"visibility\":[\"public\"]}",
+    "account": 2
+  },
+  "model": "pages.PageElement", "pk": 11
 },
 {
   "fields": {
@@ -757,23 +792,6 @@
     "orig_element": 2, "dest_element": 15
   },
   "model": "pages.RelationShip", "pk": 15
-},
-
-
-{
-  "fields": {
-    "title": "Environment, Social & Governance (ESG) Materiality Assessment",
-    "slug": "esg-assessment",
-    "text_updated_at": "2026-01-01T00:00:00.000Z",
-    "account": 2
-  },
-  "model": "pages.PageElement", "pk": 9
-},
-{
-  "fields": {
-    "rank": 2, "orig_element": 2, "dest_element": 9
-  },
-  "model": "pages.RelationShip", "pk": 9
 },
 
 {

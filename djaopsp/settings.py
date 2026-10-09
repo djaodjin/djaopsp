@@ -743,7 +743,40 @@ DEPLOYUTILS = {
                 'printable_name': APP_NAME,
                 'email': '%s@localhost.localdomain' % APP_NAME
             }
-        }
+        },
+        'steve6': {
+            'username': 'steve6',
+            'email': 'steve6@profile6.localhost.localdomain',
+            'last_visited': '2026-01-01T00:00:00.000Z',
+            'roles': {},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
+        'steve7': {
+            'username': 'steve7',
+            'email': 'steve7@profile7.localhost.localdomain',
+            'last_visited': '2026-01-01T00:00:00.000Z',
+            'roles': {},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
+        'steve8': {
+            'username': 'steve8',
+            'email': 'steve7@profile8.localhost.localdomain',
+            'last_visited': '2026-01-01T00:00:00.000Z',
+            'roles': {},
+            'site': {
+                'slug': APP_NAME,
+                'printable_name': APP_NAME,
+                'email': '%s@localhost.localdomain' % APP_NAME
+            }
+        },
     },
     'ALLOWED_NO_SESSION': [
         STATIC_URL,

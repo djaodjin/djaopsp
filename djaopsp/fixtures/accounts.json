@@ -259,5 +259,17 @@
     "full_name": "S4 - Onboarding (Test)"
   },
   "model" : "djaopsp.account", "pk" : 104
+},
+{ "fields" : {
+    "slug": "supplier-6-onboarding",
+    "full_name": "S6 - Onboarding (Test)"
+  },
+  "model" : "djaopsp.account", "pk" : 106
+},
+{ "fields" : {
+    "slug": "supplier-7-onboarding",
+    "full_name": "S7 - Onboarding (Test)"
+  },
+  "model" : "djaopsp.account", "pk" : 107
 }
 ]
