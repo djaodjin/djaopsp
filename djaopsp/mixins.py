@@ -231,7 +231,7 @@ class DashboardsAvailableQuerysetMixin(AccountMixin):
             self._dashboards_available = Campaign.objects.filter(
                 Q(portfolios__grantee=self.account) |
                 Q(portfolio_double_optins__grantee=self.account) |
-                Q(account__slug=self.account)).distinct()
+                Q(account=self.account)).distinct()
         return self._dashboards_available
 
     def get_queryset(self):

@@ -6,6 +6,7 @@ import io, json, logging, re
 from deployutils.apps.django_deployutils.templatetags.deployutils_prefixtags import (
     site_url)
 from deployutils.helpers import update_context_urls
+from django.conf import settings as django_settings
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -53,7 +54,7 @@ class DashboardRedirectView(DashboardsAvailableQuerysetMixin,
         is_broker = False
         site = request.session.get('site')
         if site:
-            is_broker = bool(self.account.slug == site.get('slug'))
+            is_broker = bool(self.account.slug == django_settings.BROKER_NAME)
 
         if is_broker:
             # Dashboard looks quite different for broker
