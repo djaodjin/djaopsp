@@ -76,13 +76,15 @@ class VerificationListAPIView(CampaignMixin, AccountMixin,
 
     def get_queryset(self):
         queryset = Sample.objects.filter(
+            is_frozen=True, extra__isnull=True,
             verified__verifier_notes__campaign=self.campaign,
             verified__verifier_notes__account=self.account).annotate(
                 last_completed_at=models.F('created_at'),
                 account_slug=models.F('account__slug'),
                 printable_name=models.F('account__full_name'),
                 email=models.F('account__email'),
-                segment=models.F('campaign__title')).select_related('verified')
+                segment=models.F('campaign__title')).select_related(
+                'verified').order_by('-created_at')
         return queryset
 
     def decorate_queryset(self, queryset):

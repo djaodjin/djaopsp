@@ -14,7 +14,8 @@ from pages.mixins import (TrailMixin,
 from survey.helpers import datetime_or_now, get_extra
 from survey.mixins import (CampaignMixin as CampaignMixinBase,
     DateRangeContextMixin, SampleMixin)
-from survey.models import Answer, Campaign, Sample
+from survey.models import (Answer, Campaign, Portfolio, PortfolioDoubleOptIn,
+    Sample)
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import get_question_model, get_engaged_accounts
 
@@ -228,10 +229,18 @@ class DashboardsAvailableQuerysetMixin(AccountMixin):
         """
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_dashboards_available'):
+            campaigns_in_portfolios = set(Portfolio.objects.filter(
+                grantee=self.account).values_list(
+                'campaign_id', flat=True).distinct())
+            campaigns_in_requests = set(PortfolioDoubleOptIn.objects.filter(
+                grantee=self.account).values_list(
+                    'campaign_id', flat=True).distinct())
+            campaigns_owned = set(Campaign.objects.filter(
+                account=self.account).values_list(
+                    'id', flat=True).distinct())
             self._dashboards_available = Campaign.objects.filter(
-                Q(portfolios__grantee=self.account) |
-                Q(portfolio_double_optins__grantee=self.account) |
-                Q(account=self.account)).distinct()
+                pk__in=(campaigns_in_portfolios | campaigns_in_requests |
+                        campaigns_owned))
         return self._dashboards_available
 
     def get_queryset(self):

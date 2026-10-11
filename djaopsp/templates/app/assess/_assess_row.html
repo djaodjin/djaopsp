@@ -514,17 +514,6 @@
         <option value="{{option.text}}">{{option.descr}}</option>
         {% endfor %}
     </select>
-    <select class="form-control form-select"
-            v-model="getAnswerByUnit(practice, 'supporting-document').measured"
-            value=""
-            @blur="updateAssessmentAnswer(practice, getAnswerByUnit(practice, 'supporting-document'), '{{assess_type}}')"
-            :disabled="practice.frozen"
-            aria-label="Type of supporting documents">
-      <option v-if="getAnswerByUnit(practice, 'supporting-document').measured == null" disabled :value="null">{% trans %}Select supporting document ...{% endtrans %}</option>
-      {% for option in units.supporting_document %}
-      <option value="{{option.text}}">{{option.descr}}</option>
-      {% endfor %}
-    </select>
   </div>
 
   {# when question.unit.system is 'enum' and UI hint computes to 'radio' #}
