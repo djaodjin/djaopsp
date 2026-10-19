@@ -34,97 +34,7 @@
 
             <form @submit.prevent="activateSelectAccounts">
               <fieldset :disabled="datasetLoading">
-                <practice-typeahead inline-template ref="metric"
-                                    v-on:selectitem="selectMetric">
-                  <div>
-                    <label class="form-label mt-2">{% trans %}Questionnaire{% endtrans %} ...</label>
-                    <campaign-typeahead inline-template
-                                    v-on:selectitem="selectCampaign">
-                      <div class="input-group mb-3">
-                        <span class="input-group-text">
-                        <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
-                        <template v-else>
-                          <i class="fa-solid fa-search" v-show="isEmpty"></i>
-                          <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
-                        </template>
-                        </span>
-                        <input class="form-control"
-                          type="text"
-                          placeholder="{% trans %}Enter campaign{% endtrans %}"
-                          autocomplete="off"
-                          v-model="query"
-                          @keydown.down="down"
-                          @keydown.up="up"
-                          @keydown.enter.prevent="hit"
-                          @blur="clear"
-                          @input="update"
-                          ref="input"></input>
-                        <button  class="input-group-text"
-                          role="button" href="#"
-                          @click.prevent="resetAndReload"
-                          aria-haspopup="true"
-                          aria-expanded="false">
-                          <i class="fa-solid fa-caret-down"></i>
-                        </button>
-                    {# Implementation note: If we use `d-block` instead of    #}
-                    {# `style="display: block;"` the dropdown shows even when #}
-                    {# `hasItems` is `False`.                                 #}
-                        <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
-                            style="max-height: 250px;" role="menu">
-                          <li v-for="(item, idx) in items" class="nav-item"
-                              @mousedown="hit"
-                              @mousemove="setActive(idx)">
-                            <a :class="'nav-link px-3 py-2' + activeClass(idx)"
-                               v-html="highlightQuery(item.title)"></a>
-                          </li>
-                        </ul>
-                      </div>
-                    </campaign-typeahead>
-                    <label class="form-label mt-2">{% trans %}Which question are you interested in?{% endtrans %} ...</label>
-                    <div class="input-group mb-3">
-                      <span class="input-group-text">
-                        <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
-                        <template v-else>
-                          <i class="fa-solid fa-search" v-show="isEmpty"></i>
-                          <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
-                        </template>
-                      </span>
-                      <input class="form-control"
-                        type="text"
-                        placeholder="{% trans %}Enter question{% endtrans %}"
-                        autocomplete="off"
-                        v-model="query"
-                        @keydown.down="down"
-                        @keydown.up="up"
-                        @keydown.enter.prevent="hit"
-                        @blur="clear"
-                        @input="update"
-                        ref="input"></input>
-                      <button  class="input-group-text"
-                        role="button" href="#"
-                        @click.prevent="resetAndReload"
-                        aria-haspopup="true"
-                        aria-expanded="false">
-                        <i class="fa-solid fa-caret-down"></i>
-                      </button>
-                    {# Implementation note: If we use `d-block` instead of    #}
-                    {# `style="display: block;"` the dropdown shows even when #}
-                    {# `hasItems` is `False`.                                 #}
-                      <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
-                        style="max-height: 250px;" role="menu">
-                        <li v-for="(item, idx) in items" class="nav-item"
-                          @mousedown="hit"
-                          @mousemove="setActive(idx)">
-                          <div :class="indentHeader(item)"
-                               v-if="!isPractice(item)">[[item.title]]</div>
-                          <a :class="'nav-link px-3 py-2' + activeClass(idx)"
-                             v-html="highlightQuery(item.title)"
-                             v-if="isPractice(item)"></a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </practice-typeahead>
+                {% include "app/reporting/_select_practice.html" %}
                 <div v-show="displayMetric.path">
                   <p>
 {% trans %}Optionally filter responses that fall in a specific range, and aggregate them by period.{% endtrans %}
@@ -174,6 +84,8 @@
 
             <!-- individual accounts -->
             <query-individual-account inline-template
+              data-humanize-date="humanizeDate"
+              data-url="{% if urls.api_query_individual_account_samples %}{{urls.api_query_individual_account_samples}}{% endif %}"
               v-bind:disabled="datasetLoading"
               v-bind:campaign="displayMetric.campaign"
               v-bind:prefix="displayMetric.path"
@@ -187,8 +99,8 @@
                       @submit.prevent="validate()">
                   <fieldset :disabled="disabled">
                   <account-typeahead inline-template ref="account"
-                      v-on:selectitem="selectAccount"
-                      data-url="{{urls.api_account_candidates}}">
+                      data-url="{{urls.api_account_candidates}}"
+                      v-on:selectitem="selectAccount">
                     <div class="input-group mb-3">
                       <span class="input-group-text">
                         <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
@@ -197,9 +109,10 @@
                          <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
                        </template>
                       </span>
-                      <input class="form-control"
+                      <input name="profile"
+                            class="form-control"
                             type="text"
-                            placeholder="{% trans %}Enter profile name{% endtrans %}"
+                            placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
                             autocomplete="off"
                             v-model="query"
                             @keydown.down="down"
@@ -207,33 +120,24 @@
                             @keydown.enter.prevent="hit"
                             @blur="clear"
                             @input="update"></input>
-                    {# Implementation note: If we use `d-block` instead of    #}
-                    {# `style="display: block;"` the dropdown shows even when #}
-                    {# `hasItems` is `False`.                                 #}
-                      <ul class="dropdown-menu nav-pills p-1 top-100"
-                          style="display: block;"
+                      <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+                          style="max-height: 250px;"
                           v-show="hasItems">
                         <li v-for="(item, $item) in items" class="nav-item"
                             @mousedown="hit"
-                            @mousemove="setActive($item)">
-                          <a :class="'nav-link px-3 py-2' + activeClass($item)" v-text="item.printable_name"></a>
+                            @mousemove="setActive($item)"
+                            v-if="item.printable_name">
+                          <a :class="'nav-link px-3 py-2' + activeClass($item)">
+                            <dl>
+                              <dd v-html="highlightQuery(item.printable_name)"></dd>
+                            </dl>
+                          </a>
                         </li>
                       </ul>
                     </div>
                   </account-typeahead>
-                  <div v-show="hasAccount && !hasSamples">
-{% trans %}There is no data available for this profile.{% endtrans %}
-                  </div>
-                  <div v-show="hasAccount && hasSamples">
-                    <label class="form-label">
-                        {% trans %}Pick a response{% endtrans %}
-                    </label>
-                    <select class="form-control form-select"
-                        v-model="selectedSample">
-                      <option :value="rank" v-for="(sample, rank) in samples">[[sample.title]]</option>
-                    </select>
-                    <div class="form-actions mt-2"
-                         v-show="selectedSample >= 0">
+                  <div v-show="hasAccount">
+                    <div class="form-actions mt-2">
                       <button class="btn btn-primary w-100"
                               type="submit">
                         <i class="fa-solid fa-spinner fa-spin" v-show="disabled"></i>
@@ -381,7 +285,7 @@
             </query-group-accounts>
 
             <!-- select accounts by affinity -->
-            <query-accounts-by-extended-affinity inline-template
+            <query-accounts-by-affinity inline-template
                 v-bind:disabled="datasetLoading"
                 v-bind:campaign="displayMetric.campaign"
                 v-bind:prefix="displayMetric.path"
@@ -389,6 +293,7 @@
                 v-bind:ends-at="_ends_at"
                 v-bind:period="periodType"
                 v-on:updatedataset="addDataset"
+                data-affinity-filter-url="{{urls.api_affinity_filter}}"
                 v-show="queryType == 'accounts-by-affinity'">
               <div>
                 <form id="accounts-by-affinity"
@@ -399,8 +304,7 @@
                       <option value="all">{% trans %}All{% endtrans %}</option>
                       <option value="engaged">{% trans %}Engaged{% endtrans %}</option>
                       <option value="accessibles">{% trans %}Tracked{% endtrans %}</option>
-                      <option :value="'subscribed-' + plan.slug" v-for="plan in plans">{% trans plan='[[plan.title]]' %}{{plan}}{% endtrans %}</option>
-                      <option :value="'federated-' + alliance.slug"  v-for="alliance in alliances">{% trans alliance='[[alliance.title]]' %}Federated through {{alliance}}{% endtrans %}</option>
+                      <option :value="affinity.slug" v-for="affinity in affinityFilters">[[affinity.title]]</option>
                     </select>
 
                     <div>
@@ -421,7 +325,7 @@
                   </fieldset>
                 </form>{# /#accounts-by-affinity #}
               </div>
-            </query-accounts-by-extended-affinity>
+            </query-accounts-by-affinity>
 
             <!-- select accounts by answers -->
             <query-accounts-by-answers inline-template
@@ -465,6 +369,7 @@
                             <option value="all">{% trans %}All{% endtrans %}</option>
                             <option value="engaged">{% trans %}Engaged{% endtrans %}</option>
                             <option value="accessibles">{% trans %}Tracked{% endtrans %}</option>
+                            <option :value="affinity.slug" v-for="affinity in affinityFilters">[[affinity.title]]</option>
                         </select>
                       </div>
                       <label class="control-label mt-2">{% trans %}Question/answers to select profiles{% endtrans %}</label>
@@ -701,7 +606,7 @@ You can find tutorials to get started with the analyze dashboard
             {% include "_pagination.html" %}
           </div>
 
-          <div v-show="visualize === 'chart' && !showNoAnalysisData" v-cloak>
+          <div :id="displayMetric.slug" v-show="visualize === 'chart' && !showNoAnalysisData" v-cloak>
             <h2 class="text-center mt-2">[[displayMetric.title]] ([[params.unit == 'percentage' ? '%' : 'Nb']])</h2>
             <h3 class="text-center"><span v-show="datasets.length > 1">{% trans %}left to right{% endtrans %}:</span>[[circleLabels]]</h3>
             <div>

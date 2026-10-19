@@ -1,0 +1,93 @@
+<practice-typeahead inline-template ref="metric"
+                    v-on:selectitem="selectMetric">
+  <div>
+    <label class="form-label mt-2">{% trans %}Questionnaire{% endtrans %} ...</label>
+    <campaign-typeahead inline-template
+                        v-on:selectitem="selectCampaign">
+      <div class="input-group mb-3">
+        <span class="input-group-text">
+          <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
+          <template v-else>
+            <i class="fa-solid fa-search" v-show="isEmpty"></i>
+            <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
+          </template>
+        </span>
+        <input class="form-control"
+               type="text"
+               placeholder="{% trans %}Enter campaign{% endtrans %}"
+               autocomplete="off"
+               name="campaign"
+               v-model="query"
+               @keydown.down="down"
+               @keydown.up="up"
+               @keydown.enter.prevent="hit"
+               @blur="clear"
+               @input="update"
+               ref="input"></input>
+        <button  class="input-group-text"
+                 role="button" href="#"
+                 @click.prevent="resetAndReload"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+            <i class="fa-solid fa-caret-down"></i>
+        </button>
+        {# Implementation note: If we use `d-block` instead of    #}
+        {# `style="display: block;"` the dropdown shows even when #}
+        {# `hasItems` is `False`.                                 #}
+        <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+            style="max-height: 250px;" role="menu">
+            <li v-for="(item, idx) in items" class="nav-item"
+                @mousedown="hit"
+                @mousemove="setActive(idx)">
+                <a :class="'nav-link px-3 py-2' + activeClass(idx)"
+                   v-html="highlightQuery(item.title)"></a>
+            </li>
+        </ul>
+      </div>
+    </campaign-typeahead>
+    <label class="form-label mt-2">{% trans %}Which question are you interested in?{% endtrans %} ...</label>
+    <div class="input-group mb-3">
+        <span class="input-group-text">
+            <i class="fa-solid fa-spinner fa-spin" v-if="loading"></i>
+            <template v-else>
+                <i class="fa-solid fa-search" v-show="isEmpty"></i>
+                <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
+            </template>
+        </span>
+        <input class="form-control"
+               type="text"
+               placeholder="{% trans %}Enter question{% endtrans %}"
+               autocomplete="off"
+               name="question"
+               v-model="query"
+               @keydown.down="down"
+               @keydown.up="up"
+               @keydown.enter.prevent="hit"
+               @blur="clear"
+               @input="update"
+               ref="input"></input>
+        <button  class="input-group-text"
+                 role="button" href="#"
+                 @click.prevent="resetAndReload"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+            <i class="fa-solid fa-caret-down"></i>
+        </button>
+        {# Implementation note: If we use `d-block` instead of    #}
+        {# `style="display: block;"` the dropdown shows even when #}
+        {# `hasItems` is `False`.                                 #}
+        <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+            style="max-height: 250px;" role="menu">
+            <li v-for="(item, idx) in items" class="nav-item"
+                @mousedown="hit"
+                @mousemove="setActive(idx)">
+                <div :class="indentHeader(item)"
+                     v-if="!isPractice(item)">[[item.title]]</div>
+                <a :class="'nav-link px-3 py-2' + activeClass(idx)"
+                   v-html="highlightQuery(item.title)"
+                   v-if="isPractice(item)"></a>
+            </li>
+        </ul>
+    </div>
+  </div>
+</practice-typeahead>

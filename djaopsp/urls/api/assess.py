@@ -1,4 +1,4 @@
-# Copyright (c) 2023, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 
 """
@@ -36,7 +36,7 @@ urlpatterns = [
         name='survey_api_sample_list'),
     path('', include('survey.urls.api.accounts.samples')),
     path('', include('survey.urls.api.accounts.metrics')),
-    path('', include('survey.urls.api.accounts.filters')),
+    path('', include('djaopsp.urls.api.filters')),
     path('assets/<path:path>',
         AssetAPIView.as_view(), name='pages_api_asset'),
     path('', include('pages.urls.api.assets')),

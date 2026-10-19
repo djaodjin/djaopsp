@@ -491,7 +491,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
           "count": 4,
           "results": [
             {
-              "count": 1,
               "slug": "sustainability",
               "path": "/sustainability",
               "indent": 0,
@@ -518,7 +517,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "governance",
               "path": "/sustainability/governance",
               "indent": 1,
@@ -529,7 +527,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
                   "/sustainability"
                 ]
               },
-              "count": 1,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -539,7 +536,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "esg-strategy-heading",
               "path": "/sustainability/governance/esg-strategy-heading",
               "indent": 2,
@@ -559,7 +555,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "formalized-esg-strategy",
               "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
               "indent": 3,
@@ -688,7 +683,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
           "count": 4,
           "results": [
             {
-              "count": 1,
               "slug": "sustainability",
               "path": "/sustainability",
               "indent": 0,
@@ -715,7 +709,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "governance",
               "path": "/sustainability/governance",
               "indent": 1,
@@ -735,7 +728,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "esg-strategy-heading",
               "path": "/sustainability/governance/esg-strategy-heading",
               "indent": 2,
@@ -755,7 +747,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "formalized-esg-strategy",
               "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
               "indent": 3,
@@ -1191,7 +1182,10 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
         .. code-block:: json
 
             {
-              "email": "steve@example.com"
+              "accounts": [{
+                "slug": "steve",
+                "email": "steve@example.com"
+              }]
             }
 
         responds
@@ -1199,7 +1193,10 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
         .. code-block:: json
 
             {
-              "email": "steve@example.com"
+              "accounts": [{
+                "slug": "steve",
+                "email": "steve@example.com"
+              }]
             }
         """
         return self.create(request, *args, **kwargs)

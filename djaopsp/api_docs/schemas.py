@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE
 """
 OpenAPI schema generator
@@ -18,6 +18,7 @@ from rest_framework.schemas.generators import EndpointEnumerator
 from drf_spectacular.openapi import AutoSchema as BaseAutoSchema
 from drf_spectacular.generators import SchemaGenerator
 from survey.api.serializers import NoModelSerializer
+from survey.pagination import ChoicesPagination
 
 from ..compat import gettext_lazy as _, URLPattern, URLResolver, six
 from ..notifications import signals as notification_signals
@@ -427,6 +428,20 @@ class AutoSchema(BaseAutoSchema):
                     results = serializer_class(many=hasattr(view, 'list'),
                         help_text=_("items in the queryset"))
                 serializer_class = BenchmarksPaginationAPISerializer
+
+            elif issubclass(view.pagination_class, ChoicesPagination):
+                class ChoicesPaginationAPISerializer(NoModelSerializer):
+                    slug = serializers.CharField(required=True,
+                        help_text=_("unique identifier for the Unit"))
+                    title = serializers.CharField(required=True,
+                        help_text=_("title for the Unit"))
+                    system = serializers.CharField(required=True,
+                        help_text=_("one of {'standard', 'imperial',"\
+" 'rank', 'enum', 'freetext', 'datetime'}"))
+                    results = serializer_class(many=hasattr(view, 'list'),
+                        help_text=_("items in the queryset"))
+                serializer_class = ChoicesPaginationAPISerializer
+
             else:
                 class APISerializer(NoModelSerializer):
                     count = serializers.IntegerField(

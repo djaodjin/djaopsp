@@ -37,40 +37,24 @@ class BenchmarksExportAPIView(generics.CreateAPIView):
         .. code-block:: json
 
             {
-                "title": "All",
-                "scale": 1,
-                "unit": "profiles",
-                "labels": null,
-                "results": [
-                    {
-        "path": "/sustainability/esg-strategy-heading/formalized-esg-strategy",
-        "title": "Does your company have a formalized ESG strategy?",
-                        "default_unit": {
-                            "slug": "yes-no",
-                            "title": "Yes/No",
-                            "system": "enum",
-                            "choices": []
-                        },
-                        "ui_hint": null,
-                        "benchmarks": [
-                            {
-                                "slug": "all",
-                                "title": "All",
-                                "values": [
-                                    [
-                                        "No",
-                                        642
-                                    ],
-                                    [
-                                        "Yes",
-                                        686
-                                    ]
-                                ]
-                            }
-                        ]
-                    }
+                "title": "Sustainability Strategy",
+                "benchmarks": [
+                  {
+                    "slug": "all",
+                    "title": "All",
+                    "values": [
+                      ["No", 642],
+                      ["Yes",686]
+                    ]
+                  }
                 ]
             }
+
+        responds
+
+        .. code-block:: json
+
+            {}
         """
         return self.create(request, *args, **kwargs)
 

@@ -117,6 +117,18 @@
             aria-label="{% trans %}Why is this section locked?{% endtrans %}"><i class="fa-solid fa-lock"></i></button>
     {% endif %}
   </li>
+
+  <li id="suppliers-scorecards" class="nav-item{% if not urls.scorecards %} d-flex align-items-center{% endif %}">
+    <a class="nav-link{% if request.path == urls.scorecards %}  active{% endif %}{% if not urls.scorecards %} disabled{% endif %}" {% if urls.scorecards %}href="{{urls.scorecards}}"{% endif %}>
+      <span class="ps-1">{% trans %}Compare{% endtrans %}</span>
+    </a>
+    {% if not urls.scorecards %}
+    <button class="nav-link p-0" type="button"
+            data-bs-toggle="modal" data-bs-target="#lock-description"
+            aria-label="{% trans %}Why is this section locked?{% endtrans %}"><i class="fa-solid fa-lock"></i></button>
+    {% endif %}
+  </li>
+
 </ul>
 <hr class="my-1" />
 

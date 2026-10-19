@@ -537,7 +537,7 @@
 
 { "fields" : {
     "slug" : "sustainability",
-    "title" : "ESG/Environmental practices",
+    "title" : "Sustainability Practices",
     "created_at": "2026-01-01T00:00:00.000Z",
     "updated_at": "2026-01-01T00:00:00.000Z",
     "description" : "Assess your organization's environmental, social and governance policies against best practices.",
@@ -563,7 +563,7 @@
 },
 { "fields" : {
     "slug" : "sustainability-verified",
-    "title" : "Verification of ESG/Environmental practices",
+    "title" : "Verification of Sustainability Practices",
     "created_at": "2026-01-01T00:00:00.000Z",
     "updated_at": "2026-01-01T00:00:00.000Z",
     "account": 19,
@@ -609,7 +609,7 @@
 },
 {
   "fields": {
-    "title": "1.1 Does your company have a formalized ESG strategy and performance targets that: 1/ Define a future vision of ESG performance, 2/ Are clear, actionable, and achievable, 3/ Are resourced effectively, 4/ Address material issues for the business?",
+    "title": "Has your company established a documented sustainability strategy with defined performance targets?",
     "slug": "formalized-esg-strategy",
     "text_updated_at": "2026-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",
@@ -674,7 +674,7 @@
 },
 {
   "fields": {
-    "title": "1.5 If yes, Does your company report externally on strategy: program elements, key ESG issues and goals, challenges, resiliency, and continual improvement efforts in accordance with a reputable reporting standard (e.g. GRI, SASB, TCFD)?",
+    "title": "Does your company report externally on strategy: program elements, key environmental, social and governance issues, goals, challenges, resiliency, and continual improvement efforts in accordance with a reputable reporting standard (e.g. GRI, SASB, TCFD)?",
     "slug": "report-externally",
     "text_updated_at": "2026-01-01T00:00:00.000Z",
     "picture": "/static/img/management-basics.png",

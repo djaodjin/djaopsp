@@ -155,15 +155,16 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
             update_context_urls(context, {
                 'portfolio_engage': reverse('portfolio_engage',
                     args=(self.account,)),
-                'portfolio_track': reverse('portfolio_track',
-                    args=(self.account,)),
-                'portfolio_insights': reverse('portfolio_insights',
-                    args=(self.account,)),
                 'compare': reverse('reporting_insights_compare',
                     args=(self.account,)),
                 'analyze': reverse('reporting_insights_analyze',
                     args=(self.account,)),
             })
+            if settings.FEATURES_DEBUG:
+                update_context_urls(context, {
+                    'scorecards': reverse('reporting_scorecard',
+                        args=(self.account,)),
+                })
         if self.unlock_editors:
             update_context_urls(context, {
                 'pages_editables_index': reverse(

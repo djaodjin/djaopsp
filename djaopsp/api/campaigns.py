@@ -97,11 +97,21 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
     def get_queryset(self):
         #pylint:disable=too-many-locals,too-many-statements
         #pylint:disable=too-many-nested-blocks
+        query_path = None
         by_tiles = OrderedDict()
         strip_segment_prefix = self.strip_segment_prefix
         if self.db_path and self.db_path != DB_PATH_SEP:
             strip_segment_prefix = True
-            slug = self.db_path.split(DB_PATH_SEP)[-1]
+            question_model = get_question_model()
+            try:
+                question = question_model.objects.get(path=self.db_path)
+                query_path = self.db_path
+                segment_prefix = DB_PATH_SEP.join(
+                    query_path.split(DB_PATH_SEP)[:-1])
+            except question_model.DoesNotExist:
+                question = None
+                segment_prefix = self.db_path
+            slug = segment_prefix.split(DB_PATH_SEP)[-1]
             try:
                 queryset = PageElement.objects.filter(slug=slug)
                 element = queryset.get()
@@ -114,7 +124,7 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
                 pass
             segments = [{
                 'indent': 0,
-                'path': self.db_path,
+                'path': segment_prefix,
                 'slug': element.slug,
                 'title': element.title,
                 'extra': extra,
@@ -130,8 +140,12 @@ class CampaignDecorateMixin(TimersMixin, CampaignMixin):
                 queryset = self.get_decorated_questions(segment_prefix)
                 for question in queryset:
                     path = question.get('path')
+                    if query_path and query_path != path:
+                        continue
                     path = path[len(segment_prefix):].strip(DB_PATH_SEP)
                     parts = path.split(DB_PATH_SEP) if path else []
+                    if not parts:
+                        continue
                     if strip_segment_prefix:
                         prefix = ''
                     else:
@@ -572,33 +586,43 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
                 "results": [
                     {
                         "path": null,
+                        "slug": "construction",
+                        "lang": "en",
                         "title": "Construction",
                         "tags": ["public"],
                         "indent": 0
                     },
                     {
                       "path": null,
+                      "slug": "governance-management",
+                      "lang": "en",
                       "title": "Governance & management",
                       "picture": "https://assets.tspproject.org/management.png",
                       "indent": 1
                     },
                     {
-                        "path": "/construction/governance/the-assessment\
+                      "path": "/construction/governance/the-assessment\
     -process-is-rigorous",
-                        "title": "The assessment process is rigorous",
-                        "indent": 2
+                      "slug": "the-assessment-process-is-rigorous",
+                      "lang": "en",
+                      "title": "The assessment process is rigorous",
+                      "indent": 2
                     },
                     {
                       "path": null,
+                      "slug": "production",
+                      "lang": "en",
                       "title": "Production",
                       "picture": "https://assets.tspproject.org/production.png",
                       "indent": 1
                     },
                     {
-                        "path": "/construction/production/adjust-air-fuel\
+                      "path": "/construction/production/adjust-air-fuel\
     -ratio",
-                        "title": "Adjust Air fuel ratio",
-                        "indent": 2
+                      "slug": "adjust-air-fuel-ratio",
+                      "lang": "en",
+                      "title": "Adjust Air fuel ratio",
+                      "indent": 2
                     }
                 ]
             }
@@ -636,6 +660,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
         .. code-block:: json
 
             {
+              "slug": "adjust-air-fuel-ratio",
               "title": "Adjust air/fuel ratio",
               "parents": []
             }
@@ -759,10 +784,10 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
                 "count": 5,
                 "results": [
                     {
-                        "path": null,
-                        "title": "Construction",
-                        "tags": ["public"],
-                        "indent": 0
+                      "path": null,
+                      "title": "Construction",
+                      "tags": ["public"],
+                      "indent": 0
                     },
                     {
                       "path": null,
@@ -772,8 +797,8 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
                     },
                     {
          "path": "/construction/governance/the-assessment-process-is-rigorous",
-                        "title": "The assessment process is rigorous",
-                        "indent": 2
+                      "title": "The assessment process is rigorous",
+                      "indent": 2
                     },
                     {
                       "path": null,
@@ -782,9 +807,9 @@ class CampaignUploadAPIView(CampaignContentMixin, TrailMixin,
                       "indent": 1
                     },
                     {
-                       "path": "/construction/production/adjust-air-fuel-ratio",
-                       "title": "Adjust Air fuel ratio",
-                       "indent": 2
+                      "path": "/construction/production/adjust-air-fuel-ratio",
+                      "title": "Adjust Air fuel ratio",
+                      "indent": 2
                     }
                 ]
             }

@@ -33,7 +33,7 @@ class VerificationListAPIView(CampaignMixin, AccountMixin,
 
     .. code-block:: http
 
-        GET /api/energy-utility/reporting/sustainability-verified/notes HTTP/1.1
+        GET /api/desktop-verifiers/reporting/sustainability-verified/notes HTTP/1.1
 
     responds
 
@@ -43,32 +43,29 @@ class VerificationListAPIView(CampaignMixin, AccountMixin,
           "count": 1,
           "next": null,
           "previous": null,
-          "results": [
-              {
-                "grantee": "energy-utility",
-                "account": "supplier-1",
-                "campaign": "sustainability",
-                "created_at": "2022-01-01T00:00:00Z",
-                "ends_at": "2023-01-01T00:00:00Z",
-                "state": "request-denied",
-                "api_accept": null,
-                "reporting_status": "completed",
-                "last_activity_at": "2022-11-01T00:00:00Z",
-                "requested_at": "2022-01-01T00:00:00Z"
-              },
-              {
-                "grantee": "energy-utility",
-                "account": "andy-shop",
-                "campaign": "sustainability",
-                "created_at": "2022-01-01T00:00:00Z",
-                "ends_at": "2023-01-01T00:00:00Z",
-                "state": "request-accepted",
-                "api_accept": null,
-                "reporting_status": "completed",
-                "last_activity_at": "2022-11-01T00:00:00Z",
-                "requested_at": "2022-01-01T00:00:00Z"
-              }
-          ]
+          "results": [{
+            "slug": "supplier-1",
+            "printable_name": "Supplier 1",
+            "email": "supplier-1@tspproject.org",
+            "requested_at": null,
+            "reporting_status": "Not started",
+            "last_completed_at": "2026-01-22T17:45:17.951642Z",
+            "segment": "Sustainability Practices",
+            "score_url": "https://example.com/app/desktop-verifiers/scorecard/32c7086aab894c479c59a56cd12bded7/",
+            "notes_url": "https://example.com/api/desktop-verifiers/sample/32c7086aab894c479c59a56cd12bded7/notes",
+            "normalized_score": null,
+            "nb_na_answers": null,
+            "reporting_publicly": null,
+            "reporting_fines": null,
+            "reporting_energy_consumption": null,
+            "reporting_ghg_generated": null,
+            "reporting_water_consumption": null,
+            "reporting_waste_generated": null,
+            "nb_planned_improvements": null,
+            "tags": [],
+            "verified_status": "review-completed",
+            "verified_by": "katheryn"
+          }]
         }
     """
     # Implementation is very close to `CompletedAssessmentsMixin`.

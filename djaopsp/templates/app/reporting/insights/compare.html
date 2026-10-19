@@ -24,8 +24,8 @@
           <form id="individual-account-search" class="mt-4"
                 @submit.prevent="validate()">
             <fieldset :disabled="disabled">
-              <account-typeahead id="profile-query"
-                            inline-template ref="account"
+              <account-typeahead inline-template ref="account"
+                            id="profile-query"
                             data-url="{{urls.api_account_candidates}}"
                             v-on:selectitem="selectAccount">
                 <div>
@@ -37,19 +37,18 @@
                         <i class="fa-solid fa-times" v-show="isDirty" @click="reset"></i>
                       </template>
                     </span>
-                    <input autofocus
+                    <input name="profile" ref="input"
                            class="form-control"
                            type="text"
-                           name="profile"
                            placeholder="{% trans %}Profile name or e-mail address ...{% endtrans %}"
                            autocomplete="off"
+                           autofocus
                            v-model="query"
                            @keydown.down="down"
                            @keydown.up="up"
                            @keydown.enter.prevent="hit"
                            @blur="clearAndForget"
-                           @input="update"
-                           ref="input"/>
+                           @input="update"></input>
                     <button  class="input-group-text"
                              role="button" href="#"
                              @click.prevent="resetAndReload"
@@ -57,14 +56,13 @@
                              aria-expanded="false">
                         <i class="fa-solid fa-caret-down"></i>
                     </button>
-                    {# Implementation note: If we use `d-block` instead of    #}
-                    {# `style="display: block;"` the dropdown shows even when #}
-                    {# `hasItems` is `False`.                                 #}
-                    <ul id="candidateList" :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+                    <ul :class="'dropdown-menu nav-pills p-1 top-100 overflow-scroll' + (hasItems ? ' show' : '')"
+                        id="candidateList"
                         style="max-height: 250px;">
                       <li v-for="(item, $item) in items" class="nav-item"
                           @mousedown="hit"
-                          @mousemove="setActive($item)" v-if="item.printable_name">
+                          @mousemove="setActive($item)"
+                          v-if="item.printable_name">
                         <a :class="'nav-link px-3 py-2' + activeClass($item)">
                           <dl>
                             <dd v-html="highlightQuery(item.printable_name)"></dd>
