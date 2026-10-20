@@ -410,6 +410,7 @@ Vue.component('engage-profiles', {
     },
     methods: {
         toggleEmailDomain: function() {
+            clearMessages();
             this.newItem.email = '';
             this.notifyContacts = false;
         },
@@ -544,6 +545,17 @@ Vue.component('engage-profiles', {
         },
         requestAssessment: function($event, campaign) {
             var vm = this;
+            if( vm.useEmailDomain && !vm.isValidDomain ) {
+                showErrorMessages({responseJSON: {
+                    email: ["Enter a valid domain name."]}});
+                return;
+            }
+            if( !vm.useEmailDomain && !vm.isValidEmail ) {
+                showErrorMessages({responseJSON: {
+                    email: ["Enter a valid email address."]}});
+                return;
+            }
+
             function handleError(resp) {
                 var errorResp = resp;
                 var data = resp.data || resp.responseJSON;
@@ -884,12 +896,17 @@ Vue.component('engage-profiles', {
                 }
             }
         },
+        isValidDomain: function() {
+            var vm = this;
+            const regex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return regex.test(vm.newItem.email.trim());
+        },
         isValidEmail: function() {
             var vm = this;
             const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             const emails = vm.newItem.email.split(',');
             for( var idx = 0; idx < emails.length; ++idx ) {
-                if( !regex.test(emails[idx]) ) {
+                if( !regex.test(emails[idx].trim()) ) {
                     return false;
                 }
             }
