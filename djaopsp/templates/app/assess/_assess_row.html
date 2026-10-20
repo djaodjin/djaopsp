@@ -1,4 +1,6 @@
-<div :id="getPracticeId(practice)" :class="(isPractice(practice) && isFreetextUIHint(practice) ? 'bestpractice row ' : 'row ')">
+<div :id="getPracticeId(practice)"
+     :class="isPractice(practice) ? 'bestpractice' : ''">
+<div class="row">
   <div :class="(isPractice(practice) || isEnumHeaderShown(icon)) ? 'col-md-6' : 'col-md-12'">
     <div :class="indentHeader(practice)">
       <div class="title" v-if="!isPractice(practice) && !isPagebreak(practice)">
@@ -501,21 +503,6 @@
   </div>
   {# end of scope ghg emissions #}
 
-  {# when question.unit is 'verifiability' #}
-  <div class="col-md-6 text-center" {# default value from `getNbInputCols` #}
-       v-if="isVerifiabilityUIHint(practice)">
-    <select class="form-control form-select"
-              v-model="getPrimaryAnswer(practice, '{{assess_type}}').measured"
-              @blur="updateAssessmentAnswer(practice, null, '{{assess_type}}')"
-              :disabled="practice.frozen"
-              aria-label="Verifiability">
-        <option v-if="getAnswerByUnit(practice, 'verifiability').measured == null" disabled :value="null">{% trans %}Select verifiability ...{% endtrans %}</option>
-        {% for option in units.verifiability %}
-        <option value="{{option.text}}">{{option.descr}}</option>
-        {% endfor %}
-    </select>
-  </div>
-
   {# when question.unit.system is 'enum' and UI hint computes to 'radio' #}
   <div :class="'text-start text-md-center' + ' col-md-' + getNbInputCols(practice) + {% if assess_type == 'planned' %}(getPrimaryAnswer(practice).measured === choice.text ? ' green-level-4' : ''){% else %}(getPrimaryCandidate(practice).measured === choice.text ? ' candidate-answer' : ''){% endif %}"
        v-for="(choice, idx) in getChoices(practice, icon)"
@@ -699,7 +686,7 @@
 </div>{# /.row #}
 
 {# optional comments #}
-<div :class="(isPractice(practice) && !isFreetextUIHint(practice) ? 'bestpractice row ' : 'row ') + practiceStyle(practice)"
+<div :class="practiceStyle(practice) + ' row'"
      v-if="isPractice(practice) && !isFreetextUIHint(practice)">
   <div class="col-md-6">
   </div>
@@ -746,3 +733,45 @@
     </div>
   </div>{# /.col-md-6 #}
 </div>{# /.row (optional comments) #}
+
+{# verifiability #}
+<div :class="practiceStyle(getPracticeVerifiable(practice)) + ' practice-row' + (isRequiredShown(getPracticeVerifiable(practice)) ? ' practice-required' : (isRequiredAnswered(getPracticeVerifiable(practice)) ? ' practice-required-answered' : ''))"
+     v-if="getPracticeVerifiable(practice)">
+  <div class="row">
+    <div class="offset-md-6 col-md-6 text-center">  {# default value from `getNbInputCols` #}
+      <select class="form-control form-select"
+            v-model="getPrimaryAnswer(getPracticeVerifiable(practice), '{{assess_type}}').measured"
+            @blur="updateAssessmentAnswer(getPracticeVerifiable(practice), null, '{{assess_type}}')"
+              :disabled="getPracticeVerifiable(practice).frozen"
+            aria-label="Choices">
+        <option :value="null" disabled>{% trans %}Select verifiability ...{% endtrans %}</option>
+        <option :value="choice.text"
+              v-for="(choice, idx) in getChoices(getPracticeVerifiable(practice), icon)">[[choice.descr ? choice.descr : choice.text]]</option>
+      </select>
+      <explainer inline-template
+           v-bind:uploads="uploads"
+           v-bind:callback-arg="getPracticeVerifiable(practice)"
+           v-bind:collected-by-picture="getPicture(getCommentsAnswer(getPracticeVerifiable(practice)).collected_by)"
+           v-bind:collected-by-printable-name="getPrintableName(getCommentsAnswer(getPracticeVerifiable(practice)).collected_by)"
+           v-bind:collected-at-time="getCommentsAnswer(getPracticeVerifiable(practice)).created_at"
+           v-bind:init-text="getCommentsAnswer(getPracticeVerifiable(practice)).measured"
+           v-on:update-text="updateComment"
+           v-on:uploaded="documentUploaded"
+           :disabled="getPracticeVerifiable(practice).frozen">
+        <form>
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+          <textarea class="form-control"
+                name="other-measures"
+                type="text" rows="10"
+                placeholder="{% trans %}If you have any notes or comments with regards to verifiability or completeness, please add them here. Thank you.{% endtrans %}"
+                v-model="text"
+                :disabled="disabled"
+                @keydown="fitToText"
+                @blur="saveText"
+                aria-label="Free text comments"></textarea>
+        </form>
+      </explainer>
+    </div>
+  </div>
+</div>{# /.row (verifiability) #}
+</div>{# /:id="getPracticeId(practice)" #}

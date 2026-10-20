@@ -738,6 +738,35 @@ var practicesListMixin = {
             }
             return false;
         },
+        getPracticeVerifiable: function(row) {
+            if( row._praticeVerifiable ) return row._praticeVerifiable;
+
+            var vm = this;
+            row._praticeVerifiable = null;
+            if( vm.isPractice(row) && !(row.default_unit &&
+                row.default_unit.slug === 'verifiability')) {
+                for( var idx = 0; idx < vm.items.results.length; ++idx ) {
+                    if( vm.items.results[idx].slug === row.slug &&
+                        vm.items.results[idx].default_unit &&
+                        vm.items.results[idx].default_unit.slug === 'verifiability' ) {
+                        row._praticeVerifiable = vm.items.results[idx];
+                        break;
+                    }
+                }
+                // If the question in the verification questionnaire is optional
+                // and we are dealing with a "Negative or no answer", then
+                // we do not need present the verifier with an input field.
+                if( row._praticeVerifiable &&
+                    !row._praticeVerifiable.required) {
+                    const answer = vm.getPrimaryAnswer(row);
+                    if( answer.measured == null || answer.measured === "No" ) {
+                        row._praticeVerifiable = null;
+                    }
+                }
+            }
+            return row._praticeVerifiable;
+        },
+
         // Returns `true` if the question requires an answer and
         // none has been provided yet.
         isRequiredShown: function(row) {

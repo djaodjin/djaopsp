@@ -345,8 +345,7 @@ Vue.component('campaign-questions-list', {
         },
         isEnumSelectUIHint: function(row) {
             var vm = this;
-            return vm.isEnumUnit(row) && row.ui_hint === 'select'
-                && row.default_unit.slug !== 'verifiability';
+            return vm.isEnumUnit(row) && row.ui_hint === 'select';
         },
         isEnumTypeaheadUIHint: function(row) {
             var vm = this;
