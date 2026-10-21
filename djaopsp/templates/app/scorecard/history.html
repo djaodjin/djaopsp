@@ -35,9 +35,7 @@
           <div class="row my-2" v-for="item in items.results">
             <div class="col-2 text-end">
               <a :href="item.location ? item.location : (_safeUrl('{{urls.scorecard_base}}', item.slug) + '/')">[[ $globals.humanizeDate(item.created_at) ]]</a>
-              {% if verification_enabled %}
-              <i class="fa-solid fa-certificate" style="color: green;" v-if="item.verified_status != 'no-review' && item.verified_status != 'under-review'"></i>
-              {% endif %}
+              <i class="fa-solid fa-certificate" style="color: green;" v-if="item.verified_status == 'review-completed'"></i>
             </div>
             <div class="col-5 text-start">
               [[item.campaign.title]]

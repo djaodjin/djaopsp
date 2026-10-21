@@ -37,7 +37,8 @@ from ..reminders import send_reminders
 from ..scores import (freeze_scores, get_score_calculator,
     get_top_normalized_score, populate_scorecard_cache)
 from ..signals import sample_frozen
-from ..utils import get_practice_serializer, get_scores_tree, get_score_weight
+from ..utils import (get_practice_serializer, get_scores_tree, get_score_weight,
+    get_unit_freetext, get_unit_verifier_notes)
 from .campaigns import CampaignDecorateMixin
 from .rollups import GraphMixin, RollupMixin
 from .serializers import (AssessmentContentSerializer,
@@ -57,6 +58,8 @@ class SampleNotesMixin(SampleMixin):
         #pylint:disable=too-many-locals
         verification_notes = self.get_notes(prefix=prefix, excludes=excludes)
         if interlienar and django_settings.FEATURES_DEBUG:
+            freetext_unit = get_unit_freetext()
+            verifier_notes_unit = get_unit_verifier_notes()
             verifier = get_user_model().objects.get(
                 username=self.verification.verifier_notes.account.slug)
             VERIFIED_CHOICE = Choice.objects.filter(
@@ -73,15 +76,20 @@ class SampleNotesMixin(SampleMixin):
             notes = verification_notes
             verification_notes = []
             for v_answer in notes:
-                if v_answer.measured not in VERIFIED_CHOICE:
-                    #verification_notes += [v_answer]
-                    continue
                 v_path = v_answer.question.path
                 v_slug = v_path.split(DB_PATH_SEP)[-1]
                 connected_question = question_key_by_slug.get(v_slug)
                 if connected_question:
                     v_answer.question = connected_question
                     v_answer.collected_by = verifier
+                    if (v_answer.unit.slug == 'verifiability' and
+                        v_answer.measured not in VERIFIED_CHOICE):
+                        continue
+                    if (v_answer.unit == freetext_unit):
+                        # Because we are going to change the unit afterwards,
+                        # we want to ensure the text is already loaded.
+                        v_answer._measured_text = v_answer.measured_text
+                        v_answer.unit = verifier_notes_unit
                     verification_notes += [v_answer]
 
         attach_answers(

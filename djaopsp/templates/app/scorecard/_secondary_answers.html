@@ -12,8 +12,7 @@
       <p v-if="answer.unit === 'ends-at'">
           {% trans %}On{% endtrans %} [[answer.measured]]
       </p>
-      {% if verification_enabled %}
-      <div class="row verifier-notes pt-1 m-2" v-if="answer.unit === 'verifiability'">
+      <div class="row verifier-notes pt-1 mt-2 mx-2" v-if="answer.unit === 'verifiability'">
         <small>
           <img class="rounded-circle" :src="getPicture(answer.collected_by) ? getPicture(answer.collected_by) : '{{'/static/img/default-user.png'|asset}}'" width="32" height="32" alt="{% trans %}Profile picture{% endtrans %}">
  [[getPrintableName(answer.collected_by)]]
@@ -23,7 +22,11 @@
           [[answer.measured]]
         </p>
       </div>
-      {% endif %}
+      <div class="row verifier-notes mx-2" v-if="answer.unit === 'verifier-notes'">
+        <p>
+          [[answer.measured]]
+        </p>
+      </div>
     </div>
   </div>
 </div>

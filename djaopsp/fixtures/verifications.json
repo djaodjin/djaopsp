@@ -2,8 +2,16 @@
 {
   "fields": {
     "sample": 1,
-    "verifier_notes": 15
+    "verifier_notes": 12,
+    "verified_status": 5
   },
   "model": "djaopsp.VerifiedSample", "pk": 1
+},
+{
+  "fields": {
+    "sample": 5,
+    "verifier_notes": 15
+  },
+  "model": "djaopsp.VerifiedSample", "pk": 2
 }
 ]

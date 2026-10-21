@@ -11,6 +11,8 @@ from ..api.serializers import AssessmentContentSerializer
 from ..compat import six
 from ..mixins import SectionReportMixin
 from ..scores import get_score_calculator
+from ..utils import get_unit_freetext
+
 
 class AssessPracticesXLSXView(SectionReportMixin, CampaignDecorateMixin,
                               SampleAnswersMixin, PracticesSpreadsheetView):
@@ -70,6 +72,7 @@ class AssessPracticesXLSXView(SectionReportMixin, CampaignDecorateMixin,
         primary_planned = None
         points = None
         comments = ""
+        freetext_unit = get_unit_freetext()
         if answers:
             for answer in answers:
                 unit = answer.get('unit')

@@ -42,7 +42,8 @@ from ..mixins import (AccountMixin, CampaignMixin,
     AccountsNominativeQuerysetMixin)
 from ..models import ScorecardCache
 from ..scores.base import get_top_normalized_score
-from ..utils import get_alliances, get_practice_serializer
+from ..utils import get_alliances, get_practice_serializer, get_unit_freetext
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -709,7 +710,7 @@ class AnswersDownloadMixin(BenchmarkMixin, CampaignContentMixin):
 
     def __init__(self, *args):
         super(AnswersDownloadMixin, self).__init__( *args)
-        self.comments_unit = Unit.objects.get(slug='freetext')
+        self.comments_unit = get_unit_freetext()
         self.points_unit = Unit.objects.get(slug='points')
         self.target_by_unit = Unit.objects.get(slug='ends-at')
         self.errors = []

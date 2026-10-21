@@ -339,9 +339,19 @@ class ReportMixin(SampleMixin, AccountMixin, TrailMixin):
             self._segments_available = get_segments_available(self.sample)
             if self.verification_available:
                 try:
-                    self._segments_available += get_segments_available(
-                        Sample.objects.filter(
-                            notes__sample=self.sample).get())
+                    queryset = Sample.objects.filter(notes__sample=self.sample)
+                    for segment in get_segments_available(queryset.get()):
+                        # Prevent duplicate segments when segment prefix
+                        # matches prefix path for verification questions.
+                        found = False
+                        for segment_available in self._segments_available:
+                            seg_slug = segment.get('slug')
+                            seg_available_slug = segment_available.get('slug')
+                            if seg_slug == seg_available_slug:
+                                found = True
+                                break
+                        if not found:
+                            self._segments_available += [segment]
                 except Sample.DoesNotExist:
                     # It is OK if there are no verification attached
                     # to a response.
@@ -367,16 +377,25 @@ class ReportMixin(SampleMixin, AccountMixin, TrailMixin):
         to the account making the request to see the response.
         """
         if not hasattr(self, '_verification_available'):
-            self._verification_available = (
-                self.account in self.verifier_accounts)
+            queryset = Sample.objects.filter(
+                notes__sample=self.sample,
+                notes__verifier_notes__account=self.account)
+            self._verification_available = queryset.exists()
             if not self._verification_available:
-                # Showing verifications to accounts with valid dashboards
-                # is done here.
+                # Showing verifications to the account itself, or to grantees
+                # with valid dashboards, is done here.
                 queryset = Sample.objects.filter(
-                    notes__sample=self.sample,
                     notes__sample__account__portfolios__grantee=self.account,
+                    notes__sample=self.sample,
                     notes__verified_status__gte=\
                     VerifiedSample.STATUS_REVIEW_COMPLETED)
+                if settings.FEATURES_DEBUG:
+                    queryset = Sample.objects.filter(
+                        Q(notes__sample__account=self.account) |
+                    Q(notes__sample__account__portfolios__grantee=self.account),
+                        notes__sample=self.sample,
+                        notes__verified_status__gte=\
+                        VerifiedSample.STATUS_REVIEW_COMPLETED)
                 self._verification_available = queryset.exists()
         return self._verification_available
 

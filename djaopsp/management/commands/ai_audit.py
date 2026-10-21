@@ -22,7 +22,7 @@ from survey.models import Sample, Unit
 from survey.utils import get_question_model
 
 from ...compat import urlsplit
-from ...utils import get_supporting_documents
+from ...utils import get_supporting_documents, get_unit_verifier_notes
 
 LOGGER = logging.getLogger(__name__)
 
@@ -200,7 +200,7 @@ def persist_answers(oa_answers, sample):
     Presists OpenAI answers into the database
     """
     collected_by = get_user_model().objects.get(username='chatgpt')
-    unit = Unit.objects.get(slug='ai-audit')
+    unit = get_unit_verifier_notes()
     created_at = datetime_or_now()
 
     results = []

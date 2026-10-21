@@ -34,6 +34,7 @@ from .serializers import ContentNodeSerializer, CreateContentElementSerializer
 from ..campaigns import import_campaign
 from ..compat import gettext_lazy as _, six
 from ..mixins import CampaignMixin, DashboardsAvailableQuerysetMixin
+from ..utils import get_unit_freetext
 
 LOGGER = logging.getLogger(__name__)
 
@@ -648,7 +649,7 @@ class CampaignEditableContentAPIView(CampaignContentMixin,
         #pylint:disable=too-many-locals
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.default_unit = Unit.objects.get(slug='freetext')
+        self.default_unit = get_unit_freetext()
 
         with transaction.atomic():
             parent = None
@@ -932,7 +933,7 @@ class CampaignEditableQuestionAPIView(QuestionMixin, CampaignContentMixin,
         content_model = get_content_model()
         enum_question_model = EnumeratedQuestions
         question_model = get_question_model()
-        self.default_unit = Unit.objects.get(slug='freetext')
+        self.default_unit = get_unit_freetext()
 
         with transaction.atomic():
             content_data = {}

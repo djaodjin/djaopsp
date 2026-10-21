@@ -1,4 +1,4 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE.
 from __future__ import unicode_literals
 
@@ -11,6 +11,7 @@ from survey.models import Campaign, EnumeratedQuestions, Unit
 from survey.utils import get_content_model, get_question_model
 
 from .compat import StringIO
+from .utils import get_unit_freetext
 
 
 LOGGER = logging.getLogger(__name__)
@@ -91,7 +92,7 @@ def _import_campaign_section(campaign, rows, seg_prefixes,
     question_model = get_question_model()
 
     LOGGER.debug("%d segment prefixes: %s", len(seg_prefixes), seg_prefixes)
-    freetext_unit = Unit.objects.get(slug='freetext')
+    freetext_unit = get_unit_freetext()
     if headings is None:
         headings = [None]
     section_rank = 1

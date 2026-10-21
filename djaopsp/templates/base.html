@@ -260,7 +260,7 @@
   <!-- End Main Footer -->
 
 {% block _bodyscripts %}
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
+<script type="text/javascript"{% if request.csp_nonce %} nonce="{{request.csp_nonce}}"{% endif%}>
 const DJAOAPP_API_BASE_URL = "{{''|site_url}}"; // djaodjin-menubar.js
 
 function injectAnalyticsScripts() {
@@ -282,7 +282,7 @@ const PRIVACY_COOKIES_ENABLED = {
 };
 </script>
 <script type="text/javascript" src="{{'/static/vendor/djaoapp-base.js'|asset}}"></script>
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
+<script type="text/javascript"{% if request.csp_nonce %} nonce="{{request.csp_nonce}}"{% endif%}>
 function onLoadBase() {
   if( typeof djApi !== 'undefined' ) {
     djApi.apiBase = "{{''|site_url}}"; // djaodjin-saas et al.
