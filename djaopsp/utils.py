@@ -463,6 +463,16 @@ def get_campaign_candidates(accounts=None, tags=None, campaign_slug=None):
     return candidates
 
 
+def get_latest_reminders(accounts, start_at=None, ends_at=None):
+    queryset = []
+    if (hasattr(settings, 'LATEST_REMINDERS_CALLABLE') and
+        settings.LATEST_REMINDERS_CALLABLE):
+        queryset = import_string(settings.LATEST_REMINDERS_CALLABLE)(
+            accounts, start_at=start_at, ends_at=ends_at)
+
+    return queryset
+
+
 def get_segments_available(sample, visibility=None, owners=None,
                            segments_candidates=None):
     """
@@ -585,11 +595,22 @@ def get_supporting_documents(samples, internal_host=None, prefix=None):
     return publics, privates
 
 
-def get_latest_reminders(accounts, start_at=None, ends_at=None):
-    queryset = []
-    if (hasattr(settings, 'LATEST_REMINDERS_CALLABLE') and
-        settings.LATEST_REMINDERS_CALLABLE):
-        queryset = import_string(settings.LATEST_REMINDERS_CALLABLE)(
-            accounts, start_at=start_at, ends_at=ends_at)
+def get_unit_freetext():
+    """
+    Returns the ``Unit`` object for notes and comments.
+    """
+    if not hasattr(get_unit_freetext, '_cache'):
+        get_unit_freetext._cache = Unit.objects.get(slug='freetext')
+    return get_unit_freetext._cache
 
-    return queryset
+
+def get_unit_verifier_notes():
+    """
+    Returns the ``Unit`` object for verifier notes.
+
+    We separate `verifier-notes` from `freetext` such that they can be rendered
+    differently on the scorecard page.
+    """
+    if not hasattr(get_unit_verifier_notes, '_cache'):
+        get_unit_verifier_notes._cache = Unit.objects.get(slug='verifier-notes')
+    return get_unit_verifier_notes._cache

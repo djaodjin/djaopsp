@@ -498,8 +498,8 @@
 },
 {
   "fields": {
-    "slug": "ai-audit",
-    "title": "Information collected by the verifier AI",
+    "slug": "verifier-notes",
+    "title": "Used to differentiate supplier comments from verifier notes in scorecards",
     "system": 4
   },
   "model": "survey.unit", "pk": 207

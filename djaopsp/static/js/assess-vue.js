@@ -345,8 +345,7 @@ Vue.component('campaign-questions-list', {
         },
         isEnumSelectUIHint: function(row) {
             var vm = this;
-            return vm.isEnumUnit(row) && row.ui_hint === 'select'
-                && row.default_unit.slug !== 'verifiability';
+            return vm.isEnumUnit(row) && row.ui_hint === 'select';
         },
         isEnumTypeaheadUIHint: function(row) {
             var vm = this;
@@ -1095,11 +1094,15 @@ Vue.component('scorecard', {
                 var totals = vm.getEntries(practice.slug);
                 for( var idx = 0; idx < totals.length; ++idx ) {
                     var candidateHeaders = vm.getColHeaders(totals[idx]);
-                    if( candidateHeaders.length > headers.length ) {
-                        headers = candidateHeaders;
+                    for( var j = 0; j < candidateHeaders.length; ++j ) {
+                        var year = candidateHeaders[j];
+                        if( year !== "N/A" && headers.indexOf(year) < 0 ) {
+                            headers.push(year);
+                        }
                     }
                 }
             }
+            headers.sort(function(a, b) { return a - b; });
             if( headers.length < 1 ) {
                 headers.push("N/A");
             }
