@@ -610,17 +610,21 @@ class SectionReportMixin(ReportMixin):
             self._nb_required_answers = 0
             if not self.sample.is_frozen:
                 # completed assessments cannot use `EnumeratedQuestions`.
+                # Optional segments have questions marked as required
+                # so we cannot blindly use `Sample.nb_required_answers`.
                 for seg in self.segments_available:
                     path = seg.get('path')
                     if not path:
                         continue
                     queryset = Answer.objects.filter(
-                    Q(unit_id=F('question__default_unit_id')) |
-        Q(unit_id=F('question__default_unit__source_equivalences__target_id')),
-                    sample=self.sample,
-                    question__enumeratedquestions__required=True,
-                    question__path__startswith=path,
-        question__enumeratedquestions__campaign=self.sample.campaign)
+                        Q(unit_id=F('question__default_unit_id')) |
+                        Q(unit_id=F(
+                'question__default_unit__source_equivalences__target_id')),
+                        sample=self.sample,
+                        question__enumeratedquestions__required=True,
+                        question__path__startswith=path,
+                question__enumeratedquestions__campaign=self.sample.campaign
+                    ).distinct()
                     self._nb_required_answers += queryset.count()
         return self._nb_required_answers
 
