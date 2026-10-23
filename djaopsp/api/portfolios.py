@@ -751,12 +751,12 @@ class CompletedAssessmentsAPIView(CompletedAssessmentsMixin,
           {
             "last_completed_at": "2022-11-28",
             "printable_name": "Supplier 1",
-            "segment": "ESG/Environmental practices"
+            "segment": "Sustainability Practices"
           },
           {
             "last_completed_at": "2022-11-27",
             "printable_name": "Supplier 2",
-            "segment": "ESG/Environmental practices"
+            "segment": "Sustainability Practices"
           }
           ]
         }
@@ -1350,28 +1350,35 @@ class PortfolioAccessibleSamplesAPIView(PortfolioAccessibleSamplesMixin,
           "previous": null,
           "results": [
                 {
-                    "slug": "andy-shop",
-                    "printable_name": "Andy's Shop",
-                    "values": [
-                        ["2023-01-01T00:00:00Z", "complete", 95],
-                        ["2022-01-01T00:00:00Z", "complete", 95],
-                        ["2021-01-01T00:00:00Z", "declined", null],
-                        ["2020-01-01T00:00:00Z", "no-data", null],
-                        ["2019-01-01T00:00:00Z", "no-data", null],
-                        ["2018-01-01T00:00:00Z", "no-data", null]
-                    ]
-                },
-                {
                     "slug": "supplier-1",
                     "printable_name": "Supplier 1",
-                    "values": [
-                        ["2023-01-01T00:00:00Z", "complete", 82],
-                        ["2022-01-01T00:00:00Z", "complete", 82],
-                        ["2021-01-01T00:00:00Z", "declined", null],
-                        ["2020-01-01T00:00:00Z", "no-data", null],
-                        ["2019-01-01T00:00:00Z", "no-data", null],
-                        ["2018-01-01T00:00:00Z", "no-data", null]
-                    ]
+                    "values": [{
+                        "campaign": {"slug": "sustainability"},
+                        "slug": "8d2927e1638b489eb42b5d3bb4239cc2",
+                        "account": "supplier-1",
+                        "created_at": "2026-01-01T00:00:00Z",
+                        "updated_at": "2026-01-01T00:00:00Z",
+                        "is_frozen": true,
+                        "state": "completed",
+                        "normalized_score": 95,
+                        "location": "/app/energy-utility/scorecard/\
+8d2927e1638b489eb42b5d3bb4239cc2/"
+                    }]
+                },
+                {
+                    "slug": "andy-shop",
+                    "printable_name": "Andy's Shop",
+                    "values": [{
+                        "campaign": null,
+                        "slug": null,
+                        "account": "andy-shop",
+                        "created_at": "2026-01-01T00:00:00Z",
+                        "updated_at": "2026-01-01T00:00:00Z",
+                        "is_frozen": false,
+                        "state": "no-data",
+                        "normalized_score": null,
+                        "location": null
+                    }]
                 }
           ]
         }

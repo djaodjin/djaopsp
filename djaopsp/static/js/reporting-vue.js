@@ -916,6 +916,30 @@ Vue.component('engage-profiles', {
 });
 
 
+/** Component to edit the template for a profile scorecard
+ */
+Vue.component('scorecard-editor', {
+    mixins: [
+    ],
+    data: function() {
+        return {
+            url: null,
+            displayMetric: null,
+        }
+    },
+    methods: {
+        addPractice: function() {
+            var vm = this;
+            console.log("XXX addPractice: displayMetric=", vm.displayMetric);
+        },
+        selectMetric: function(question, dataset) {
+            var vm = this;
+            vm.displayMetric = question;
+        },
+    },
+});
+
+
 /** The 'djaopsp-compare-samples' component is used for both,
     the compare.html and analyze.html views.
  */
@@ -1205,8 +1229,9 @@ Vue.component('djaopsp-compare-samples', {
             vm.populateSamples(bench);
         },
         getSampleAccountPrintableName: function(sampleSlug) {
-            return this.getAccountPrintableName(
-                this.getSampleField(sampleSlug, 'account'));
+            const account = this.getSampleField(sampleSlug, 'account');
+            const printableName = this.getAccountPrintableName(account);
+            return printableName ? printableName : account;
         },
         getChartTotal: function(values) {
             var total = 0;
@@ -1557,58 +1582,6 @@ Vue.component('djaopsp-compare-samples', {
         }
     }
 });
-
-
-Vue.component('query-accounts-by-extended-affinity', QueryAccountsByAffinity.extend({
-    data: function() {
-        return {
-            plans_url: this.$urls.api_plans,
-            subscriptions_url: this.$urls.api_subscriptions,
-            plans: [],
-            alliances: []
-        }
-    },
-    methods: {
-        getAffinityGroupDataset: function(groupSlug) {
-            var vm = this;
-            vm.params.start_at = vm.startAt ? vm.startAt : null;
-            vm.params.ends_at = vm.endsAt ? vm.endsAt : null;
-            vm.params.period_type = vm.period ? vm.period : null;
-            vm.params.campaign = vm.campaign ? vm.campaign : null;
-            const title = vm.$el.querySelector(
-                '[value="' + groupSlug + '"]').textContent;
-            const url = vm.appendQueryString(vm._safeUrl(vm._safeUrl(
-                vm.$urls.api_account_groups, groupSlug),
-                vm.prefix));
-            return {title: title, url: url};
-        },
-        validate: function() {
-            var vm = this;
-            if( vm.affinityType === 'engaged' ||
-                vm.affinityType === 'accessibles' ||
-                vm.affinityType === 'all') {
-                const dataset = vm._getAffinityBaseDataset();
-                vm.$emit('updatedataset', dataset);
-            } else {
-                const dataset = vm.getAffinityGroupDataset(vm.affinityType);
-                vm.$emit('updatedataset', dataset);
-            }
-        },
-    },
-    mounted: function() {
-        var vm = this;
-        // We are not adding plans/subscriptions if we are not connected
-        // to a djaoapp instance.
-        vm.reqGet(vm.plans_url, function(resp) {
-            vm.plans = resp.results;
-        });
-        vm.reqGet(vm.subscriptions_url, function(resp) {
-            for( var idx = 0; idx < resp.results.length; ++idx ) {
-                vm.alliances.push(resp.results[idx].plan);
-            }
-        });
-    }
-}));
 
 
 Vue.component('reporting-organizations', {

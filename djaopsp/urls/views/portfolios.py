@@ -11,6 +11,7 @@ from ...views.portfolios import (ByCampaignAccessiblesView,
     DashboardRedirectView,
     PortfolioAccessiblesView, PortfolioEngagementView,
     PortfoliosDetailView, ReportingDashboardView)
+from ...views.reporting import CustomScorecardEditView, CustomScorecardView
 from ...downloads.reporting import (
     AccessiblesAnswersXLSXView, AccessiblesAnswersPivotableCSVView,
     EngagedAnswersXLSXView, EngagedAnswersPivotableCSVView,
@@ -27,10 +28,6 @@ urlpatterns = [
         DashboardRedirectView.as_view(
             breadcrumb_url='reporting_profile_accessibles'),
         name='portfolio_track'),
-    path('reporting/dashboard/',
-        DashboardRedirectView.as_view(
-            breadcrumb_url='reporting_organization_dashboard'),
-        name='portfolio_insights'),
 
     # side-by-side comparaison, and aggregates analytics
     path('reporting/insights/compare/',
@@ -42,6 +39,13 @@ urlpatterns = [
     path('reporting/insights/',
         InsightsView.as_view(),
         name='reporting_insights'),
+
+    path('reporting/scorecards/',
+        CustomScorecardEditView.as_view(),
+        name='reporting_scorecard'),
+    path('reporting/scorecards/<slug:supplier>/',
+        CustomScorecardView.as_view(),
+        name='reporting_scorecard_supplier'),
 
     # PPTX charts downloads
     path('reporting/<slug:campaign>/download/completion-rate/',

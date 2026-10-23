@@ -1,13 +1,12 @@
-# Copyright (c) 2024, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # see LICENSE
 import logging
 
 from django.dispatch import receiver
 from survey.signals import (portfolios_grant_initiated,
-    portfolios_request_initiated, portfolio_request_accepted)
+    portfolios_request_initiated, portfolio_request_accepted, sample_frozen)
 
 from ..compat import reverse
-from ..signals import sample_frozen
 from ..utils import send_notification, get_latest_completed_assessment
 from .serializers import (PortfolioNotificationSerializer,
     SampleFrozenNotificationSerializer)

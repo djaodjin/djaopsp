@@ -11,6 +11,7 @@ from django.db import models
 from rest_framework.settings import api_settings
 from rest_framework.generics import get_object_or_404
 from pages.api.newsfeed import NewsFeedListAPIView as NewsfeedBaseAPIView
+from survey.docs import extend_schema
 from survey.helpers import datetime_or_now
 from survey.models import Campaign, PortfolioDoubleOptIn, Sample
 from survey.utils import get_account_model
@@ -52,8 +53,9 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
           "results": [
             {
               "slug": "sustainability",
+              "lang": "en",
               "picture": null,
-              "title": "ESG/Environmental practices",
+              "title": "Sustainability Practices",
               "reading_time": null,
               "account": "supplier-1",
               "extra": null,
@@ -80,12 +82,12 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
             },
             {
               "slug": "adjust-air-fuel-ratio",
+              "lang": "en",
               "picture": null,
               "title": "Adjust air/fuel ratio",
               "content_format": "MD",
               "text_updated_at": "2026-01-01T00:00:00Z",
               "reading_time": "00:00:00",
-              "lang": "en-us",
               "account": "djaopsp",
               "extra": {
                 "searchable": true,
@@ -348,7 +350,7 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                     'ends_at': humanizeDate(optin.created_at),
                     'grantee': str(optin.grantee),
                     'portfolio_track': reverse('portfolio_track', args=(
-                        account,)),
+                        account,)), # XXX use `campaign` if available
                 }
                 results.append({
                     'title': title,
@@ -522,8 +524,9 @@ class GetStartedAPIView(NewsfeedAPIView):
           "results": [
             {
               "slug": "sustainability",
+              "lang": "en",
               "picture": null,
-              "title": "ESG/Environmental practices",
+              "title": "Sustainability Practices",
               "reading_time": null,
               "account": "supplier-1",
               "extra": null,
@@ -555,3 +558,8 @@ class GetStartedAPIView(NewsfeedAPIView):
     def get_queryset(self):
         results = list(self.get_pending_requests(show_all=True))
         return results
+
+    @extend_schema(operation_id='api_content_newsfeed_campaign_list')
+    def get(self, request, *args, **kwargs):
+        return super(GetStartedAPIView, self).get(
+            request, *args, **kwargs)

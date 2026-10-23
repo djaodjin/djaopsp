@@ -155,15 +155,16 @@ class AccountMixin(VisibilityMixin, deployutils_mixins.AccountMixin):
             update_context_urls(context, {
                 'portfolio_engage': reverse('portfolio_engage',
                     args=(self.account,)),
-                'portfolio_track': reverse('portfolio_track',
-                    args=(self.account,)),
-                'portfolio_insights': reverse('portfolio_insights',
-                    args=(self.account,)),
                 'compare': reverse('reporting_insights_compare',
                     args=(self.account,)),
                 'analyze': reverse('reporting_insights_analyze',
                     args=(self.account,)),
             })
+            if settings.FEATURES_DEBUG:
+                update_context_urls(context, {
+                    'scorecards': reverse('reporting_scorecard',
+                        args=(self.account,)),
+                })
         if self.unlock_editors:
             update_context_urls(context, {
                 'pages_editables_index': reverse(
@@ -628,17 +629,21 @@ class SectionReportMixin(ReportMixin):
             self._nb_required_answers = 0
             if not self.sample.is_frozen:
                 # completed assessments cannot use `EnumeratedQuestions`.
+                # Optional segments have questions marked as required
+                # so we cannot blindly use `Sample.nb_required_answers`.
                 for seg in self.segments_available:
                     path = seg.get('path')
                     if not path:
                         continue
                     queryset = Answer.objects.filter(
-                    Q(unit_id=F('question__default_unit_id')) |
-        Q(unit_id=F('question__default_unit__source_equivalences__target_id')),
-                    sample=self.sample,
-                    question__enumeratedquestions__required=True,
-                    question__path__startswith=path,
-        question__enumeratedquestions__campaign=self.sample.campaign)
+                        Q(unit_id=F('question__default_unit_id')) |
+                        Q(unit_id=F(
+                'question__default_unit__source_equivalences__target_id')),
+                        sample=self.sample,
+                        question__enumeratedquestions__required=True,
+                        question__path__startswith=path,
+                question__enumeratedquestions__campaign=self.sample.campaign
+                    ).distinct()
                     self._nb_required_answers += queryset.count()
         return self._nb_required_answers
 

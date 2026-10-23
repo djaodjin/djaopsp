@@ -1,0 +1,62 @@
+{% extends "app/reporting/base.html" %}
+
+{% block localheadermeta %}
+<title>{% trans profile=profile.printable_name %}{{profile}} Highlights{% endtrans %} | {% trans %}Practice Sharing Platform{% endtrans %}</title>
+<meta property="og:title" content="Highlights - {{profile.printable_name}} | Practice Sharing Platform" />
+<meta property="og:image" content="{{request|site_url}}/static/img/og-image.png" />
+<meta name="description" property="og:description" content="Highlights for profile {{profile.printable_name}}" />
+{% endblock %}
+
+{% block reporting_title %}{% trans %}Highlights{% endtrans %}{% endblock %}
+
+{% block reporting_content %}
+<div>
+  <div id="scorecard">
+    <h1>**Profile name**</h1>
+    <div class="row">
+      <div class="col-md-6">
+      </div>
+      <div class="col-md-2 text-md-center">
+          **2025** Answer
+      </div>
+      <div class="col-md-2 text-md-center">
+          **2026** Answer
+      </div>
+      <div class="col-md-2">
+          % Yes (Utility specific)
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+          **Has your company established a documented sustainability strategy with deined performance Targets?**
+      </div>
+      <div class="col-md-2 text-md-center">
+          **Yes**<br/>
+          (**Verifiable**)
+      </div>
+      <div class="col-md-2 text-md-center">
+          **Yes**<br/>
+          (**Verifiable**)
+      </div>
+      <div class="col-md-2">
+          **66%**
+      </div>
+    </div>
+  </div>
+  <scorecard-editor id="scorecard-editor" inline-template>
+    <div>
+      <form @submit.prevent="addPractice">
+        <fieldset>
+          {% include "app/reporting/_select_practice.html" %}
+        </fieldset>
+        <div class="form-actions mt-2">
+          <button class="btn btn-primary w-100" type="submit">
+              {% trans %}Add{% endtrans %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </scorecard-editor>
+</div>
+{% endblock %}

@@ -32,53 +32,10 @@ class InsightsView(AccountMixin, TemplateView):
         return context
 
 
-class AnalyzeInsightsView(InsightsView):
-    """
-    Builds aggreagates charts
-    """
-    # XXX replaces /app/<profile>/reporting/<slug:campaign>/compare/
-
-    template_name = 'app/reporting/insights/analyze.html'
+class InsightsMixin(AccountMixin):
 
     def get_context_data(self, **kwargs):
-        context = super(AnalyzeInsightsView, self).get_context_data(**kwargs)
-        update_context_urls(context, {
-            'api_version': site_url("/api"),
-            'api_account_candidates': site_url("/api/accounts/profiles"),
-            'api_accounts': site_url("/api/profile"),
-            'api_plans': site_url("/api/profile/%(profile)s/plans" % {
-                'profile': self.account}),
-            'api_subscriptions': site_url(
-                "/api/profile/%(profile)s/subscriptions" % {
-                    'profile': self.account}),
-            'api_units': reverse('survey_api_units'),
-            'api_account_groups': reverse('survey_api_accounts_filter_list',
-                args=(self.account,)),
-            'api_campaign_typeahead': reverse(
-                'api_reporting_campaigns', args=(self.account,)),
-            'api_question_typeahead': reverse('api_campaign_base'),
-            'pages_index': reverse('pages_index'),
-            'api_benchmarks_index': reverse(
-                'survey_api_benchmarks_index', args=(self.account,)),
-            #  XXX requires djaodjin-survey>0.18.2
-            'api_responses': reverse(
-                'survey_api_accessible_samples', args=(self.account,)),
-            'api_benchmarks_export': reverse('api_benchmarks_export',
-                args=(self.account,)),
-            'scorecard_base': reverse('scorecard_redirect',
-                args=(self.account,)),
-        })
-        return context
-
-
-class CompareInsightsView(InsightsView):
-    """
-    Compare responses side-by-side
-    """
-    template_name = 'app/reporting/insights/compare.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CompareInsightsView, self).get_context_data(**kwargs)
+        context = super(InsightsMixin, self).get_context_data(**kwargs)
         api_account_candidates = reverse(
             'api_last_by_campaign_accessibles', args=(self.account,))
         api_query_individual_account_samples = reverse(
@@ -91,11 +48,6 @@ class CompareInsightsView(InsightsView):
                 "__profile__", "{profile}")
         update_context_urls(context, {
             'api_version': site_url("/api"),
-            'api_sample_base': reverse('survey_api_sample_list', args=(
-                self.account,)),
-            'api_account_candidates': api_account_candidates,
-            'api_query_individual_account_samples':
-                api_query_individual_account_samples,
             'api_accounts': site_url("/api/profile"),
             'api_plans': site_url("/api/profile/%(profile)s/plans" % {
                 'profile': self.account}),
@@ -103,16 +55,54 @@ class CompareInsightsView(InsightsView):
                 "/api/profile/%(profile)s/subscriptions" % {
                     'profile': self.account}),
             'api_units': reverse('survey_api_units'),
+            'api_sample_base': reverse('survey_api_sample_list', args=(
+                self.account,)),
+            'api_account_candidates': api_account_candidates,
+            'api_query_individual_account_samples':
+                api_query_individual_account_samples,
             'api_account_groups': reverse('survey_api_accounts_filter_list',
                 args=(self.account,)),
-            #XXX 'api_question_typeahead': reverse(
-            #    'api_campaign_questions', args=(self.campaign,)),
             'pages_index': reverse('pages_index'),
-            'api_benchmarks_index': reverse(
-                'survey_api_benchmarks_index', args=(self.account,)),
-            'api_benchmarks_export': reverse('api_benchmarks_export',
+            'api_benchmarks_index': reverse('survey_api_benchmarks_index',
                 args=(self.account,)),
-            'scorecard_base': reverse(
-                'scorecard_redirect', args=(self.account,))
+            'api_benchmarks_export': reverse('api_benchmarks_export', args=(
+                self.account,)),
+            'scorecard_base': reverse('scorecard_redirect', args=(
+                self.account,))
         })
+        return context
+
+
+class AnalyzeInsightsView(InsightsMixin, TemplateView):
+    """
+    Builds aggreagates charts
+    """
+    # XXX replaces /app/<profile>/reporting/<slug:campaign>/compare/
+
+    template_name = 'app/reporting/insights/analyze.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AnalyzeInsightsView, self).get_context_data(**kwargs)
+        update_context_urls(context, {
+            'api_campaign_typeahead': reverse(
+                'api_reporting_campaigns', args=(self.account,)),
+            'api_question_typeahead': reverse('api_campaign_base'),
+            'api_affinity_filter': reverse('survey_api_affinity_filter',
+                args=(self.account,)),
+            'api_responses': reverse(
+                'survey_api_accessible_samples', args=(self.account,)),
+        #name='survey_api_benchmarks_individual')
+        #name='survey_api_benchmarks_individual_index')
+        })
+        return context
+
+
+class CompareInsightsView(InsightsMixin, TemplateView):
+    """
+    Compare responses side-by-side
+    """
+    template_name = 'app/reporting/insights/compare.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CompareInsightsView, self).get_context_data(**kwargs)
         return context

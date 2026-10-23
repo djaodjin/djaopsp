@@ -12,7 +12,6 @@ from django.db.models import Q
 from pages.docs import extend_schema
 from pages.models import PageElement, flatten_content_tree
 from rest_framework import generics, response as http, status as http_status
-from rest_framework.exceptions import ValidationError
 from survey import signals as survey_signals
 from survey.api.base import QuestionListAPIView
 from survey.api.matrix import (
@@ -36,7 +35,6 @@ from ..queries import get_scored_assessments
 from ..reminders import send_reminders
 from ..scores import (freeze_scores, get_score_calculator,
     get_top_normalized_score, populate_scorecard_cache)
-from ..signals import sample_frozen
 from ..utils import (get_practice_serializer, get_scores_tree, get_score_weight,
     get_unit_freetext, get_unit_verifier_notes)
 from .campaigns import CampaignDecorateMixin
@@ -158,54 +156,21 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
             }
         """
         #pylint:disable=useless-super-delegation
+        self._start_time()
         return super(AssessmentCompleteAPIView, self).post(
             request, *args, **kwargs)
 
+    @property
+    def prefixes(self):
+        if not hasattr(self, '_prefixes'):
+            #pylint:disable=attribute-defined-outside-init
+            self._prefixes = [seg.get('path')
+                for seg in self.segments_available if seg.get('path')]
+        return self._prefixes
 
-    def get_prefixes(self):
-        return [seg.get('path') for seg in self.segments_available
-            if seg.get('path')]
 
-
-    def create(self, request, *args, **kwargs):
-        #pylint:disable=too-many-locals
-        self._start_time()
+    def freeze_sample(self):
         created_at = datetime_or_now()
-
-        if self.sample.is_frozen:
-            raise ValidationError({'detail': _("sample is already frozen")})
-
-        prefixes = self.get_prefixes()
-        if not prefixes:
-            raise ValidationError({'detail':
-                _("You cannot freeze a sample with no answers")})
-
-        # All questions with required answers for which no answer is present.
-        required_unanswered_questions = self.get_required_unanswered_questions(
-            prefixes=prefixes)
-        if required_unanswered_questions.exists():
-            raise ValidationError({'detail': _("You have only answered"\
-" %(nb_required_answers)d of the %(nb_required_questions)d required"\
-" practices. Locate practices with a red vertical bar on the right side"\
-" of the page. Then scroll back up to the section title, click 'Update' under"\
-" the section title. Assess the missing practices, then come back"\
-" to the 'REVIEW' step.") % {
-    'nb_required_answers': self.nb_required_answers,
-    'nb_required_questions': self.nb_required_questions},
-                'results': list(required_unanswered_questions)})
-
-        if not self.force:
-            latest_completed = Sample.objects.filter(
-                is_frozen=True,
-                account=self.sample.account,
-                campaign=self.sample.campaign,
-                extra=self.sample.extra).order_by('created_at').first()
-            if latest_completed:
-                if False and (django_settings.FEATURES_DEBUG and
-                    self.sample.has_identical_answers(latest_completed)):
-                    # XXX This creates confusion for users
-                    raise ValidationError({'detail': _("This sample contains"\
-                    " the same answers has the previously frozen sample.")})
 
         # freeze a verifier notes
         verified_sample = self.verification
@@ -218,10 +183,8 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
             with transaction.atomic():
                 verified_sample.verifier_notes.save()
                 verified_sample.save()
-            serializer = self.get_serializer(
-                instance=verified_sample.verifier_notes)
-            return http.Response(
-                serializer.data, status=http_status.HTTP_201_CREATED)
+
+            return verified_sample.verifier_notes, False
 
         # freeze sample
         frozen_assessment_sample = None
@@ -259,19 +222,12 @@ class AssessmentCompleteAPIView(SectionReportMixin, TimersMixin,
                             segment_path, segment_title)
             self._report_queries("freezing assessment: scorecard cache created")
 
-        # After a sample is frozen, send the signal.
-        sample_frozen.send(sender=self.__class__,
-            sample=frozen_assessment_sample, request=request)
-
         # Next step in the assessment. After complete, scorecard is optional.
-        next_url = reverse('share', args=(
-            frozen_assessment_sample.account, frozen_assessment_sample))
         frozen_assessment_sample.location = self.request.build_absolute_uri(
-            next_url)
+            reverse('share', args=(frozen_assessment_sample.account,
+            frozen_assessment_sample)))
 
-        serializer = self.get_serializer(instance=frozen_assessment_sample)
-        return http.Response(
-            serializer.data, status=http_status.HTTP_201_CREATED)
+        return frozen_assessment_sample, True
 
 
 class AssessmentCompleteIndexAPIView(AssessmentCompleteAPIView):
@@ -499,7 +455,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
           "count": 4,
           "results": [
             {
-              "count": 1,
               "slug": "sustainability",
               "path": "/sustainability",
               "indent": 0,
@@ -526,7 +481,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "governance",
               "path": "/sustainability/governance",
               "indent": 1,
@@ -537,7 +491,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
                   "/sustainability"
                 ]
               },
-              "count": 1,
               "rank": 1,
               "required": false,
               "default_unit": null,
@@ -547,7 +500,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "esg-strategy-heading",
               "path": "/sustainability/governance/esg-strategy-heading",
               "indent": 2,
@@ -567,7 +519,6 @@ class AssessmentContentAPIView(AssessmentContentMixin, QuestionListAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "formalized-esg-strategy",
               "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
               "indent": 3,
@@ -696,7 +647,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
           "count": 4,
           "results": [
             {
-              "count": 1,
               "slug": "sustainability",
               "path": "/sustainability",
               "indent": 0,
@@ -723,7 +673,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "governance",
               "path": "/sustainability/governance",
               "indent": 1,
@@ -743,7 +692,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "esg-strategy-heading",
               "path": "/sustainability/governance/esg-strategy-heading",
               "indent": 2,
@@ -763,7 +711,6 @@ class AssessmentContentIndexAPIView(AssessmentContentAPIView):
               "opportunity": null
             },
             {
-              "count": 1,
               "slug": "formalized-esg-strategy",
               "path": "/sustainability/governance/esg-strategy-heading/formalized-esg-strategy",
               "indent": 3,
@@ -1199,7 +1146,10 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
         .. code-block:: json
 
             {
-              "email": "steve@example.com"
+              "accounts": [{
+                "slug": "steve",
+                "email": "steve@example.com"
+              }]
             }
 
         responds
@@ -1207,7 +1157,10 @@ class PortfolioRequestsSend(AccountMixin, generics.CreateAPIView):
         .. code-block:: json
 
             {
-              "email": "steve@example.com"
+              "accounts": [{
+                "slug": "steve",
+                "email": "steve@example.com"
+              }]
             }
         """
         return self.create(request, *args, **kwargs)

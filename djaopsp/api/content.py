@@ -70,12 +70,14 @@ class PageElementAPIView(ContentAPIMixin, PageElementBaseAPIView):
           "results": [
           {
             "slug": "metal",
+            "lang": "en",
             "path": null,
             "title": "Metal structures & equipment",
             "indent": 0
           },
           {
             "slug": "boxes-and-enclosures",
+            "lang": "en",
             "path": "/metal/boxes-and-enclosures",
             "title": "Boxes & enclosures",
             "indent": 1,
@@ -114,12 +116,14 @@ class PageElementIndexAPIView(ContentAPIMixin, PageElementIndexBaseAPIView):
           "results": [
           {
             "slug": "metal",
+            "lang": "en",
             "path": null,
             "title": "Metal structures & equipment",
             "indent": 0
           },
           {
             "slug": "boxes-and-enclosures",
+            "lang": "en",
             "path": "/metal/boxes-and-enclosures",
             "title": "Boxes & enclosures",
             "indent": 1,
@@ -166,12 +170,16 @@ class PageElementEditableIndexAPIView(PageElementEditableIndexBaseAPIView):
             "results": [
                 {
                     "path": null,
+                    "slug": "construction",
+                    "lang": "en",
                     "title": "Construction",
                     "tags": ["public"],
                     "indent": 0
                 },
                 {
                     "path": null,
+                    "slug": "governance-management",
+                    "lang": "en",
                     "title": "Governance & management",
                     "picture": "https://assets.tspproject.org/management.png",
                     "indent": 1
@@ -179,6 +187,8 @@ class PageElementEditableIndexAPIView(PageElementEditableIndexBaseAPIView):
                 {
                     "path": "/construction/governance/the-assessment\
 -process-is-rigorous",
+                    "slug": "the-assessment-process-is-rigorous",
+                    "lang": "en",
                     "title": "The assessment process is rigorous",
                     "indent": 2,
                     "extra": {
@@ -193,6 +203,8 @@ class PageElementEditableIndexAPIView(PageElementEditableIndexBaseAPIView):
                 },
                 {
                     "path": null,
+                    "slug": "production",
+                    "lang": "en",
                     "title": "Production",
                     "picture": "https://assets.tspproject.org/production.png",
                     "indent": 1
@@ -200,6 +212,8 @@ class PageElementEditableIndexAPIView(PageElementEditableIndexBaseAPIView):
                 {
                     "path": "/construction/production/adjust-air-fuel\
 -ratio",
+                    "slug": "adjust-air-fuel-ratio",
+                    "lang": "en",
                     "title": "Adjust Air fuel ratio",
                     "indent": 2,
                     "extra": {
@@ -217,7 +231,7 @@ class PageElementEditableIndexAPIView(PageElementEditableIndexBaseAPIView):
     """
     account_url_kwarg = 'profile'
 
-    @extend_schema(operation_id='editables_content_index')
+    @extend_schema(operation_id='editables_content_create')
     def post(self, request, *args, **kwargs):
         """
         Creates a page element
