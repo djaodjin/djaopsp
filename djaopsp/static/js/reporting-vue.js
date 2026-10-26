@@ -545,12 +545,6 @@ Vue.component('engage-profiles', {
         },
         requestAssessment: function($event, campaign) {
             var vm = this;
-            if( !vm.useEmailDomain && !vm.isValidEmail ) {
-                showErrorMessages({responseJSON: {
-                    email: ["Enter a valid email address."]}});
-                return;
-            }
-
             function handleError(resp) {
                 var errorResp = resp;
                 var data = resp.data || resp.responseJSON;
