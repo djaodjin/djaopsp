@@ -7,9 +7,9 @@ from pages.api.serializers import (
     NodeElementSerializer as BaseNodeElementSerializer,
     PageElementDetailSerializer as BasePageElementDetailSerializer,
     UserNewsSerializer as UserNewsBaseSerializer)
-from survey.models import PortfolioDoubleOptIn, Sample, Unit
+from survey.models import PortfolioDoubleOptIn, Unit
 from survey.api.serializers import (AccountSerializer, AnswerSerializer,
-    CampaignSerializer, EnumField, ExtraField, SampleSerializer,
+    EnumField, ExtraField, SampleSerializer,
     TableSerializer, UnitSerializer, UnitDetailSerializer)
 from survey.utils import get_account_model
 
@@ -485,22 +485,26 @@ class EngagementSerializer(AccountSerializer):
     def get_api_remove(self, obj):
         api_endpoint = None
         view = self.context.get('view')
+        # `state`, `verification_key` and `grantee_id` will be set by
+        # the query in `get_engagement`.
         if (obj.state == PortfolioDoubleOptIn.OPTIN_REQUEST_INITIATED and
-            view.account == obj.grantee): # XXX expects PortfolioDoubleOptIn
-                                          # While we are having
-                                          # an `AccountSerializer`
+            view.account.pk == obj.grantee_id):
             api_endpoint = reverse('api_portfolios_request_accept',
-                args=(obj.grantee, obj.verification_key,))
-        request = self.context.get('request')
-        if request and api_endpoint:
-            return request.build_absolute_uri(api_endpoint)
+                args=(view.account, obj.verification_key,))
+            request = self.context.get('request')
+            if request:
+                api_endpoint = request.build_absolute_uri(api_endpoint)
         return api_endpoint
 
     def get_score_url(self, obj):
+        url = None
         if hasattr(obj, 'sample') and obj.sample:
-            return reverse('scorecard', args=(
-                self.context['account'], obj.sample))
-        return None
+            view = self.context.get('view')
+            url = reverse('scorecard', args=(view.account, obj.sample))
+            request = self.context.get('request')
+            if request:
+                url = request.build_absolute_uri(url)
+        return url
 
 
 class VerifiedSampleSerializer(serializers.ModelSerializer):

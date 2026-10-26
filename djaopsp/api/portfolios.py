@@ -8,8 +8,7 @@ from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.db.models import F, JSONField, Q, Max, Min, TextField
-from django.db.models.functions import Cast
+from django.db.models import F, Q, Max, Min
 from django.template.defaultfilters import slugify
 from rest_framework import generics, status
 from rest_framework import response as http
@@ -19,8 +18,7 @@ from pages.models import PageElement
 from survey.api.matrix import (CompareAPIView as CompareAPIBaseView,
     MatrixDetailAPIView)
 from survey.api.serializers import MetricsSerializer, SampleBenchmarksSerializer
-from survey.filters import (DateRangeFilter, OrderingFilter, SearchFilter,
-    JSONArraySearchFilter)
+from survey.filters import (DateRangeFilter, OrderingFilter, SearchFilter)
 from survey.helpers import (construct_monthly_periods,
     construct_yearly_periods, construct_weekly_periods, datetime_or_now,
     extra_as_internal, period_less_than)
@@ -28,8 +26,7 @@ from survey.pagination import MetricsPagination
 from survey.api.matrix import (BenchmarkMixin as BenchmarkMixinBase,
     EngagedAccountsMixin, EngagedBenchmarkAPIView)
 from survey.mixins import TimersMixin
-from survey.models import (Campaign, EditableFilter, Portfolio,
-    PortfolioDoubleOptIn, Sample)
+from survey.models import Campaign, EditableFilter, Portfolio, Sample
 from survey.settings import URL_PATH_SEP, DB_PATH_SEP
 from survey.utils import (get_accessible_accounts, get_account_model,
     get_engaged_accounts, get_benchmarks_enumerated)
@@ -947,16 +944,16 @@ class CompareAPIView(CampaignDecorateMixin,
         """
         #pylint:disable=attribute-defined-outside-init
         if not hasattr(self, '_samples'):
-            reporting_accounts = get_accessible_accounts(
+            accounts_queryset = get_accessible_accounts(
                 [self.account], campaign=self.campaign)
             # XXX currently start_at and ends_at have shaky definition in
             #     this context.
-            if reporting_accounts:
+            if accounts_queryset:
                 # Calling `get_latest_frozen_by_accounts` with an `accounts`
                 # arguments evaluating to `False` will return all the latest
                 # frozen samples.
                 self._samples = Sample.objects.get_latest_frozen_by_accounts(
-                    campaign=self.campaign, accounts=reporting_accounts,
+                    campaign=self.campaign, accounts=accounts_queryset,
                     start_at=self.start_at, ends_at=self.ends_at, tags=[])
             else:
                 self._samples = Sample.objects.none()
@@ -1115,11 +1112,11 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
     search_fields = (
         'slug',
         'full_name',
-        'email',
-        'extra_supplier_key_str',
+        'email'
     )
     json_search_fields = (
-        'extra_tags_str',
+        'portfolios__extra__tags',
+        'portfolios__extra__supplier_key',
     )
     ordering_fields = (
         ('created_at', 'created_at'),
@@ -1128,7 +1125,7 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
 
     ordering = ('full_name',)
 
-    filter_backends = (JSONArraySearchFilter, OrderingFilter)
+    filter_backends = (SearchFilter, OrderingFilter)
 
     @property
     def period(self):
@@ -1157,18 +1154,14 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         return context
 
     def get_queryset(self):
-        queryset = get_accessible_accounts(
-            [self.account], campaign=self.campaign)
-        queryset = queryset.annotate(
-            extra_json=Cast('portfolios__extra', output_field=JSONField()),
-            extra_tags_str=Cast('extra_json__tags', TextField()),
-            extra_supplier_key_str=Cast('extra_json__supplier_key', TextField()),
+        accounts_queryset = get_accessible_accounts(
+            [self.account], campaign=self.campaign,
         )
         # XXX Add missing suppliers that are invited but no response yet.
         #     This could be done by creating "dummy" survey_portfolio
         #     where survey_portfolio.ends_at = account.created_at
         #     (query set is `django.db.models.query.QuerySet`)
-        return queryset
+        return accounts_queryset
 
     def as_sample(self, key, requested_by_keys, created_at=None):
         """
@@ -1190,6 +1183,8 @@ class PortfolioAccessibleSamplesMixin(TimersMixin,
         samples_by_account_ids = {}
         samples = []
         if page:
+            #for account in page:
+            #    extra_as_internal(account)
             samples = get_latest_frozen_by_portfolio_by_period(self.campaign,
                 [self.account], period=self.period, accounts=page,
                 start_at=self.start_at, ends_at=self.ends_at,
@@ -1431,12 +1426,19 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
 
     ordering_param = api_settings.ORDERING_PARAM
 
+    # model is `PortfolioDoubleOptin`
     search_fields = (
         'slug',
         'full_name',
-        'email',
+        'email'
+    )
+    json_search_fields = (
+        'portfolios__extra__tags',
+        'portfolios__extra__supplier_key',
+        'portfolio_double_optin_accounts__extra__tags',
     )
     ordering_fields = (
+        ('created_at', 'created_at'),
         ('full_name', 'full_name'),
         ('last_activity_at', 'last_activity_at'),
         # XXX We cannot sort by `last_reminder_at` as these are added
@@ -1479,37 +1481,20 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
             reminder = latest_reminders.get(account.account_id)
             if reminder:
                 account.last_reminder_at = reminder.last_reminder_at
+            # Replace the extra tags by the ones in `PortfolioDoubleOptin`
+            #pylint:disable=protected-access
+            account.extra = account._optin_extra
             # Merge portfolio extra field into account extra field.
-            extra = extras.get((account.grantee_id, account.account_id))
-            if extra:
-                second = extra_as_internal(account)
-                for second_key, second_value in second.items():
-                    if second_key in extra:
-                        if second_key == 'tags':
-                            extra['portfolio_tags'] = extra[second_key]
-                            extra[second_key] = second_value
-                    else:
-                        extra[second_key] = second_value
+            portfolio_extra = extras.get(
+                (account.grantee_id, account.account_id))
+            if portfolio_extra:
+                extra = extra_as_internal(account)
+                for second_key, second_value in portfolio_extra.items():
+                    if second_key == 'tags':
+                        second_key = 'portfolio_tags'
+                    if second_key not in extra:
+                        extra.update({second_key: second_value})
                 account.extra = extra
-        return queryset
-
-    def get_filtering(self):
-        param_states = []
-        params = self.get_query_param('status')
-        if params:
-            if isinstance(params, six.string_types):
-                params = params.split(',')
-            param_states = [param.strip() for param in params]
-        # validate states
-        states = []
-        valid_states = {status[1]
-            for status in humanize.REPORTING_STATUSES}
-        inverted_valid_states = {slugify(val): key
-            for key, val in humanize.REPORTING_STATUSES}
-        for state in param_states:
-            if state in valid_states:
-                states += [inverted_valid_states[state]]
-        return states
 
     def get_ordering(self):
         fields = []
@@ -1534,18 +1519,58 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
         return [self.account]
 
     def get_queryset(self):
-        if not self.requested_accounts:
-            return PortfolioDoubleOptIn.objects.none()
-        queryset = get_engagement(self.campaign, self.requested_accounts,
-            grantees=self.get_grantees(), start_at=self.start_at,
-            ends_at=self.ends_at, filter_by=self.get_filtering(),
-            order_by=self.get_ordering())
+        queryset = get_engaged_accounts([self.account],
+            campaign=self.campaign,
+            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at)
+
+        # Without the addition condition, we are able to guess tags
+        # in other dashboards.
+        if self.json_search_fields and self.search_terms:
+            for field_name in self.json_search_fields:
+                if field_name.startswith('portfolios__extra'):
+                    queryset = queryset.filter(
+                        portfolios__grantee=self.account)
+                    break
+
         return queryset
+
+
+    def filter_queryset(self, queryset):
+        queryset = super(
+            PortfolioEngagementMixin, self).filter_queryset(queryset)
+
+        if not queryset.exists():
+            return get_account_model().objects.none()
+
+        param_states = []
+        params = self.get_query_param('status')
+        if params:
+            if isinstance(params, six.string_types):
+                params = params.split(',')
+            param_states = [param.strip() for param in params]
+        # validate states
+        states = []
+        valid_states = {status[1]
+            for status in humanize.REPORTING_STATUSES}
+        inverted_valid_states = {slugify(val): key
+            for key, val in humanize.REPORTING_STATUSES}
+        for state in param_states:
+            if state in valid_states:
+                states += [inverted_valid_states[state]]
+
+        queryset = get_engagement(self.campaign, queryset,
+            grantees=self.get_grantees(),
+            start_at=self.start_at, ends_at=self.ends_at,
+            filter_by=states, order_by=self.get_ordering())
+
+        return queryset
+
 
     def paginate_queryset(self, queryset):
         page = super(
             PortfolioEngagementMixin, self).paginate_queryset(queryset)
-        return self.decorate_queryset(page if page else queryset)
+        self.decorate_queryset(page if page else queryset)
+        return page
 
 
 class PortfolioEngagementAPIView(PortfolioEngagementMixin,

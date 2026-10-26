@@ -97,6 +97,15 @@
   "fields": {
     "grantee": 7,
     "account": 106,
+    "campaign": 1,
+    "ends_at": "2026-01-03T00:00:00+00:00"
+  },
+  "model": "survey.Portfolio", "pk": 106
+},
+{
+  "fields": {
+    "grantee": 7,
+    "account": 106,
     "state": 0,
     "initiated_by": 10,
     "verification_key": "0000000000000000000000000000000000000106",

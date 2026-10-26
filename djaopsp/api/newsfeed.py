@@ -417,11 +417,12 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                         filter_by=REPORTING_ACCESSIBLE_ANSWERS,
                         activity_starts_at=start_at)
                     for val in queryset:
-                        if campaign in already_posted.get(val.account, []):
+                        account = val
+                        if campaign in already_posted.get(account, []):
                             continue
                         descr = _("*$%(account)s* completed a request"
 " from *$%(grantee)s* to respond to %(campaign)s on %(at_time)s.") % {
-                            'account': val.account,
+                            'account': account,
                             'grantee': grantee,
                             'campaign': campaign.title,
                             'at_time': humanizeDate(val.last_activity_at)}
@@ -440,12 +441,12 @@ class NewsfeedAPIView(VisibilityMixin, NewsfeedBaseAPIView):
                         results += [{
                             'title': _("Completed request for %(campaign)s") % {
                                 'campaign': campaign.title},
-                            'account': val.account,
+                            'account': account,
                             'descr': descr,
                             'view_response_url': view_response_url,
                             'engage_url': engage_url
                         }]
-                        already_posted[val.account].append(campaign.slug)
+                        already_posted[account].append(campaign.slug)
 
             # All completed responses to a questionnaire the profile
             # is interested that have not been previously been covered

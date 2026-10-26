@@ -336,6 +336,7 @@ class ReportMixin(SampleMixin, AccountMixin, TrailMixin):
         Returns a list of groups of questions (i.e. segments) an account
         can answer against based on the answers in the sample.
         """
+        #pylint:disable=too-many-nested-blocks
         if not hasattr(self, '_segments_available'):
             self._segments_available = get_segments_available(self.sample)
             if self.verification_available:
@@ -753,8 +754,16 @@ class AccountsAggregatedQuerysetMixin(AccountsDateRangeMixin):
     @property
     def search_terms(self):
         if not hasattr(self, '_search_terms'):
-            self._search_terms = self.get_query_param('q', None)
+            self._search_terms = self.get_query_param_list(
+                self.request, 'q', None)
         return self._search_terms
+
+    def get_query_param_list(self, request, key, default_value=None):
+        try:
+            return request.query_params.getlist(key, default_value)
+        except AttributeError:
+            pass
+        return request.GET.getlist(key, default_value)
 
     def get_engaged_accounts(self, grantee, aggregate_set=False):
         """
@@ -764,8 +773,7 @@ class AccountsAggregatedQuerysetMixin(AccountsDateRangeMixin):
             grantee = self.account
         return get_engaged_accounts([grantee],
             campaign=self.campaign, aggregate_set=aggregate_set,
-            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at,
-            search_terms=self.search_terms)
+            start_at=self.accounts_start_at, ends_at=self.accounts_ends_at)
 
 
 class AccountsNominativeQuerysetMixin(AccountsAggregatedQuerysetMixin):

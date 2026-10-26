@@ -190,7 +190,7 @@
       </thead>
       <tbody>
         <tr>
-          <td colspan="2">
+          <td colspan="4">
             <form id="invite-search" @submit.prevent="reload()">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
               <div class="input-group input-group-sm">
@@ -214,7 +214,7 @@
               </div>
             </form>{# /#invite-search #}
           </td>
-          <td colspan="4" class="text-end">
+          <td colspan="2" class="text-end">
             <button id="send-invite-example-open"
                     class="btn btn-outline-primary btn-sm align-middle"
                     data-bs-toggle="modal"

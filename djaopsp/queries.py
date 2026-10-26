@@ -33,7 +33,8 @@ def sql_latest_frozen_by_portfolio_by_period(period='yearly',
     To get only the latest sample,
     see `Sample.objects.get_latest_frozen_by_accounts`.
     """
-    #pylint:disable=too-many-arguments,too-many-locals
+    #pylint:disable=too-many-arguments,too-many-positional-arguments
+    #pylint:disable=too-many-locals
     assert isinstance(campaign, Campaign)
     assert bool(grantees)
 
@@ -156,7 +157,7 @@ def get_latest_frozen_by_portfolio_by_period(campaign, grantees,
                                              segment_title="",
                                              exclude_accounts=None,
                                              tags=None):
-    #pylint:disable=too-many-arguments
+    #pylint:disable=too-many-arguments,too-many-positional-arguments
     return Sample.objects.raw(sql_latest_frozen_by_portfolio_by_period(
         period=period, campaign=campaign, start_at=start_at, ends_at=ends_at,
         segment_prefix=segment_prefix, segment_title=segment_title,
@@ -184,7 +185,8 @@ def _get_engagement_sql(campaign=None,
     When `grantees` is specified, the the state will only be
     computed when the sample's account was invited by all `grantees`.
     """
-    #pylint:disable=too-many-arguments,too-many-locals
+    #pylint:disable=too-many-arguments,too-many-positional-arguments
+    #pylint:disable=too-many-locals
     optin_primary_filters_clause = (
         "survey_portfoliodoubleoptin.state IN ("
         " %(optin_request_initiated)d, %(optin_request_accepted)d,"
@@ -419,24 +421,26 @@ ON requests.account_id = last_completed_by_accounts.account_id  AND
    requests.campaign_id = last_completed_by_accounts.campaign_id
 )
 SELECT
-  %(accounts_table)s.slug,
-  %(accounts_table)s.full_name AS printable_name,
-  %(accounts_table)s.extra AS account_extra,
+  %(accounts_table)s.*,
   engaged.id AS id,
   engaged.created_at AS requested_at,
   engaged.sample,
   engaged.sample_id,
   engaged.reporting_status,
   engaged.last_activity_at,
+  -- `state`, `verification_key` and `grantee_id` are required
+  -- by `EngagementSerializer`.
+  engaged.state,
+  engaged.verification_key,
+  engaged.grantee_id,
   engaged.account_id,
   engaged.campaign_id,
-  engaged.grantee_id,
   engaged.initiated_by_id,
-  engaged.extra,
+  engaged.extra as _optin_extra,
   engaged.ends_at AS expires_at
 FROM engaged
 INNER JOIN %(accounts_table)s
-ON engaged.account_id = %(accounts_table)s.id
+  ON engaged.account_id = %(accounts_table)s.id
 %(filter_by_clause)s
 %(order_by_clause)s
 """ % {
@@ -472,8 +476,9 @@ def get_engagement(campaign, accounts,
                    segment_prefix=None, segment_title="",
                    grantees=None, filter_by=None, order_by=None,
                    activity_starts_at=None, activity_ends_at=None):
-    #pylint:disable=too-many-arguments
-    return PortfolioDoubleOptIn.objects.raw(_get_engagement_sql(
+    #pylint:disable=too-many-arguments,too-many-positional-arguments
+    account_model = get_account_model()
+    return account_model.objects.raw(_get_engagement_sql(
         campaign=campaign, start_at=start_at, ends_at=ends_at,
         segment_prefix=segment_prefix, segment_title=segment_title,
         accounts=accounts, grantees=grantees, tags=[],
@@ -493,7 +498,7 @@ def get_coalesce_engagement(campaign, accounts,
     This is done at the expanse of the `reporting_status` field which is
     coalesce to the highest value accross all {grantees}.
     """
-    #pylint:disable=too-many-arguments
+    #pylint:disable=too-many-arguments,too-many-positional-arguments
     account_model = get_account_model()
     if not accounts:
         return account_model.objects.none()
@@ -546,7 +551,7 @@ def get_requested_by_accounts_by_period(campaign, accounts, grantee,
     Returns the most recent double-optin for each year between
     starts_at and ends_at for each account in accounts.
     """
-    #pylint:disable=too-many-arguments
+    #pylint:disable=too-many-arguments,too-many-positional-arguments
     date_range_clause = ""
     if start_at:
         date_range_clause = (
@@ -865,7 +870,8 @@ def _get_scored_assessments_sql(campaign, accounts=None,
                                 scores_of_interest=None, db_path=None,
                                 start_at=None, ends_at=None, expired_at=None,
                                 sort_ordering=None):
-    #pylint:disable=too-many-arguments,too-many-locals
+    #pylint:disable=too-many-arguments,too-many-positional-arguments
+    #pylint:disable=too-many-locals
     # The scores_of_interest do not represent solely segments. They might
     # also represent sections within a segment (see benchmarks API).
     # None-the-less as long as all segments in a survey are scored, this
@@ -961,6 +967,7 @@ ON active_assessments.account_id = frozen.account_id AND
     account_model = get_account_model()
     accounts_clause = ""
     if accounts:
+        account_ids = ""
         if isinstance(accounts, list):
             account_ids = "(%s)" % ','.join([
                 str(account_id) for account_id in accounts])
@@ -1039,7 +1046,7 @@ def get_scored_assessments(campaign, accounts=None,
                            scores_of_interest=None, db_path=None,
                            start_at=None, ends_at=None, expired_at=None,
                            sort_ordering=None):
-    #pylint:disable=too-many-arguments
+    #pylint:disable=too-many-arguments,too-many-positional-arguments
     sql_query = _get_scored_assessments_sql(campaign, accounts=accounts,
         scores_of_interest=scores_of_interest, db_path=db_path,
         start_at=start_at, ends_at=ends_at, expired_at=expired_at,
