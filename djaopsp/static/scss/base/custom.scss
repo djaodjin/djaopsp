@@ -1070,6 +1070,16 @@ a.text-grey{
   }
 }
 
+.scorecard-print-frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1200px;
+  height: 900px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Remove Hyperlinks */
 @media print {
     a:link {
