@@ -3,11 +3,26 @@
 {% block share_content %}
 <div class="container pt-4">
   <div class="bg-body text-body p-4">
-    <div class="row">
-      <div class="col">
-        <a href="{{urls.complete}}">&laquo; {% trans %}Review{% endtrans%}</a>
+    <scorecard-print inline-template scorecard-url="{{urls.complete}}">
+      <div>
+        <div class="row">
+          <div class="col">
+            <a href="{{urls.complete}}">&laquo; {% trans %}Review{% endtrans%}</a>
+          </div>
+          {% if sample.is_frozen %}
+          <div class="col-auto d-print-none">
+            <button id="share-print-btn" type="button" class="btn btn-outline-primary"
+                    @click="printScorecard">
+              <i class="fa-solid fa-file-text"></i>&nbsp;&nbsp;{% trans %}Print (pdf){% endtrans %}
+            </button>
+          </div>
+          {% endif %}
+        </div>
+        <iframe v-if="loadPrintFrame" ref="printFrame"
+                :src="printUrl" title="{% trans %}Print (pdf){% endtrans %}"
+                aria-hidden="true" tabindex="-1" class="scorecard-print-frame"></iframe>
       </div>
-    </div>
+    </scorecard-print>
     <div class="row">
       <div class="col-sm-2 text-center text-sm-end">
         <img class="img-fluid" style="max-height:100px;" src="{% if profile.picture %}{{profile.picture}}{% else %}{{'/static/img/default-organization.png'|asset}}{% endif %}" alt="{% trans %}Profile picture{% endtrans %}">

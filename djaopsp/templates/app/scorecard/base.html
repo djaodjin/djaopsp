@@ -34,23 +34,5 @@
 {% else %}
 <script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
 {% endif %}
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
-function onLoadPrintBtn() {
-    var printBtn = document.getElementById('pdf-print-btn');
-    if( printBtn ) {
-        printBtn.addEventListener("click", function() {
-            window.print();
-        });
-    }
-}
-
-if (document.readyState === "loading") {
-    // The document is still loading, wait for the event
-    document.addEventListener("DOMContentLoaded", onLoadPrintBtn);
-} else {
-    // The DOM is already ready (interactive or complete state)
-    onLoadPrintBtn();
-}
-</script>
 {% block scorecard_scripts %}{% endblock %}
 {% endblock %}

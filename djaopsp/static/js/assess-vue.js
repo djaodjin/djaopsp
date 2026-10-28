@@ -1018,11 +1018,27 @@ Vue.component('scorecard', {
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
             freezeAssessmentDisabled: false,
             verificationStatus: "",
+            autoPrint: new URLSearchParams(window.location.search).get('print') === '1',
             getCompleteCb: 'scorecardLoaded',
             showVsPeers: false
         }
     },
     methods: {
+        printScorecard: function() {
+            var vm = this;
+            if( !vm.printReady ) return;
+            vm.autoPrint = false;
+            vm.$nextTick(function() {
+                Object.values(vm.charts).forEach(function(chart) {
+                    if( chart.stop && chart.update ) {
+                        chart.stop();
+                        chart.update('none');
+                    }
+                });
+                window.focus();
+                window.print();
+            });
+        },
         scorecardLoaded: function() {
             var vm = this;
             vm.buildSummaryChart();
@@ -1250,11 +1266,17 @@ Vue.component('scorecard', {
         },
     },
     computed: {
+        printReady: function() {
+            return this.itemsLoaded && this.chartsLoaded;
+        },
         showScorecardToggle: function() {
             return parseInt(this.scorecardToggle) > 0;
         },
     },
     watch: {
+        printReady: function(ready) {
+            if( ready && this.autoPrint ) this.printScorecard();
+        },
         itemsLoaded: function (val) {
             // This method does not override the implementation
             // in `practicesListMixin`. Instead it runs both alongside each
@@ -1262,6 +1284,33 @@ Vue.component('scorecard', {
             var vm = this;
             vm.verificationStatus = vm.items.verified_status;
         },
+    }
+});
+
+
+/** Component used to print a scorecard from the Share page. */
+Vue.component('scorecard-print', {
+    props: ['scorecardUrl'],
+    data: function() {
+        return {
+            loadPrintFrame: false
+        };
+    },
+    computed: {
+        printUrl: function() {
+            var url = new URL(this.scorecardUrl, window.location.href);
+            url.searchParams.set('print', '1');
+            return url.href;
+        }
+    },
+    methods: {
+        printScorecard: function() {
+            if( this.$refs.printFrame ) {
+                this.$refs.printFrame.contentWindow.location.reload();
+            } else {
+                this.loadPrintFrame = true;
+            }
+        }
     }
 });
 
