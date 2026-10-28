@@ -351,7 +351,6 @@ ASSETS_MAP = {
     ),
 }
 
-ASSETS_CDN = {}
 ASSETS_ROOT = HTDOCS
 
 # Templates engines
