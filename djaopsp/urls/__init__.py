@@ -32,9 +32,10 @@ if settings.DEBUG: #pylint: disable=no-member
     ]
 else:
     urlpatterns = [
+        re_path(r'(?P<path>favicon.ico)',
+            django_static_serve, {'document_root': settings.HTDOCS}),
         re_path(r'%s/(?P<path>static/.*)' % settings.APP_NAME,
-            django_static_serve,
-            {'document_root': settings.HTDOCS}),
+            django_static_serve, {'document_root': settings.HTDOCS}),
         re_path(r'(?P<path>static/.*)', django_static_serve,
             {'document_root': settings.HTDOCS}),
         path(r'%s<path:path>' % settings.MEDIA_URL,
