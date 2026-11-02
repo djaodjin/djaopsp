@@ -52,7 +52,7 @@ sqlparse==0.5.5                   # required by django-debug-toolbar
 
 # To run with API_DEBUG=1
 # static analysis
-pylint==4.0.5
+pylint==4.0.9
 pylint-django==2.7.0
 
 # To generate documentation (Read-the-docs and API reference)
