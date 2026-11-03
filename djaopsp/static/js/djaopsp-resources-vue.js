@@ -739,7 +739,9 @@ var practicesListMixin = {
             return false;
         },
         getPracticeVerifiable: function(row) {
-            if( row._praticeVerifiable ) return row._praticeVerifiable;
+            if( typeof row._praticeVerifiable !== 'undefined' ) {
+                return row._praticeVerifiable;
+            }
 
             var vm = this;
             row._praticeVerifiable = null;
