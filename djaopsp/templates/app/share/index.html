@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-8">
+      <div class="{% if sample.is_frozen %}col-lg-6{% else %}col-md-8{% endif %}">
         {% if not sample.is_frozen %}
         <div class="alert alert-warning mt-4">
           <div>
@@ -94,21 +94,6 @@
                 <hr />
                 <div class="d-flex align-items-center flex-wrap gap-3 mb-3">
                   <span>{% trans %}Send a copy pro-actively to ...{% endtrans %}</span>
-                  <hr class="flex-grow-1 mx-5 my-0 d-none d-xl-block text-muted" aria-hidden="true" />
-                  <div class="ms-auto" v-show="itemsLoaded" v-cloak>
-                    <scorecard-print inline-template scorecard-url="{{urls.complete}}">
-                      <div class="d-flex align-items-center gap-3 d-print-none">
-                        <span class="text-muted">{% trans %}or{% endtrans %}</span>
-                        <button id="share-print-btn" type="button" class="btn btn-primary btn-sm"
-                                @click="printScorecard">
-                          <i class="fa-solid fa-file-text me-2"></i>{% trans %}Print (PDF){% endtrans %}
-                        </button>
-                        <iframe v-if="loadPrintFrame" ref="printFrame"
-                                :src="printUrl" title="{% trans %}Print (PDF){% endtrans %}"
-                                aria-hidden="true" tabindex="-1" class="scorecard-print-frame"></iframe>
-                      </div>
-                    </scorecard-print>
-                  </div>
                 </div>
                 <portfolios-grant-list inline-template
                     ref="grants"
@@ -347,6 +332,34 @@ Thank you.
         </div>
 
       </div>{# /.col-md-8 #}
+      {% if sample.is_frozen %}
+      <div class="col-lg-6 mt-4 d-print-none">
+        <scorecard-print inline-template scorecard-url="{{urls.complete}}">
+          <div class="bg-body-tertiary border rounded p-3">
+            <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+              <h3 class="h5 mb-0">{% trans %}Print preview{% endtrans %}</h3>
+              <button id="share-print-btn" type="button" class="btn btn-primary btn-sm"
+                      :disabled="!printReady" @click="printScorecard">
+                <i class="fa-solid fa-file-text me-2"></i>{% trans %}Print (PDF){% endtrans %}
+              </button>
+            </div>
+            <p class="text-muted" role="status" v-if="!printReady && !previewFailed">
+              {% trans %}Loading print preview…{% endtrans %}
+            </p>
+            <p class="text-danger" role="alert" v-if="previewFailed" v-cloak>
+              {% trans %}The preview could not be loaded. Please reload the page to try again.{% endtrans %}
+            </p>
+            <div ref="previewContainer" class="scorecard-preview-container border rounded">
+              <iframe ref="printFrame" :src="previewUrl" @load="frameLoaded = true"
+                      @scorecard-ready="scorecardReady = $event.detail"
+                      :style="{transform: 'scale(' + previewScale + ')'}"
+                      title="{% trans %}Print preview{% endtrans %}"
+                      class="scorecard-print-frame"></iframe>
+            </div>
+          </div>
+        </scorecard-print>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>

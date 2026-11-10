@@ -1,5 +1,7 @@
 {% extends "app/base.html" %}
 
+{% block body_classes %}{% if request.GET.get('preview') == '1' %} class="scorecard-preview"{% endif %}{% endblock %}
+
 {% block app_left_sidebar_toggle %}
 <button class="me-2 sidebar-toggle btn btn-secondary"
         disabled data-target="#app-toolbar-left">

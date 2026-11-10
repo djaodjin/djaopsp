@@ -1018,24 +1018,24 @@ Vue.component('scorecard', {
             summaryPerformance: this.$summary_performance ? this.$summary_performance : [],
             freezeAssessmentDisabled: false,
             verificationStatus: "",
-            autoPrint: new URLSearchParams(window.location.search).get('print') === '1',
             getCompleteCb: 'scorecardLoaded',
             showVsPeers: false
         }
     },
     methods: {
+        preparePrintCharts: function() {
+            Object.values(this.charts).forEach(function(chart) {
+                if( chart.stop && chart.update ) {
+                    chart.stop();
+                    chart.update('none');
+                }
+            });
+        },
         printScorecard: function() {
             var vm = this;
             if( !vm.printReady ) return;
-            vm.autoPrint = false;
             vm.$nextTick(function() {
-                Object.values(vm.charts).forEach(function(chart) {
-                    if( chart.stop && chart.update ) {
-                        chart.stop();
-                        chart.update('none');
-                    }
-                });
-                window.focus();
+                vm.preparePrintCharts();
                 window.print();
             });
         },
@@ -1274,8 +1274,16 @@ Vue.component('scorecard', {
         },
     },
     watch: {
-        printReady: function(ready) {
-            if( ready && this.autoPrint ) this.printScorecard();
+        printReady: function() {
+            var frame = window.frameElement;
+            if( frame ) {
+                var vm = this;
+                vm.$nextTick(function() {
+                    if( vm.printReady ) vm.preparePrintCharts();
+                    frame.dispatchEvent(new CustomEvent(
+                        'scorecard-ready', {detail: vm.printReady}));
+                });
+            }
         },
         itemsLoaded: function (val) {
             // This method does not override the implementation
@@ -1288,29 +1296,57 @@ Vue.component('scorecard', {
 });
 
 
-/** Component used to print a scorecard from the Share page. */
+/** Component used to preview and print a scorecard from the Share page. */
 Vue.component('scorecard-print', {
     props: ['scorecardUrl'],
     data: function() {
         return {
-            loadPrintFrame: false
+            frameLoaded: false,
+            scorecardReady: false,
+            previewFailed: false,
+            previewScale: 1,
+            previewTimeout: null,
+            previewObserver: null
         };
     },
     computed: {
-        printUrl: function() {
+        printReady: function() {
+            return this.frameLoaded && this.scorecardReady && !this.previewFailed;
+        },
+        previewUrl: function() {
             var url = new URL(this.scorecardUrl, window.location.href);
-            url.searchParams.set('print', '1');
+            url.searchParams.set('preview', '1');
             return url.href;
         }
     },
     methods: {
+        resizePreview: function() {
+            this.previewScale = this.$refs.previewContainer.clientWidth /
+                this.$refs.printFrame.offsetWidth;
+        },
         printScorecard: function() {
-            if( this.$refs.printFrame ) {
-                this.$refs.printFrame.contentWindow.location.reload();
-            } else {
-                this.loadPrintFrame = true;
-            }
+            if( !this.printReady ) return;
+            var frame = this.$refs.printFrame.contentWindow;
+            frame.print();
         }
+    },
+    watch: {
+        printReady: function(ready) {
+            if( ready ) window.clearTimeout(this.previewTimeout);
+        }
+    },
+    mounted: function() {
+        var vm = this;
+        vm.resizePreview();
+        vm.previewObserver = new ResizeObserver(vm.resizePreview);
+        vm.previewObserver.observe(vm.$refs.previewContainer);
+        vm.previewTimeout = window.setTimeout(function() {
+            if( !vm.printReady ) vm.previewFailed = true;
+        }, 60000);
+    },
+    beforeDestroy: function() {
+        this.previewObserver.disconnect();
+        window.clearTimeout(this.previewTimeout);
     }
 });
 
