@@ -1,0 +1,11 @@
+# Wheels with native code
+#
+# These have C/C++ components. They could be installed through the Linux
+# distribution package mananager, as binary through pip, or compiled through
+# pip (requires native headers and libraries).
+
+cairocffi==1.7.1                  # >=1.3.0 not available with Py36?
+coverage==6.5.0                   # 7.15.4 leads to a "No Data recorded" issue
+                                  # >=6.3.2 not available with Py36?
+psycopg2-binary==2.9.12
+setproctitle==1.3.7

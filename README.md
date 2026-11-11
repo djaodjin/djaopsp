@@ -53,7 +53,7 @@ vendor prerequisite packages and build the static assets.
 <pre><code>
     $ python -m venv .venv
     $ source .venv/bin/activate
-    $ pip install -r requirements.txt
+    $ pip install -r requirements-native.txt -r requirements.txt
     $ make vendor-assets-prerequisites
     $ make install-conf
     $ make build-assets
