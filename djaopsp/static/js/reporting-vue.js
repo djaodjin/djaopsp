@@ -420,6 +420,7 @@ Vue.component('engage-profiles', {
         },
         reload: function() {
             var vm = this;
+            vm.resetPage();
             vm.lastGetParams = vm.getParams();
             var typeaheadQueryString =
                 '?o=full_name&q_f=full_name';
