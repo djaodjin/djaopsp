@@ -97,23 +97,51 @@ class PracticesSpreadsheetView(TimersMixin, QuestionListAPIView):
         if ref_num:
             title = "%s %s" % (ref_num, title)
 
-        default_unit = entry.get('default_unit', {})
-        if default_unit:
+        unit = None
+        answers = entry.get('answers')
+        if answers:
+            # Implementation note: We assume here that `attach_answers` will
+            # have ordered answers such that the primary answer is at index 0.
             try:
-                default_unit_system = default_unit.system
-                default_unit_title = default_unit.title
+                unit = answers[0].unit
             except AttributeError:
-                default_unit_system = default_unit.get('system')
-                default_unit_title = default_unit.get('title')
-            if default_unit_system in Unit.NUMERICAL_SYSTEMS:
-                title += " (in %s)" % default_unit_title
+                unit = answers[0].get('unit')
+        if not unit:
+            unit = entry.get('default_unit', {})
+
+        if unit:
+            try:
+                unit_slug = unit.slug
+                unit_system = unit.system
+                unit_title = unit.title
+            except AttributeError:
+                unit_slug = unit.get('slug')
+                unit_system = unit.get('system')
+                unit_title = unit.get('title')
+            if unit_system in Unit.NUMERICAL_SYSTEMS:
+                title += " (in %s)" % unit_title
             else:
                 subtitle = ""
+                # The framework unit has a description for each choice
+                # ('Not addressed', 'Initiating', 'Progressing', 'Optimizing',
+                # 'Leading', 'Transforming') which is based on the question.
+                # That description will only have been populated in
+                # `entry['default_unit']`.
+                default_unit = entry.get('default_unit', {})
                 try:
-                    default_unit_choices = default_unit.choices
+                    default_unit_slug = default_unit.slug
                 except AttributeError:
-                    default_unit_choices = default_unit.get('choices', [])
-                for choice in default_unit_choices:
+                    default_unit_slug = default_unit.get('slug')
+                choice_unit = (default_unit
+                    if unit_slug == default_unit_slug else unit)
+                try:
+                    unit_choices = choice_unit['choices']
+                except (KeyError, TypeError):
+                    try:
+                        unit_choices = choice_unit.choices
+                    except AttributeError:
+                        unit_choices = []
+                for choice in unit_choices:
                     try:
                         text = choice.text.strip() if choice.text else ""
                         descr = choice.descr.strip() if choice.descr else ""

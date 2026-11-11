@@ -67,6 +67,9 @@ class AssessPracticesXLSXView(SectionReportMixin, CampaignDecorateMixin,
     def format_row(self, entry, key=None):
         #pylint:disable=too-many-locals
         default_unit = entry.get('default_unit', {})
+        # `answers` has been ordered by `attach_answers`, called
+        # in `SampleAnswersMixin.get_questions_by_key`, such that
+        # the primary answer is at index 0.
         answers = entry.get('answers')
         primary_assessed = None
         primary_planned = None
@@ -98,8 +101,8 @@ class AssessPracticesXLSXView(SectionReportMixin, CampaignDecorateMixin,
                         if unit.slug == default_unit_slug:
                             primary_assessed = answer.get('measured')
                             continue
-                        # XXX if we don't convert, we should write the correct
-                        #     unit in the row header.
+                        # We don't convert, and rely on `_get_row_header`
+                        # to write the correct unit in the row header.
                         if UnitEquivalences.objects.filter(source=unit,
                                 target__slug=default_unit_slug).exists():
                             primary_assessed = answer.get('measured')
