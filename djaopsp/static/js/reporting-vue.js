@@ -133,7 +133,7 @@ var portfolioTagsMixin = {
                     vm.toggleEditProfileKey(vm.showEditProfileKey);
                 }
                 vm.showEditTags = toggledIdx;
-                var inputEl = vm.$refs.tagsInput[toggledIdx];
+                var inputEl = vm.$refs['tagsInput-' + entry.slug][0];
                 inputEl.value = entry.extra?.tags?.join(',') || '';
                 vm.tagsTagify = new Tagify(inputEl, {
                     whitelist: vm.tagChoices,
