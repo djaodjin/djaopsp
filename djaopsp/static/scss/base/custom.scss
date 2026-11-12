@@ -1070,8 +1070,85 @@ a.text-grey{
   }
 }
 
+.scorecard-preview-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 210 / 297; // A4 portrait proportions.
+  overflow: hidden;
+  background: white;
+}
+
+.scorecard-print-frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1200px;
+  height: auto;
+  aspect-ratio: 210 / 297;
+  transform-origin: top left;
+  border: 0;
+}
+
+.scorecard-chart-placeholder {
+  height: 150px;
+  max-width: 300px;
+  background: #eee;
+}
+
+.scorecard-preview {
+  background: white;
+  color: black;
+
+  #wrap,
+  #main {
+    min-height: 0;
+    padding: 0;
+  }
+
+  .dashboard-container {
+    float: none;
+  }
+
+  .dashboard-pane-sidebar,
+  .dashboard-pane-pinned {
+    display: block;
+  }
+
+  #wrap .dashboard-content {
+    width: 100%;
+    margin: 0;
+  }
+
+  .content-area-container {
+    background: white;
+    color: black;
+    min-height: 0;
+  }
+
+  #app {
+    margin-bottom: 0 !important;
+  }
+
+  .scorecard-chart-placeholder,
+  #details .progress {
+    background: transparent;
+  }
+
+  .d-print-none,
+  #messages,
+  .fullviewport,
+  .modal,
+  .header-anchor {
+    display: none !important;
+  }
+}
+
 /* Remove Hyperlinks */
 @media print {
+    .scorecard-chart-placeholder,
+    #details .progress {
+        background: transparent;
+    }
     a:link {
         border-bottom: none !important;
         text-decoration: none !important;

@@ -686,7 +686,8 @@ body{
     border-top-color: $dashboard-sidebar-color;
 }
 
-.dashboard-nav-footer .footer-links a {
+.dashboard-nav-footer .footer-links a,
+.dashboard-nav-footer .footer-copyright a {
     color: $dashboard-sidebar-color;
 }
 
