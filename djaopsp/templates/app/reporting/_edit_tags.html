@@ -9,7 +9,7 @@
   </div>
 
   <div v-show="showEditTags === index" @keydown.esc="cancelEditTags(index)" class="mt-1" style="cursor:text;">
-    <input class="form-control" ref="tagsInput"
+    <input class="form-control" :ref="'tagsInput-' + entry.slug"
            placeholder="{% trans %}add tags ...{% endtrans %}" />
   </div>
 </div>
