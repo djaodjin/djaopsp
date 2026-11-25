@@ -256,7 +256,17 @@ LOGGING = {
         },
         'survey': {
             'handlers': [],
-            'level': 'INFO',  # shows detailed timing information
+            'level': 'INFO',  # DEBUG shows detailed timing information
+        },
+        # Remove "Fetching and parsing CSS - CSS string" messages introduced
+        # in WeasyPrint>=70.0.
+        'weasyprint.progress': {
+            'handlers': [],
+            'level': 'ERROR',
+        },
+        'weasyprint': {
+            'handlers': [],
+            'level': 'INFO',
         },
         'django.request': {
             'handlers': [],
