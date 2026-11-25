@@ -217,11 +217,6 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
                 slug="%s-verified" % self.campaign).exists(),
             'planned_exists': get_extra(self.campaign, 'is_planned')
         })
-        if self.campaign.slug.endswith('-verified'):
-            update_context_urls(context, {
-                'api_portfolio_responses': reverse(
-                    'api_verifications', args=(self.account, self.campaign)),
-            })
 
         update_context_urls(context, {
             'api_activities_base': site_url("/api/activities"),
@@ -261,6 +256,15 @@ class PortfolioEngagementView(UpdatedMenubarMixin, DashboardMixin,
                 args=(self.account, self.campaign)),
             'help': site_url("/docs/guides/djaopsp/engage/")
         })
+
+        if self.campaign.slug.endswith('-verified'):
+            update_context_urls(context, {
+                'api_portfolio_responses': reverse(
+                    'api_verifications', args=(self.account, self.campaign)),
+                'download': reverse(
+                    'completed_assessments_download', args=(self.account,))
+            })
+
         return context
 
 

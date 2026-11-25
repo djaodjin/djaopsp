@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
+from django.conf import settings as django_settings
 from django.db import connection
 from django.db.models import F, Q, Max, Min
 from django.template.defaultfilters import slugify
@@ -701,6 +702,15 @@ class CompletedAssessmentsMixin(AccountMixin):
                 printable_name=F('account__full_name'),
                 email=F('account__email'),
                 segment=F('campaign__title')).select_related('verified')
+
+        is_broker = False
+        site = self.request.session.get('site')
+        if site:
+            is_broker = bool(self.account.slug == django_settings.BROKER_NAME)
+        if not is_broker:
+            queryset = queryset.filter(
+                verified__verifier_notes__account=self.account)
+
         return queryset
 
 
@@ -1433,8 +1443,8 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
         'email'
     )
     json_search_fields = (
-        'portfolios__extra__tags',
-        'portfolios__extra__supplier_key',
+        '_portfolios__extra__tags',          # relies on `get_engaged_acounts`
+        '_portfolios__extra__supplier_key',  # creating the '_portfolios' name
         'portfolio_double_optin_accounts__extra__tags',
     )
     ordering_fields = (
@@ -1522,16 +1532,6 @@ class PortfolioEngagementMixin(AccountsNominativeQuerysetMixin):
         queryset = get_engaged_accounts([self.account],
             campaign=self.campaign,
             start_at=self.accounts_start_at, ends_at=self.accounts_ends_at)
-
-        # Without the addition condition, we are able to guess tags
-        # in other dashboards.
-        if self.json_search_fields and self.search_terms:
-            for field_name in self.json_search_fields:
-                if field_name.startswith('portfolios__extra'):
-                    queryset = queryset.filter(
-                        portfolios__grantee=self.account)
-                    break
-
         return queryset
 
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2025, DjaoDjin inc.
+# Copyright (c) 2026, DjaoDjin inc.
 # All rights reserved.
 
 """
@@ -20,7 +20,7 @@ from survey.queries import sql_frozen_answers
 from survey.settings import DB_PATH_SEP
 from survey.utils import get_account_model, get_question_model
 
-from ...queries import get_engagement
+from ...queries import _get_engagement_sql
 from ...utils import get_account_model
 
 
@@ -137,7 +137,8 @@ class Command(BaseCommand):
     def check_completed_notshared(self, show=False):
         for campaign in Campaign.objects.all():
             count = 0
-            queryset = get_engagement(campaign, accounts=None)
+            queryset = PortfolioDoubleOptIn.objects.raw(
+                _get_engagement_sql(campaign=campaign))
             for val in queryset:
                 slug = val.account.slug
                 reporting_status = val.reporting_status

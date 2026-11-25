@@ -418,6 +418,16 @@ Vue.component('engage-profiles', {
             return (typeof item.reporting_status === 'undefined') ||
                 item.reporting_status === null;
         },
+        refresh: function() {
+            var vm = this;
+            if( vm.$refs.completionRate ) {
+                vm.$refs.completionRate.get();
+            }
+            if( vm.$refs.completionTotal ) {
+                vm.$refs.completionTotal.get();
+            }
+            vm.reload();
+        },
         reload: function() {
             var vm = this;
             vm.resetPage();

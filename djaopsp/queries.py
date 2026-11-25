@@ -334,13 +334,11 @@ ON latest_samples.account_id = survey_portfolio.account_id AND
                                       -- 'completed-notshared' in same queryset
 WHERE (survey_portfolio.campaign_id IS NULL OR
        survey_portfolio.campaign_id = latest_samples.campaign_id)
-    AND (requests.ends_at IS NULL OR
-       latest_samples.created_at < requests.ends_at)
     AND (latest_samples.created_at > requests.created_at OR
        survey_portfolio.ends_at > requests.created_at)
 ),
 verified_by_accounts AS (
-SELECT
+SELECT DISTINCT  -- multiple verifications of the same sample
   completed_by_accounts.account_id,
   completed_by_accounts.id,
   completed_by_accounts.slug,
