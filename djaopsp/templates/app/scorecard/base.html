@@ -1,5 +1,7 @@
 {% extends "app/base.html" %}
 
+{% block body_classes %}{% if request.GET.get('preview') == '1' %} class="scorecard-preview"{% endif %}{% endblock %}
+
 {% block app_left_sidebar_toggle %}
 <button class="me-2 sidebar-toggle btn btn-secondary"
         disabled data-target="#app-toolbar-left">
@@ -34,23 +36,5 @@
 {% else %}
 <script type="text/javascript" src="{{'/static/cache/assess.js'|asset}}"></script>
 {% endif %}
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
-function onLoadPrintBtn() {
-    var printBtn = document.getElementById('pdf-print-btn');
-    if( printBtn ) {
-        printBtn.addEventListener("click", function() {
-            window.print();
-        });
-    }
-}
-
-if (document.readyState === "loading") {
-    // The document is still loading, wait for the event
-    document.addEventListener("DOMContentLoaded", onLoadPrintBtn);
-} else {
-    // The DOM is already ready (interactive or complete state)
-    onLoadPrintBtn();
-}
-</script>
 {% block scorecard_scripts %}{% endblock %}
 {% endblock %}

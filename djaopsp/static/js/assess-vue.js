@@ -1023,6 +1023,22 @@ Vue.component('scorecard', {
         }
     },
     methods: {
+        preparePrintCharts: function() {
+            Object.values(this.charts).forEach(function(chart) {
+                if( chart.stop && chart.update ) {
+                    chart.stop();
+                    chart.update('none');
+                }
+            });
+        },
+        printScorecard: function() {
+            var vm = this;
+            if( !vm.printReady ) return;
+            vm.$nextTick(function() {
+                vm.preparePrintCharts();
+                window.print();
+            });
+        },
         scorecardLoaded: function() {
             var vm = this;
             vm.buildSummaryChart();
@@ -1250,11 +1266,25 @@ Vue.component('scorecard', {
         },
     },
     computed: {
+        printReady: function() {
+            return this.itemsLoaded && this.chartsLoaded;
+        },
         showScorecardToggle: function() {
             return parseInt(this.scorecardToggle) > 0;
         },
     },
     watch: {
+        printReady: function() {
+            var frame = window.frameElement;
+            if( frame ) {
+                var vm = this;
+                vm.$nextTick(function() {
+                    if( vm.printReady ) vm.preparePrintCharts();
+                    frame.dispatchEvent(new CustomEvent(
+                        'scorecard-ready', {detail: vm.printReady}));
+                });
+            }
+        },
         itemsLoaded: function (val) {
             // This method does not override the implementation
             // in `practicesListMixin`. Instead it runs both alongside each
@@ -1262,6 +1292,61 @@ Vue.component('scorecard', {
             var vm = this;
             vm.verificationStatus = vm.items.verified_status;
         },
+    }
+});
+
+
+/** Component used to preview and print a scorecard from the Share page. */
+Vue.component('scorecard-print', {
+    props: ['scorecardUrl'],
+    data: function() {
+        return {
+            frameLoaded: false,
+            scorecardReady: false,
+            previewFailed: false,
+            previewScale: 1,
+            previewTimeout: null,
+            previewObserver: null
+        };
+    },
+    computed: {
+        printReady: function() {
+            return this.frameLoaded && this.scorecardReady && !this.previewFailed;
+        },
+        previewUrl: function() {
+            var url = new URL(this.scorecardUrl, window.location.href);
+            url.searchParams.set('preview', '1');
+            return url.href;
+        }
+    },
+    methods: {
+        resizePreview: function() {
+            this.previewScale = this.$refs.previewContainer.clientWidth /
+                this.$refs.printFrame.offsetWidth;
+        },
+        printScorecard: function() {
+            if( !this.printReady ) return;
+            var frame = this.$refs.printFrame.contentWindow;
+            frame.print();
+        }
+    },
+    watch: {
+        printReady: function(ready) {
+            if( ready ) window.clearTimeout(this.previewTimeout);
+        }
+    },
+    mounted: function() {
+        var vm = this;
+        vm.resizePreview();
+        vm.previewObserver = new ResizeObserver(vm.resizePreview);
+        vm.previewObserver.observe(vm.$refs.previewContainer);
+        vm.previewTimeout = window.setTimeout(function() {
+            if( !vm.printReady ) vm.previewFailed = true;
+        }, 60000);
+    },
+    beforeDestroy: function() {
+        this.previewObserver.disconnect();
+        window.clearTimeout(this.previewTimeout);
     }
 });
 
