@@ -122,8 +122,7 @@
                           <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
-                      <div class="text-center d-flex align-items-center"
-                           style="height:150px;max-width:300px;background:#eee;"
+                      <div class="scorecard-chart-placeholder text-center d-flex align-items-center"
                            v-if="chartsAvailable && !isChartAvailable('/summary' + practice.path)">
                         <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
                       </div>
@@ -155,8 +154,7 @@
                           <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
-                      <div class="text-center d-flex align-items-center"
-                           style="height:150px;max-width:300px;background:#eee;"
+                      <div class="scorecard-chart-placeholder text-center d-flex align-items-center"
                            v-if="chartsAvailable && !isChartAvailable('/summary/sub' + subheading.path)">
                         <div class="box">There is not enough data available to benchmark with peers.</div>
                       </div>
@@ -199,7 +197,7 @@
                   <span class="title">[[practice.title]]</span><a :href="'#' + getPracticeId(practice)" class="header-anchor" aria-label="anchor"><i class="fa-solid fa-link"></i></a>
                 </div>
                 {% if not sample.is_frozen %}
-                <div class="row">
+                <div class="row d-print-none">
                   <div class="col-md-6 text-start">
                     <a :href="'{{urls.assess_base}}' + practice.slug + '/'">{% trans %}Update{% endtrans %}</a>
                   </div>
@@ -226,8 +224,7 @@
                           <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
-                      <div class="text-center d-flex align-items-center"
-                           style="height:150px;max-width:300px;background:#eee;"
+                      <div class="scorecard-chart-placeholder text-center d-flex align-items-center"
                            v-if="chartsAvailable && !isChartAvailable('/details' + practice.path)">
                         <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
                       </div>
@@ -259,8 +256,7 @@
                           <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
-                      <div class="text-center d-flex align-items-center"
-                           style="height:150px;max-width:300px;background:#eee;"
+                      <div class="scorecard-chart-placeholder text-center d-flex align-items-center"
                            v-if="chartsAvailable && !isChartAvailable('/summary/sub' + subheading.path)">
                         <div class="box">There is not enough data available to benchmark with peers.</div>
                       </div>
@@ -300,8 +296,7 @@
                           <i class="fa-solid fa-refresh fa-spin fa-2x"></i>
                         </div>
                       </div>
-                      <div class="text-center d-flex align-items-center"
-                           style="height:150px;max-width:300px;background:#eee;"
+                      <div class="scorecard-chart-placeholder text-center d-flex align-items-center"
                            v-if="chartsAvailable && !isChartAvailable(practice.path)">
                         <div class="box">{% trans %}There is not enough data available to benchmark with peers.{% endtrans %}</div>
                       </div>
